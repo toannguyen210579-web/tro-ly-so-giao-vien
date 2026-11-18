@@ -82,6 +82,37 @@ s=open(p,encoding='utf-8').read()
 s=re.sub(r'(<key>CFBundleDisplayName</key>\s*<string>)[^<]*(</string>)',r'\g<1>Trợ lý số GV\g<2>',s)
 open(p,'w',encoding='utf-8').write(s)
 PY
+# Thông báo nhắc hạn (flutter_local_notifications): quyền, bộ nhận lịch nhắc, desugaring.
+if [ -f "$MF" ] && ! grep -q POST_NOTIFICATIONS "$MF"; then
+  /usr/bin/env python3 - "$MF" <<'PY'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+s=s.replace('<application', '<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>\n    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>\n    <application', 1)
+rc='''        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
+        <receiver android:exported="false" android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+            </intent-filter>
+        </receiver>
+    </application>'''
+s=s.replace('    </application>', rc, 1)
+open(p,'w',encoding='utf-8').write(s)
+PY
+fi
+G=android/app/build.gradle.kts
+if [ -f "$G" ] && ! grep -q "isCoreLibraryDesugaringEnabled" "$G"; then
+  /usr/bin/env python3 - "$G" <<'PY'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+s=s.replace('compileOptions {', 'compileOptions {\n        isCoreLibraryDesugaringEnabled = true', 1)
+s=s.rstrip()+'\n\ndependencies {\n    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")\n}\n'
+open(p,'w',encoding='utf-8').write(s)
+PY
+fi
+
 # Ký bản release bằng khóa thử nghiệm cố định (tool/khoa_thu.jks) để cài đè được các bản sau.
 # Trước khi đưa lên Google Play sẽ thay bằng khóa tải lên chính thức.
 G=android/app/build.gradle.kts

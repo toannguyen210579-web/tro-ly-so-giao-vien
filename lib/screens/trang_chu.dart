@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../data/tien_ich.dart';
 import '../main.dart';
+import '../data/lich.dart';
 import 'bieu_tuong.dart';
+import 'lich_nhac_han.dart';
 import 'chu_chay.dart';
 import 'dieu_huong.dart';
 import 'tai_khoan.dart';
@@ -193,22 +195,33 @@ class _TrangChuState extends State<TrangChu> {
   }
 
   Widget _theHan() {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      child: ListTile(
-        onTap: () => moTienIch(context, timTheoMa('lich')),
-        leading: Container(
-          width: 40,
-          height: 40,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: const Color(0xFFFDECEC), borderRadius: BorderRadius.circular(10)),
-          child: const Text('HẠN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFA3241C))),
-        ),
-        title: const Text('Chưa có việc sắp đến hạn', style: TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: const Text('Lịch công tác'),
-        trailing: const Icon(Icons.chevron_right),
-      ),
+    return FutureBuilder<ViecHan?>(
+      future: viecSapDenHan(),
+      builder: (context, snap) {
+        final v = snap.data;
+        return Material(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          child: ListTile(
+            onTap: () async {
+              await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const LichNhacHan()));
+              if (mounted) setState(() {});
+            },
+            leading: Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(color: const Color(0xFFFDECEC), borderRadius: BorderRadius.circular(10)),
+              child: const Text('HẠN', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: Color(0xFFA3241C))),
+            ),
+            title: Text(v == null ? 'Chưa có việc sắp đến hạn' : v.ten,
+                maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+            subtitle: Text(v == null ? 'Bấm để thêm việc vào Lịch công tác' : '${conBaoLau(v.han)} · ${v.han.day}/${v.han.month}/${v.han.year}'),
+            trailing: const Icon(Icons.chevron_right),
+          ),
+        );
+      },
     );
   }
+
 }
