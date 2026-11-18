@@ -29,4 +29,15 @@ for G in android/app/build.gradle android/app/build.gradle.kts; do
     sed -i.bak -E 's/minSdk( =|) *flutter\.minSdkVersion/minSdk\1 21/' "$G" && rm -f "$G.bak"
   fi
 done
+# Lint của Android bị lỗi nội bộ khi phân tích plugin image_picker (NoSuchMethodError),
+# không liên quan mã của app: tắt bước lintVital khi đóng gói bản release.
+for G in android/build.gradle.kts android/build.gradle; do
+  if [ -f "$G" ] && ! grep -q "lintVital" "$G"; then
+    if [[ "$G" == *.kts ]]; then
+      printf '\nsubprojects {\n    tasks.matching { it.name.contains("lintVital") }.configureEach { enabled = false }\n}\n' >> "$G"
+    else
+      printf '\nsubprojects {\n    tasks.matching { it.name.contains("lintVital") }.configureEach { enabled = false }\n}\n' >> "$G"
+    fi
+  fi
+done
 echo "Da chuan bi xong."
