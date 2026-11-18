@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../data/tien_ich.dart';
 import 'anh_the.dart';
+import 'cham_trac_nghiem.dart';
+import 'hop_bien_ban.dart';
 import 'hoi_tro_ly.dart';
 import 'nhan_phu_huynh.dart';
 import 'nhan_xet.dart';
 import 'quet_pdf.dart';
 import 'sap_co.dart';
+import 'so_minh_chung.dart';
 import 'xem_them.dart';
 
 /// Mở một tiện ích. Tiện ích nào đã làm xong thì thêm vào đây.
@@ -21,6 +24,12 @@ void moTienIch(BuildContext context, TienIch t) {
       man = const QuetPdf();
     case 'anh_the':
       man = const AnhThe();
+    case 'hop':
+      man = const HopBienBan();
+    case 'minh_chung':
+      man = const SoMinhChung();
+    case 'cham_tn':
+      man = const ChamTracNghiem();
     default:
       man = SapCo(tienIch: t);
   }

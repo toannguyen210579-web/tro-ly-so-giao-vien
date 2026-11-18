@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/tien_ich.dart';
 import '../main.dart';
+import 'chu_chay.dart';
 import 'dieu_huong.dart';
 
 /// Danh sách đủ các tiện ích, chia hai nhóm Hành chính và Chuyên môn.
@@ -35,7 +36,7 @@ class XemThem extends StatelessWidget {
           crossAxisCount: 4,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 0.82,
+          childAspectRatio: 0.72,
           children: [
             for (final t in ds)
               InkWell(
@@ -55,6 +56,11 @@ class XemThem extends StatelessWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(t.ten, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+                    const SizedBox(height: 2),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: ChuChay(t.moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),
+                    ),
                   ],
                 ),
               ),

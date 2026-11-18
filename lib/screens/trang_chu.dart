@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/tien_ich.dart';
 import '../main.dart';
+import 'chu_chay.dart';
 import 'dieu_huong.dart';
 
 class TrangChu extends StatefulWidget {
@@ -152,15 +153,15 @@ class _TrangChuState extends State<TrangChu> {
         ),
         Row(
           children: [
-            for (final t in ds) Expanded(child: _o1(t.ten, t.bieuTuong, nenO, mau, () => moTienIch(context, t))),
-            Expanded(child: _o1('Khác', Icons.apps, const Color(0xFFEEF1F5), MauApp.chuPhu, () => moXemThem(context))),
+            for (final t in ds) Expanded(child: _o1(t.ten, t.bieuTuong, nenO, mau, () => moTienIch(context, t), moTa: t.moTa)),
+            Expanded(child: _o1('Khác', Icons.apps, const Color(0xFFEEF1F5), MauApp.chuPhu, () => moXemThem(context), moTa: 'Xem đủ 15 tiện ích')),
           ],
         ),
       ],
     );
   }
 
-  Widget _o1(String ten, IconData icon, Color nen, Color mau, VoidCallback bam) {
+  Widget _o1(String ten, IconData icon, Color nen, Color mau, VoidCallback bam, {String? moTa}) {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: bam,
@@ -176,6 +177,10 @@ class _TrangChuState extends State<TrangChu> {
             ),
             const SizedBox(height: 6),
             Text(ten, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            if (moTa != null) ...[
+              const SizedBox(height: 2),
+              ChuChay(moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),
+            ],
           ],
         ),
       ),

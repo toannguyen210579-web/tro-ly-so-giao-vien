@@ -4,9 +4,9 @@
 // - Nhận báo cáo nội dung AI (Google Play bắt buộc).
 
 const MO_HINH = "claude-haiku-5-5";
-const GIOI_HAN = { hoi: 5, nhan_xet: 30, tin_ph: 20 }; // số lượt miễn phí mỗi ngày
-const DO_DAI_TOI_DA = 2000; // ký tự mỗi câu gửi lên
-const SO_CHU_TRA_LOI = { hoi: 800, nhan_xet: 2500, tin_ph: 600 }; // giới hạn độ dài câu trả lời
+const GIOI_HAN = { hoi: 5, nhan_xet: 30, tin_ph: 20, bien_ban: 10 }; // số lượt miễn phí mỗi ngày
+const DO_DAI_TOI_DA = { hoi: 2000, nhan_xet: 4000, tin_ph: 1000, bien_ban: 12000 }; // ký tự mỗi lần gửi lên
+const SO_CHU_TRA_LOI = { hoi: 800, nhan_xet: 2500, tin_ph: 600, bien_ban: 3000 }; // giới hạn độ dài câu trả lời
 
 const LOI_DAN = {
   hoi:
@@ -25,6 +25,12 @@ const LOI_DAN = {
   tin_ph:
     "Bạn giúp giáo viên chủ nhiệm Việt Nam soạn tin nhắn gửi phụ huynh: lịch sự, ngắn gọn, rõ việc, " +
     "xưng hô 'quý phụ huynh', ký 'GVCN'. Giữ nguyên các chỗ trống trong ngoặc vuông. Chỉ trả về nội dung tin nhắn.",
+  bien_ban:
+    "Bạn giúp thư ký cuộc họp trong nhà trường Việt Nam viết lại ghi chép thành phần nội dung biên bản. " +
+    "Văn phong hành chính, khách quan, ngôi thứ ba, ghi đúng ý từng người phát biểu, không thêm ý không có trong ghi chép, " +
+    "không bịa số liệu, tên người. Mỗi ý kiến một đoạn, mở đầu bằng người phát biểu nếu ghi chép có nêu. " +
+    "Trả về đúng hai phần: dòng 'NỘI DUNG:' rồi các đoạn diễn biến; sau đó dòng 'KẾT LUẬN:' rồi các ý kết luận, " +
+    "phân công, thời hạn (nếu ghi chép không có kết luận thì tóm tắt các việc đã thống nhất). Không dùng định dạng markdown.",
 };
 
 function json(obj, status = 200) {
@@ -70,7 +76,7 @@ async function xuLyHoi(req, env) {
   const loai = LOI_DAN[b.loai] ? b.loai : "hoi";
   const noiDung = String(b.noi_dung || "").trim();
   if (!may || !noiDung) return json({ loi: "Thiếu nội dung." }, 400);
-  if (noiDung.length > DO_DAI_TOI_DA) return json({ loi: "Câu hỏi quá dài, thầy cô rút gọn giúp." }, 400);
+  if (noiDung.length > DO_DAI_TOI_DA[loai]) return json({ loi: "Câu hỏi quá dài, thầy cô rút gọn giúp." }, 400);
 
   const khoa = `luot:${ngayVN()}:${loai}:${may}`;
   const daDung = parseInt((await env.LUOT.get(khoa)) || "0", 10);
