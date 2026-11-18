@@ -33,6 +33,10 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      # Máy Intel mặc định dùng Xcode cũ; thư viện video_player cần Swift mới
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
       - uses: subosito/flutter-action@v2
         with:
           channel: stable
