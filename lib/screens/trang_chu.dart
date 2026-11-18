@@ -181,9 +181,16 @@ class _TrangChuState extends State<TrangChu> {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
         child: Column(
           children: [
-            BieuTuongNoi(ma: ma, icon: icon, size: 54),
+            BieuTuongNoi(ma: ma, icon: icon, size: 50),
             const SizedBox(height: 8),
-            Text(ten, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
+            SizedBox(
+              height: 32,
+              child: Text(ten,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, height: 1.2)),
+            ),
             if (moTa != null) ...[
               const SizedBox(height: 2),
               ChuChay(moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),

@@ -54,7 +54,7 @@ const dsTienIch = <TienIch>[
 ];
 
 /// Ba tiện ích nổi bật mỗi nhóm trên trang chủ (theo bản thiết kế đã chốt).
-const noiBatHanhChinh = ['hop', 'quet', 'minh_chung'];
+const noiBatHanhChinh = ['hop', 'doc_to', 'quet', 'minh_chung'];
 const noiBatChuyenMon = ['nhan_xet', 'cham_tn', 'nhan_ph'];
 
 /// Câu giải thích cho Hỏi Trợ lý (không nằm trong danh sách tiện ích).
