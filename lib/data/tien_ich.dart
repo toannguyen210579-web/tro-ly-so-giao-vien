@@ -35,7 +35,7 @@ const dsTienIch = <TienIch>[
   TienIch(ma: 'quet', moTa: 'Chụp giấy tờ, tự làm phẳng, gộp thành PDF', ten: 'Quét PDF', bieuTuong: Icons.document_scanner_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['quét', 'scan', 'pdf'], coTrongBanDau: true),
   TienIch(ma: 'minh_chung', moTa: 'Lưu giấy khen, ảnh hoạt động, xuất hồ sơ PDF', ten: 'Sổ minh chứng', bieuTuong: Icons.fact_check_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['minh chứng', 'thi đua', 'kiểm định'], coTrongBanDau: true),
   TienIch(ma: 'anh_the', moTa: 'Tách nền, in ảnh 3x4, 4x6 ngay trên máy', ten: 'Ảnh thẻ', bieuTuong: Icons.badge_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['ảnh thẻ', '3x4', '4x6'], coTrongBanDau: true),
-  TienIch(ma: 'doc_to', moTa: 'Đọc to văn bản cho thầy cô nghe', ten: 'Đọc to', bieuTuong: Icons.volume_up_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['đọc to', 'đọc giúp']),
+  TienIch(ma: 'doc_to', moTa: 'Đọc văn bản thành tiếng, nói thành chữ', ten: 'Giọng nói ⇄ Văn bản', bieuTuong: Icons.record_voice_over_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['đọc to', 'đọc giúp', 'giọng nói', 'nói thành chữ', 'văn bản thành giọng'], coTrongBanDau: true),
   TienIch(ma: 'sang_word', moTa: 'Chuyển ảnh, PDF thành tệp Word sửa được', ten: 'Ảnh sang Word', bieuTuong: Icons.description_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['word', 'chuyển chữ']),
   TienIch(ma: 'lich', moTa: 'Ghi lịch công tác, nhắc hạn nộp hồ sơ', ten: 'Lịch, nhắc hạn', bieuTuong: Icons.event_note_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['lịch', 'nhắc', 'hạn nộp']),
   TienIch(ma: 'luong', moTa: 'Tính lương, phụ cấp, ngày nâng bậc', ten: 'Tính lương', bieuTuong: Icons.payments_outlined, nhom: NhomTienIch.hanhChinh, tuKhoa: ['lương', 'phụ cấp', 'nâng bậc']),

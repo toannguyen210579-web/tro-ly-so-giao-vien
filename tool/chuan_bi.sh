@@ -14,6 +14,10 @@ them='''	<key>NSCameraUsageDescription</key>
 	<string>Dùng máy ảnh để quét giấy tờ và chụp ảnh thẻ.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Chọn ảnh có sẵn để làm ảnh thẻ.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Dùng micro để chuyển lời nói thành chữ.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Nhận giọng nói để ghi thành văn bản.</string>
 '''
 i=s.rfind('</dict>'); s=s[:i]+them+s[i:]
 open(p,'w',encoding='utf-8').write(s)
@@ -22,6 +26,28 @@ fi
 
 if [ -f ios/Podfile ]; then
   sed -i.bak -E "s/^#? *platform :ios.*/platform :ios, '15.5'/" ios/Podfile && rm -f ios/Podfile.bak
+fi
+
+# Android: quyền micro và khai báo bộ nhận giọng, bộ đọc văn bản (bắt buộc từ Android 11).
+MF=android/app/src/main/AndroidManifest.xml
+if [ -f "$MF" ] && ! grep -q RECORD_AUDIO "$MF"; then
+  /usr/bin/env python3 - "$MF" <<'PY'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+s=s.replace('<application', '<uses-permission android:name="android.permission.RECORD_AUDIO"/>\n    <uses-permission android:name="android.permission.INTERNET"/>\n    <application', 1)
+them='''        <intent>
+            <action android:name="android.speech.RecognitionService"/>
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.TTS_SERVICE"/>
+        </intent>
+'''
+if '<queries>' in s:
+    s=s.replace('<queries>', '<queries>\n'+them, 1)
+else:
+    s=s.replace('</manifest>', '    <queries>\n'+them+'    </queries>\n</manifest>', 1)
+open(p,'w',encoding='utf-8').write(s)
+PY
 fi
 
 for G in android/app/build.gradle android/app/build.gradle.kts; do

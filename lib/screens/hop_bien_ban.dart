@@ -11,6 +11,7 @@ import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/tro_ly_api.dart';
+import 'doc_to_ghi_loi.dart';
 
 const dsLoaiHop = [
   'Họp tổ chuyên môn',
@@ -131,7 +132,7 @@ class _HopBienBanState extends State<HopBienBan> {
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         children: [
           const Text(
-            'Ghi nhanh ý kiến trong lúc họp (bấm micro trên bàn phím để nói thay gõ). '
+            'Ghi nhanh ý kiến trong lúc họp (có nút "Nói để ghi" để nói thay gõ). '
             'Họp xong, app xếp thành biên bản đúng mẫu, xuất PDF để in hoặc gửi.',
             style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
           ),
@@ -243,6 +244,15 @@ class _SuaBienBanState extends State<_SuaBienBan> {
     final viTri = c.selection.isValid ? c.selection.end : c.text.length;
     c.text = c.text.substring(0, viTri) + chen + c.text.substring(viTri);
     c.selection = TextSelection.collapsed(offset: viTri + chen.length);
+  }
+
+  Future<void> _noiDeGhi() async {
+    final t = await Navigator.of(context).push<String>(
+      MaterialPageRoute(builder: (_) => const DocToGhiLoi(chiGhiDeTraVe: true)),
+    );
+    if (t == null || t.isEmpty) return;
+    final c = _o['noi_dung']!;
+    c.text = c.text.trim().isEmpty ? t : '${c.text.trimRight()}\n$t';
   }
 
   /// Gửi phần ghi chép lên AI để sắp xếp lại, chỉ khi thầy cô đồng ý.
@@ -498,11 +508,12 @@ class _SuaBienBanState extends State<_SuaBienBan> {
           Row(
             children: [
               const Expanded(child: Text('Diễn biến, ý kiến', style: TextStyle(fontWeight: FontWeight.w800))),
+              TextButton.icon(onPressed: _noiDeGhi, icon: const Icon(Icons.mic_none, size: 18), label: const Text('Nói để ghi')),
               TextButton.icon(onPressed: _chenGio, icon: const Icon(Icons.schedule, size: 18), label: const Text('Chèn giờ')),
             ],
           ),
           const Text(
-            'Mỗi ý kiến một dòng, ví dụ "Cô Lan: đề nghị tăng tiết ôn tập". Bấm micro trên bàn phím để nói thay gõ.',
+            'Mỗi ý kiến một dòng, ví dụ "Cô Lan: đề nghị tăng tiết ôn tập". Bấm "Nói để ghi" để nói thay gõ.',
             style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
           ),
           const SizedBox(height: 6),

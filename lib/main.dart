@@ -1,8 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'screens/trang_chu.dart';
 
 void main() {
+  // Phông DejaVu đóng gói trong app để in PDF có dấu: ghi giấy phép vào trang Giấy phép phần mềm.
+  LicenseRegistry.addLicense(() async* {
+    yield LicenseEntryWithLineBreaks(['DejaVu Serif (phông chữ PDF)'], await rootBundle.loadString('assets/fonts/LICENSE_DejaVu.txt'));
+  });
   runApp(const TroLyApp());
 }
 

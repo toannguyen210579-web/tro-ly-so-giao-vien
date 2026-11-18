@@ -1,7 +1,7 @@
 name: tro_ly_so_giao_vien
 description: "Trợ lý số Giáo viên - Một chạm"
 publish_to: "none"
-version: 0.1.0+1
+version: 0.2.0+2
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
@@ -18,6 +18,8 @@ dependencies:
   image_picker: ^1.1.2
   cunning_document_scanner: ^1.2.3
   google_mlkit_selfie_segmentation: ^0.10.0
+  flutter_tts: ^4.2.0
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_test:

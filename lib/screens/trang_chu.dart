@@ -4,6 +4,7 @@ import '../data/tien_ich.dart';
 import '../main.dart';
 import 'chu_chay.dart';
 import 'dieu_huong.dart';
+import 'tai_khoan.dart';
 
 class TrangChu extends StatefulWidget {
   const TrangChu({super.key});
@@ -51,6 +52,7 @@ class _TrangChuState extends State<TrangChu> {
         selectedIndex: 0,
         onDestinationSelected: (i) {
           if (i == 1) moHoiTroLy(context);
+          if (i == 3) Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TaiKhoan()));
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
