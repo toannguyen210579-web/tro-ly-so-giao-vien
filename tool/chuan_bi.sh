@@ -2,6 +2,8 @@
 # Tạo các thư mục android/ios (nếu chưa có) và khai báo quyền máy ảnh, ảnh.
 set -euo pipefail
 flutter create --org vn.vietnamtieudiem --project-name tro_ly_so_giao_vien --platforms=android,ios .
+# flutter create sinh sẵn test mẫu không hợp với app, bỏ đi
+rm -f test/widget_test.dart
 
 PLIST=ios/Runner/Info.plist
 if ! grep -q NSCameraUsageDescription "$PLIST"; then
