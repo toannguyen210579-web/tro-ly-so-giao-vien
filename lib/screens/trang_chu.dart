@@ -6,6 +6,7 @@ import 'bieu_tuong.dart';
 import 'chu_chay.dart';
 import 'dieu_huong.dart';
 import 'tai_khoan.dart';
+import 'tep_cua_toi.dart';
 import 'tin_kenh.dart';
 
 class TrangChu extends StatefulWidget {
@@ -44,19 +45,26 @@ class _TrangChuState extends State<TrangChu> {
             const SizedBox(height: 8),
             _theHan(),
             const SizedBox(height: 16),
-            const MucTinKenh(),
+            const DongTinMoi(),
           ],
         ),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: 0,
         onDestinationSelected: (i) {
+          final man = switch (i) {
+            2 => const ManTin(),
+            3 => const TepCuaToi(),
+            4 => const TaiKhoan(),
+            _ => null,
+          };
           if (i == 1) moHoiTroLy(context);
-          if (i == 3) Navigator.of(context).push(MaterialPageRoute(builder: (_) => const TaiKhoan()));
+          if (man != null) Navigator.of(context).push(MaterialPageRoute(builder: (_) => man));
         },
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
           NavigationDestination(icon: Icon(Icons.chat_bubble_outline), label: 'Hỏi Trợ lý'),
+          NavigationDestination(icon: Icon(Icons.play_circle_outline), label: 'Tin'),
           NavigationDestination(icon: Icon(Icons.folder_outlined), label: 'Tệp của tôi'),
           NavigationDestination(icon: Icon(Icons.person_outline), label: 'Tài khoản'),
         ],

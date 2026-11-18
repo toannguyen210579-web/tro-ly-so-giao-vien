@@ -82,4 +82,28 @@ s=open(p,encoding='utf-8').read()
 s=re.sub(r'(<key>CFBundleDisplayName</key>\s*<string>)[^<]*(</string>)',r'\g<1>Trợ lý số GV\g<2>',s)
 open(p,'w',encoding='utf-8').write(s)
 PY
+# Ký bản release bằng khóa thử nghiệm cố định (tool/khoa_thu.jks) để cài đè được các bản sau.
+# Trước khi đưa lên Google Play sẽ thay bằng khóa tải lên chính thức.
+G=android/app/build.gradle.kts
+if [ -f "$G" ] && [ -f tool/khoa_thu.jks ] && ! grep -q 'create("release")' "$G"; then
+  cp tool/khoa_thu.jks android/app/khoa_thu.jks
+  /usr/bin/env python3 - "$G" "$(cat tool/khoa_thu.matkhau)" <<'PY'
+import sys
+p, pw = sys.argv[1], sys.argv[2]
+s = open(p, encoding='utf-8').read()
+cfg = f"""    signingConfigs {{
+        create("release") {{
+            storeFile = file("khoa_thu.jks")
+            storePassword = "{pw}"
+            keyAlias = "upload"
+            keyPassword = "{pw}"
+        }}
+    }}
+
+    buildTypes {{"""
+s = s.replace("    buildTypes {", cfg, 1)
+s = s.replace('signingConfig = signingConfigs.getByName("debug")', 'signingConfig = signingConfigs.getByName("release")')
+open(p, 'w', encoding='utf-8').write(s)
+PY
+fi
 echo "Da chuan bi xong."

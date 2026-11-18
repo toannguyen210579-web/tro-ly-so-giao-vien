@@ -36,17 +36,72 @@ void chiaSeTin(TinKenh t) {
   Share.share('${t.tit}\n${t.tomTat}$link\n(Theo $tenKenh)');
 }
 
-/// Mục "Tin cho thầy cô" trên trang chủ: thẻ tin mới nhất (nút Xem trên Facebook)
-/// và dải "Clip đã đăng" phát ngay trong app.
-class MucTinKenh extends StatefulWidget {
-  const MucTinKenh({super.key});
+/// Dòng "Tin mới" gọn trên trang chủ: tít tin mới nhất, bấm vào mở trang Tin.
+class DongTinMoi extends StatefulWidget {
+  const DongTinMoi({super.key});
 
   @override
-  State<MucTinKenh> createState() => _MucTinKenhState();
+  State<DongTinMoi> createState() => _DongTinMoiState();
 }
 
-class _MucTinKenhState extends State<MucTinKenh> {
-  List<TinKenh> _ds = [];
+class _DongTinMoiState extends State<DongTinMoi> {
+  TinKenh? _moi;
+
+  @override
+  void initState() {
+    super.initState();
+    NguonTin.tai().then((ds) {
+      if (mounted && ds.isNotEmpty) setState(() => _moi = ds.first);
+    }).catchError((_) {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = _moi;
+    if (t == null) return const SizedBox.shrink();
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManTin())),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              ClipRRect(borderRadius: BorderRadius.circular(10), child: anhTin(t, width: 56, height: 72)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('TIN MỚI · Việt Nam Tiêu Điểm',
+                        style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFFD7261E))),
+                    const SizedBox(height: 3),
+                    Text(t.tit, maxLines: 2, overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Trang Tin (nút riêng ở thanh dưới): các tin, clip của kênh, mới nhất trước.
+class ManTin extends StatefulWidget {
+  const ManTin({super.key});
+
+  @override
+  State<ManTin> createState() => _ManTinState();
+}
+
+class _ManTinState extends State<ManTin> {
+  List<TinKenh>? _ds;
   Set<String> _thich = {};
 
   @override
@@ -65,51 +120,41 @@ class _MucTinKenhState extends State<MucTinKenh> {
           _thich = th;
         });
       }
-    } catch (_) {}
-  }
-
-  Future<void> _boThich(TinKenh t) async {
-    final moi = !_thich.contains(t.id);
-    setState(() => moi ? _thich.add(t.id) : _thich.remove(t.id));
-    await NguonTin.datThich(t.id, moi);
+    } catch (_) {
+      if (mounted) setState(() => _ds = []);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_ds.isEmpty) return const SizedBox.shrink();
-    final moi = _ds.first;
-    final cu = _ds.skip(1).toList();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Expanded(child: Text('Tin cho thầy cô', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800))),
-            TextButton(
-              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManTatCaTin(ds: _ds))),
-              child: const Text('Tất cả'),
-            ),
-          ],
-        ),
-        TheTin(tin: moi, thich: _thich.contains(moi.id), boThich: () => _boThich(moi)),
-        if (cu.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          const Text('Clip đã đăng', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 210,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: cu.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 10),
-              itemBuilder: (_, i) => _OClip(
-                tin: cu[i],
-                bam: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: cu, batDau: i))),
+    final ds = _ds;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tin cho thầy cô')),
+      body: ds == null
+          ? const Center(child: CircularProgressIndicator())
+          : RefreshIndicator(
+              onRefresh: _tai,
+              child: ListView.separated(
+                padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
+                itemCount: ds.isEmpty ? 1 : ds.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (_, i) {
+                  if (ds.isEmpty) {
+                    return const Padding(padding: EdgeInsets.only(top: 40), child: Center(child: Text('Chưa có tin nào.')));
+                  }
+                  final t = ds[i];
+                  return TheTin(
+                    tin: t,
+                    thich: _thich.contains(t.id),
+                    boThich: () async {
+                      final moi = !_thich.contains(t.id);
+                      setState(() => moi ? _thich.add(t.id) : _thich.remove(t.id));
+                      await NguonTin.datThich(t.id, moi);
+                    },
+                  );
+                },
               ),
             ),
-          ),
-        ],
-      ],
     );
   }
 }
@@ -169,7 +214,9 @@ class _TheTinState extends State<TheTin> {
               ),
             const SizedBox(height: 10),
             GestureDetector(
-              onTap: () => moFacebook(context, t),
+              onTap: () => t.video != null
+                  ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: [t])))
+                  : moFacebook(context, t),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Stack(
@@ -207,95 +254,6 @@ class _TheTinState extends State<TheTin> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _OClip extends StatelessWidget {
-  final TinKenh tin;
-  final VoidCallback bam;
-  const _OClip({required this.tin, required this.bam});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: bam,
-      child: SizedBox(
-        width: 124,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              anhTin(tin),
-              const DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Colors.transparent, Color(0xCC000000)],
-                    stops: [0.45, 1],
-                  ),
-                ),
-              ),
-              const Positioned(top: 6, right: 6, child: Icon(Icons.play_circle_fill, color: Colors.white, size: 26)),
-              Positioned(
-                left: 8,
-                right: 8,
-                bottom: 8,
-                child: Text(tin.tit,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ManTatCaTin extends StatefulWidget {
-  final List<TinKenh> ds;
-  const ManTatCaTin({super.key, required this.ds});
-
-  @override
-  State<ManTatCaTin> createState() => _ManTatCaTinState();
-}
-
-class _ManTatCaTinState extends State<ManTatCaTin> {
-  Set<String> _thich = {};
-
-  @override
-  void initState() {
-    super.initState();
-    NguonTin.daThich().then((s) {
-      if (mounted) setState(() => _thich = s);
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tin cho thầy cô')),
-      body: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(12, 0, 12, 24),
-        itemCount: widget.ds.length,
-        separatorBuilder: (_, __) => const SizedBox(height: 12),
-        itemBuilder: (_, i) {
-          final t = widget.ds[i];
-          return TheTin(
-            tin: t,
-            thich: _thich.contains(t.id),
-            boThich: () async {
-              final moi = !_thich.contains(t.id);
-              setState(() => moi ? _thich.add(t.id) : _thich.remove(t.id));
-              await NguonTin.datThich(t.id, moi);
-            },
-          );
-        },
       ),
     );
   }
