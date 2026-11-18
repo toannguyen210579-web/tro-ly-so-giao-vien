@@ -138,3 +138,11 @@ open(p, 'w', encoding='utf-8').write(s)
 PY
 fi
 echo "Da chuan bi xong."
+
+# ML Kit nhận chữ: chỉ dùng bộ chữ Latin, báo R8 bỏ qua các bộ chữ không cài.
+cat >> android/app/proguard-rules.pro <<'P'
+-dontwarn com.google.mlkit.vision.text.chinese.**
+-dontwarn com.google.mlkit.vision.text.devanagari.**
+-dontwarn com.google.mlkit.vision.text.japanese.**
+-dontwarn com.google.mlkit.vision.text.korean.**
+P
