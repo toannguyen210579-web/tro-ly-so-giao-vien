@@ -312,9 +312,12 @@ class _TaiKhoanState extends State<TaiKhoan> {
 
   Widget _theSoSanh() {
     const dong = [
-      ('Lượt hỏi Trợ lý mỗi ngày', '5', '100'),
-      ('Lượt giải đề mỗi ngày', '5', '50'),
-      ('AI viết nhận xét, soạn tin', 'Có giới hạn', 'Thoải mái'),
+      ('Hỏi Trợ lý', '5', '50'),
+      ('Giải đề, soạn đáp án', '5', '50'),
+      ('Ra đề tương tự', '5', '50'),
+      ('AI viết nhận xét', '30', '300'),
+      ('AI soạn tin phụ huynh', '20', '200'),
+      ('AI sắp xếp biên bản', '10', '100'),
       ('Quảng cáo', 'Có', 'Không'),
     ];
     return Container(
@@ -328,14 +331,14 @@ class _TaiKhoanState extends State<TaiKhoan> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text('Trợ lý số GV Pro', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-          const Text('Dùng AI thoải mái hơn, không quảng cáo', style: TextStyle(color: MauApp.chuPhu)),
+          const Text('Gấp 10 lần lượt AI miễn phí, không quảng cáo', style: TextStyle(color: MauApp.chuPhu)),
           const SizedBox(height: 12),
           Table(
             columnWidths: const {0: FlexColumnWidth(2.2), 1: FlexColumnWidth(1.2), 2: FlexColumnWidth(1.2)},
             defaultVerticalAlignment: TableCellVerticalAlignment.middle,
             children: [
               const TableRow(children: [
-                Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('Tính năng', style: TextStyle(fontWeight: FontWeight.w700))),
+                Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('Lượt mỗi ngày', style: TextStyle(fontWeight: FontWeight.w700))),
                 Text('Miễn phí', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w700)),
                 Text('Pro', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w800, color: MauApp.xanhTroi)),
               ]),
