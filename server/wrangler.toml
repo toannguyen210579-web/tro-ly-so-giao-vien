@@ -1,0 +1,9 @@
+name = "tro-ly-so-giao-vien"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+
+# Kho đếm lượt và lưu báo cáo. Thay ID sau khi chạy:
+#   npx wrangler kv namespace create LUOT
+[[kv_namespaces]]
+binding = "LUOT"
+id = "THAY_BANG_ID_KHO_LUOT"

@@ -1,0 +1,28 @@
+name: tro_ly_so_giao_vien
+description: "Trợ lý số Giáo viên - Một chạm"
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  shared_preferences: ^2.2.0
+  path_provider: ^2.1.4
+  share_plus: ^10.1.4
+  pdf: ^3.11.1
+  image: ^4.2.0
+  image_picker: ^1.1.2
+  cunning_document_scanner: ^1.2.3
+  google_mlkit_selfie_segmentation: ^0.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

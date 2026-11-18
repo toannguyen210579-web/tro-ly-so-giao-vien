@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+
+import '../data/tien_ich.dart';
+import 'anh_the.dart';
+import 'hoi_tro_ly.dart';
+import 'nhan_phu_huynh.dart';
+import 'nhan_xet.dart';
+import 'quet_pdf.dart';
+import 'sap_co.dart';
+import 'xem_them.dart';
+
+/// Mở một tiện ích. Tiện ích nào đã làm xong thì thêm vào đây.
+void moTienIch(BuildContext context, TienIch t) {
+  final Widget man;
+  switch (t.ma) {
+    case 'nhan_xet':
+      man = const NhanXetHocSinh();
+    case 'nhan_ph':
+      man = const NhanPhuHuynh();
+    case 'quet':
+      man = const QuetPdf();
+    case 'anh_the':
+      man = const AnhThe();
+    default:
+      man = SapCo(tienIch: t);
+  }
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => man));
+}
+
+void moXemThem(BuildContext context) {
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const XemThem()));
+}
+
+void moHoiTroLy(BuildContext context, {String? cauHoi}) {
+  Navigator.of(context).push(
+    MaterialPageRoute(builder: (_) => HoiTroLy(cauHoiDau: cauHoi)),
+  );
+}
+
+/// Xử lý câu gõ ở ô "Thầy cô cần làm gì?": khớp tiện ích thì mở tiện ích,
+/// không khớp thì chuyển sang Hỏi Trợ lý.
+void xuLyCauNhap(BuildContext context, String cau) {
+  final c = cau.trim();
+  if (c.isEmpty) {
+    moHoiTroLy(context);
+    return;
+  }
+  final t = timTheoCau(c);
+  if (t != null) {
+    moTienIch(context, t);
+  } else {
+    moHoiTroLy(context, cauHoi: c);
+  }
+}

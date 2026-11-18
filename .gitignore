@@ -1,0 +1,10 @@
+.dart_tool/
+build/
+.flutter-plugins*
+.packages
+android/
+ios/
+*.iml
+.idea/
+server/node_modules/
+server/.wrangler/
