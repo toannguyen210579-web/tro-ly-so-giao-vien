@@ -4,9 +4,9 @@
 // - Nhận báo cáo nội dung AI (Google Play bắt buộc).
 
 const MO_HINH = "claude-haiku-5-5";
-const GIOI_HAN = { hoi: 5, nhan_xet: 30, tin_ph: 20, bien_ban: 10 }; // số lượt miễn phí mỗi ngày
-const DO_DAI_TOI_DA = { hoi: 2000, nhan_xet: 4000, tin_ph: 1000, bien_ban: 12000 }; // ký tự mỗi lần gửi lên
-const SO_CHU_TRA_LOI = { hoi: 800, nhan_xet: 2500, tin_ph: 600, bien_ban: 3000 }; // giới hạn độ dài câu trả lời
+const GIOI_HAN = { hoi: 5, nhan_xet: 30, tin_ph: 20, bien_ban: 10, giai_de: 5, de_tuong_tu: 5 }; // số lượt miễn phí mỗi ngày
+const DO_DAI_TOI_DA = { hoi: 2000, nhan_xet: 4000, tin_ph: 1000, bien_ban: 12000, giai_de: 2000, de_tuong_tu: 4000 }; // ký tự mỗi lần gửi lên
+const SO_CHU_TRA_LOI = { hoi: 800, nhan_xet: 2500, tin_ph: 600, bien_ban: 3000, giai_de: 4000, de_tuong_tu: 3000 }; // giới hạn độ dài câu trả lời
 
 const LOI_DAN = {
   hoi:
@@ -31,6 +31,18 @@ const LOI_DAN = {
     "không bịa số liệu, tên người. Mỗi ý kiến một đoạn, mở đầu bằng người phát biểu nếu ghi chép có nêu. " +
     "Trả về đúng hai phần: dòng 'NỘI DUNG:' rồi các đoạn diễn biến; sau đó dòng 'KẾT LUẬN:' rồi các ý kết luận, " +
     "phân công, thời hạn (nếu ghi chép không có kết luận thì tóm tắt các việc đã thống nhất). Không dùng định dạng markdown.",
+  giai_de:
+    "Bạn giúp giáo viên Việt Nam làm đáp án và hướng dẫn chấm từ ảnh đề bài (chương trình GDPT 2018). " +
+    "Đọc kỹ đề trong ảnh; chỗ nào ảnh mờ, không đọc chắc thì ghi rõ '(không đọc rõ)' thay vì đoán. " +
+    "Với từng câu: chép lại đề ngắn gọn, lời giải từng bước theo cách trình bày học sinh lớp đó được học, đáp số. " +
+    "Bài tự luận: thêm gợi ý thang điểm từng bước (tổng điểm theo đề nếu có). " +
+    "Kiểm tra lại phép tính trước khi trả lời. Viết công thức bằng ký hiệu thường (x², √, ≤, π), không dùng LaTeX, không dùng markdown. " +
+    "Nếu đề có câu trắc nghiệm, cuối bài thêm đúng một dòng: 'ĐÁP ÁN TRẮC NGHIỆM: 1A 2C 3B …' theo số thứ tự câu trong đề.",
+  de_tuong_tu:
+    "Bạn giúp giáo viên Việt Nam ra đề tương tự dựa trên đề mẫu (ảnh hoặc chữ). " +
+    "Giữ đúng dạng bài, mức độ, kiến thức của từng câu; đổi số liệu, ngữ cảnh để ra câu mới, bảo đảm có đáp án đúng và số đẹp. " +
+    "Trả về đề mới đánh số như đề mẫu, sau đó phần 'ĐÁP ÁN' ngắn gọn từng câu. Không dùng LaTeX, không dùng markdown. " +
+    "Nếu đề mới có câu trắc nghiệm, cuối bài thêm đúng một dòng: 'ĐÁP ÁN TRẮC NGHIỆM: 1A 2C 3B …'.",
 };
 
 function json(obj, status = 200) {
@@ -45,7 +57,11 @@ function ngayVN() {
   return new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
-async function goiClaude(env, loai, noiDung) {
+async function goiClaude(env, loai, noiDung, anh = []) {
+  const content = [
+    ...anh.map((a) => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: a } })),
+    { type: "text", text: noiDung },
+  ];
   const res = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: {
@@ -57,7 +73,7 @@ async function goiClaude(env, loai, noiDung) {
       model: MO_HINH,
       max_tokens: SO_CHU_TRA_LOI[loai],
       system: LOI_DAN[loai],
-      messages: [{ role: "user", content: noiDung }],
+      messages: [{ role: "user", content }],
     }),
   });
   if (!res.ok) return null;
@@ -75,7 +91,11 @@ async function xuLyHoi(req, env) {
   const may = String(b.may || "").slice(0, 64);
   const loai = LOI_DAN[b.loai] ? b.loai : "hoi";
   const noiDung = String(b.noi_dung || "").trim();
-  if (!may || !noiDung) return json({ loi: "Thiếu nội dung." }, 400);
+  const anh = Array.isArray(b.anh) ? b.anh.filter((a) => typeof a === "string") : [];
+  if (anh.length > 0 && !["giai_de", "de_tuong_tu"].includes(loai)) return json({ loi: "Yêu cầu không hợp lệ." }, 400);
+  if (anh.length > 4) return json({ loi: "Mỗi lần gửi tối đa 4 ảnh." }, 400);
+  if (anh.some((a) => a.length > 2_000_000)) return json({ loi: "Ảnh quá lớn, thầy cô chụp lại gần hơn." }, 400);
+  if (!may || (!noiDung && anh.length === 0)) return json({ loi: "Thiếu nội dung." }, 400);
   if (noiDung.length > DO_DAI_TOI_DA[loai]) return json({ loi: "Câu hỏi quá dài, thầy cô rút gọn giúp." }, 400);
 
   const khoa = `luot:${ngayVN()}:${loai}:${may}`;
@@ -85,7 +105,7 @@ async function xuLyHoi(req, env) {
     return json({ loi: "Thầy cô đã dùng hết lượt hôm nay. Ngày mai lượt sẽ được làm mới.", con_lai: 0 });
   }
 
-  const traLoi = await goiClaude(env, loai, noiDung);
+  const traLoi = await goiClaude(env, loai, noiDung || "Giải đề trong ảnh.", anh);
   if (!traLoi) {
     // Hết tiền tặng kèm hoặc lỗi phía AI: không trừ lượt.
     return json({ loi: "Trợ lý đang tạm nghỉ, thầy cô thử lại sau.", con_lai: gioiHan - daDung });

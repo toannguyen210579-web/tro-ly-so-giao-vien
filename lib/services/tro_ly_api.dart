@@ -29,7 +29,8 @@ class TroLyApi {
   }
 
   /// loai: 'hoi' (Hỏi Trợ lý), 'nhan_xet' (viết nhận xét), 'tin_ph' (soạn tin phụ huynh).
-  static Future<KetQuaTroLy> hoi(String noiDung, {String loai = 'hoi'}) async {
+  /// anh: ảnh JPEG mã base64 (tối đa 4 ảnh), dùng cho 'giai_de' và 'de_tuong_tu'.
+  static Future<KetQuaTroLy> hoi(String noiDung, {String loai = 'hoi', List<String> anh = const []}) async {
     if (diaChiMayChu.isEmpty) {
       await Future.delayed(const Duration(milliseconds: 600));
       return const KetQuaTroLy(
@@ -43,10 +44,11 @@ class TroLyApi {
           .post(
             Uri.parse('$diaChiMayChu/hoi'),
             headers: {'Content-Type': 'application/json'},
-            body: jsonEncode({'may': await _maMay(), 'loai': loai, 'noi_dung': noiDung}),
+            body: jsonEncode({'may': await _maMay(), 'loai': loai, 'noi_dung': noiDung, if (anh.isNotEmpty) 'anh': anh}),
           )
-          .timeout(const Duration(seconds: 60));
+          .timeout(Duration(seconds: anh.isEmpty ? 60 : 120));
       final j = jsonDecode(utf8.decode(res.bodyBytes)) as Map<String, dynamic>;
+      if (j['con_lai'] is int) await _ghiLuot(loai, j['con_lai'] as int);
       return KetQuaTroLy(
         traLoi: j['tra_loi'] as String?,
         loi: j['loi'] as String?,
@@ -55,6 +57,22 @@ class TroLyApi {
     } catch (_) {
       return const KetQuaTroLy(loi: 'Không kết nối được. Thầy cô kiểm tra mạng rồi thử lại.');
     }
+  }
+
+  static String _homNay() {
+    final d = DateTime.now();
+    return '${d.year}-${d.month}-${d.day}';
+  }
+
+  static Future<void> _ghiLuot(String loai, int conLai) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setInt('luot_${_homNay()}_$loai', conLai);
+  }
+
+  /// Số lượt còn lại hôm nay theo lần gọi gần nhất; chưa dùng lần nào thì trả về [macDinh].
+  static Future<int> luotConLai(String loai, int macDinh) async {
+    final p = await SharedPreferences.getInstance();
+    return p.getInt('luot_${_homNay()}_$loai') ?? macDinh;
   }
 
   /// Báo cáo nội dung AI không phù hợp (Google Play bắt buộc có).

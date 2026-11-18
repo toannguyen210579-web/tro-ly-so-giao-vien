@@ -4,6 +4,7 @@ import '../data/tien_ich.dart';
 import 'anh_the.dart';
 import 'cham_trac_nghiem.dart';
 import 'doc_to_ghi_loi.dart';
+import 'giai_de.dart';
 import 'hop_bien_ban.dart';
 import 'hoi_tro_ly.dart';
 import 'nhan_phu_huynh.dart';
@@ -31,6 +32,8 @@ void moTienIch(BuildContext context, TienIch t) {
       man = const SoMinhChung();
     case 'cham_tn':
       man = const ChamTracNghiem();
+    case 'tao_de':
+      man = const GiaiDe();
     case 'doc_to':
       man = const DocToGhiLoi();
     default:

@@ -20,7 +20,7 @@ Quét giấy tờ và tách nền ảnh thẻ dùng thành phần có sẵn củ
 
 ## Khi dùng tính năng AI
 
-Các nút Hỏi Trợ lý, Nhờ AI viết nhận xét, Nhờ AI soạn tin, Nhờ AI sắp xếp biên bản gửi nội dung thầy cô nhập tới máy chủ trung gian của app (đặt trên Cloudflare), rồi chuyển tới dịch vụ AI Claude của Anthropic để soạn câu trả lời. Tên học sinh được thay bằng mã (HS01, HS02…) trước khi gửi. Với biên bản họp, app hỏi lại và chỉ gửi khi thầy cô đồng ý. Máy chủ trung gian không lưu nội dung câu hỏi, chỉ đếm số lượt dùng trong ngày.
+Các nút Hỏi Trợ lý, Nhờ AI viết nhận xét, Nhờ AI soạn tin, Nhờ AI sắp xếp biên bản, Giải, soạn đáp án, Ra đề tương tự gửi nội dung thầy cô nhập (và ảnh đề, nếu thầy cô chụp) tới máy chủ trung gian của app (đặt trên Cloudflare), rồi chuyển tới dịch vụ AI Claude của Anthropic để soạn câu trả lời. Tên học sinh được thay bằng mã (HS01, HS02…) trước khi gửi. Với biên bản họp, app hỏi lại và chỉ gửi khi thầy cô đồng ý. Máy chủ trung gian không lưu nội dung câu hỏi, chỉ đếm số lượt dùng trong ngày.
 
 ## Mã máy
 

@@ -43,7 +43,7 @@ const dsTienIch = <TienIch>[
   TienIch(ma: 'nhan_xet', moTa: 'Viết nhận xét theo TT 22, TT 27, tính điểm TB', ten: 'Nhận xét học sinh', bieuTuong: Icons.assignment_turned_in_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['nhận xét', 'đánh giá', 'điểm trung bình'], coTrongBanDau: true),
   TienIch(ma: 'cham_tn', moTa: 'Nhập đáp án, chấm điểm, thống kê cả lớp', ten: 'Chấm trắc nghiệm', bieuTuong: Icons.checklist_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['chấm', 'trắc nghiệm'], coTrongBanDau: true),
   TienIch(ma: 'nhan_ph', moTa: 'Tin mẫu mời họp, báo nghỉ, gửi qua Zalo', ten: 'Nhắn phụ huynh', bieuTuong: Icons.chat_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['phụ huynh', 'nhắn', 'zalo'], coTrongBanDau: true),
-  TienIch(ma: 'tao_de', moTa: 'Chụp sách, tạo câu hỏi kiểm tra', ten: 'Tạo đề từ ảnh', bieuTuong: Icons.photo_camera_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['tạo đề', 'ra đề']),
+  TienIch(ma: 'tao_de', moTa: 'Chụp đề, AI giải, soạn đáp án, ra đề tương tự', ten: 'Giải đề, soạn đáp án', bieuTuong: Icons.photo_camera_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['giải đề', 'giải bài', 'soạn đáp án', 'tạo đề', 'ra đề', 'đề tương tự'], coTrongBanDau: true),
   TienIch(ma: 'o_chu', moTa: 'Tạo ô chữ ôn bài trên lớp', ten: 'Ô chữ', bieuTuong: Icons.grid_on_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['ô chữ']),
   TienIch(ma: 'gio_the', moTa: 'Học sinh giơ thẻ, máy quét đáp án cả lớp', ten: 'Giơ thẻ', bieuTuong: Icons.style_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['giơ thẻ']),
   TienIch(ma: 'cong_cu', moTa: 'Điểm danh, gọi tên ngẫu nhiên, chia nhóm', ten: 'Công cụ trên lớp', bieuTuong: Icons.timer_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['điểm danh', 'gọi tên', 'chia nhóm']),

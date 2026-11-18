@@ -93,3 +93,21 @@ class DeThi {
             .toList(),
       );
 }
+
+/// Khóa lưu danh sách bài kiểm tra của Chấm trắc nghiệm.
+const khoaChamTracNghiem = 'cham_trac_nghiem';
+
+/// Lấy dãy đáp án từ dòng "ĐÁP ÁN TRẮC NGHIỆM: 1A 2C 3B …" trong lời giải của AI.
+/// Trả về null nếu không có dòng đó.
+String? layDapAnTuLoiGiai(String loiGiai) {
+  final m = RegExp(r'ĐÁP ÁN TRẮC NGHIỆM\s*:\s*(.+)', caseSensitive: false).firstMatch(loiGiai);
+  if (m == null) return null;
+  final cap = <int, String>{};
+  for (final c in RegExp(r'(\d+)\s*[\.\):\-]?\s*([A-Da-d])\b').allMatches(m.group(1)!)) {
+    cap[int.parse(c.group(1)!)] = c.group(2)!.toUpperCase();
+  }
+  if (cap.isEmpty) return null;
+  final n = cap.keys.reduce((a, b) => a > b ? a : b);
+  if (n > 200) return null;
+  return List.generate(n, (i) => cap[i + 1] ?? '-').join();
+}

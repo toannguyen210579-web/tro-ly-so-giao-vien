@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../data/tien_ich.dart';
 import '../main.dart';
+import '../services/tro_ly_api.dart';
+import 'dieu_huong.dart';
 
 const phienBanApp = '0.2.0';
 const ngayChinhSach = '18/11/2026';
@@ -34,8 +39,8 @@ const chinhSachQuyenRiengTu = <(String, String)>[
   ),
   (
     'Khi dùng tính năng AI',
-    'Các nút Hỏi Trợ lý, Nhờ AI viết nhận xét, Nhờ AI soạn tin, Nhờ AI sắp xếp biên bản gửi nội dung thầy cô '
-        'nhập tới máy chủ trung gian của app (đặt trên Cloudflare), rồi chuyển tới dịch vụ AI Claude của Anthropic '
+    'Các nút Hỏi Trợ lý, Nhờ AI viết nhận xét, Nhờ AI soạn tin, Nhờ AI sắp xếp biên bản, Giải, soạn đáp án, '
+        'Ra đề tương tự gửi nội dung thầy cô nhập (và ảnh đề, nếu thầy cô chụp) tới máy chủ trung gian của app (đặt trên Cloudflare), rồi chuyển tới dịch vụ AI Claude của Anthropic '
         'để soạn câu trả lời. Tên học sinh được thay bằng mã (HS01, HS02…) trước khi gửi. '
         'Với biên bản họp, app hỏi lại và chỉ gửi khi thầy cô đồng ý. '
         'Máy chủ trung gian không lưu nội dung câu hỏi, chỉ đếm số lượt dùng trong ngày.'
@@ -70,53 +75,292 @@ const chinhSachQuyenRiengTu = <(String, String)>[
   ),
 ];
 
-class TaiKhoan extends StatelessWidget {
+/// Hồ sơ thầy cô lưu trên máy, dùng để điền sẵn vào biên bản, tin nhắn.
+class HoSo {
+  static const _khoa = ['hs_ten', 'hs_truong', 'hs_mon'];
+  static Future<List<String>> doc() async {
+    final p = await SharedPreferences.getInstance();
+    return [for (final k in _khoa) p.getString(k) ?? ''];
+  }
+
+  static Future<void> ghi(List<String> v) async {
+    final p = await SharedPreferences.getInstance();
+    for (var i = 0; i < _khoa.length; i++) {
+      await p.setString(_khoa[i], v[i].trim());
+    }
+  }
+}
+
+/// Lượt AI miễn phí mỗi ngày (khớp với máy chủ trong server/worker.js).
+const luotMienPhi = {'hoi': 5, 'giai_de': 5};
+
+class TaiKhoan extends StatefulWidget {
   const TaiKhoan({super.key});
 
   @override
+  State<TaiKhoan> createState() => _TaiKhoanState();
+}
+
+class _TaiKhoanState extends State<TaiKhoan> {
+  List<String> _hoSo = ['', '', ''];
+  int _luotHoi = luotMienPhi['hoi']!;
+  int _luotGiai = luotMienPhi['giai_de']!;
+
+  @override
+  void initState() {
+    super.initState();
+    _tai();
+  }
+
+  Future<void> _tai() async {
+    final h = await HoSo.doc();
+    final a = await TroLyApi.luotConLai('hoi', luotMienPhi['hoi']!);
+    final b = await TroLyApi.luotConLai('giai_de', luotMienPhi['giai_de']!);
+    if (mounted) {
+      setState(() {
+        _hoSo = h;
+        _luotHoi = a;
+        _luotGiai = b;
+      });
+    }
+  }
+
+  Future<void> _suaHoSo() async {
+    final c = [for (final v in _hoSo) TextEditingController(text: v)];
+    const nhan = ['Họ và tên', 'Trường', 'Môn dạy'];
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Hồ sơ thầy cô'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [for (var i = 0; i < 3; i++) TextField(controller: c[i], decoration: InputDecoration(labelText: nhan[i]))],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Thôi')),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Lưu')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await HoSo.ghi([for (final x in c) x.text]);
+    await _tai();
+  }
+
+  void _sapCo(String viec) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$viec sẽ có ở bản sau.')));
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ten = _hoSo[0].isEmpty ? 'Thầy cô chưa ghi tên' : _hoSo[0];
+    final phu = [_hoSo[2], _hoSo[1]].where((s) => s.isNotEmpty).join(' · ');
     return Scaffold(
       appBar: AppBar(title: const Text('Tài khoản')),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-        children: [
-          const Card(
-            child: ListTile(
-              leading: Icon(Icons.person_outline),
-              title: Text('Chưa cần đăng nhập'),
-              subtitle: Text('Dữ liệu của thầy cô lưu ngay trên máy này.'),
+      body: RefreshIndicator(
+        onRefresh: _tai,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
+          children: [
+            // Hồ sơ
+            InkWell(
+              onTap: _suaHoSo,
+              borderRadius: BorderRadius.circular(16),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 34,
+                      backgroundColor: const Color(0xFFDCE6F5),
+                      child: Text(
+                        _hoSo[0].isEmpty ? '?' : _hoSo[0].trim().split(' ').last.characters.first.toUpperCase(),
+                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w800, color: MauApp.xanhDam),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(ten, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+                          Text(phu.isEmpty ? 'Bấm để ghi tên, trường, môn dạy' : phu, style: const TextStyle(color: MauApp.chuPhu)),
+                          const SizedBox(height: 6),
+                          FilledButton(
+                            onPressed: () => _sapCo('Gói Pro'),
+                            style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
+                            child: const Text('Nâng cấp Pro'),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right),
+                  ],
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: Column(
+            const SizedBox(height: 8),
+            // Lượt hôm nay
+            Row(
               children: [
-                ListTile(
-                  leading: const Icon(Icons.privacy_tip_outlined, color: MauApp.xanhDam),
-                  title: const Text('Chính sách quyền riêng tư'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManChinhSach())),
-                ),
-                const Divider(height: 1),
-                ListTile(
-                  leading: const Icon(Icons.article_outlined, color: MauApp.xanhDam),
-                  title: const Text('Giấy phép phần mềm'),
-                  subtitle: const Text('Các thư viện mã nguồn mở app sử dụng'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => showLicensePage(
-                    context: context,
-                    applicationName: 'Trợ lý số Giáo viên',
-                    applicationVersion: phienBanApp,
-                    applicationLegalese: 'Bớt sổ sách, thêm giờ cho học trò.',
-                  ),
-                ),
-                const Divider(height: 1),
-                const ListTile(
-                  leading: Icon(Icons.info_outline, color: MauApp.xanhDam),
-                  title: Text('Phiên bản'),
-                  trailing: Text(phienBanApp),
-                ),
+                Expanded(child: _oSo('$_luotHoi/${luotMienPhi['hoi']}', 'Lượt hỏi Trợ lý', const Color(0xFFFFF4D6))),
+                const SizedBox(width: 8),
+                Expanded(child: _oSo('$_luotGiai/${luotMienPhi['giai_de']}', 'Lượt giải đề', const Color(0xFFE3ECF8))),
               ],
+            ),
+            const Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text('Lượt miễn phí được làm mới lúc 0 giờ mỗi ngày.', style: TextStyle(fontSize: 12, color: MauApp.chuPhu)),
+            ),
+            const SizedBox(height: 12),
+            // Xem quảng cáo nhận lượt
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFDDE3EA)),
+              ),
+              child: Row(
+                children: [
+                  const Expanded(child: Text('Nhận thêm lượt AI khi xem quảng cáo', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600))),
+                  FilledButton(
+                    onPressed: () => _sapCo('Xem quảng cáo nhận lượt'),
+                    style: FilledButton.styleFrom(backgroundColor: MauApp.xanhLa),
+                    child: const Text('Làm ngay'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            // So sánh gói
+            _theSoSanh(),
+            const SizedBox(height: 20),
+            const Text('Tiện ích', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
+            const SizedBox(height: 8),
+            GridView.count(
+              crossAxisCount: 4,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              childAspectRatio: 0.8,
+              children: [
+                for (final t in dsTienIch)
+                  InkWell(
+                    borderRadius: BorderRadius.circular(14),
+                    onTap: () => moTienIch(context, t),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 46,
+                          height: 46,
+                          decoration: BoxDecoration(
+                            color: t.nhom == NhomTienIch.hanhChinh ? const Color(0xFFE3ECF8) : const Color(0xFFDDF1EC),
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(t.bieuTuong, color: t.nhom == NhomTienIch.hanhChinh ? MauApp.xanhDam : MauApp.xanhLa),
+                        ),
+                        const SizedBox(height: 5),
+                        Text(t.ten, textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
+                      ],
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.privacy_tip_outlined, color: MauApp.xanhDam),
+                    title: const Text('Chính sách quyền riêng tư'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManChinhSach())),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.article_outlined, color: MauApp.xanhDam),
+                    title: const Text('Giấy phép phần mềm'),
+                    subtitle: const Text('Các thư viện mã nguồn mở app sử dụng'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => showLicensePage(
+                      context: context,
+                      applicationName: 'Trợ lý số Giáo viên',
+                      applicationVersion: phienBanApp,
+                      applicationLegalese: 'Bớt sổ sách, thêm giờ cho học trò.',
+                    ),
+                  ),
+                  const Divider(height: 1),
+                  const ListTile(
+                    leading: Icon(Icons.info_outline, color: MauApp.xanhDam),
+                    title: Text('Phiên bản'),
+                    trailing: Text(phienBanApp),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _oSo(String so, String nhan, Color nen) => Container(
+        padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+        decoration: BoxDecoration(color: nen, borderRadius: BorderRadius.circular(14)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(so, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w800)),
+            Text(nhan, style: const TextStyle(color: MauApp.chuPhu)),
+          ],
+        ),
+      );
+
+  Widget _theSoSanh() {
+    const dong = [
+      ('Lượt hỏi Trợ lý mỗi ngày', '5', '100'),
+      ('Lượt giải đề mỗi ngày', '5', '50'),
+      ('AI viết nhận xét, soạn tin', 'Có giới hạn', 'Thoải mái'),
+      ('Quảng cáo', 'Có', 'Không'),
+    ];
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFDDE3EA)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('Trợ lý số GV Pro', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+          const Text('Dùng AI thoải mái hơn, không quảng cáo', style: TextStyle(color: MauApp.chuPhu)),
+          const SizedBox(height: 12),
+          Table(
+            columnWidths: const {0: FlexColumnWidth(2.2), 1: FlexColumnWidth(1.2), 2: FlexColumnWidth(1.2)},
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: [
+              const TableRow(children: [
+                Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('Tính năng', style: TextStyle(fontWeight: FontWeight.w700))),
+                Text('Miễn phí', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w700)),
+                Text('Pro', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w800, color: MauApp.xanhTroi)),
+              ]),
+              for (final (a, b, c) in dong)
+                TableRow(children: [
+                  Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Text(a)),
+                  Text(b, textAlign: TextAlign.center, style: const TextStyle(color: MauApp.chuPhu)),
+                  Text(c, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, color: MauApp.xanhDam)),
+                ]),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: FilledButton(
+              onPressed: () => _sapCo('Gói Pro'),
+              style: FilledButton.styleFrom(backgroundColor: MauApp.xanhLa, padding: const EdgeInsets.symmetric(vertical: 14)),
+              child: const Text('Nâng cấp ngay', style: TextStyle(fontSize: 16)),
             ),
           ),
         ],

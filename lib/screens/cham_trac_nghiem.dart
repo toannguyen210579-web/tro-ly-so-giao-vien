@@ -9,7 +9,7 @@ import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 
-const _khoa = 'cham_trac_nghiem';
+const _khoa = khoaChamTracNghiem;
 
 /// Chấm trắc nghiệm: nhập đáp án từng mã đề, nhập bài làm của học sinh
 /// (chạm ô hoặc gõ nhanh), app tính điểm, thống kê và xuất bảng điểm.

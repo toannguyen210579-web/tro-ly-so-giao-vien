@@ -25,4 +25,9 @@ void main() {
   test('Tên tệp bỏ dấu', () {
     expect(tenTep('Họp tổ Toán tháng 11'), 'hop_to_toan_thang_11');
   });
+
+  test('Lấy đáp án trắc nghiệm từ lời giải AI', () {
+    expect(layDapAnTuLoiGiai('Lời giải…\nĐÁP ÁN TRẮC NGHIỆM: 1A 2C 3. B 5d'), 'ACB-D');
+    expect(layDapAnTuLoiGiai('Không có trắc nghiệm'), isNull);
+  });
 }
