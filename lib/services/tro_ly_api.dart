@@ -12,9 +12,18 @@ const diaChiMayChu = 'https://tro-ly-gv.toannguyen210579.workers.dev';
 /// Trang công khai trên máy chủ (Google Play, App Store bắt buộc có đường dẫn).
 const trangDieuKhoan = '$diaChiMayChu/dieu-khoan';
 const trangQuyenRiengTu = '$diaChiMayChu/quyen-rieng-tu';
+const trangHoTro = '$diaChiMayChu/ho-tro';
+const emailHoTro = 'hotro.trolysogv@gmail.com';
 
-/// Tên loại trong app -> chế độ trên máy chủ. Loại không có ở đây chưa dùng AI ở bản đầu.
-const _cheDo = {'hoi': 'hoi', 'nhan_xet': 'nhanxet', 'tin_ph': 'tinnhan'};
+/// Tên loại trong app -> chế độ trên máy chủ.
+const _cheDo = {
+  'hoi': 'hoi',
+  'nhan_xet': 'nhanxet',
+  'tin_ph': 'tinnhan',
+  'giai_de': 'giaide',
+  'de_tuong_tu': 'detuongtu',
+  'bien_ban': 'bienban',
+};
 
 class KetQuaTroLy {
   final String? traLoi;
@@ -62,18 +71,22 @@ class TroLyApi {
   }
 
   /// loai: 'hoi' (Hỏi Trợ lý), 'nhan_xet' (viết nhận xét), 'tin_ph' (soạn tin phụ huynh).
-  /// Các loại khác (giải đề, biên bản) chưa có trên máy chủ ở bản đầu.
+  /// 'giai_de', 'de_tuong_tu' (được kèm tối đa 4 ảnh JPEG mã base64), 'bien_ban' (sắp xếp biên bản họp).
   static Future<KetQuaTroLy> hoi(String noiDung, {String loai = 'hoi', List<String> anh = const []}) async {
     if (diaChiMayChu.isEmpty) {
       await Future.delayed(const Duration(milliseconds: 600));
       return const KetQuaTroLy(traLoi: '(Chế độ thử) Đây là câu trả lời mẫu.', conLai: 4);
     }
     final cheDo = _cheDo[loai];
-    if (cheDo == null || anh.isNotEmpty) {
-      return const KetQuaTroLy(loi: 'Tiện ích này sẽ dùng AI ở bản sau.');
+    if (cheDo == null) {
+      return const KetQuaTroLy(loi: 'Tiện ích này chưa dùng được AI.');
     }
     try {
-      final j = await _post('/v1/ai', {'device_id': await maMay(), 'mode': cheDo, 'input': noiDung});
+      final j = await _post(
+        '/v1/ai',
+        {'device_id': await maMay(), 'mode': cheDo, 'input': noiDung, if (anh.isNotEmpty) 'images': anh},
+        giay: anh.isEmpty ? 60 : 120,
+      );
       if (j['ok'] == true) {
         final con = j['remaining'] is int ? j['remaining'] as int : null;
         final thuong = j['bonus'] is int ? j['bonus'] as int : 0;

@@ -184,10 +184,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
     await _tai();
   }
 
-  void _sapCo(String viec) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$viec sẽ có ở bản sau.')));
-  }
-
   @override
   Widget build(BuildContext context) {
     final ten = _hoSo[0].isEmpty ? 'Thầy cô chưa ghi tên' : _hoSo[0];
@@ -222,12 +218,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
                         children: [
                           Text(ten, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
                           Text(phu.isEmpty ? 'Bấm để ghi tên, trường, môn dạy' : phu, style: const TextStyle(color: MauApp.chuPhu)),
-                          const SizedBox(height: 6),
-                          FilledButton(
-                            onPressed: () => _sapCo('Gói Pro'),
-                            style: FilledButton.styleFrom(visualDensity: VisualDensity.compact),
-                            child: const Text('Nâng cấp Pro'),
-                          ),
                         ],
                       ),
                     ),
@@ -248,26 +238,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
             const Padding(
               padding: EdgeInsets.only(top: 4),
               child: Text('Lượt miễn phí được làm mới lúc 0 giờ mỗi ngày.', style: TextStyle(fontSize: 12, color: MauApp.chuPhu)),
-            ),
-            const SizedBox(height: 12),
-            // Xem quảng cáo nhận lượt
-            Container(
-              padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFDDE3EA)),
-              ),
-              child: Row(
-                children: [
-                  const Expanded(child: Text('Nhận thêm lượt AI khi xem quảng cáo', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600))),
-                  FilledButton(
-                    onPressed: () => _sapCo('Xem quảng cáo nhận lượt'),
-                    style: FilledButton.styleFrom(backgroundColor: MauApp.xanhLa),
-                    child: const Text('Làm ngay'),
-                  ),
-                ],
-              ),
             ),
             const SizedBox(height: 12),
             const SizedBox(height: 20),
@@ -298,6 +268,14 @@ class _TaiKhoanState extends State<TaiKhoan> {
             Card(
               child: Column(
                 children: [
+                  ListTile(
+                    leading: const Icon(Icons.support_agent, color: MauApp.xanhDam),
+                    title: const Text('Hỗ trợ'),
+                    subtitle: const Text(emailHoTro),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _moTrang(trangHoTro),
+                  ),
+                  const Divider(height: 1),
                   ListTile(
                     leading: const Icon(Icons.privacy_tip_outlined, color: MauApp.xanhDam),
                     title: const Text('Chính sách quyền riêng tư'),

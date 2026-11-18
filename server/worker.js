@@ -20,12 +20,16 @@
 const MODEL = "claude-haiku-5-5";
 const MAX_INPUT = 2000;      // ký tự tối đa mỗi lần gửi
 const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
+// Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
+const MAX_IN = { bienban: 12000, detuongtu: 4000 };
+const MAX_OUT = { giaide: 4000, detuongtu: 3000, bienban: 3000 };
+const IMG_MODES = ["giaide", "detuongtu"]; // chế độ được gửi ảnh đề, tối đa 4 ảnh
 
 // Lượt mỗi máy mỗi ngày. Bản thử nghiệm để nhiều lượt.
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
 const LIMITS = {
-  free: { hoi: 20, nhanxet: 100, tinnhan: 100 },
-  pro: { hoi: 100, nhanxet: 100, tinnhan: 100 },
+  free: { hoi: 20, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20 },
+  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100 },
 };
 const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (cả trường dùng chung wifi)
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
@@ -53,6 +57,24 @@ const SYSTEM = {
     CHUNG +
     " Nhiệm vụ: soạn tin nhắn giáo viên gửi phụ huynh từ các ý giáo viên đưa vào. " +
     "Lời lẽ lịch sự, tôn trọng, rõ việc, ngắn (dưới 120 chữ). Chỉ trả về nội dung tin nhắn.",
+  giaide:
+    CHUNG +
+    " Nhiệm vụ: làm đáp án và hướng dẫn chấm từ đề bài (ảnh hoặc chữ), theo chương trình GDPT 2018. " +
+    "Chỗ ảnh mờ, không đọc chắc thì ghi '(không đọc rõ)', không đoán. Với từng câu: chép lại đề ngắn gọn, " +
+    "lời giải từng bước theo cách học sinh lớp đó được học, đáp số; bài tự luận thêm gợi ý thang điểm. " +
+    "Kiểm tra lại phép tính. Viết công thức bằng ký hiệu thường (x², √, ≤, π), không dùng LaTeX, không dùng markdown. " +
+    "Nếu đề có câu trắc nghiệm, cuối bài thêm đúng một dòng: 'ĐÁP ÁN TRẮC NGHIỆM: 1A 2C 3B …'.",
+  detuongtu:
+    CHUNG +
+    " Nhiệm vụ: ra đề tương tự từ đề mẫu (ảnh hoặc chữ). Giữ dạng bài, mức độ, kiến thức từng câu; " +
+    "đổi số liệu, ngữ cảnh, bảo đảm có đáp án đúng. Trả về đề mới đánh số như đề mẫu, sau đó phần 'ĐÁP ÁN' ngắn gọn. " +
+    "Không dùng LaTeX, không dùng markdown. Có câu trắc nghiệm thì cuối bài thêm đúng một dòng: 'ĐÁP ÁN TRẮC NGHIỆM: 1A 2C 3B …'.",
+  bienban:
+    CHUNG +
+    " Nhiệm vụ: viết lại ghi chép cuộc họp trong nhà trường thành nội dung biên bản. Văn phong hành chính, khách quan, " +
+    "ngôi thứ ba, đúng ý từng người phát biểu, không thêm ý, số liệu, tên người không có trong ghi chép. " +
+    "Trả về đúng hai phần: dòng 'NỘI DUNG:' rồi các đoạn diễn biến; dòng 'KẾT LUẬN:' rồi kết luận, phân công, thời hạn " +
+    "(không có kết luận thì tóm tắt việc đã thống nhất). Không dùng markdown.",
 };
 
 function json(obj, status = 200) {
@@ -286,10 +308,18 @@ export default {
     const device = String(body.device_id || "").slice(0, 64);
     if (!SYSTEM[mode]) return err("sai_che_do", "Chế độ không hợp lệ.", 400);
     if (!okDevice(device)) return err("sai_ma_may", "Mã máy không hợp lệ.", 400);
-    if (!input) return err("trong", "Thầy cô chưa nhập nội dung.", 400);
-    if (input.length > MAX_INPUT) {
-      return err("qua_dai", "Nội dung dài quá, tối đa " + MAX_INPUT + " ký tự.", 400);
+    const imgs = Array.isArray(body.images) ? body.images.filter((a) => typeof a === "string" && a) : [];
+    if (imgs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận ảnh.", 400);
+    if (imgs.length > 4 || imgs.some((a) => a.length > 2000000)) return err("anh_lon", "Tối đa 4 ảnh, mỗi ảnh dưới 1,5 MB.", 400);
+    if (!input && !imgs.length) return err("trong", "Thầy cô chưa nhập nội dung.", 400);
+    const maxIn = MAX_IN[mode] || MAX_INPUT;
+    if (input.length > maxIn) {
+      return err("qua_dai", "Nội dung dài quá, tối đa " + maxIn + " ký tự.", 400);
     }
+    const content = imgs.length
+      ? [...imgs.map((a) => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: a } })),
+        { type: "text", text: input || "Giải đề trong ảnh." }]
+      : input;
     if (await getFlag(db, "block:" + device)) {
       return err("bi_chan", "Máy này đã bị tạm dừng dùng AI. Thầy cô liên hệ hỗ trợ trong app.", 403);
     }
@@ -325,9 +355,9 @@ export default {
         },
         body: JSON.stringify({
           model: MODEL,
-          max_tokens: MAX_TOKENS,
+          max_tokens: MAX_OUT[mode] || MAX_TOKENS,
           system: SYSTEM[mode],
-          messages: [{ role: "user", content: input }],
+          messages: [{ role: "user", content }],
         }),
       });
     } catch {
@@ -501,7 +531,7 @@ Khi phát hiện vi phạm, chúng tôi có thể tạm dừng hoặc chặn tí
 | Tệp quét PDF, ảnh thẻ, nhận xét, tin nhắn, ghi âm, lịch công tác | Các tiện ích của Ứng dụng | Trên máy của thầy cô | Đến khi thầy cô xóa hoặc gỡ Ứng dụng |
 | Mã máy ngẫu nhiên (do Ứng dụng tạo, không gắn với tên hay số điện thoại) | Đếm lượt AI, ghi nhận lượt thưởng và gói Pro | Trên máy và máy chủ | Bộ đếm lượt tự xóa sau 3 ngày; thông tin gói Pro lưu đến khi gói hết hạn |
 | Địa chỉ mạng (IP) | Giới hạn số lượt mỗi mạng, chống lạm dụng | Máy chủ | Tự xóa sau 3 ngày |
-| Nội dung thầy cô gửi cho AI và câu trả lời | Tạo câu trả lời, nhận xét, tin nhắn | Chỉ chuyển qua máy chủ, không lưu; nhà cung cấp AI xử lý theo mục 3 | Không lưu trên máy chủ của chúng tôi |
+| Nội dung thầy cô gửi cho AI (kể cả ảnh đề bài khi dùng Giải đề, ghi chép họp khi nhờ AI sắp xếp biên bản) và câu trả lời | Tạo câu trả lời, nhận xét, tin nhắn | Chỉ chuyển qua máy chủ, không lưu; nhà cung cấp AI xử lý theo mục 3 | Không lưu trên máy chủ của chúng tôi |
 | Nhật ký kỹ thuật: thời điểm, mã máy, IP, loại tính năng, số ký tự (token) | Phát hiện lỗi, lạm dụng | Máy chủ | Tối đa 7 ngày |
 | Nội dung thầy cô bấm "Báo cáo" | Xem xét và cải thiện câu trả lời AI | Máy chủ | Tối đa 90 ngày |
 | Thư thầy cô gửi đến email hỗ trợ | Trả lời, hỗ trợ, hoàn tiền | Hộp thư hotro.trolysogv@gmail.com | Đến khi xử lý xong và tối đa 2 năm |
@@ -543,5 +573,21 @@ Xóa dữ liệu không tự hủy gói Pro; thầy cô hủy gói trên Google 
 - **Trẻ em:** Ứng dụng dành cho người từ đủ 18 tuổi, không dành cho học sinh và không cố ý thu dữ liệu trực tiếp từ trẻ em.
 - **Thay đổi chính sách:** bản mới được thông báo trong Ứng dụng, ghi ngày cập nhật ở đầu trang. Thay đổi lớn (thu thêm loại dữ liệu mới) sẽ xin đồng ý lại.
 - **Liên hệ:** Nguyễn Văn Toàn · email hotro.trolysogv@gmail.com · trong Ứng dụng: Tài khoản → Hỗ trợ.`,
+  },
+  "/ho-tro": {
+    title: "Hỗ trợ – Trợ lý số Giáo viên - Một chạm",
+    updated: "18/11/2026",
+    md: String.raw`## Liên hệ
+- Email: **hotro.trolysogv@gmail.com**. Chúng tôi trả lời trong vòng 3 ngày làm việc.
+- Khi báo lỗi, thầy cô ghi kèm **mã máy** (Tài khoản → Mã máy, bấm để chép), tên điện thoại và mô tả việc đang làm.
+## Câu hỏi thường gặp
+- **Mỗi ngày được bao nhiêu lượt AI?** Hỏi Trợ lý 20 câu, Nhờ AI viết nhận xét 100 lượt, Nhờ AI soạn tin 100 lượt, Giải đề 10 lượt, Ra đề tương tự 10 lượt, Nhờ AI sắp xếp biên bản 20 lượt. Lượt được làm mới lúc 0 giờ (giờ Việt Nam).
+- **AI trả lời sai thì sao?** Thầy cô bấm **Báo cáo** dưới câu trả lời. AI có thể nhầm, thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.
+- **Dữ liệu học sinh có bị gửi đi không?** Danh sách học sinh, điểm, biên bản, ảnh lưu trên điện thoại. Khi bấm nút AI, tên học sinh được thay bằng mã HS01, HS02.
+- **Xóa dữ liệu thế nào?** Tài khoản → Xóa dữ liệu của tôi trên máy chủ. Dữ liệu trên điện thoại xóa khi gỡ Ứng dụng.
+- **Đổi điện thoại có mất dữ liệu không?** Có. Bản này chưa có sao lưu, thầy cô xuất PDF, Excel những gì cần giữ trước khi đổi máy.
+## Văn bản liên quan
+- [Điều khoản sử dụng](/dieu-khoan)
+- [Chính sách quyền riêng tư](/quyen-rieng-tu)`,
   },
 };
