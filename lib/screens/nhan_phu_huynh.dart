@@ -23,6 +23,8 @@ const _dsMau = [
       'Kính gửi quý phụ huynh em [tên học sinh],\nThời gian qua em có tiến bộ ở [nội dung]. Giáo viên xin chia sẻ để gia đình cùng động viên em.\nTrân trọng,\nGVCN [họ tên] · lớp [lớp]'),
   _Mau('Nhắc nộp khoản',
       'Kính gửi quý phụ huynh em [tên học sinh],\nKính nhắc quý phụ huynh hoàn thành khoản [tên khoản] trước ngày [ngày].\nTrân trọng,\nGVCN [họ tên] · lớp [lớp]'),
+  _Mau('Trao đổi khác',
+      'Kính gửi quý phụ huynh em [tên học sinh],\nGiáo viên xin trao đổi với gia đình về việc [nội dung cần trao đổi].\nKính mong quý phụ huynh phản hồi hoặc sắp xếp thời gian trao đổi trực tiếp với giáo viên.\nTrân trọng,\nGVCN [họ tên] · lớp [lớp]'),
   _Mau('Nghỉ lễ, đổi lịch',
       'Kính gửi quý phụ huynh,\nHọc sinh được nghỉ [lý do] từ ngày [ngày] đến ngày [ngày], đi học lại ngày [ngày].\nTrân trọng,\nGVCN [họ tên] · lớp [lớp]'),
 ];
