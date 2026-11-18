@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../services/tro_ly_api.dart';
+import 'cau_giup_viec.dart';
 
 class _TinNhan {
   final bool laNguoiDung;
@@ -94,6 +95,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
       ),
       body: Column(
         children: [
+          const CauGiupViec('hoi', margin: EdgeInsets.fromLTRB(16, 4, 16, 4)),
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text(

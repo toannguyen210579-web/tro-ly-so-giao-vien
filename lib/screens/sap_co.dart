@@ -23,7 +23,9 @@ class SapCo extends StatelessWidget {
             children: [
               Icon(tienIch.bieuTuong, size: 56, color: MauApp.xanhTroi),
               const SizedBox(height: 16),
-              Text(ghiChu, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
+              Text(tienIch.giupGi, textAlign: TextAlign.center, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              const SizedBox(height: 10),
+              Text(ghiChu, textAlign: TextAlign.center, style: const TextStyle(fontSize: 14, color: MauApp.chuPhu)),
             ],
           ),
         ),

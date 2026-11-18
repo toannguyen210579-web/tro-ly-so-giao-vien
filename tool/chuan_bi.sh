@@ -70,4 +70,16 @@ for G in android/build.gradle.kts android/build.gradle; do
     fi
   fi
 done
+# Tên hiện dưới biểu tượng trên màn hình điện thoại
+/usr/bin/env python3 - <<'PY'
+import re
+p='android/app/src/main/AndroidManifest.xml'
+s=open(p,encoding='utf-8').read()
+s=re.sub(r'android:label="[^"]*"','android:label="Trợ lý số GV"',s,count=1)
+open(p,'w',encoding='utf-8').write(s)
+p='ios/Runner/Info.plist'
+s=open(p,encoding='utf-8').read()
+s=re.sub(r'(<key>CFBundleDisplayName</key>\s*<string>)[^<]*(</string>)',r'\g<1>Trợ lý số GV\g<2>',s)
+open(p,'w',encoding='utf-8').write(s)
+PY
 echo "Da chuan bi xong."

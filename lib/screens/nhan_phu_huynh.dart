@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
 import '../services/tro_ly_api.dart';
+import 'cau_giup_viec.dart';
 
 class _Mau {
   final String ten;
@@ -93,6 +94,7 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
+          const CauGiupViec('nhan_ph'),
           const Text('Chọn loại tin', style: TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           Wrap(

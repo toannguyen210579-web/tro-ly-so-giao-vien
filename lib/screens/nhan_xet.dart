@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tro_ly_api.dart';
+import 'cau_giup_viec.dart';
 
 // ---------------------------------------------------------------------------
 // Dữ liệu
@@ -190,7 +191,11 @@ class _NhanXetHocSinhState extends State<NhanXetHocSinh> {
         icon: const Icon(Icons.add),
         label: const Text('Thêm lớp'),
       ),
-      body: ds == null
+      body: Column(
+        children: [
+          const CauGiupViec('nhan_xet', margin: EdgeInsets.fromLTRB(12, 4, 12, 0)),
+          Expanded(
+            child: ds == null
           ? const Center(child: CircularProgressIndicator())
           : ds.isEmpty
               ? const Center(
@@ -228,6 +233,9 @@ class _NhanXetHocSinhState extends State<NhanXetHocSinh> {
                     );
                   },
                 ),
+          ),
+        ],
+      ),
     );
   }
 }

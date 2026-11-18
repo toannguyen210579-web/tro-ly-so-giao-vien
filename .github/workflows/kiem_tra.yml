@@ -19,6 +19,7 @@ jobs:
           cache: true
       - run: bash tool/chuan_bi.sh
       - run: flutter pub get
+      - run: dart run flutter_launcher_icons
       - run: flutter analyze --no-fatal-infos
       - run: flutter test
       - run: flutter build apk --release
@@ -37,4 +38,5 @@ jobs:
           cache: true
       - run: bash tool/chuan_bi.sh
       - run: flutter pub get
+      - run: dart run flutter_launcher_icons
       - run: flutter build ios --release --no-codesign

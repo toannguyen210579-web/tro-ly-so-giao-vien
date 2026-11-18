@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
+import 'cau_giup_viec.dart';
 
 const dsNhomMinhChung = [
   'Chuẩn nghề nghiệp',
@@ -220,6 +221,7 @@ class _SoMinhChungState extends State<SoMinhChung> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         children: [
+          const CauGiupViec('minh_chung'),
           const Text(
             'Chụp giấy khen, ảnh hoạt động, giấy chứng nhận… và xếp theo nhóm. '
             'Khi cần nộp hồ sơ thi đua, đánh giá chuẩn hay kiểm định, bấm biểu tượng PDF ở góc trên để xuất.',

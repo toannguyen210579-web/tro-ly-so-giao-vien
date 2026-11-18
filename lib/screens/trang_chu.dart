@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/tien_ich.dart';
 import '../main.dart';
+import 'bieu_tuong.dart';
 import 'chu_chay.dart';
 import 'dieu_huong.dart';
 import 'tai_khoan.dart';
@@ -154,15 +155,15 @@ class _TrangChuState extends State<TrangChu> {
         ),
         Row(
           children: [
-            for (final t in ds) Expanded(child: _o1(t.ten, t.bieuTuong, nenO, mau, () => moTienIch(context, t), moTa: t.moTa)),
-            Expanded(child: _o1('Khác', Icons.apps, const Color(0xFFEEF1F5), MauApp.chuPhu, () => moXemThem(context), moTa: 'Xem đủ 15 tiện ích')),
+            for (final t in ds) Expanded(child: _o1(t.ten, t.bieuTuong, t.ma, () => moTienIch(context, t), moTa: t.moTa)),
+            Expanded(child: _o1('Khác', Icons.apps, 'khac', () => moXemThem(context), moTa: 'Xem đủ 15 tiện ích')),
           ],
         ),
       ],
     );
   }
 
-  Widget _o1(String ten, IconData icon, Color nen, Color mau, VoidCallback bam, {String? moTa}) {
+  Widget _o1(String ten, IconData icon, String ma, VoidCallback bam, {String? moTa}) {
     return InkWell(
       borderRadius: BorderRadius.circular(14),
       onTap: bam,
@@ -170,13 +171,8 @@ class _TrangChuState extends State<TrangChu> {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
         child: Column(
           children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(color: nen, borderRadius: BorderRadius.circular(14)),
-              child: Icon(icon, color: mau),
-            ),
-            const SizedBox(height: 6),
+            BieuTuongNoi(ma: ma, icon: icon, size: 54),
+            const SizedBox(height: 8),
             Text(ten, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
             if (moTa != null) ...[
               const SizedBox(height: 2),

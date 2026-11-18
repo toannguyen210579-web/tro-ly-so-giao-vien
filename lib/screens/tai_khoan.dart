@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/tien_ich.dart';
 import '../main.dart';
 import '../services/tro_ly_api.dart';
+import 'bieu_tuong.dart';
 import 'dieu_huong.dart';
 
 const phienBanApp = '0.2.0';
@@ -251,16 +252,8 @@ class _TaiKhoanState extends State<TaiKhoan> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 46,
-                          height: 46,
-                          decoration: BoxDecoration(
-                            color: t.nhom == NhomTienIch.hanhChinh ? const Color(0xFFE3ECF8) : const Color(0xFFDDF1EC),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(t.bieuTuong, color: t.nhom == NhomTienIch.hanhChinh ? MauApp.xanhDam : MauApp.xanhLa),
-                        ),
-                        const SizedBox(height: 5),
+                        BieuTuongNoi(ma: t.ma, icon: t.bieuTuong, size: 46, mo: !t.coTrongBanDau),
+                        const SizedBox(height: 7),
                         Text(t.ten, textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
                       ],
                     ),

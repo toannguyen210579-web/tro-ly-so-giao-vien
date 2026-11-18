@@ -8,6 +8,7 @@ import '../data/cham_diem.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
+import 'cau_giup_viec.dart';
 
 const _khoa = khoaChamTracNghiem;
 
@@ -115,6 +116,7 @@ class _ChamTracNghiemState extends State<ChamTracNghiem> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         children: [
+          const CauGiupViec('cham_tn'),
           const Text(
             'Bước 1: tạo bài, nhập đáp án từng mã đề. Bước 2: nhập bài làm của từng em bằng cách chạm ô '
             'hoặc gõ nhanh chuỗi đáp án. App tự tính điểm thang 10 và thống kê cả lớp.',

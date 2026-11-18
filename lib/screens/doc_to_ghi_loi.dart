@@ -6,6 +6,7 @@ import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
 import '../main.dart';
+import 'cau_giup_viec.dart';
 
 /// Tách văn bản dài thành từng đoạn ngắn để bộ đọc của máy không bị cắt chữ.
 List<String> tachCau(String s, {int toiDa = 300}) {
@@ -55,7 +56,12 @@ class DocToGhiLoi extends StatelessWidget {
             Tab(icon: Icon(Icons.mic_none), text: 'Giọng nói → Văn bản'),
           ]),
         ),
-        body: const TabBarView(children: [_DocTo(), _GhiLoiNoi()]),
+        body: const Column(
+          children: [
+            CauGiupViec('doc_to', margin: EdgeInsets.fromLTRB(16, 10, 16, 0)),
+            Expanded(child: TabBarView(children: [_DocTo(), _GhiLoiNoi()])),
+          ],
+        ),
       ),
     );
   }

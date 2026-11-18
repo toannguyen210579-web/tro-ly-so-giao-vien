@@ -8,6 +8,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
+import 'cau_giup_viec.dart';
 
 /// Quét giấy tờ bằng máy ảnh (tự nhận mép giấy) rồi gộp thành một tệp PDF.
 /// Chạy hoàn toàn trên máy, không cần mạng.
@@ -98,6 +99,7 @@ class _QuetPdfState extends State<QuetPdf> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
+          const CauGiupViec('quet'),
           FilledButton.icon(
             onPressed: _quet,
             icon: const Icon(Icons.document_scanner_outlined),

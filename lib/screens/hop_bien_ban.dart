@@ -12,6 +12,7 @@ import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/tro_ly_api.dart';
 import 'doc_to_ghi_loi.dart';
+import 'cau_giup_viec.dart';
 
 const dsLoaiHop = [
   'Họp tổ chuyên môn',
@@ -131,6 +132,7 @@ class _HopBienBanState extends State<HopBienBan> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         children: [
+          const CauGiupViec('hop'),
           const Text(
             'Ghi nhanh ý kiến trong lúc họp (có nút "Nói để ghi" để nói thay gõ). '
             'Họp xong, app xếp thành biên bản đúng mẫu, xuất PDF để in hoặc gửi.',

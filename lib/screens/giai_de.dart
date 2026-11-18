@@ -10,6 +10,7 @@ import '../data/cham_diem.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tro_ly_api.dart';
+import 'cau_giup_viec.dart';
 
 const _dsMon = ['Toán', 'Ngữ văn', 'Tiếng Anh', 'KHTN', 'Vật lí', 'Hóa học', 'Sinh học', 'Lịch sử và Địa lí', 'Tin học', 'GDCD', 'Khác'];
 
@@ -140,6 +141,7 @@ class _GiaiDeState extends State<GiaiDe> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
+          const CauGiupViec('tao_de'),
           const Text(
             'Chụp đề hoặc trang sách, AI làm lời giải từng bước, đáp án và gợi ý thang điểm; '
             'hoặc ra đề tương tự để ôn tập. Thầy cô kiểm tra lại trước khi dùng.',

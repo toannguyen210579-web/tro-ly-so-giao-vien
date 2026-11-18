@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
+import 'cau_giup_viec.dart';
 
 /// Ảnh thẻ: tách nền ngay trên máy (ML Kit), thay nền xanh hoặc trắng,
 /// cắt cỡ 3x4 hoặc 4x6, xếp tờ in 10x15 cm. Không gửi ảnh đi đâu.
@@ -106,6 +107,7 @@ class _AnhTheState extends State<AnhThe> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
+          const CauGiupViec('anh_the'),
           Row(
             children: [
               Expanded(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../data/tien_ich.dart';
 import '../main.dart';
+import 'bieu_tuong.dart';
 import 'chu_chay.dart';
 import 'dieu_huong.dart';
 
@@ -45,16 +46,8 @@ class XemThem extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: t.coTrongBanDau ? mau.withOpacity(0.12) : const Color(0xFFEEF1F5),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Icon(t.bieuTuong, color: t.coTrongBanDau ? mau : MauApp.chuPhu),
-                    ),
-                    const SizedBox(height: 6),
+                    BieuTuongNoi(ma: t.ma, icon: t.bieuTuong, size: 50, mo: !t.coTrongBanDau),
+                    const SizedBox(height: 8),
                     Text(t.ten, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 2),
                     Padding(
