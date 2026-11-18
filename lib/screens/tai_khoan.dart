@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/tien_ich.dart';
 import '../main.dart';
@@ -8,7 +10,7 @@ import '../services/tro_ly_api.dart';
 import 'bieu_tuong.dart';
 import 'dieu_huong.dart';
 
-const phienBanApp = '0.2.0';
+const phienBanApp = '0.3.0';
 const ngayChinhSach = '18/11/2026';
 
 /// Nội dung Chính sách quyền riêng tư. Bản này cũng chép ra tệp CHINH_SACH_QUYEN_RIENG_TU.md
@@ -93,7 +95,7 @@ class HoSo {
 }
 
 /// Lượt AI miễn phí mỗi ngày (khớp với máy chủ trong server/worker.js).
-const luotMienPhi = {'hoi': 5, 'giai_de': 5};
+const luotMienPhi = {'hoi': 20, 'nhanxet': 100, 'tinnhan': 100};
 
 class TaiKhoan extends StatefulWidget {
   const TaiKhoan({super.key});
@@ -105,7 +107,8 @@ class TaiKhoan extends StatefulWidget {
 class _TaiKhoanState extends State<TaiKhoan> {
   List<String> _hoSo = ['', '', ''];
   int _luotHoi = luotMienPhi['hoi']!;
-  int _luotGiai = luotMienPhi['giai_de']!;
+  int _luotNhanXet = luotMienPhi['nhanxet']!;
+  String _maMay = '';
 
   @override
   void initState() {
@@ -115,15 +118,48 @@ class _TaiKhoanState extends State<TaiKhoan> {
 
   Future<void> _tai() async {
     final h = await HoSo.doc();
+    final ma = await TroLyApi.maMay();
+    await TroLyApi.layLuot();
     final a = await TroLyApi.luotConLai('hoi', luotMienPhi['hoi']!);
-    final b = await TroLyApi.luotConLai('giai_de', luotMienPhi['giai_de']!);
+    final b = await TroLyApi.luotConLai('nhanxet', luotMienPhi['nhanxet']!);
     if (mounted) {
       setState(() {
         _hoSo = h;
         _luotHoi = a;
-        _luotGiai = b;
+        _luotNhanXet = b;
+        _maMay = ma;
       });
     }
+  }
+
+  Future<void> _moTrang(String url) async {
+    final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Chưa mở được trang. Địa chỉ: $url')));
+    }
+  }
+
+  Future<void> _xoaDuLieu() async {
+    final dongY = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Xóa dữ liệu trên máy chủ?'),
+        content: const Text(
+          'Máy chủ sẽ xóa số lượt đã dùng và các báo cáo thầy cô đã gửi từ máy này. '
+          'Dữ liệu lưu trong điện thoại (lớp học, biên bản, tệp) không bị ảnh hưởng. '
+          'Việc xóa không hoàn tác được.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Thôi')),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Xóa')),
+        ],
+      ),
+    );
+    if (dongY != true) return;
+    final loi = await TroLyApi.xoaDuLieuMayChu();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(loi)));
+    await _tai();
   }
 
   Future<void> _suaHoSo() async {
@@ -206,7 +242,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
               children: [
                 Expanded(child: _oSo('$_luotHoi/${luotMienPhi['hoi']}', 'Lượt hỏi Trợ lý', const Color(0xFFFFF4D6))),
                 const SizedBox(width: 8),
-                Expanded(child: _oSo('$_luotGiai/${luotMienPhi['giai_de']}', 'Lượt giải đề', const Color(0xFFE3ECF8))),
+                Expanded(child: _oSo('$_luotNhanXet/${luotMienPhi['nhanxet']}', 'Lượt AI viết nhận xét', const Color(0xFFE3ECF8))),
               ],
             ),
             const Padding(
@@ -234,8 +270,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
               ),
             ),
             const SizedBox(height: 12),
-            // So sánh gói
-            _theSoSanh(),
             const SizedBox(height: 20),
             const Text('Tiện ích', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
@@ -268,7 +302,35 @@ class _TaiKhoanState extends State<TaiKhoan> {
                     leading: const Icon(Icons.privacy_tip_outlined, color: MauApp.xanhDam),
                     title: const Text('Chính sách quyền riêng tư'),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManChinhSach())),
+                    onTap: () => _moTrang(trangQuyenRiengTu),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.gavel_outlined, color: MauApp.xanhDam),
+                    title: const Text('Điều khoản sử dụng'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _moTrang(trangDieuKhoan),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.fingerprint, color: MauApp.xanhDam),
+                    title: const Text('Mã máy'),
+                    subtitle: Text(_maMay.isEmpty ? '…' : _maMay, style: const TextStyle(fontFamily: 'monospace', fontSize: 12.5)),
+                    trailing: const Icon(Icons.copy, size: 18),
+                    onTap: () async {
+                      await Clipboard.setData(ClipboardData(text: _maMay));
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Đã chép mã máy. Gửi mã này khi cần hỗ trợ.')),
+                      );
+                    },
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.delete_outline, color: Colors.redAccent),
+                    title: const Text('Xóa dữ liệu của tôi trên máy chủ'),
+                    subtitle: const Text('Số lượt đã dùng và báo cáo đã gửi'),
+                    onTap: _xoaDuLieu,
                   ),
                   const Divider(height: 1),
                   ListTile(
@@ -309,60 +371,6 @@ class _TaiKhoanState extends State<TaiKhoan> {
           ],
         ),
       );
-
-  Widget _theSoSanh() {
-    const dong = [
-      ('Hỏi Trợ lý', '5', '50'),
-      ('Giải đề, soạn đáp án', '5', '50'),
-      ('Ra đề tương tự', '5', '50'),
-      ('AI viết nhận xét', '30', '300'),
-      ('AI soạn tin phụ huynh', '20', '200'),
-      ('AI sắp xếp biên bản', '10', '100'),
-      ('Quảng cáo', 'Có', 'Không'),
-    ];
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: const Color(0xFFDDE3EA)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text('Trợ lý số GV Pro', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
-          const Text('Gấp 10 lần lượt AI miễn phí, không quảng cáo', style: TextStyle(color: MauApp.chuPhu)),
-          const SizedBox(height: 12),
-          Table(
-            columnWidths: const {0: FlexColumnWidth(2.2), 1: FlexColumnWidth(1.2), 2: FlexColumnWidth(1.2)},
-            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-            children: [
-              const TableRow(children: [
-                Padding(padding: EdgeInsets.symmetric(vertical: 6), child: Text('Lượt mỗi ngày', style: TextStyle(fontWeight: FontWeight.w700))),
-                Text('Miễn phí', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w700)),
-                Text('Pro', textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.w800, color: MauApp.xanhTroi)),
-              ]),
-              for (final (a, b, c) in dong)
-                TableRow(children: [
-                  Padding(padding: const EdgeInsets.symmetric(vertical: 7), child: Text(a)),
-                  Text(b, textAlign: TextAlign.center, style: const TextStyle(color: MauApp.chuPhu)),
-                  Text(c, textAlign: TextAlign.center, style: const TextStyle(fontWeight: FontWeight.w700, color: MauApp.xanhDam)),
-                ]),
-            ],
-          ),
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: FilledButton(
-              onPressed: () => _sapCo('Gói Pro'),
-              style: FilledButton.styleFrom(backgroundColor: MauApp.xanhLa, padding: const EdgeInsets.symmetric(vertical: 14)),
-              child: const Text('Nâng cấp ngay', style: TextStyle(fontSize: 16)),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class ManChinhSach extends StatelessWidget {

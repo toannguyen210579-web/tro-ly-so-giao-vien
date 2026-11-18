@@ -58,7 +58,7 @@ const noiBatHanhChinh = ['hop', 'doc_to', 'quet', 'minh_chung'];
 const noiBatChuyenMon = ['nhan_xet', 'cham_tn', 'nhan_ph'];
 
 /// Câu giải thích cho Hỏi Trợ lý (không nằm trong danh sách tiện ích).
-const giupGiHoiTroLy = 'Hỏi nhanh chế độ, văn bản, không phải lục tìm trên mạng.';
+const giupGiHoiTroLy = 'Hỏi nhanh mọi việc, từ chế độ, văn bản đến chuyện thường ngày.';
 
 TienIch timTheoMa(String ma) => dsTienIch.firstWhere((t) => t.ma == ma);
 

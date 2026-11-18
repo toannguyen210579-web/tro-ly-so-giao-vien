@@ -1,14 +1,16 @@
-name = "tro-ly-so-giao-vien"
+# Bản đang chạy: Cloudflare Worker tro-ly-gv (tro-ly-gv.toannguyen210579.workers.dev).
+# Mã trong worker.js khớp với bản đã triển khai trên bảng điều khiển Cloudflare.
+name = "tro-ly-gv"
 main = "worker.js"
 compatibility_date = "2026-11-01"
 
-# Kho đếm lượt và lưu báo cáo. Thay ID sau khi chạy:
-#   npx wrangler kv namespace create LUOT
-[[kv_namespaces]]
-binding = "LUOT"
-id = "THAY_BANG_ID_KHO_LUOT"
+[vars]
+AI_ENABLED = "1"
 
-# Kho R2 chứa ảnh bìa, clip mp4 của kênh (tạo bằng: npx wrangler r2 bucket create vntd-media)
-[[r2_buckets]]
-binding = "MEDIA"
-bucket_name = "vntd-media"
+# Bộ đếm lượt, cờ Pro/chặn, báo cáo nội dung AI (bảng tạo bằng schema.sql)
+[[d1_databases]]
+binding = "DB"
+database_name = "tro-ly-gv-db"
+database_id = "999a474c-079c-4633-8aa4-45cf776232c2"
+
+# Khóa Claude đặt bằng: npx wrangler secret put ANTHROPIC_API_KEY (không ghi vào tệp này)

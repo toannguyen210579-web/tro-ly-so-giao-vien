@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
+import 'chu_ai.dart';
 
 class _TinNhan {
   final bool laNguoiDung;
@@ -11,7 +12,7 @@ class _TinNhan {
   const _TinNhan(this.laNguoiDung, this.noiDung, {this.cauHoi});
 }
 
-/// Hỏi Trợ lý: chỉ trả lời việc của nghề giáo, giới hạn số câu mỗi ngày.
+/// Hỏi Trợ lý: hỏi mọi việc, giới hạn số câu mỗi ngày (máy chủ đếm).
 class HoiTroLy extends StatefulWidget {
   final String? cauHoiDau;
   const HoiTroLy({super.key, this.cauHoiDau});
@@ -29,10 +30,19 @@ class _HoiTroLyState extends State<HoiTroLy> {
   @override
   void initState() {
     super.initState();
+    _layLuot();
     final c = widget.cauHoiDau;
     if (c != null && c.trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _gui(c));
     }
+  }
+
+  Future<void> _layLuot() async {
+    final cu = await TroLyApi.luotConLai('hoi', -1);
+    if (mounted && cu >= 0 && _conLai == null) setState(() => _conLai = cu);
+    final l = await TroLyApi.layLuot();
+    if (!mounted || l == null) return;
+    setState(() => _conLai = (l.conLai['hoi'] ?? 0) + l.thuong);
   }
 
   @override
@@ -73,7 +83,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
       ),
     );
     if (lyDo == null) return;
-    final ok = await TroLyApi.baoCao(cauHoi: t.cauHoi ?? '', traLoi: t.noiDung, lyDo: lyDo);
+    final ok = await TroLyApi.baoCao(cauHoi: t.cauHoi ?? '', traLoi: t.noiDung, lyDo: lyDo, loai: 'hoi');
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(ok ? 'Đã gửi báo cáo. Cảm ơn thầy cô.' : 'Chưa gửi được, thầy cô thử lại sau.')),
@@ -99,7 +109,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
           const Padding(
             padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
             child: Text(
-              'Trợ lý trả lời về chế độ, tiền lương, Thông tư, viết văn bản và phương pháp dạy học.',
+              'Hỏi Trợ lý mọi việc: chế độ, văn bản, dạy học hay chuyện thường ngày. Trợ lý không cập nhật giá cả, tin tức trong ngày.',
               style: TextStyle(color: MauApp.chuPhu),
             ),
           ),
@@ -128,14 +138,14 @@ class _HoiTroLyState extends State<HoiTroLy> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SelectableText(
-                          t.noiDung,
-                          style: TextStyle(fontSize: 15, height: 1.45, color: t.laNguoiDung ? Colors.white : MauApp.chu),
-                        ),
+                        if (t.laNguoiDung)
+                          SelectableText(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: Colors.white))
+                        else
+                          ChuAI(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: MauApp.chu)),
                         if (!t.laNguoiDung) ...[
                           const SizedBox(height: 4),
                           const Text(
-                            'AI có thể nhầm. Thầy cô đối chiếu văn bản gốc trước khi dùng.',
+                            'AI có thể nhầm. Thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.',
                             style: TextStyle(fontSize: 11.5, color: MauApp.chuPhu),
                           ),
                           Align(
@@ -168,7 +178,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _gui(),
                       decoration: InputDecoration(
-                        hintText: 'Thầy cô hỏi gì về nghề giáo?',
+                        hintText: 'Thầy cô cần hỏi gì?',
                         filled: true,
                         fillColor: Colors.white,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),

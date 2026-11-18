@@ -364,11 +364,13 @@ class _ManLopState extends State<_ManLop> {
     setState(() => _dangChoAI = true);
     var conLai = -1;
     String? loi;
-    for (var b = 0; b < can.length; b += 20) {
-      final dot = can.sublist(b, b + 20 > can.length ? can.length : b + 20);
+    // Mỗi lần gửi 6 em để câu trả lời không bị cắt (máy chủ giới hạn độ dài trả về).
+    for (var b = 0; b < can.length; b += 6) {
+      final dot = can.sublist(b, b + 6 > can.length ? can.length : b + 6);
       final cauHoi = StringBuffer()
         ..writeln('Cấp học: ${lop.tenCap}. Môn: ${lop.mon.isEmpty ? 'chưa ghi' : lop.mon}.')
-        ..writeln('Viết lời nhận xét cho từng học sinh theo mức sau:');
+        ..writeln('Viết lời nhận xét ngắn (1–2 câu) cho từng học sinh theo mức sau.')
+        ..writeln('Trả về mỗi học sinh đúng một dòng, dạng "HS01: lời nhận xét", không thêm tiêu đề hay giải thích.');
       for (final i in dot) {
         final ma = 'HS${(i + 1).toString().padLeft(2, '0')}';
         cauHoi.writeln('$ma: ${lop.hocSinh[i].muc}');
@@ -380,10 +382,10 @@ class _ManLopState extends State<_ManLop> {
       }
       conLai = kq.conLai ?? conLai;
       for (final dong in kq.traLoi!.split('\n')) {
-        final m = RegExp(r'^\s*HS(\d+)\s*[:\-–.]\s*(.+)$').firstMatch(dong);
+        final m = RegExp(r'^\s*[-*]?\s*(?:\*\*)?HS(\d+)(?:\*\*)?\s*[:\-–.]\s*(.+)$').firstMatch(dong);
         if (m == null) continue;
         final i = int.parse(m.group(1)!) - 1;
-        if (i >= 0 && i < lop.hocSinh.length) lop.hocSinh[i].nhanXet = m.group(2)!.trim();
+        if (i >= 0 && i < lop.hocSinh.length) lop.hocSinh[i].nhanXet = boDauMarkdown(m.group(2)!);
       }
     }
     await _luu();

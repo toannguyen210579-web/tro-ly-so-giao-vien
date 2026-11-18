@@ -74,7 +74,7 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
     if (!mounted) return;
     setState(() => _dangChoAI = false);
     if (kq.traLoi != null) {
-      _tin.text = kq.traLoi!;
+      _tin.text = boDauMarkdown(kq.traLoi!);
       _bao('AI đã soạn xong. Thầy cô đọc lại và sửa trước khi gửi.');
     } else {
       _bao(kq.loi ?? 'Chưa soạn được, thầy cô thử lại.');
