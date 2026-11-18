@@ -41,6 +41,10 @@ them='''        <intent>
         <intent>
             <action android:name="android.intent.action.TTS_SERVICE"/>
         </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="https"/>
+        </intent>
 '''
 if '<queries>' in s:
     s=s.replace('<queries>', '<queries>\n'+them, 1)

@@ -5,6 +5,7 @@ import '../main.dart';
 import 'chu_chay.dart';
 import 'dieu_huong.dart';
 import 'tai_khoan.dart';
+import 'tin_kenh.dart';
 
 class TrangChu extends StatefulWidget {
   const TrangChu({super.key});
@@ -42,9 +43,7 @@ class _TrangChuState extends State<TrangChu> {
             const SizedBox(height: 8),
             _theHan(),
             const SizedBox(height: 16),
-            const Text('Tin cho thầy cô', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
-            const SizedBox(height: 8),
-            _theTin('Tin về tiền lương, chế độ giáo viên sẽ hiện ở đây', 'từ Việt Nam Tiêu Điểm'),
+            const MucTinKenh(),
           ],
         ),
       ),
@@ -205,22 +204,6 @@ class _TrangChuState extends State<TrangChu> {
         title: const Text('Chưa có việc sắp đến hạn', style: TextStyle(fontWeight: FontWeight.w700)),
         subtitle: const Text('Lịch công tác'),
         trailing: const Icon(Icons.chevron_right),
-      ),
-    );
-  }
-
-  Widget _theTin(String tieuDe, String nguon) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      child: ListTile(
-        leading: Container(
-          width: 56,
-          height: 56,
-          decoration: BoxDecoration(color: const Color(0xFFDCE6F5), borderRadius: BorderRadius.circular(12)),
-        ),
-        title: Text(tieuDe, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text(nguon),
       ),
     );
   }

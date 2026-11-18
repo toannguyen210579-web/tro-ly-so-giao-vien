@@ -134,11 +134,63 @@ async function xuLyBaoCao(req, env) {
   return json({ ok: true });
 }
 
+// Danh sách tin kênh Việt Nam Tiêu Điểm cho mục "Tin cho thầy cô".
+// GET /tin: app đọc. POST /tin: chủ kênh cập nhật, kèm header x-khoa-quan-tri (biến bí mật KHOA_QUAN_TRI).
+async function xuLyTin(req, env) {
+  if (req.method === "GET") {
+    const s = (await env.LUOT.get("tin")) || "[]";
+    return new Response(s, { headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "public, max-age=300" } });
+  }
+  if (!env.KHOA_QUAN_TRI || req.headers.get("x-khoa-quan-tri") !== env.KHOA_QUAN_TRI) return json({ loi: "Không có quyền." }, 403);
+  let ds;
+  try {
+    ds = await req.json();
+  } catch {
+    return json({ loi: "Dữ liệu không hợp lệ." }, 400);
+  }
+  if (!Array.isArray(ds)) return json({ loi: "Cần một danh sách tin." }, 400);
+  const sach = ds.slice(0, 60).map((t) => ({
+    id: String(t.id || "").slice(0, 120),
+    ngay: String(t.ngay || "").slice(0, 10),
+    tit: String(t.tit || "").slice(0, 200),
+    tom_tat: String(t.tom_tat || "").slice(0, 1500),
+    anh_bia: String(t.anh_bia || "").slice(0, 500),
+    link_facebook: t.link_facebook ? String(t.link_facebook).slice(0, 500) : null,
+    video: t.video ? String(t.video).slice(0, 500) : null,
+  }));
+  await env.LUOT.put("tin", JSON.stringify(sach));
+  return json({ ok: true, so_tin: sach.length });
+}
+
+// Ảnh bìa, clip mp4 đặt trên Cloudflare R2 (kho MEDIA), phục vụ qua /media/<tên tệp>.
+async function xuLyMedia(req, env, ten) {
+  if (!env.MEDIA) return new Response("Chưa nối kho R2", { status: 404 });
+  const range = req.headers.get("range");
+  const obj = await env.MEDIA.get(ten, range ? { range: req.headers } : undefined);
+  if (!obj) return new Response("Không thấy tệp", { status: 404 });
+  const h = new Headers();
+  obj.writeHttpMetadata(h);
+  h.set("etag", obj.httpEtag);
+  h.set("accept-ranges", "bytes");
+  h.set("cache-control", "public, max-age=86400");
+  if (range && obj.range) {
+    const off = obj.range.offset ?? 0;
+    const len = obj.range.length ?? obj.size - off;
+    h.set("content-range", `bytes ${off}-${off + len - 1}/${obj.size}`);
+    h.set("content-length", String(len));
+    return new Response(obj.body, { status: 206, headers: h });
+  }
+  h.set("content-length", String(obj.size));
+  return new Response(obj.body, { headers: h });
+}
+
 export default {
   async fetch(req, env) {
     const url = new URL(req.url);
     if (req.method === "POST" && url.pathname === "/hoi") return xuLyHoi(req, env);
     if (req.method === "POST" && url.pathname === "/bao-cao") return xuLyBaoCao(req, env);
+    if (url.pathname === "/tin") return xuLyTin(req, env);
+    if (req.method === "GET" && url.pathname.startsWith("/media/")) return xuLyMedia(req, env, decodeURIComponent(url.pathname.slice(7)));
     return json({ ten: "Trợ lý số Giáo viên", trang_thai: "đang chạy" });
   },
 };
