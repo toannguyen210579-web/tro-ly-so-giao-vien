@@ -5,7 +5,10 @@ import 'package:flutter/material.dart';
 class ChuChay extends StatefulWidget {
   final String chu;
   final TextStyle style;
-  const ChuChay(this.chu, {super.key, required this.style});
+
+  /// Bề rộng tối đa của khung chữ chạy.
+  final double toiDa;
+  const ChuChay(this.chu, {super.key, required this.style, this.toiDa = 150});
 
   @override
   State<ChuChay> createState() => _ChuChayState();
@@ -45,17 +48,29 @@ class _ChuChayState extends State<ChuChay> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     final cao = (widget.style.fontSize ?? 12) * 1.45;
     return LayoutBuilder(builder: (context, c) {
-      _datLai(c.maxWidth);
+      // Khung chữ chạy gọn dưới biểu tượng, không tràn sang ô bên cạnh khi màn hình rộng.
+      final rong = c.maxWidth.isFinite ? (c.maxWidth > widget.toiDa ? widget.toiDa : c.maxWidth) : widget.toiDa;
+      _datLai(rong);
       if (_rongChu <= _rongO) {
-        return SizedBox(
-          height: cao,
-          child: Text(widget.chu, style: widget.style, maxLines: 1, textAlign: TextAlign.center),
+        return Center(
+          child: SizedBox(
+            height: cao,
+            child: Text(widget.chu, style: widget.style, maxLines: 1, textAlign: TextAlign.center),
+          ),
         );
       }
-      return SizedBox(
+      return Center(
+        child: SizedBox(
         height: cao,
-        width: c.maxWidth,
-        child: ClipRect(
+        width: rong,
+        child: ShaderMask(
+          // Mờ dần hai mép cho chữ vào ra êm, không bị cắt ngang giữa chữ.
+          shaderCallback: (r) => const LinearGradient(
+            colors: [Color(0x00000000), Color(0xFF000000), Color(0xFF000000), Color(0x00000000)],
+            stops: [0, 0.12, 0.88, 1],
+          ).createShader(r),
+          blendMode: BlendMode.dstIn,
+          child: ClipRect(
           child: AnimatedBuilder(
             animation: _ac,
             builder: (_, __) {
@@ -77,6 +92,8 @@ class _ChuChayState extends State<ChuChay> with SingleTickerProviderStateMixin {
               );
             },
           ),
+        ),
+        ),
         ),
       );
     });
