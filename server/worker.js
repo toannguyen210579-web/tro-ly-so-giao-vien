@@ -28,7 +28,7 @@ const IMG_MODES = ["giaide", "detuongtu", "hoi"]; // chế độ được gửi 
 // Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
 const GEMINI_MODES = ["hoi", "giaide", "detuongtu"];
 // Thử lần lượt; gói miễn phí đôi lúc báo quá tải (503/429). "gemini-flash-latest" quá tải thường xuyên nên không dùng.
-const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"];
+const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
 
 // Lượt mỗi máy mỗi ngày. Bản thử nghiệm để nhiều lượt.
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
@@ -432,7 +432,8 @@ export default {
     const priv = body.private === true;
     let res = null;
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
-    if (!priv && GEMINI_MODES.includes(mode) && env.GEMINI) {
+    // Ảnh gửi Gemini gói miễn phí hay bị treo lâu (thử ngày 19/11), nên câu có ảnh đi thẳng Claude
+    if (!priv && !imgs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
       res = await callGemini(env, mode, input, imgs);
       if (res.err) {
         gem = String(res.status);
