@@ -98,3 +98,35 @@ test("Câu riêng tư đi thẳng Claude, kèm ngữ cảnh", async () => {
   assert.equal(ghi.gemini.length, 0);
   assert.equal(ghi.claude[0].messages.length, 3);
 });
+
+const goiTts = (env, body) =>
+  worker.fetch(new Request("https://x/v1/tts", { method: "POST", body: JSON.stringify({ device_id: "kiemthu123", ...body }) }), env, {});
+
+test("Đọc to qua máy chủ: chưa có khóa thì báo chưa bật, không gọi Google", async () => {
+  const { env } = moiTruong();
+  const r = await goiTts(env, { text: "Xin chào" });
+  assert.equal(r.status, 503);
+  assert.equal((await r.json()).error, "chua_bat");
+});
+
+test("Đọc to qua máy chủ: gọi Google đúng giọng tiếng Việt, đếm ký tự theo ngày", async () => {
+  const { env } = moiTruong();
+  env.GOOGLE_TTS_KEY = "khoa-thu";
+  const goi = [];
+  globalThis.fetch = async (url, o) => {
+    goi.push({ url: String(url), body: JSON.parse(o.body) });
+    return new Response(JSON.stringify({ audioContent: "SUQz" }), { status: 200 });
+  };
+  const r = await (await goiTts(env, { text: "Kính gửi quý phụ huynh", rate: 1.2 })).json();
+  assert.equal(r.ok, true);
+  assert.equal(r.audio, "SUQz");
+  assert.match(goi[0].url, /texttospeech\.googleapis\.com.*key=khoa-thu/);
+  assert.equal(goi[0].body.voice.languageCode, "vi-VN");
+  assert.equal(goi[0].body.audioConfig.speakingRate, 1.2);
+  // Vượt trần ngày thì dừng
+  const dai = "a".repeat(2000);
+  let cuoi;
+  for (let i = 0; i < 16; i++) cuoi = await goiTts(env, { text: dai });
+  assert.equal(cuoi.status, 429);
+  assert.equal((await goiTts(env, { text: "b".repeat(2001) })).status, 400);
+});

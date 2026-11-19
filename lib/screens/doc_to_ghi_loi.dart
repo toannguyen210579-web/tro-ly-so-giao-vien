@@ -1,11 +1,17 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
+import 'package:video_player/video_player.dart';
 
 import '../services/chon_tep.dart';
+import '../services/tro_ly_api.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
 
@@ -85,6 +91,11 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
   int _tongDoan = 0;
   String? _canhBao;
 
+  /// Máy không có giọng đọc tiếng Việt thì app tự đọc bằng giọng Google qua máy chủ (cần mạng).
+  bool _quaMang = false;
+  int _luotDoc = 0; // mỗi lần bấm Đọc to là một lượt; đổi lượt thì vòng đọc cũ tự dừng
+  VideoPlayerController? _loa;
+
   @override
   bool get wantKeepAlive => true;
 
@@ -99,12 +110,9 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
       await _tts.awaitSpeakCompletion(true);
       final co = await _tts.isLanguageAvailable('vi-VN');
       await _tts.setLanguage('vi-VN');
-      if (co != true && mounted) {
-        setState(() => _canhBao = 'Máy chưa có giọng đọc tiếng Việt. Thầy cô vào Cài đặt > Ngôn ngữ > '
-            'Chuyển văn bản thành giọng nói, chọn Google và tải giọng Tiếng Việt.');
-      }
+      if (co != true) _quaMang = true;
     } catch (_) {
-      if (mounted) setState(() => _canhBao = 'Máy này chưa có bộ đọc văn bản.');
+      _quaMang = true;
     }
   }
 
@@ -112,6 +120,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
   void dispose() {
     _dungLai = true;
     _tts.stop();
+    _loa?.dispose();
     _chu.dispose();
     super.dispose();
   }
@@ -125,33 +134,107 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     setState(() {
       _dangDoc = true;
       _dungLai = false;
+      _canhBao = null;
       _tongDoan = ds.length;
     });
+    if (_quaMang) {
+      await _docQuaMang(ds, 0);
+      return;
+    }
+    final luot = ++_luotDoc;
     await _tts.setSpeechRate(_tocDo);
     // Máy giả lập hoặc máy thiếu bộ đọc: lệnh đọc không phát tiếng và cũng không báo xong.
-    // Sau 5 giây chưa thấy bắt đầu đọc thì dừng và báo cho thầy cô.
+    // Sau 4 giây chưa thấy bắt đầu đọc thì app tự chuyển sang đọc qua mạng, thầy cô không phải làm gì.
     var daPhat = false;
+    var chuyen = false;
+    Future<void> chuyenQuaMang() async {
+      if (chuyen || daPhat || _dungLai || luot != _luotDoc || !mounted) return;
+      chuyen = true;
+      _quaMang = true;
+      _luotDoc++; // dừng vòng đọc bằng giọng máy
+      await _tts.stop();
+      if (!mounted) return;
+      await _docQuaMang(ds, _doanDangDoc > 0 ? _doanDangDoc - 1 : 0);
+    }
+
     _tts.setStartHandler(() => daPhat = true);
-    Future.delayed(const Duration(seconds: 5), () async {
-      if (!daPhat && _dangDoc && mounted) {
-        await _dung();
-        if (!mounted) return;
-        setState(() => _canhBao = 'Máy chưa phát được tiếng đọc. Thầy cô cài "Dịch vụ lời nói của Google" '
-            '(Speech Services by Google) trên Play Store, rồi vào Cài đặt > Ngôn ngữ > Chuyển văn bản thành giọng nói, '
-            'chọn Google và tải giọng Tiếng Việt. Máy giả lập như BlueStacks thường chưa có sẵn bộ đọc này.');
-      }
-    });
+    // Có máy treo lệnh đọc, có máy trả về ngay mà không phát tiếng: cả hai trường hợp đều tự chuyển.
+    Future.delayed(const Duration(seconds: 4), chuyenQuaMang);
     for (var i = 0; i < ds.length; i++) {
-      if (_dungLai || !mounted) break;
+      if (_dungLai || !mounted || luot != _luotDoc) break;
       setState(() => _doanDangDoc = i + 1);
       await _tts.speak(ds[i]);
     }
+    if (!daPhat && luot == _luotDoc) {
+      await chuyenQuaMang();
+      return;
+    }
+    if (mounted && !chuyen) setState(() => _dangDoc = false);
+  }
+
+  /// Đọc bằng giọng Google qua máy chủ: gộp đoạn cho đỡ số lần gọi, tải sẵn đoạn sau trong lúc đọc đoạn trước.
+  Future<void> _docQuaMang(List<String> ds, int tu) async {
+    final khoi = <(int, String)>[]; // (số đoạn đầu khối, chữ)
+    var dem = '';
+    var dau = tu;
+    for (var i = tu; i < ds.length; i++) {
+      if (dem.isNotEmpty && dem.length + ds[i].length + 1 > 1500) {
+        khoi.add((dau, dem));
+        dem = '';
+        dau = i;
+      }
+      dem = dem.isEmpty ? ds[i] : '$dem ${ds[i]}';
+    }
+    if (dem.isNotEmpty) khoi.add((dau, dem));
+    final toc = _tocDo * 2; // thanh tốc độ 0,5 là vừa, ứng với tốc độ 1 của Google
+    final thuMuc = await getTemporaryDirectory();
+    var sau = TroLyApi.docQuaMang(khoi.first.$2, toc: toc);
+    for (var k = 0; k < khoi.length; k++) {
+      if (_dungLai || !mounted) break;
+      setState(() => _doanDangDoc = khoi[k].$1 + 1);
+      final (amThanh, loi) = await sau;
+      if (k + 1 < khoi.length) sau = TroLyApi.docQuaMang(khoi[k + 1].$2, toc: toc);
+      if (_dungLai || !mounted) break;
+      if (amThanh == null) {
+        setState(() => _canhBao = loi);
+        break;
+      }
+      final f = File('${thuMuc.path}/doc_to_$k.mp3');
+      await f.writeAsBytes(amThanh, flush: true);
+      await _phat(f);
+    }
     if (mounted) setState(() => _dangDoc = false);
+  }
+
+  /// Phát một tệp MP3 và chờ phát xong (hoặc thầy cô bấm Dừng).
+  Future<void> _phat(File f) async {
+    final loa = VideoPlayerController.file(f);
+    _loa = loa;
+    try {
+      await loa.initialize();
+      final xong = Completer<void>();
+      void nghe() {
+        final v = loa.value;
+        if (v.hasError || _dungLai || (v.duration > Duration.zero && v.position >= v.duration && !v.isPlaying)) {
+          if (!xong.isCompleted) xong.complete();
+        }
+      }
+      loa.addListener(nghe);
+      await loa.play();
+      await xong.future.timeout(loa.value.duration + const Duration(seconds: 5), onTimeout: () {});
+      loa.removeListener(nghe);
+    } catch (_) {
+      // tệp hỏng thì bỏ qua khối này
+    } finally {
+      _loa = null;
+      await loa.dispose();
+    }
   }
 
   Future<void> _dung() async {
     _dungLai = true;
     await _tts.stop();
+    await _loa?.pause();
     if (mounted) setState(() => _dangDoc = false);
   }
 
@@ -231,7 +314,8 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
             : FilledButton.icon(onPressed: _doc, icon: const Icon(Icons.play_arrow), label: const Text('Đọc to')),
         const SizedBox(height: 10),
         const Text(
-          'Dùng giọng đọc có sẵn của điện thoại, miễn phí, đọc được cả khi không có mạng.',
+          'Dùng giọng đọc có sẵn của điện thoại, đọc được cả khi không có mạng. '
+          'Máy chưa có giọng tiếng Việt thì app tự đọc bằng giọng Google qua mạng.',
           style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
         ),
       ],

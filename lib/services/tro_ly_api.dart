@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -126,6 +127,29 @@ class TroLyApi {
       return const KetQuaTroLy(loi: 'AI trả lời lâu quá. Thầy cô bấm Gửi lại hoặc hỏi ngắn hơn.');
     } catch (_) {
       return const KetQuaTroLy(loi: 'Không kết nối được. Thầy cô kiểm tra mạng rồi thử lại.');
+    }
+  }
+
+  /// Đọc to qua máy chủ (giọng Google tiếng Việt) khi điện thoại không có bộ đọc.
+  /// [toc]: 1 là bình thường. Trả về âm thanh MP3, hoặc lời báo lỗi.
+  static Future<(Uint8List?, String?)> docQuaMang(String chu, {double toc = 1}) async {
+    if (diaChiMayChu.isEmpty) return (null, 'Chưa nối máy chủ.');
+    final ma = await maMay();
+    Future<Map<String, dynamic>> guiMot() => _post('/v1/tts', {'device_id': ma, 'text': chu, 'rate': toc}, giay: 30);
+    try {
+      Map<String, dynamic> j;
+      try {
+        j = await guiMot();
+      } on TimeoutException {
+        rethrow;
+      } catch (_) {
+        await Future.delayed(const Duration(seconds: 1));
+        j = await guiMot();
+      }
+      if (j['ok'] == true && j['audio'] is String) return (base64Decode(j['audio'] as String), null);
+      return (null, (j['message'] as String?) ?? 'Chưa đọc được, thầy cô thử lại.');
+    } catch (_) {
+      return (null, 'Máy chưa có giọng đọc tiếng Việt và chưa kết nối được mạng. Thầy cô bật mạng rồi bấm Đọc to lại.');
     }
   }
 

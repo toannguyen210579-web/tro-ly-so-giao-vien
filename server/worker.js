@@ -40,6 +40,9 @@ const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (c�
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
 const MAX_ADS_PER_DAY = 10;  // tối đa 10 quảng cáo nhận thưởng mỗi ngày
 const ADMOB_KEYS_URL = "https://www.gstatic.com/admob/reward/verifier-keys.json";
+const TTS_MAX_CHARS = 2000;    // ký tự mỗi lần đọc
+const TTS_DAY_CHARS = 30000;   // ký tự mỗi máy mỗi ngày (khoảng 15 trang), Google miễn phí 4 triệu ký tự/tháng
+const TTS_VOICE = "vi-VN-Wavenet-A";
 const KEEP_MS = 3 * 86400 * 1000; // bộ đếm giữ 3 ngày rồi xóa
 
 const CHUNG =
@@ -399,6 +402,45 @@ export default {
           String(b.output || "").slice(0, 4000), String(b.reason || "").slice(0, 500), now, now + 90 * 86400 * 1000)
         .run();
       return json({ ok: true, message: "Cảm ơn thầy cô, chúng tôi sẽ xem xét." });
+    }
+
+    // Đọc to qua máy chủ (giọng Google), dùng khi điện thoại không có bộ đọc tiếng Việt
+    if (url.pathname === "/v1/tts" && request.method === "POST") {
+      let b;
+      try { b = await request.json(); } catch { return err("sai_du_lieu", "Dữ liệu gửi lên không đúng định dạng.", 400); }
+      const device = String(b.device_id || "").slice(0, 64);
+      const text = String(b.text || "").trim();
+      if (!okDevice(device)) return err("sai_ma_may", "Mã máy không hợp lệ.", 400);
+      if (!text) return err("trong", "Chưa có chữ để đọc.", 400);
+      if (text.length > TTS_MAX_CHARS) return err("qua_dai", "Mỗi lần đọc tối đa " + TTS_MAX_CHARS + " ký tự.", 400);
+      if (!env.GOOGLE_TTS_KEY) return err("chua_bat", "Giọng đọc qua mạng chưa được bật.", 503);
+      const key = "t:" + day + ":" + device;
+      if ((await getN(db, key)) + text.length > TTS_DAY_CHARS) {
+        return err("het_luot", "Hôm nay máy này đã nghe đọc nhiều quá, mai dùng tiếp nhé.", 429);
+      }
+      const rate = Math.min(2, Math.max(0.5, Number(b.rate) || 1));
+      let r;
+      try {
+        r = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(env.GOOGLE_TTS_KEY), {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            input: { text },
+            voice: { languageCode: "vi-VN", name: TTS_VOICE },
+            audioConfig: { audioEncoding: "MP3", speakingRate: rate },
+          }),
+        });
+      } catch {
+        return err("loi_mang", "Chưa đọc được, thầy cô thử lại.", 502);
+      }
+      if (!r.ok) {
+        console.log(JSON.stringify({ ev: "tts_error", status: r.status }));
+        return err("loi_tts", "Chưa đọc được, thầy cô thử lại.", 502);
+      }
+      const audio = (await r.json()).audioContent;
+      if (!audio) return err("loi_tts", "Chưa đọc được, thầy cô thử lại.", 502);
+      await addN(db, key, text.length);
+      return json({ ok: true, audio });
     }
 
     if (url.pathname !== "/v1/ai" || request.method !== "POST") {
