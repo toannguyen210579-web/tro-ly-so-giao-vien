@@ -30,6 +30,7 @@ class HoiTroLy extends StatefulWidget {
 
 class _HoiTroLyState extends State<HoiTroLy> {
   final _o = TextEditingController();
+  final _cuon = ScrollController();
   final _ds = <_TinNhan>[];
   bool _dangCho = false;
   XFile? _anh;
@@ -79,6 +80,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
   @override
   void dispose() {
     _o.dispose();
+    _cuon.dispose();
     super.dispose();
   }
 
@@ -92,6 +94,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
       _anh = null;
       _dangCho = true;
     });
+    _cuonXuong();
     final sach = await lamSachCauHoi(c);
     final dsAnh = anh == null ? <String>[] : [base64Encode(await File(anh.path).readAsBytes())];
     final kq = await TroLyApi.hoi(sach.noiDung, anh: dsAnh, riengTu: sach.riengTu);
@@ -99,6 +102,15 @@ class _HoiTroLyState extends State<HoiTroLy> {
     setState(() {
       _dangCho = false;
       _ds.add(_TinNhan(false, kq.traLoi ?? kq.loi ?? 'Có lỗi, thầy cô thử lại.', cauHoi: sach.noiDung));
+    });
+    _cuonXuong();
+  }
+
+  void _cuonXuong() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_cuon.hasClients) {
+        _cuon.animateTo(_cuon.position.maxScrollExtent, duration: const Duration(milliseconds: 250), curve: Curves.easeOut);
+      }
     });
   }
 
@@ -140,69 +152,11 @@ class _HoiTroLyState extends State<HoiTroLy> {
               style: TextStyle(color: MauApp.chuPhu),
             ),
           ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _ds.length + (_dangCho ? 1 : 0),
-              itemBuilder: (_, i) {
-                if (i == _ds.length) {
-                  return const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator()),
-                  );
-                }
-                final t = _ds[i];
-                return Align(
-                  alignment: t.laNguoiDung ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
-                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                    decoration: BoxDecoration(
-                      color: t.laNguoiDung ? MauApp.xanhTroi : Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (t.anh != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.file(File(t.anh!), height: 140, fit: BoxFit.cover),
-                            ),
-                          ),
-                        if (t.laNguoiDung)
-                          SelectableText(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: Colors.white))
-                        else
-                          ChuAI(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: MauApp.chu)),
-                        if (!t.laNguoiDung) ...[
-                          const SizedBox(height: 4),
-                          const Text(
-                            'AI có thể nhầm. Thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.',
-                            style: TextStyle(fontSize: 11.5, color: MauApp.chuPhu),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: () => _baoCao(t),
-                              icon: const Icon(Icons.flag_outlined, size: 16),
-                              label: const Text('Báo cáo'),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
           SafeArea(
             top: false,
+            bottom: false,
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -263,6 +217,66 @@ class _HoiTroLyState extends State<HoiTroLy> {
               ),
                 ],
               ),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              controller: _cuon,
+              padding: const EdgeInsets.all(16),
+              itemCount: _ds.length + (_dangCho ? 1 : 0),
+              itemBuilder: (_, i) {
+                if (i == _ds.length) {
+                  return const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator()),
+                  );
+                }
+                final t = _ds[i];
+                return Align(
+                  alignment: t.laNguoiDung ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
+                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+                    decoration: BoxDecoration(
+                      color: t.laNguoiDung ? MauApp.xanhTroi : Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (t.anh != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 6),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.file(File(t.anh!), height: 140, fit: BoxFit.cover),
+                            ),
+                          ),
+                        if (t.laNguoiDung)
+                          SelectableText(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: Colors.white))
+                        else
+                          ChuAI(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: MauApp.chu)),
+                        if (!t.laNguoiDung) ...[
+                          const SizedBox(height: 4),
+                          const Text(
+                            'AI có thể nhầm. Thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.',
+                            style: TextStyle(fontSize: 11.5, color: MauApp.chuPhu),
+                          ),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: () => _baoCao(t),
+                              icon: const Icon(Icons.flag_outlined, size: 16),
+                              label: const Text('Báo cáo'),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
