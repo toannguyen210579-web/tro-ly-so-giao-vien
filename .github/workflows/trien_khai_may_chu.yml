@@ -38,6 +38,14 @@ jobs:
           workingDirectory: server
           wranglerVersion: "4.165.0"
           command: deploy
+      - name: Đặt khóa giọng đọc Google (bỏ qua khi chưa có khóa)
+        working-directory: server
+        env:
+          GOOGLE_TTS_KEY: ${{ secrets.GOOGLE_TTS_KEY }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: |
+          if [ -z "$GOOGLE_TTS_KEY" ]; then echo "Chưa có khóa giọng đọc, bỏ qua"; exit 0; fi
+          printf '%s' "$GOOGLE_TTS_KEY" | npx --yes wrangler@4.165.0 secret put GOOGLE_TTS_KEY
       - name: Thử máy chủ
         run: |
           sleep 10
