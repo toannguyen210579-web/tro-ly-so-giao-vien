@@ -172,14 +172,14 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     if (mounted && !chuyen) setState(() => _dangDoc = false);
   }
 
-  /// Đọc qua máy chủ: khối đầu ngắn để có tiếng sớm (khoảng 2–3 giây), các khối sau dài hơn;
+  /// Đọc qua máy chủ: khối đầu ngắn để có tiếng sớm (thử 19/11: 40 chữ chờ 3,9 giây), các khối sau dài hơn;
   /// tải sẵn khối sau trong lúc đọc khối trước nên không bị ngắt quãng.
   Future<void> _docQuaMang(List<String> ds, int tu) async {
     final khoi = <(int, String)>[]; // (số đoạn đầu khối, chữ)
     var dem = '';
     var dau = tu;
     for (var i = tu; i < ds.length; i++) {
-      final tran = khoi.isEmpty ? 200 : 600;
+      final tran = khoi.isEmpty ? 120 : 600;
       if (dem.isNotEmpty && dem.length + ds[i].length + 1 > tran) {
         khoi.add((dau, dem));
         dem = '';
