@@ -27,7 +27,7 @@ const IMG_MODES = ["giaide", "detuongtu", "hoi"]; // chế độ được gửi 
 // Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
 // Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
 const GEMINI_MODES = ["hoi", "giaide", "detuongtu"];
-const GEMINI_MODEL = "gemini-flash-latest";
+const GEMINI_MODEL = "gemini-flash-lite-latest"; // "gemini-flash-latest" hay quá tải ở gói miễn phí
 
 // Lượt mỗi máy mỗi ngày. Bản thử nghiệm để nhiều lượt.
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
@@ -244,19 +244,19 @@ async function callGemini(env, mode, input, imgs) {
   ];
   let r;
   try {
-    r = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent",
-      {
-        method: "POST",
-        headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
-        body: JSON.stringify({
+    r = await env.GEMINI.fetch("https://gemini/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        model: GEMINI_MODEL,
+        body: {
           systemInstruction: { parts: [{ text: SYSTEM[mode] }] },
           contents: [{ role: "user", parts }],
           // Mô hình có bước suy nghĩ cũng tính vào giới hạn, nên để rộng
           generationConfig: { maxOutputTokens: 8192 },
-        }),
-      },
-    );
+        },
+      }),
+    });
   } catch {
     return { err: "loi_mang", status: 0 };
   }
@@ -422,7 +422,7 @@ export default {
     const priv = body.private === true;
     let res = null;
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
-    if (!priv && GEMINI_MODES.includes(mode) && env.GEMINI_API_KEY) {
+    if (!priv && GEMINI_MODES.includes(mode) && env.GEMINI) {
       res = await callGemini(env, mode, input, imgs);
       if (res.err) {
         gem = String(res.status);

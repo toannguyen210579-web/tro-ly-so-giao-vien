@@ -6,9 +6,10 @@ account_id = "e426acb896fd3c971495416845add55b"
 keep_vars = true
 compatibility_date = "2026-11-01"
 
-# Gemini không cho gọi từ Hồng Kông (máy chủ Cloudflare gần Việt Nam nhất), nên đặt Worker chạy ở Mỹ.
-[placement]
-region = "gcp:us-central1"
+# Gọi Gemini qua máy chủ phụ tro-ly-gv-gemini (đặt ở Mỹ), vì Gemini không nhận yêu cầu từ Hồng Kông.
+[[services]]
+binding = "GEMINI"
+service = "tro-ly-gv-gemini"
 
 # Biến AI_ENABLED đặt trên bảng điều khiển Cloudflare (keep_vars giữ nguyên khi triển khai)
 

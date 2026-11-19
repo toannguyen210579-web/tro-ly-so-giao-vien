@@ -17,18 +17,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Kiểm tra cú pháp
-        run: node --check server/worker.js
-      - name: Triển khai lên Cloudflare
+        run: node --check server/worker.js && node --check server/gemini/worker.js
+      - name: Triển khai máy chủ phụ Gemini
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          workingDirectory: server
+          workingDirectory: server/gemini
           wranglerVersion: "4.165.0"
           command: deploy
           secrets: |
             GEMINI_API_KEY
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Triển khai máy chủ chính
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: server
+          wranglerVersion: "4.165.0"
+          command: deploy
       - name: Thử máy chủ
         run: |
           sleep 10

@@ -1,0 +1,9 @@
+name = "tro-ly-gv-gemini"
+main = "worker.js"
+account_id = "e426acb896fd3c971495416845add55b"
+compatibility_date = "2026-11-01"
+workers_dev = false
+preview_urls = false
+
+[placement]
+region = "gcp:us-central1"
