@@ -23,12 +23,16 @@ const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
 // Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
 const MAX_IN = { bienban: 12000, detuongtu: 4000 };
 const MAX_OUT = { giaide: 4000, detuongtu: 3000, bienban: 3000 };
-const IMG_MODES = ["giaide", "detuongtu"]; // chế độ được gửi ảnh đề, tối đa 4 ảnh
+const IMG_MODES = ["giaide", "detuongtu", "hoi"]; // chế độ được gửi ảnh, tối đa 4 ảnh
+// Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
+// Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
+const GEMINI_MODES = ["hoi", "giaide", "detuongtu"];
+const GEMINI_MODEL = "gemini-flash-latest";
 
 // Lượt mỗi máy mỗi ngày. Bản thử nghiệm để nhiều lượt.
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
 const LIMITS = {
-  free: { hoi: 20, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20 },
+  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20 },
   pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100 },
 };
 const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (cả trường dùng chung wifi)
@@ -198,6 +202,73 @@ async function quota(db, device, day) {
   };
 }
 
+async function callClaude(env, mode, content) {
+  let r;
+  try {
+    r = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": env.ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: MODEL,
+        max_tokens: MAX_OUT[mode] || MAX_TOKENS,
+        system: SYSTEM[mode],
+        messages: [{ role: "user", content }],
+      }),
+    });
+  } catch {
+    return { err: "loi_mang", msg: "Không kết nối được dịch vụ AI, thầy cô thử lại sau." };
+  }
+  if (!r.ok) {
+    // 400 do hết hạn mức chi tiêu, 401 sai khóa, 429 quá tải, 529 dịch vụ bận
+    console.log(JSON.stringify({ ev: "ai_error", status: r.status, mode }));
+    const code = r.status === 401 ? "sai_khoa_ai" : r.status === 429 || r.status === 529 ? "ai_ban" : "loi_ai";
+    return { err: code, msg: "Dịch vụ AI đang bận hoặc tạm dừng, thầy cô thử lại sau." };
+  }
+  const data = await r.json();
+  const text = (data.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
+  if (!text) {
+    console.log(JSON.stringify({ ev: "ai_empty", mode, stop: data.stop_reason }));
+    return { err: "loi_ai", msg: "AI chưa trả lời được, thầy cô thử lại." };
+  }
+  return { text, by: "claude", usage: data.usage || {} };
+}
+
+async function callGemini(env, mode, input, imgs) {
+  const parts = [
+    ...imgs.map((a) => ({ inline_data: { mime_type: "image/jpeg", data: a } })),
+    { text: input || (mode === "hoi" ? "Giải thích nội dung trong ảnh." : "Giải đề trong ảnh.") },
+  ];
+  let r;
+  try {
+    r = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/" + GEMINI_MODEL + ":generateContent",
+      {
+        method: "POST",
+        headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: SYSTEM[mode] }] },
+          contents: [{ role: "user", parts }],
+          // Mô hình có bước suy nghĩ cũng tính vào giới hạn, nên để rộng
+          generationConfig: { maxOutputTokens: 8192 },
+        }),
+      },
+    );
+  } catch {
+    return { err: "loi_mang", status: 0 };
+  }
+  if (!r.ok) return { err: "loi_ai", status: r.status };
+  const data = await r.json();
+  const c = (data.candidates || [])[0] || {};
+  const text = ((c.content || {}).parts || []).filter((p) => p.text && !p.thought).map((p) => p.text).join("").trim();
+  if (!text) return { err: "loi_ai", status: "rong:" + (c.finishReason || "") };
+  const u = data.usageMetadata || {};
+  return { text, by: "gemini", usage: { input_tokens: u.promptTokenCount, output_tokens: u.candidatesTokenCount } };
+}
+
 export default {
   async fetch(request, env, ctx, deps = {}) {
     const fetchKeys = deps.fetchKeys || (() => fetch(ADMOB_KEYS_URL).then((r) => r.json()));
@@ -343,35 +414,17 @@ export default {
       return err("qua_nhieu", "Mạng này đã gửi quá nhiều yêu cầu hôm nay.", 429);
     }
 
-    // Gọi Claude
-    let r;
-    try {
-      r = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "x-api-key": env.ANTHROPIC_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({
-          model: MODEL,
-          max_tokens: MAX_OUT[mode] || MAX_TOKENS,
-          system: SYSTEM[mode],
-          messages: [{ role: "user", content }],
-        }),
-      });
-    } catch {
-      return err("loi_mang", "Không kết nối được dịch vụ AI, thầy cô thử lại sau.", 502);
+    // Câu có thông tin cá nhân (app đánh dấu private) luôn đi qua Claude
+    const priv = body.private === true;
+    let res = null;
+    if (!priv && GEMINI_MODES.includes(mode) && env.GEMINI_API_KEY) {
+      res = await callGemini(env, mode, input, imgs);
+      if (res.err) console.log(JSON.stringify({ ev: "gemini_fallback", status: res.status, device, mode }));
     }
-    if (!r.ok) {
-      // 400 do hết hạn mức chi tiêu, 401 sai khóa, 429 quá tải, 529 dịch vụ bận
-      console.log(JSON.stringify({ ev: "ai_error", status: r.status, device, mode }));
-      const code = r.status === 401 ? "sai_khoa_ai" : r.status === 429 || r.status === 529 ? "ai_ban" : "loi_ai";
-      return err(code, "Dịch vụ AI đang bận hoặc tạm dừng, thầy cô thử lại sau.", 502);
-    }
-    const data = await r.json();
-    const text = (data.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
-    if (!text) { console.log(JSON.stringify({ ev: "ai_empty", device, mode, stop: data.stop_reason })); return err("loi_ai", "AI chưa trả lời được, thầy cô thử lại.", 502); }
+    if (!res || res.err) res = await callClaude(env, mode, content);
+    if (res.err) return err(res.err, res.msg, 502);
+    const text = res.text;
+    const data = { usage: res.usage };
 
     // Trừ lượt sau khi AI đã trả kết quả
     let usedNow = used;
@@ -385,7 +438,7 @@ export default {
     if (Math.random() < 0.01 && ctx && ctx.waitUntil) ctx.waitUntil(cleanup(db));
     // Nhật ký (xem trong Observability > Logs) để phát hiện máy dùng bất thường
     const u = data.usage || {};
-    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, in: u.input_tokens, out: u.output_tokens }));
+    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, in: u.input_tokens, out: u.output_tokens }));
     return json({
       ok: true,
       text,
@@ -581,7 +634,7 @@ Xóa dữ liệu không tự hủy gói Pro; thầy cô hủy gói trên Google 
 - Email: **hotro.trolysogv@gmail.com**. Chúng tôi trả lời trong vòng 3 ngày làm việc.
 - Khi báo lỗi, thầy cô ghi kèm **mã máy** (Tài khoản → Mã máy, bấm để chép), tên điện thoại và mô tả việc đang làm.
 ## Câu hỏi thường gặp
-- **Mỗi ngày được bao nhiêu lượt AI?** Hỏi Trợ lý 20 câu, Nhờ AI viết nhận xét 100 lượt, Nhờ AI soạn tin 100 lượt, Giải đề 10 lượt, Ra đề tương tự 10 lượt, Nhờ AI sắp xếp biên bản 20 lượt. Lượt được làm mới lúc 0 giờ (giờ Việt Nam).
+- **Mỗi ngày được bao nhiêu lượt AI?** Hỏi Trợ lý thoải mái (có giới hạn chống lạm dụng), Nhờ AI viết nhận xét 100 lượt, Nhờ AI soạn tin 100 lượt, Giải đề 10 lượt, Ra đề tương tự 10 lượt, Nhờ AI sắp xếp biên bản 20 lượt. Lượt được làm mới lúc 0 giờ (giờ Việt Nam).
 - **AI trả lời sai thì sao?** Thầy cô bấm **Báo cáo** dưới câu trả lời. AI có thể nhầm, thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.
 - **Dữ liệu học sinh có bị gửi đi không?** Danh sách học sinh, điểm, biên bản, ảnh lưu trên điện thoại. Khi bấm nút AI, tên học sinh được thay bằng mã HS01, HS02.
 - **Xóa dữ liệu thế nào?** Tài khoản → Xóa dữ liệu của tôi trên máy chủ. Dữ liệu trên điện thoại xóa khi gỡ Ứng dụng.
