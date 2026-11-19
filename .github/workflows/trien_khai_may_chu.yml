@@ -23,6 +23,7 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           workingDirectory: server
+          wranglerVersion: "4.165.0"
           command: deploy
           secrets: |
             GEMINI_API_KEY
