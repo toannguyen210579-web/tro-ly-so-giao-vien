@@ -1,5 +1,9 @@
 name: Thử Gemini
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/thu_gemini.yml"]
 jobs:
   thu:
     runs-on: ubuntu-latest
