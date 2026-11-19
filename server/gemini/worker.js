@@ -12,7 +12,7 @@ export default {
         method: "POST",
         headers: { "content-type": "application/json", "x-goog-api-key": env.GEMINI_API_KEY },
         body: JSON.stringify(body),
-        signal: AbortSignal.timeout(25000),
+        signal: AbortSignal.timeout(15000),
       });
     } catch (e) {
       return Response.json({ error: { status: "TIMEOUT_OR_NETWORK", message: String(e).slice(0, 100) } }, { status: 504 });

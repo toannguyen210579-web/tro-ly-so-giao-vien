@@ -27,7 +27,8 @@ const IMG_MODES = ["giaide", "detuongtu", "hoi"]; // chế độ được gửi 
 // Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
 // Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
 const GEMINI_MODES = ["hoi", "giaide", "detuongtu"];
-const GEMINI_MODEL = "gemini-flash-lite-latest"; // "gemini-flash-latest" hay quá tải ở gói miễn phí
+// Thử lần lượt; gói miễn phí đôi lúc báo quá tải (503/429). "gemini-flash-latest" quá tải thường xuyên nên không dùng.
+const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-2.5-flash-lite"];
 
 // Lượt mỗi máy mỗi ngày. Bản thử nghiệm để nhiều lượt.
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
@@ -238,6 +239,15 @@ async function callClaude(env, mode, content) {
 }
 
 async function callGemini(env, mode, input, imgs) {
+  let last = null;
+  for (const model of GEMINI_MODELS) {
+    last = await callGeminiOnce(env, mode, input, imgs, model);
+    if (!last.err || !/^(429|503|504)/.test(String(last.status))) return last;
+  }
+  return last;
+}
+
+async function callGeminiOnce(env, mode, input, imgs, model) {
   const parts = [
     ...imgs.map((a) => ({ inline_data: { mime_type: "image/jpeg", data: a } })),
     { text: input || (mode === "hoi" ? "Giải thích nội dung trong ảnh." : "Giải đề trong ảnh.") },
@@ -248,7 +258,7 @@ async function callGemini(env, mode, input, imgs) {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        model: GEMINI_MODEL,
+        model,
         body: {
           systemInstruction: { parts: [{ text: SYSTEM[mode] }] },
           contents: [{ role: "user", parts }],
