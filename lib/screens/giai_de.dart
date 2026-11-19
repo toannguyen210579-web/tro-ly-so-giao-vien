@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/cham_diem.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/chon_tep.dart';
+import '../services/tep_pdf.dart';
+import '../services/tep_word.dart' show taoDocx;
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
 
@@ -33,10 +36,48 @@ class _GiaiDeState extends State<GiaiDe> {
   String _lop = '';
   bool _dangCho = false;
   String _loaiVuaLam = '';
+  final _oLop = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _nhoLanTruoc();
+  }
+
+  /// Môn, lớp dùng lần trước để thầy cô không phải chọn lại mỗi lần.
+  Future<void> _nhoLanTruoc() async {
+    final p = await SharedPreferences.getInstance();
+    final mon = p.getString('gd_mon');
+    final lop = p.getString('gd_lop') ?? '';
+    if (!mounted) return;
+    setState(() {
+      if (mon != null && _dsMon.contains(mon)) _mon = mon;
+      _lop = lop;
+      _oLop.text = lop;
+    });
+  }
+
+  Future<void> _ghiNho() async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString('gd_mon', _mon);
+    await p.setString('gd_lop', _lop);
+  }
+
+  Future<void> _xuatWord() async {
+    // Mỗi dòng của lời giải là một đoạn, giữ nguyên bố cục từng bước
+    final doan = _ketQua.text.split('\n').map((d) => d.trim()).where((d) => d.isNotEmpty).toList();
+    if (doan.isEmpty) return;
+    final loai = _loaiVuaLam == 'de_tuong_tu' ? 'De_tuong_tu' : 'Dap_an';
+    final ten = '${loai}_${tenTep('$_mon${_lop.isEmpty ? '' : ' lop $_lop'}')}_${dauThoiGian(DateTime.now())}.docx';
+    final f = File('${(await thuMucApp('xuat')).path}/$ten');
+    await f.writeAsBytes(taoDocx(doan));
+    await Share.shareXFiles([XFile(f.path)]);
+  }
 
   @override
   void dispose() {
     _deChu.dispose();
+    _oLop.dispose();
     _yeuCau.dispose();
     _ketQua.dispose();
     super.dispose();
@@ -96,6 +137,7 @@ class _GiaiDeState extends State<GiaiDe> {
       return;
     }
     setState(() => _dangCho = true);
+    _ghiNho();
     final anh = <String>[];
     for (final a in _anh) {
       anh.add(base64Encode(await File(a.path).readAsBytes()));
@@ -117,7 +159,6 @@ class _GiaiDeState extends State<GiaiDe> {
       _ketQua.text = kq.traLoi!;
       _loaiVuaLam = loai;
     });
-    if (kq.conLai != null) _bao('Còn ${kq.conLai} lượt hôm nay.');
   }
 
   Future<void> _sangChamTracNghiem() async {
@@ -191,6 +232,7 @@ class _GiaiDeState extends State<GiaiDe> {
               SizedBox(
                 width: 110,
                 child: TextField(
+                  controller: _oLop,
                   keyboardType: TextInputType.number,
                   onChanged: (v) => _lop = v.trim(),
                   decoration: const InputDecoration(labelText: 'Lớp', border: OutlineInputBorder()),
@@ -341,6 +383,7 @@ class _GiaiDeState extends State<GiaiDe> {
                   icon: const Icon(Icons.copy),
                   label: const Text('Chép'),
                 ),
+                OutlinedButton.icon(onPressed: _xuatWord, icon: const Icon(Icons.description_outlined), label: const Text('Lưu Word')),
                 OutlinedButton.icon(onPressed: () => Share.share(_ketQua.text), icon: const Icon(Icons.send), label: const Text('Gửi đi')),
                 if (layDapAnTuLoiGiai(_ketQua.text) != null)
                   FilledButton.tonalIcon(

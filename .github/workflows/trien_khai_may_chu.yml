@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Kiểm tra cú pháp
         run: node --check server/worker.js && node --check server/gemini/worker.js
+      - name: Kiểm thử máy chủ (giả lập, không gọi AI thật)
+        run: node --test server/test/*.test.mjs
       - name: Triển khai máy chủ phụ Gemini
         uses: cloudflare/wrangler-action@v3
         with:

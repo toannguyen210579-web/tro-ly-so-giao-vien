@@ -16,7 +16,9 @@ class _TinNhan {
   final String noiDung;
   final String? cauHoi; // câu hỏi đi kèm, để báo cáo
   final String? anh; // đường dẫn ảnh thầy cô chụp kèm câu hỏi
-  const _TinNhan(this.laNguoiDung, this.noiDung, {this.cauHoi, this.anh});
+  final bool loi; // câu báo lỗi, không đưa vào ngữ cảnh hỏi tiếp
+  final String? cauGoc; // câu thầy cô gõ, để bấm Gửi lại khi lỗi mạng
+  const _TinNhan(this.laNguoiDung, this.noiDung, {this.cauHoi, this.anh, this.loi = false, this.cauGoc});
 }
 
 /// Hỏi Trợ lý: hỏi mọi việc, chụp ảnh bài tập để hỏi. Không hiện số câu; máy chủ vẫn có trần chống lạm dụng.
@@ -36,6 +38,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
   bool _dangCho = false;
   XFile? _anh;
   TepTaiLen? _tep; // tệp PDF hoặc ảnh tải lên
+  bool _riengTu = false; // cuộc trò chuyện đã có thông tin cá nhân thì các câu sau cũng đi Claude
 
   @override
   void initState() {
@@ -132,14 +135,20 @@ class _HoiTroLyState extends State<HoiTroLy> {
     });
     _cuonXuong();
     final sach = await lamSachCauHoi(c);
+    _riengTu = _riengTu || sach.riengTu;
+    // Các lượt hỏi đáp trước, để thầy cô hỏi tiếp ("giải thích thêm", "cho ví dụ") không phải nhắc lại
+    final lichSu = [
+      for (final t in _ds)
+        if (!t.laNguoiDung && !t.loi && t.cauHoi != null && t.cauHoi!.isNotEmpty) (t.cauHoi!, t.noiDung),
+    ];
     final dsAnh = anh == null ? <String>[] : [base64Encode(await File(anh.path).readAsBytes())];
     if (tep?.anh != null) dsAnh.add(tep!.anh!);
     final kq = await TroLyApi.hoi(sach.noiDung,
-        anh: dsAnh, pdf: tep?.pdf == null ? const [] : [tep!.pdf!], riengTu: sach.riengTu);
+        anh: dsAnh, pdf: tep?.pdf == null ? const [] : [tep!.pdf!], riengTu: _riengTu, lichSu: lichSu);
     if (!mounted) return;
     setState(() {
       _dangCho = false;
-      _ds.add(_TinNhan(false, kq.traLoi ?? kq.loi ?? 'Có lỗi, thầy cô thử lại.', cauHoi: sach.noiDung));
+      _ds.add(_TinNhan(false, kq.traLoi ?? kq.loi ?? 'Có lỗi, thầy cô thử lại.', cauHoi: sach.noiDung, loi: kq.traLoi == null, cauGoc: c));
     });
     _cuonXuong();
   }
@@ -307,7 +316,16 @@ class _HoiTroLyState extends State<HoiTroLy> {
                           SelectableText(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: Colors.white))
                         else
                           ChuAI(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: MauApp.chu)),
-                        if (!t.laNguoiDung) ...[
+                        if (t.loi && (t.cauGoc ?? '').isNotEmpty)
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton.icon(
+                              onPressed: _dangCho ? null : () => _gui(t.cauGoc),
+                              icon: const Icon(Icons.refresh, size: 16),
+                              label: const Text('Gửi lại'),
+                            ),
+                          ),
+                        if (!t.laNguoiDung && !t.loi) ...[
                           const SizedBox(height: 4),
                           const Text(
                             'AI có thể nhầm. Thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.',

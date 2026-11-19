@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/luu_tru.dart';
 import '../main.dart';
@@ -37,9 +38,21 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
   @override
   void initState() {
     super.initState();
-    docLop().then((d) {
-      if (mounted) setState(() => _ds = d);
-    });
+    _tai();
+  }
+
+  /// Mở lại đúng lớp dùng lần trước (nhớ chung với Giơ thẻ).
+  Future<void> _tai() async {
+    final d = await docLop();
+    final p = await SharedPreferences.getInstance();
+    final ten = p.getString('lop_dang_day');
+    final i = d.indexWhere((l) => l.ten == ten);
+    if (mounted) {
+      setState(() {
+        _ds = d;
+        _chon = i < 0 ? 0 : i;
+      });
+    }
   }
 
   List<String> get _ten => (_ds == null || _ds!.isEmpty) ? [] : _ds![_chon].hocSinh.map((h) => h.ten).toList();
@@ -83,7 +96,10 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
                           for (var i = 0; i < ds.length; i++)
                             DropdownMenuItem(value: i, child: Text('Lớp ${ds[i].ten} · ${ds[i].hocSinh.length} em')),
                         ],
-                        onChanged: (v) => setState(() => _chon = v ?? 0),
+                        onChanged: (v) {
+                          setState(() => _chon = v ?? 0);
+                          SharedPreferences.getInstance().then((p) => p.setString('lop_dang_day', ds[_chon].ten));
+                        },
                       ),
                     ),
                   Expanded(

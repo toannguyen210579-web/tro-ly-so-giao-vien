@@ -269,14 +269,18 @@ class _SuaBienBanState extends State<_SuaBienBan> {
       _bao('Thầy cô ghi thêm diễn biến, ý kiến cuộc họp rồi mới nhờ AI sắp xếp.');
       return;
     }
-    final dongY = await showDialog<bool>(
+    // Chỉ hỏi lần đầu; thầy cô đồng ý rồi thì các lần sau gửi luôn
+    final p = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    final daDongY = p.getBool('bb_dong_y_ai') ?? false;
+    final bool? dongY = daDongY ? true : await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
         title: const Text('Gửi ghi chép cho AI?'),
         content: const Text(
           'Phần "Diễn biến, ý kiến" sẽ được gửi lên máy chủ AI để sắp xếp thành câu văn biên bản. '
           'Tên trường, người chủ trì, thư ký không được gửi. Thầy cô nên bỏ bớt thông tin nhạy cảm trước khi gửi, '
-          'và đọc lại bản AI viết trước khi lưu.',
+          'và đọc lại bản AI viết trước khi lưu. App chỉ hỏi lần này.',
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Thôi')),
@@ -285,6 +289,8 @@ class _SuaBienBanState extends State<_SuaBienBan> {
       ),
     );
     if (dongY != true) return;
+    if (!daDongY) await p.setBool('bb_dong_y_ai', true);
+    if (!mounted) return;
     setState(() => _dangChoAI = true);
     final kq = await TroLyApi.hoi('Loại cuộc họp: $_loai. Về việc: ${_o['ve_viec']!.text.trim()}.\nGhi chép:\n$ghi', loai: 'bien_ban');
     if (!mounted) return;

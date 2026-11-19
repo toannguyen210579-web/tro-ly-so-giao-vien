@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -73,7 +74,13 @@ class TroLyApi {
   /// loai: 'hoi' (Hỏi Trợ lý), 'nhan_xet' (viết nhận xét), 'tin_ph' (soạn tin phụ huynh).
   /// 'giai_de', 'de_tuong_tu' (được kèm tối đa 4 ảnh JPEG mã base64), 'bien_ban' (sắp xếp biên bản họp).
   /// [riengTu]: câu có thông tin cá nhân, máy chủ sẽ dùng Claude thay vì Gemini miễn phí.
-  static Future<KetQuaTroLy> hoi(String noiDung, {String loai = 'hoi', List<String> anh = const [], List<String> pdf = const [], bool riengTu = false}) async {
+  /// [lichSu]: các cặp (câu hỏi, câu trả lời) trước đó trong Hỏi Trợ lý, để hỏi tiếp không phải nhắc lại.
+  static Future<KetQuaTroLy> hoi(String noiDung,
+      {String loai = 'hoi',
+      List<String> anh = const [],
+      List<String> pdf = const [],
+      bool riengTu = false,
+      List<(String, String)> lichSu = const []}) async {
     if (diaChiMayChu.isEmpty) {
       await Future.delayed(const Duration(milliseconds: 600));
       return const KetQuaTroLy(traLoi: '(Chế độ thử) Đây là câu trả lời mẫu.', conLai: 4);
@@ -83,18 +90,30 @@ class TroLyApi {
       return const KetQuaTroLy(loi: 'Tiện ích này chưa dùng được AI.');
     }
     try {
-      final j = await _post(
+      final ma = await maMay();
+      // Mạng chập chờn (rớt sóng, đổi wifi sang 4G) thì tự gửi lại một lần, thầy cô không phải bấm lại
+      Future<Map<String, dynamic>> guiMot() => _post(
         '/v1/ai',
         {
-          'device_id': await maMay(),
+          'device_id': ma,
           'mode': cheDo,
           'input': noiDung,
           if (anh.isNotEmpty) 'images': anh,
           if (pdf.isNotEmpty) 'pdfs': pdf,
           if (riengTu) 'private': true,
+          if (lichSu.isNotEmpty) 'history': [for (final (q, a) in lichSu.skip(lichSu.length > 4 ? lichSu.length - 4 : 0)) {'q': q, 'a': a}],
         },
         giay: anh.isEmpty && pdf.isEmpty ? 60 : 120,
       );
+      Map<String, dynamic> j;
+      try {
+        j = await guiMot();
+      } on TimeoutException {
+        rethrow; // đã chờ đủ lâu, gửi lại chỉ làm thầy cô chờ gấp đôi
+      } catch (_) {
+        await Future.delayed(const Duration(seconds: 1));
+        j = await guiMot();
+      }
       if (j['ok'] == true) {
         final con = j['remaining'] is int ? j['remaining'] as int : null;
         final thuong = j['bonus'] is int ? j['bonus'] as int : 0;
@@ -103,6 +122,8 @@ class TroLyApi {
       }
       if (j['error'] == 'het_luot') await _ghiLuot(cheDo, 0);
       return KetQuaTroLy(loi: (j['message'] as String?) ?? 'Có lỗi, thầy cô thử lại.');
+    } on TimeoutException {
+      return const KetQuaTroLy(loi: 'AI trả lời lâu quá. Thầy cô bấm Gửi lại hoặc hỏi ngắn hơn.');
     } catch (_) {
       return const KetQuaTroLy(loi: 'Không kết nối được. Thầy cô kiểm tra mạng rồi thử lại.');
     }

@@ -218,7 +218,7 @@ class _NhanXetHocSinhState extends State<NhanXetHocSinh> {
                     final xong = l.hocSinh.where((h) => h.nhanXet.trim().isNotEmpty).length;
                     return Card(
                       child: ListTile(
-                        title: Text('Lớp ${l.ten} · ${l.mon}', style: const TextStyle(fontWeight: FontWeight.w700)),
+                        title: Text('Lớp ${l.ten}${l.mon.isEmpty ? '' : ' · ${l.mon}'}', style: const TextStyle(fontWeight: FontWeight.w700)),
                         subtitle: Text('${l.tenCap}\nĐã nhận xét $xong/${l.hocSinh.length} em'),
                         isThreeLine: true,
                         trailing: IconButton(
@@ -344,8 +344,11 @@ class _HopThemLopState extends State<_HopThemLop> {
                 .where((s) => s.isNotEmpty)
                 .map((s) => HocSinh(s))
                 .toList();
-            if (ten.isEmpty || hs.isEmpty) return;
-            Navigator.pop(context, Lop(ten, _cap, _mon.text.trim(), hs));
+            if (hs.isEmpty) {
+              setState(() => _baoTep = 'Thầy cô dán danh sách tên học sinh (mỗi em một dòng) hoặc bấm Lấy từ tệp Excel.');
+              return;
+            }
+            Navigator.pop(context, Lop(ten.isEmpty ? 'mới' : ten, _cap, _mon.text.trim(), hs));
           },
           child: const Text('Tạo lớp'),
         ),
@@ -391,50 +394,61 @@ class _ManLopState extends State<_ManLop> {
   }
 
   /// Gửi lên AI chỉ mã học sinh (HS01, HS02...) và mức, không gửi tên thật.
+  /// Chỉ viết cho em chưa có nhận xét, để không mất phần thầy cô đã sửa; em nào cũng có rồi thì viết lại cả lớp.
   Future<void> _nhoAI() async {
-    final can = <int>[];
-    for (var i = 0; i < lop.hocSinh.length; i++) {
-      if (lop.hocSinh[i].muc.isNotEmpty) can.add(i);
-    }
-    if (can.isEmpty) {
-      _bao('Thầy cô chọn mức cho học sinh trước, AI dựa vào mức để viết.');
+    final coMuc = [for (var i = 0; i < lop.hocSinh.length; i++) if (lop.hocSinh[i].muc.isNotEmpty) i];
+    if (coMuc.isEmpty) {
+      _bao('Thầy cô chạm chọn mức cho học sinh trước, AI dựa vào mức để viết.');
       return;
     }
+    final chuaCo = coMuc.where((i) => lop.hocSinh[i].nhanXet.trim().isEmpty).toList();
+    final can = chuaCo.isNotEmpty ? chuaCo : coMuc;
     setState(() => _dangChoAI = true);
-    var conLai = -1;
+    // Mỗi lần gửi 6 em để câu trả lời không bị cắt; gửi 3 lần cùng lúc cho nhanh (lớp 40 em khoảng 10 giây).
+    final dot = [for (var b = 0; b < can.length; b += 6) can.sublist(b, b + 6 > can.length ? can.length : b + 6)];
     String? loi;
-    // Mỗi lần gửi 6 em để câu trả lời không bị cắt (máy chủ giới hạn độ dài trả về).
-    for (var b = 0; b < can.length; b += 6) {
-      final dot = can.sublist(b, b + 6 > can.length ? can.length : b + 6);
-      final cauHoi = StringBuffer()
-        ..writeln('Cấp học: ${lop.tenCap}. Môn: ${lop.mon.isEmpty ? 'chưa ghi' : lop.mon}.')
-        ..writeln('Viết lời nhận xét ngắn (1–2 câu) cho từng học sinh theo mức sau.')
-        ..writeln('Trả về mỗi học sinh đúng một dòng, dạng "HS01: lời nhận xét", không thêm tiêu đề hay giải thích.');
-      for (final i in dot) {
-        final ma = 'HS${(i + 1).toString().padLeft(2, '0')}';
-        cauHoi.writeln('$ma: ${lop.hocSinh[i].muc}');
+    var xong = 0;
+    for (var w = 0; w < dot.length; w += 3) {
+      final nhom = dot.skip(w).take(3).toList();
+      final kqs = await Future.wait([for (final d in nhom) TroLyApi.hoi(_cauHoiAI(d), loai: 'nhan_xet')]);
+      for (final kq in kqs) {
+        if (kq.traLoi == null) {
+          loi ??= kq.loi;
+          continue;
+        }
+        for (final dong in kq.traLoi!.split('\n')) {
+          final m = RegExp(r'^\s*[-*]?\s*(?:\*\*)?HS(\d+)(?:\*\*)?\s*[:\-–.]\s*(.+)$').firstMatch(dong);
+          if (m == null) continue;
+          final i = int.parse(m.group(1)!) - 1;
+          if (i >= 0 && i < lop.hocSinh.length && can.contains(i)) {
+            lop.hocSinh[i].nhanXet = boDauMarkdown(m.group(2)!);
+            xong++;
+          }
+        }
       }
-      final kq = await TroLyApi.hoi(cauHoi.toString(), loai: 'nhan_xet');
-      if (kq.traLoi == null) {
-        loi = kq.loi;
-        break;
-      }
-      conLai = kq.conLai ?? conLai;
-      for (final dong in kq.traLoi!.split('\n')) {
-        final m = RegExp(r'^\s*[-*]?\s*(?:\*\*)?HS(\d+)(?:\*\*)?\s*[:\-–.]\s*(.+)$').firstMatch(dong);
-        if (m == null) continue;
-        final i = int.parse(m.group(1)!) - 1;
-        if (i >= 0 && i < lop.hocSinh.length) lop.hocSinh[i].nhanXet = boDauMarkdown(m.group(2)!);
-      }
+      if (mounted) setState(() {});
     }
     await _luu();
     if (!mounted) return;
     setState(() => _dangChoAI = false);
-    if (loi != null) {
+    if (loi != null && xong == 0) {
       _bao(loi);
+    } else if (xong < can.length) {
+      _bao('AI đã viết $xong/${can.length} em. Thầy cô bấm lại để viết nốt các em còn thiếu.');
     } else {
-      _bao('AI đã viết xong. Thầy cô đọc lại và sửa trước khi dùng.${conLai >= 0 ? ' Còn $conLai lượt hôm nay.' : ''}');
+      _bao('AI đã viết xong $xong em. Thầy cô đọc lại và sửa trước khi dùng.');
     }
+  }
+
+  String _cauHoiAI(List<int> dot) {
+    final cauHoi = StringBuffer()
+      ..writeln('Cấp học: ${lop.tenCap}. Môn: ${lop.mon.isEmpty ? 'chưa ghi' : lop.mon}.')
+      ..writeln('Viết lời nhận xét ngắn (1–2 câu) cho từng học sinh theo mức sau.')
+      ..writeln('Trả về mỗi học sinh đúng một dòng, dạng "HS01: lời nhận xét", không thêm tiêu đề hay giải thích.');
+    for (final i in dot) {
+      cauHoi.writeln('HS${(i + 1).toString().padLeft(2, '0')}: ${lop.hocSinh[i].muc}');
+    }
+    return cauHoi.toString();
   }
 
   void _chepTatCa() {
@@ -471,7 +485,7 @@ class _ManLopState extends State<_ManLop> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lớp ${lop.ten} · ${lop.mon}'),
+        title: Text('Lớp ${lop.ten}${lop.mon.isEmpty ? '' : ' · ${lop.mon}'}'),
         actions: [
           IconButton(tooltip: 'Chép cả lớp sang Excel', onPressed: _chepTatCa, icon: const Icon(Icons.copy_all)),
         ],

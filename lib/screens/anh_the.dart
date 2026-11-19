@@ -33,7 +33,17 @@ class _AnhTheState extends State<AnhThe> {
   bool _dangXuLy = false;
 
   Future<void> _chonAnh(ImageSource nguon) async {
-    final x = await ImagePicker().pickImage(source: nguon, maxWidth: 2000, preferredCameraDevice: CameraDevice.front);
+    XFile? x;
+    try {
+      x = await ImagePicker().pickImage(source: nguon, maxWidth: 2000, preferredCameraDevice: CameraDevice.front);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Chưa mở được máy ảnh. Thầy cô bấm Cho phép khi app hỏi quyền máy ảnh.')),
+        );
+      }
+      return;
+    }
     if (x == null) return;
     setState(() {
       _dangXuLy = true;

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
+import 'nhan_xet.dart' show docLop;
 
 class _Mau {
   final String ten;
@@ -39,14 +41,42 @@ class NhanPhuHuynh extends StatefulWidget {
 class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
   int _chon = 0;
   final _tin = TextEditingController(text: _dsMau[0].noiDung);
-  final _tenHs = TextEditingController();
+  TextEditingController? _tenHs; // ô tên học sinh (gợi ý tên theo danh sách lớp)
+  final _tenGv = TextEditingController();
+  final _lop = TextEditingController();
   final _yMuon = TextEditingController();
   bool _dangChoAI = false;
+  List<String> _dsTen = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _taiSan();
+  }
+
+  /// Tên thầy cô, lớp nhớ từ lần trước; tên học sinh lấy từ các lớp đã tạo ở Nhận xét học sinh.
+  Future<void> _taiSan() async {
+    final p = await SharedPreferences.getInstance();
+    final lop = await docLop();
+    if (!mounted) return;
+    setState(() {
+      _tenGv.text = p.getString('ph_ten_gv') ?? '';
+      _lop.text = p.getString('ph_lop') ?? (lop.length == 1 ? lop.first.ten : '');
+      _dsTen = {for (final l in lop) for (final h in l.hocSinh) h.ten}.toList()..sort();
+    });
+  }
+
+  Future<void> _nhoTenLop() async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString('ph_ten_gv', _tenGv.text.trim());
+    await p.setString('ph_lop', _lop.text.trim());
+  }
 
   @override
   void dispose() {
     _tin.dispose();
-    _tenHs.dispose();
+    _tenGv.dispose();
+    _lop.dispose();
     _yMuon.dispose();
     super.dispose();
   }
@@ -81,10 +111,17 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
     }
   }
 
-  /// Điền tên học sinh ngay trên máy, sau khi AI soạn xong.
+  /// Điền tên học sinh, tên thầy cô, lớp ngay trên máy (tên không gửi cho AI).
   String _tinHoanChinh() {
-    final ten = _tenHs.text.trim();
-    return ten.isEmpty ? _tin.text : _tin.text.replaceAll('[tên học sinh]', ten);
+    var t = _tin.text;
+    final ten = (_tenHs?.text ?? '').trim();
+    if (ten.isNotEmpty) t = t.replaceAll(RegExp(r'\[(tên|mã) học sinh\]', caseSensitive: false), ten);
+    final gv = _tenGv.text.trim();
+    if (gv.isNotEmpty) t = t.replaceAll(RegExp(r'\[họ tên\]', caseSensitive: false), gv);
+    final lop = _lop.text.trim();
+    if (lop.isNotEmpty) t = t.replaceAll(RegExp(r'\[lớp\]', caseSensitive: false), lop);
+    _nhoTenLop();
+    return t;
   }
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));
@@ -138,15 +175,41 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
             ),
           ),
           const SizedBox(height: 12),
-          TextField(
-            controller: _tenHs,
-            decoration: const InputDecoration(
-              labelText: 'Tên học sinh (chỉ điền trên máy, không gửi cho AI)',
-            ),
+          Autocomplete<String>(
+            optionsBuilder: (v) {
+              final q = v.text.trim().toLowerCase();
+              if (q.isEmpty) return const Iterable<String>.empty();
+              return _dsTen.where((t) => t.toLowerCase().contains(q)).take(8);
+            },
+            fieldViewBuilder: (context, controller, focus, onSubmit) {
+              _tenHs = controller;
+              return TextField(
+                controller: controller,
+                focusNode: focus,
+                decoration: const InputDecoration(
+                  labelText: 'Tên học sinh (gõ vài chữ để chọn, không gửi cho AI)',
+                ),
+              );
+            },
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _tenGv,
+                  decoration: const InputDecoration(labelText: 'Họ tên thầy cô (app nhớ cho lần sau)'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              SizedBox(
+                width: 90,
+                child: TextField(controller: _lop, decoration: const InputDecoration(labelText: 'Lớp')),
+              ),
+            ],
           ),
           const SizedBox(height: 6),
           const Text(
-            'Các chỗ trong ngoặc vuông thầy cô sửa lại trước khi gửi.',
+            'App tự điền tên học sinh, họ tên, lớp vào tin khi chép hoặc gửi. Chỗ ngoặc vuông còn lại thầy cô sửa trước khi gửi.',
             style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
           ),
           const SizedBox(height: 16),

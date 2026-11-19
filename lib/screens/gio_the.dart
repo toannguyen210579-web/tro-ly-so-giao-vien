@@ -54,7 +54,8 @@ class _GioTheState extends State<GioThe> {
     setState(() {
       _ds = ds;
       _hieuChinh = p.getDouble('gt_xoay') ?? 0;
-      _chonLop = ds.isEmpty ? -1 : 0;
+      final i = ds.indexWhere((l) => l.ten == p.getString('lop_dang_day'));
+      _chonLop = ds.isEmpty ? -1 : (i < 0 ? 0 : i);
     });
     await _taiLichSu();
   }
@@ -295,6 +296,7 @@ class _GioTheState extends State<GioThe> {
             ],
             onChanged: (v) async {
               setState(() => _chonLop = v ?? -1);
+              if (_chonLop >= 0) (await SharedPreferences.getInstance()).setString('lop_dang_day', ds[_chonLop].ten);
               await _taiLichSu();
             },
           ),

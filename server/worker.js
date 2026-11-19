@@ -53,7 +53,8 @@ const SYSTEM = {
   hoi:
     CHUNG +
     " Trả lời mọi câu hỏi của người dùng một cách hữu ích. " +
-    "Bạn không có dữ liệu thời gian thực: hỏi giá cả, tỷ giá, thời tiết, tin tức hôm nay " +
+    "Ngày giờ hiện tại đã cho ở cuối hướng dẫn này, dùng nó khi được hỏi ngày, giờ, thứ, đếm ngày. " +
+    "Bạn không có dữ liệu thời gian thực khác: hỏi giá cả, tỷ giá, thời tiết, tin tức hôm nay " +
     "thì nói rõ là không có số liệu mới và gợi ý nơi tra cứu, không đoán số.",
   nhanxet:
     CHUNG +
@@ -63,7 +64,9 @@ const SYSTEM = {
   tinnhan:
     CHUNG +
     " Nhiệm vụ: soạn tin nhắn giáo viên gửi phụ huynh từ các ý giáo viên đưa vào. " +
-    "Lời lẽ lịch sự, tôn trọng, rõ việc, ngắn (dưới 120 chữ). Chỉ trả về nội dung tin nhắn.",
+    "Lời lẽ lịch sự, tôn trọng, rõ việc, ngắn (dưới 120 chữ). Chỉ trả về nội dung tin nhắn, không dùng markdown. " +
+    "Giữ nguyên từng chữ các chỗ trống trong ngoặc vuông giáo viên đưa ra, như [tên học sinh], [họ tên], [lớp]; " +
+    "không đổi thành [mã học sinh] hay chữ khác.",
   giaide:
     CHUNG +
     " Nhiệm vụ: làm đáp án và hướng dẫn chấm từ đề bài (ảnh hoặc chữ), theo chương trình GDPT 2018. " +
@@ -83,6 +86,24 @@ const SYSTEM = {
     "Trả về đúng hai phần: dòng 'NỘI DUNG:' rồi các đoạn diễn biến; dòng 'KẾT LUẬN:' rồi kết luận, phân công, thời hạn " +
     "(không có kết luận thì tóm tắt việc đã thống nhất). Không dùng markdown.",
 };
+
+// Hướng dẫn hệ thống kèm ngày giờ Việt Nam để AI trả lời đúng câu hỏi về ngày tháng
+function sysOf(mode, now = new Date()) {
+  const vn = new Date(now.getTime() + 7 * 3600 * 1000);
+  const thu = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"][vn.getUTCDay()];
+  const h = (n) => String(n).padStart(2, "0");
+  return SYSTEM[mode] + " Hiện tại ở Việt Nam là " + thu + ", ngày " + h(vn.getUTCDate()) + "/" + h(vn.getUTCMonth() + 1) +
+    "/" + vn.getUTCFullYear() + ", " + h(vn.getUTCHours()) + " giờ " + h(vn.getUTCMinutes()) + ".";
+}
+
+// Các lượt hỏi đáp trước trong cùng cuộc trò chuyện (chỉ Hỏi Trợ lý), tối đa 4 lượt, mỗi phần tối đa 2.000 ký tự
+function historyOf(body, mode) {
+  if (mode !== "hoi" || !Array.isArray(body.history)) return [];
+  return body.history
+    .filter((t) => t && typeof t.q === "string" && typeof t.a === "string" && t.q.trim() && t.a.trim())
+    .slice(-4)
+    .map((t) => ({ q: t.q.trim().slice(0, 2000), a: t.a.trim().slice(0, 2000) }));
+}
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
@@ -205,7 +226,7 @@ async function quota(db, device, day) {
   };
 }
 
-async function callClaude(env, mode, content) {
+async function callClaude(env, mode, content, hist = []) {
   let r;
   try {
     r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -218,8 +239,11 @@ async function callClaude(env, mode, content) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_OUT[mode] || MAX_TOKENS,
-        system: SYSTEM[mode],
-        messages: [{ role: "user", content }],
+        system: sysOf(mode),
+        messages: [
+          ...hist.flatMap((t) => [{ role: "user", content: t.q }, { role: "assistant", content: t.a }]),
+          { role: "user", content },
+        ],
       }),
     });
   } catch {
@@ -240,16 +264,16 @@ async function callClaude(env, mode, content) {
   return { text, by: "claude", usage: data.usage || {} };
 }
 
-async function callGemini(env, mode, input, imgs) {
+async function callGemini(env, mode, input, imgs, hist = []) {
   let last = null;
   for (const model of GEMINI_MODELS) {
-    last = await callGeminiOnce(env, mode, input, imgs, model);
+    last = await callGeminiOnce(env, mode, input, imgs, model, hist);
     if (!last.err || !/^(429|503|504)/.test(String(last.status))) return last;
   }
   return last;
 }
 
-async function callGeminiOnce(env, mode, input, imgs, model) {
+async function callGeminiOnce(env, mode, input, imgs, model, hist = []) {
   const parts = [
     ...imgs.map((a) => ({ inline_data: { mime_type: "image/jpeg", data: a } })),
     { text: input || (mode === "hoi" ? "Giải thích nội dung trong ảnh." : "Giải đề trong ảnh.") },
@@ -262,8 +286,11 @@ async function callGeminiOnce(env, mode, input, imgs, model) {
       body: JSON.stringify({
         model,
         body: {
-          systemInstruction: { parts: [{ text: SYSTEM[mode] }] },
-          contents: [{ role: "user", parts }],
+          systemInstruction: { parts: [{ text: sysOf(mode) }] },
+          contents: [
+            ...hist.flatMap((t) => [{ role: "user", parts: [{ text: t.q }] }, { role: "model", parts: [{ text: t.a }] }]),
+            { role: "user", parts },
+          ],
           // Mô hình có bước suy nghĩ cũng tính vào giới hạn, nên để rộng
           generationConfig: { maxOutputTokens: 8192 },
         },
@@ -436,17 +463,18 @@ export default {
 
     // Câu có thông tin cá nhân (app đánh dấu private) luôn đi qua Claude
     const priv = body.private === true;
+    const hist = historyOf(body, mode);
     let res = null;
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
     // Ảnh gửi Gemini gói miễn phí hay bị treo lâu (thử ngày 19/11), nên câu có ảnh đi thẳng Claude
     if (!priv && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
-      res = await callGemini(env, mode, input, imgs);
+      res = await callGemini(env, mode, input, imgs, hist);
       if (res.err) {
         gem = String(res.status);
         console.log(JSON.stringify({ ev: "gemini_fallback", status: res.status, device, mode }));
       }
     }
-    if (!res || res.err) res = await callClaude(env, mode, content);
+    if (!res || res.err) res = await callClaude(env, mode, content, hist);
     if (res.err) return json({ ok: false, error: res.err, message: res.msg, gem, claude: String(res.status || "") }, 502);
     const text = res.text;
     const data = { usage: res.usage };
