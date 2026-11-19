@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 
-/// Đọc danh sách họ tên học sinh từ tệp Excel (.xlsx) hoặc .csv/.txt.
+import 'van_phong_cu.dart';
+
+/// Đọc danh sách họ tên học sinh từ tệp Excel (.xlsx, .xls) hoặc .csv/.txt.
 /// Tự tìm cột có tiêu đề "Họ và tên", "Họ tên", "Tên học sinh"; tệp chia "Họ đệm" và "Tên" thì ghép lại.
 /// Không có tiêu đề thì lấy cột có nhiều ô dạng họ tên nhất.
 /// Trả về danh sách rỗng nếu không đọc được.
@@ -12,6 +14,8 @@ Future<List<String>> docDanhSachHocSinh(String duongDan) async {
   List<List<String>> bang;
   if (duoi.endsWith('.xlsx')) {
     bang = _docXlsx(await File(duongDan).readAsBytes());
+  } else if (duoi.endsWith('.xls')) {
+    bang = docBangXls(await File(duongDan).readAsBytes());
   } else {
     final chu = utf8.decode(await File(duongDan).readAsBytes(), allowMalformed: true);
     final ngan = chu.contains('\t') ? '\t' : (chu.contains(';') ? ';' : ',');
@@ -30,6 +34,9 @@ String _boDau(String s) {
   }
   return b.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
 }
+
+/// Lấy cột họ tên từ bảng đã đọc (tách riêng để kiểm thử).
+List<String> layHoTenTuBang(List<List<String>> bang) => _layHoTen(bang);
 
 List<String> _layHoTen(List<List<String>> bang) {
   // Tìm dòng tiêu đề trong 15 dòng đầu

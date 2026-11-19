@@ -75,7 +75,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
     if (nguon == null) return;
     if (nguon == 'tep') {
       try {
-        final t = await chonTep(['pdf', 'docx', 'txt', ...duoiAnh]);
+        final t = await chonTep(['pdf', ...duoiChu, ...duoiAnh]);
         if (t == null || !mounted) return;
         if (t.chu != null) {
           setState(() => _o.text = [_o.text.trim(), t.chu!].where((x) => x.isNotEmpty).join('\n\n'));

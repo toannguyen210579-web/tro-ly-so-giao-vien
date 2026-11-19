@@ -157,7 +157,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
 
   Future<void> _moTep() async {
     try {
-      final t = await chonTep(['docx', 'txt']);
+      final t = await chonTep(duoiChu);
       if (t?.chu == null) return;
       setState(() => _chu.text = t!.chu!);
     } on FormatException catch (e) {

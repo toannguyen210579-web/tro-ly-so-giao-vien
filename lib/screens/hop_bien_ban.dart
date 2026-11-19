@@ -454,7 +454,7 @@ class _SuaBienBanState extends State<_SuaBienBan> {
 
   Future<void> _layTuTep() async {
     try {
-      final t = await chonTep(['docx', 'txt']);
+      final t = await chonTep(duoiChu);
       if (t?.chu == null) return;
       final o = _o['noi_dung']!;
       setState(() => o.text = [o.text.trim(), t!.chu!].where((x) => x.isNotEmpty).join('\n'));

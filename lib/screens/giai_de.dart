@@ -63,7 +63,7 @@ class _GiaiDeState extends State<GiaiDe> {
 
   Future<void> _taiTep() async {
     try {
-      final t = await chonTep(['pdf', 'docx', 'txt', ...duoiAnh]);
+      final t = await chonTep(['pdf', ...duoiChu, ...duoiAnh]);
       if (t == null) return;
       if (t.chu != null) {
         setState(() => _deChu.text = [_deChu.text.trim(), t.chu!].where((x) => x.isNotEmpty).join('\n\n'));

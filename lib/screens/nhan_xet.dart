@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import '../data/luu_tru.dart';
 import '../services/doc_danh_sach.dart';
+import '../services/van_phong_cu.dart';
 import '../main.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
@@ -258,13 +259,9 @@ class _HopThemLopState extends State<_HopThemLop> {
 
   Future<void> _layTuTep() async {
     try {
-      final kq = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'csv', 'txt']);
+      final kq = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'xls', 'csv', 'txt']);
       final duong = kq?.files.single.path;
       if (duong == null) return;
-      if (duong.toLowerCase().endsWith('.xls')) {
-        setState(() => _baoTep = 'Tệp .xls cũ chưa đọc được. Thầy cô mở bằng Excel, lưu lại dạng .xlsx rồi chọn lại.');
-        return;
-      }
       final ds = await docDanhSachHocSinh(duong);
       setState(() {
         if (ds.isEmpty) {
@@ -274,8 +271,10 @@ class _HopThemLopState extends State<_HopThemLop> {
           _baoTep = 'Đã lấy ${ds.length} học sinh từ tệp. Thầy cô xem lại rồi bấm Tạo lớp.';
         }
       });
+    } on LoiTepCu catch (e) {
+      setState(() => _baoTep = e.message);
     } catch (_) {
-      setState(() => _baoTep = 'Chưa đọc được tệp. Thầy cô thử lưu lại dạng .xlsx hoặc .csv.');
+      setState(() => _baoTep = 'Chưa đọc được tệp này. Thầy cô kiểm tra tệp có mở được bằng Excel không.');
     }
   }
 

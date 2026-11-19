@@ -5,11 +5,13 @@ import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image/image.dart' as img;
 
+import 'van_phong_cu.dart';
+
 /// Tệp thầy cô tải lên, đã chuyển sẵn sang dạng gửi được cho AI.
 class TepTaiLen {
   final String ten;
 
-  /// Chữ đọc được từ tệp Word (.docx) hoặc .txt
+  /// Chữ đọc được từ tệp Word (.docx, .doc) hoặc .txt
   final String? chu;
 
   /// Ảnh JPEG mã base64 (đã thu nhỏ cạnh dài tối đa 1568 điểm ảnh)
@@ -22,7 +24,7 @@ class TepTaiLen {
 }
 
 const duoiAnh = ['jpg', 'jpeg', 'png', 'webp', 'heic'];
-const duoiChu = ['docx', 'txt'];
+const duoiChu = ['docx', 'doc', 'txt'];
 const gioiHanPdf = 4 * 1024 * 1024; // 4 MB
 
 /// Mở bộ chọn tệp. [cho] là các đuôi được chọn, ví dụ ['pdf', 'docx', 'txt', ...duoiAnh].
@@ -45,7 +47,16 @@ Future<TepTaiLen?> chonTep(List<String> cho) async {
     if (chu.isEmpty) throw const FormatException('Tệp Word không có chữ đọc được.');
     return TepTaiLen(ten, chu: chu);
   }
-  if (duoi == 'doc') throw const FormatException('Tệp .doc đời cũ chưa đọc được. Thầy cô lưu lại dạng .docx rồi chọn lại.');
+  if (duoi == 'doc') {
+    final String chu;
+    try {
+      chu = docChuDoc(byte);
+    } on LoiTepCu catch (e) {
+      throw FormatException(e.message);
+    }
+    if (chu.isEmpty) throw const FormatException('Tệp Word không có chữ đọc được.');
+    return TepTaiLen(ten, chu: chu);
+  }
   if (duoiAnh.contains(duoi)) {
     final anh = img.decodeImage(byte);
     if (anh == null) throw const FormatException('Không mở được ảnh này.');
