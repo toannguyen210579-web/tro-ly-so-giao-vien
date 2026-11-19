@@ -56,6 +56,7 @@ const SYSTEM = {
   hoi:
     CHUNG +
     " Trả lời mọi câu hỏi của người dùng một cách hữu ích. " +
+    "Không dùng LaTeX, không dùng ký hiệu $ bao công thức; viết phép tính bằng ký hiệu thường (5% + 2% = 7%, x², √). " +
     "Ngày giờ hiện tại đã cho ở cuối hướng dẫn này, dùng nó khi được hỏi ngày, giờ, thứ, đếm ngày. " +
     "Bạn không có dữ liệu thời gian thực khác: hỏi giá cả, tỷ giá, thời tiết, tin tức hôm nay " +
     "thì nói rõ là không có số liệu mới và gợi ý nơi tra cứu, không đoán số.",

@@ -130,3 +130,9 @@ test("Đọc to qua máy chủ: gọi Google đúng giọng tiếng Việt, đ�
   assert.equal(cuoi.status, 429);
   assert.equal((await goiTts(env, { text: "b".repeat(2001) })).status, 400);
 });
+
+test("Hỏi Trợ lý được dặn không dùng LaTeX", async () => {
+  const { env, ghi } = moiTruong();
+  await goi(env, { mode: "hoi", input: "Tính 5% + 2%" });
+  assert.match(ghi.gemini[0].body.systemInstruction.parts[0].text, /Không dùng LaTeX/);
+});

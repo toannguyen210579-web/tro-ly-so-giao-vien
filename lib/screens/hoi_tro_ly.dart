@@ -18,7 +18,8 @@ class _TinNhan {
   final String? anh; // đường dẫn ảnh thầy cô chụp kèm câu hỏi
   final bool loi; // câu báo lỗi, không đưa vào ngữ cảnh hỏi tiếp
   final String? cauGoc; // câu thầy cô gõ, để bấm Gửi lại khi lỗi mạng
-  const _TinNhan(this.laNguoiDung, this.noiDung, {this.cauHoi, this.anh, this.loi = false, this.cauGoc});
+  final String? traLoiGoc; // câu trả lời còn mã HS01…, dùng làm ngữ cảnh hỏi tiếp và báo cáo
+  const _TinNhan(this.laNguoiDung, this.noiDung, {this.cauHoi, this.anh, this.loi = false, this.cauGoc, this.traLoiGoc});
 }
 
 /// Hỏi Trợ lý: hỏi mọi việc, chụp ảnh bài tập để hỏi. Không hiện số câu; máy chủ vẫn có trần chống lạm dụng.
@@ -39,6 +40,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
   XFile? _anh;
   TepTaiLen? _tep; // tệp PDF hoặc ảnh tải lên
   bool _riengTu = false; // cuộc trò chuyện đã có thông tin cá nhân thì các câu sau cũng đi Claude
+  Map<String, String> _ma = {}; // tên học sinh → mã, giữ suốt cuộc trò chuyện
 
   @override
   void initState() {
@@ -134,12 +136,13 @@ class _HoiTroLyState extends State<HoiTroLy> {
       _dangCho = true;
     });
     _cuonXuong();
-    final sach = await lamSachCauHoi(c);
+    final sach = await lamSachCauHoi(c, maDaCo: _ma);
+    _ma = sach.ma;
     _riengTu = _riengTu || sach.riengTu;
     // Các lượt hỏi đáp trước, để thầy cô hỏi tiếp ("giải thích thêm", "cho ví dụ") không phải nhắc lại
     final lichSu = [
       for (final t in _ds)
-        if (!t.laNguoiDung && !t.loi && t.cauHoi != null && t.cauHoi!.isNotEmpty) (t.cauHoi!, t.noiDung),
+        if (!t.laNguoiDung && !t.loi && t.cauHoi != null && t.cauHoi!.isNotEmpty) (t.cauHoi!, t.traLoiGoc ?? t.noiDung),
     ];
     final dsAnh = anh == null ? <String>[] : [base64Encode(await File(anh.path).readAsBytes())];
     if (tep?.anh != null) dsAnh.add(tep!.anh!);
@@ -148,7 +151,14 @@ class _HoiTroLyState extends State<HoiTroLy> {
     if (!mounted) return;
     setState(() {
       _dangCho = false;
-      _ds.add(_TinNhan(false, kq.traLoi ?? kq.loi ?? 'Có lỗi, thầy cô thử lại.', cauHoi: sach.noiDung, loi: kq.traLoi == null, cauGoc: c));
+      _ds.add(_TinNhan(
+        false,
+        kq.traLoi == null ? (kq.loi ?? 'Có lỗi, thầy cô thử lại.') : traTen(kq.traLoi!, _ma),
+        cauHoi: sach.noiDung,
+        loi: kq.traLoi == null,
+        cauGoc: c,
+        traLoiGoc: kq.traLoi,
+      ));
     });
     _cuonXuong();
   }
@@ -176,7 +186,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
       ),
     );
     if (lyDo == null) return;
-    final ok = await TroLyApi.baoCao(cauHoi: t.cauHoi ?? '', traLoi: t.noiDung, lyDo: lyDo, loai: 'hoi');
+    final ok = await TroLyApi.baoCao(cauHoi: t.cauHoi ?? '', traLoi: t.traLoiGoc ?? t.noiDung, lyDo: lyDo, loai: 'hoi');
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(ok ? 'Đã gửi báo cáo. Cảm ơn thầy cô.' : 'Chưa gửi được, thầy cô thử lại sau.')),

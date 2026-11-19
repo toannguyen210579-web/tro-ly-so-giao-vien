@@ -7,7 +7,20 @@ class CauDaLamSach {
 
   /// true khi câu có dấu hiệu thông tin cá nhân. Máy chủ sẽ gửi câu này sang Claude thay vì Gemini miễn phí.
   final bool riengTu;
-  const CauDaLamSach(this.noiDung, this.riengTu);
+
+  /// Tên học sinh → mã đã dùng (gồm cả các mã từ những câu trước trong cùng cuộc trò chuyện).
+  final Map<String, String> ma;
+  const CauDaLamSach(this.noiDung, this.riengTu, [this.ma = const {}]);
+}
+
+/// Đổi mã HS01, HS02… trong câu trả lời của AI về lại tên thật, để thầy cô đọc thấy đúng tên học sinh.
+/// Việc này làm trên máy, tên không rời khỏi điện thoại.
+String traTen(String s, Map<String, String> ma) {
+  var kq = s;
+  for (final e in ma.entries) {
+    kq = kq.replaceAll(RegExp('(?<![A-Za-z0-9])${e.value}(?![0-9])'), e.key);
+  }
+  return kq;
 }
 
 // Họ phổ biến của người Việt; tên đồng bào Tây Nguyên thường mở đầu bằng Y, H', Ksor, Rơ Mah, Niê...
@@ -37,25 +50,29 @@ final _soGiayTo = RegExp(r'(?<!\d)\d{12}(?!\d)'); // số căn cước 12 chữ 
 /// 2. Số điện thoại, email, số căn cước → che đi.
 /// 3. Có tên người (theo họ phổ biến, cách xưng hô) dù không có trong danh sách → đánh dấu riêng tư.
 /// Hơi nghi là đánh dấu riêng tư, để câu đó đi qua Claude.
-Future<CauDaLamSach> lamSachCauHoi(String cau) async {
+/// [maDaCo]: mã đã đặt ở các câu trước, để một em giữ đúng một mã suốt cuộc trò chuyện.
+Future<CauDaLamSach> lamSachCauHoi(String cau, {Map<String, String> maDaCo = const {}}) async {
   var s = cau;
   var riengTu = false;
+  final ma = Map<String, String>.from(maDaCo);
 
   // 1. Tên trong danh sách lớp (tên dài thay trước để "Nguyễn Văn An" không bị cắt thành "An")
   try {
     final ds = await docLop();
-    final ten = <String, String>{};
+    final ten = <String>{};
     for (final lop in ds) {
-      for (var i = 0; i < lop.hocSinh.length; i++) {
-        final t = lop.hocSinh[i].ten.trim();
-        if (t.split(RegExp(r'\s+')).length >= 2) ten[t] = 'HS${(i + 1).toString().padLeft(2, '0')}';
+      for (final h in lop.hocSinh) {
+        final t = h.ten.trim();
+        if (t.split(RegExp(r'\s+')).length >= 2) ten.add(t);
       }
     }
-    final theoDoDai = ten.keys.toList()..sort((a, b) => b.length.compareTo(a.length));
+    // Mã đánh theo thứ tự xuất hiện trong cuộc trò chuyện (HS01, HS02…), không trùng giữa các lớp
+    final theoDoDai = ten.toList()..sort((a, b) => b.length.compareTo(a.length));
     for (final t in theoDoDai) {
       final m = RegExp('(?<![\\p{L}])${RegExp.escape(t)}(?![\\p{L}])', unicode: true, caseSensitive: false);
       if (m.hasMatch(s)) {
-        s = s.replaceAll(m, ten[t]!);
+        final maEm = ma[t] ??= 'HS${(ma.length + 1).toString().padLeft(2, '0')}';
+        s = s.replaceAll(m, maEm);
         riengTu = true;
       }
     }
@@ -74,5 +91,5 @@ Future<CauDaLamSach> lamSachCauHoi(String cau) async {
   // 3. Có vẻ là tên người
   if (_tenTheoHo.hasMatch(s) || _tenDongBao.hasMatch(s) || _xungHoTen.hasMatch(s)) riengTu = true;
 
-  return CauDaLamSach(s, riengTu);
+  return CauDaLamSach(s, riengTu, ma);
 }

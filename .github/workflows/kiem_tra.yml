@@ -24,7 +24,13 @@ jobs:
       - run: dart run flutter_launcher_icons
       - run: flutter analyze --no-fatal-infos
       - run: flutter test
-      - run: flutter build apk --release
+      # Kho thư viện Maven đôi khi báo quá tải (429): chờ rồi đóng gói lại, tối đa 3 lần
+      - run: |
+          for i in 1 2 3; do
+            flutter build apk --release && exit 0
+            echo "Đóng gói lỗi lần $i, chờ rồi thử lại"; sleep $((i * 60))
+          done
+          exit 1
       - uses: actions/upload-artifact@v4
         with:
           name: tro-ly-so-gv-android
