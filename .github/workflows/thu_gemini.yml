@@ -8,19 +8,25 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
-      - name: Thử thời gian trả lời theo mức suy nghĩ
+      - name: Thử ảnh với các mô hình Lite
         env:
           K: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          Q='Giải đề lớp 6, từng bước, có thang điểm: Câu 1. Tìm x: 3x - 7 = 11. Câu 2. Một lớp có 40 học sinh, 25% là học sinh giỏi. Hỏi lớp có bao nhiêu học sinh giỏi?'
-          for M in gemini-flash-lite-latest gemini-flash-latest; do
-            for T in none minimal low; do
-              if [ $T = none ]; then G='{"maxOutputTokens":8192}'; else G="{\"maxOutputTokens\":8192,\"thinkingConfig\":{\"thinkingLevel\":\"$T\"}}"; fi
-              S=$(date +%s%N)
-              R=$(curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
-                "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
-                -d "{\"contents\":[{\"parts\":[{\"text\":\"$Q\"}]}],\"generationConfig\":$G}")
-              E=$(( ($(date +%s%N) - S) / 1000000 ))
-              echo "$R" | python3 -c "import json,sys; j=json.load(sys.stdin); c=(j.get('candidates') or [{}])[0]; u=j.get('usageMetadata',{}); print('KQ', '$M', '$T', '${E}ms', j.get('modelVersion'), c.get('finishReason'), 'think', u.get('thoughtsTokenCount'), 'out', u.get('candidatesTokenCount'), j.get('error',{}).get('message','')[:80])"
-            done
+          python3 -c "
+          import base64,zlib,struct
+          # ảnh PNG 600x100 trắng có vạch đen giả chữ (không cần thư viện)
+          w,h=600,100
+          rows=b''.join(b'\x00'+bytes([0 if (20<y<80 and (x//12)%3==0 and 30<x<570) else 255 for x in range(w)]) for y in range(h))
+          def ch(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
+          png=b'\x89PNG\r\n\x1a\n'+ch(b'IHDR',struct.pack('>IIBBBBB',w,h,8,0,0,0,0))+ch(b'IDAT',zlib.compress(rows))+ch(b'IEND',b'')
+          open('img.b64','w').write(base64.b64encode(png).decode())
+          "
+          B=$(cat img.b64)
+          for M in gemini-flash-lite-latest gemini-3.1-flash-lite gemini-3.5-flash-lite gemini-3.5-flash; do
+            S=$(date +%s%N)
+            R=$(curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
+              "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
+              -d "{\"contents\":[{\"parts\":[{\"inline_data\":{\"mime_type\":\"image/png\",\"data\":\"$B\"}},{\"text\":\"Mô tả ngắn ảnh này.\"}]}]}")
+            E=$(( ($(date +%s%N) - S) / 1000000 ))
+            echo "$R" | python3 -c "import json,sys; j=json.load(sys.stdin); c=(j.get('candidates') or [{}])[0]; print('KQ', '$M', '${E}ms', j.get('modelVersion'), c.get('finishReason'), j.get('error',{}).get('message','')[:90])"
           done
