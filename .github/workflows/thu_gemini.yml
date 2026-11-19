@@ -8,17 +8,19 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
-      - name: Danh sách mô hình Flash và thử một câu
+      - name: Thử thời gian trả lời theo mức suy nghĩ
         env:
           K: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          curl -sS -H "x-goog-api-key: $K" "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" \
-            | python3 -c "import json,sys; [print(m['name'], m.get('displayName','')) for m in json.load(sys.stdin).get('models',[]) if 'flash' in m['name']]"
-          for M in gemini-flash-latest gemini-flash-lite-latest; do
-            S=$(date +%s)
-            curl -sS -m 90 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
-              "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
-              -d '{"contents":[{"parts":[{"text":"Gợi ý một trò chơi khởi động 3 phút cho tiết Toán lớp 6, trả lời ngắn."}]}]}' \
-              | python3 -c "import json,sys; j=json.load(sys.stdin); c=(j.get('candidates') or [{}])[0]; print('$M', j.get('modelVersion'), c.get('finishReason'), j.get('usageMetadata'), j.get('error',{}).get('message','')); print(''.join(p.get('text','') for p in c.get('content',{}).get('parts',[]) if not p.get('thought'))[:300])"
-            echo "giây: $(( $(date +%s) - S ))"
+          Q='Giải đề lớp 6, từng bước, có thang điểm: Câu 1. Tìm x: 3x - 7 = 11. Câu 2. Một lớp có 40 học sinh, 25% là học sinh giỏi. Hỏi lớp có bao nhiêu học sinh giỏi?'
+          for M in gemini-flash-lite-latest gemini-flash-latest; do
+            for T in none minimal low; do
+              if [ $T = none ]; then G='{"maxOutputTokens":8192}'; else G="{\"maxOutputTokens\":8192,\"thinkingConfig\":{\"thinkingLevel\":\"$T\"}}"; fi
+              S=$(date +%s%N)
+              R=$(curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
+                "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
+                -d "{\"contents\":[{\"parts\":[{\"text\":\"$Q\"}]}],\"generationConfig\":$G}")
+              E=$(( ($(date +%s%N) - S) / 1000000 ))
+              echo "$R" | python3 -c "import json,sys; j=json.load(sys.stdin); c=(j.get('candidates') or [{}])[0]; u=j.get('usageMetadata',{}); print('KQ', '$M', '$T', '${E}ms', j.get('modelVersion'), c.get('finishReason'), 'think', u.get('thoughtsTokenCount'), 'out', u.get('candidatesTokenCount'), j.get('error',{}).get('message','')[:80])"
+            done
           done
