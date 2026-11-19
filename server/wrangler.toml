@@ -1,11 +1,12 @@
 # Bản đang chạy: Cloudflare Worker tro-ly-gv (tro-ly-gv.toannguyen210579.workers.dev).
-# Mã trong worker.js khớp với bản đã triển khai trên bảng điều khiển Cloudflare.
+# Mỗi lần đẩy thay đổi trong thư mục server/ lên GitHub, workflow trien_khai_may_chu.yml tự triển khai.
 name = "tro-ly-gv"
 main = "worker.js"
+account_id = "e426acb896fd3c971495416845add55b"
+keep_vars = true
 compatibility_date = "2026-11-01"
 
-[vars]
-AI_ENABLED = "1"
+# Biến AI_ENABLED đặt trên bảng điều khiển Cloudflare (keep_vars giữ nguyên khi triển khai)
 
 # Bộ đếm lượt, cờ Pro/chặn, báo cáo nội dung AI (bảng tạo bằng schema.sql)
 [[d1_databases]]

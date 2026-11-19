@@ -1,0 +1,31 @@
+name: Triển khai máy chủ
+
+on:
+  push:
+    branches: [main, noi-may-chu]
+    paths: ["server/**", ".github/workflows/trien_khai_may_chu.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: trien-khai-may-chu
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm tra cú pháp
+        run: node --check server/worker.js
+      - name: Triển khai lên Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: server
+          command: deploy
+      - name: Thử máy chủ
+        run: |
+          sleep 10
+          curl -fsS https://tro-ly-gv.toannguyen210579.workers.dev/health
+          curl -fsS -o /dev/null -w "ho-tro %{http_code}\n" https://tro-ly-gv.toannguyen210579.workers.dev/ho-tro
