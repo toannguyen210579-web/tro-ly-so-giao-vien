@@ -73,7 +73,7 @@ class TroLyApi {
   /// loai: 'hoi' (Hỏi Trợ lý), 'nhan_xet' (viết nhận xét), 'tin_ph' (soạn tin phụ huynh).
   /// 'giai_de', 'de_tuong_tu' (được kèm tối đa 4 ảnh JPEG mã base64), 'bien_ban' (sắp xếp biên bản họp).
   /// [riengTu]: câu có thông tin cá nhân, máy chủ sẽ dùng Claude thay vì Gemini miễn phí.
-  static Future<KetQuaTroLy> hoi(String noiDung, {String loai = 'hoi', List<String> anh = const [], bool riengTu = false}) async {
+  static Future<KetQuaTroLy> hoi(String noiDung, {String loai = 'hoi', List<String> anh = const [], List<String> pdf = const [], bool riengTu = false}) async {
     if (diaChiMayChu.isEmpty) {
       await Future.delayed(const Duration(milliseconds: 600));
       return const KetQuaTroLy(traLoi: '(Chế độ thử) Đây là câu trả lời mẫu.', conLai: 4);
@@ -90,9 +90,10 @@ class TroLyApi {
           'mode': cheDo,
           'input': noiDung,
           if (anh.isNotEmpty) 'images': anh,
+          if (pdf.isNotEmpty) 'pdfs': pdf,
           if (riengTu) 'private': true,
         },
-        giay: anh.isEmpty ? 60 : 120,
+        giay: anh.isEmpty && pdf.isEmpty ? 60 : 120,
       );
       if (j['ok'] == true) {
         final con = j['remaining'] is int ? j['remaining'] as int : null;

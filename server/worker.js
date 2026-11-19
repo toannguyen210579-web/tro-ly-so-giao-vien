@@ -398,14 +398,18 @@ export default {
     const imgs = Array.isArray(body.images) ? body.images.filter((a) => typeof a === "string" && a) : [];
     if (imgs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận ảnh.", 400);
     if (imgs.length > 4 || imgs.some((a) => a.length > 2000000)) return err("anh_lon", "Tối đa 4 ảnh, mỗi ảnh dưới 1,5 MB.", 400);
-    if (!input && !imgs.length) return err("trong", "Thầy cô chưa nhập nội dung.", 400);
+    const pdfs = Array.isArray(body.pdfs) ? body.pdfs.filter((a) => typeof a === "string" && a) : [];
+    if (pdfs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận tệp PDF.", 400);
+    if (pdfs.length > 1 || pdfs.some((a) => a.length > 6000000)) return err("pdf_lon", "Mỗi lần gửi một tệp PDF, dưới 4 MB.", 400);
+    if (!input && !imgs.length && !pdfs.length) return err("trong", "Thầy cô chưa nhập nội dung.", 400);
     const maxIn = MAX_IN[mode] || MAX_INPUT;
     if (input.length > maxIn) {
       return err("qua_dai", "Nội dung dài quá, tối đa " + maxIn + " ký tự.", 400);
     }
-    const content = imgs.length
-      ? [...imgs.map((a) => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: a } })),
-        { type: "text", text: input || "Giải đề trong ảnh." }]
+    const content = imgs.length || pdfs.length
+      ? [...pdfs.map((a) => ({ type: "document", source: { type: "base64", media_type: "application/pdf", data: a } })),
+        ...imgs.map((a) => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: a } })),
+        { type: "text", text: input || (mode === "hoi" ? "Giải thích nội dung trong tệp." : "Giải đề trong tệp.") }]
       : input;
     if (await getFlag(db, "block:" + device)) {
       return err("bi_chan", "Máy này đã bị tạm dừng dùng AI. Thầy cô liên hệ hỗ trợ trong app.", 403);
@@ -435,7 +439,7 @@ export default {
     let res = null;
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
     // Ảnh gửi Gemini gói miễn phí hay bị treo lâu (thử ngày 19/11), nên câu có ảnh đi thẳng Claude
-    if (!priv && !imgs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
+    if (!priv && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
       res = await callGemini(env, mode, input, imgs);
       if (res.err) {
         gem = String(res.status);

@@ -9,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/luu_tru.dart';
 import '../main.dart';
+import '../services/chon_tep.dart';
 import '../services/tep_pdf.dart';
 import '../services/tro_ly_api.dart';
 import 'doc_to_ghi_loi.dart';
@@ -451,6 +452,20 @@ class _SuaBienBanState extends State<_SuaBienBan> {
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));
 
+  Future<void> _layTuTep() async {
+    try {
+      final t = await chonTep(['docx', 'txt']);
+      if (t?.chu == null) return;
+      final o = _o['noi_dung']!;
+      setState(() => o.text = [o.text.trim(), t!.chu!].where((x) => x.isNotEmpty).join('\n'));
+      _bao('Đã lấy ghi chép từ ${t!.ten}.');
+    } on FormatException catch (e) {
+      _bao(e.message);
+    } catch (_) {
+      _bao('Chưa mở được tệp, thầy cô thử lại.');
+    }
+  }
+
   Widget _o1(String khoa, String nhan, {String? goiY, int dong = 1, int toiDa = 1}) => Padding(
         padding: const EdgeInsets.only(bottom: 12),
         child: TextField(
@@ -520,15 +535,23 @@ class _SuaBienBanState extends State<_SuaBienBan> {
           ),
           const SizedBox(height: 6),
           _o1('noi_dung', 'Ghi chép', dong: 8, toiDa: 30),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FilledButton.tonalIcon(
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              OutlinedButton.icon(
+                onPressed: _layTuTep,
+                icon: const Icon(Icons.upload_file, size: 18),
+                label: const Text('Lấy ghi chép từ tệp Word'),
+              ),
+              FilledButton.tonalIcon(
               onPressed: _dangChoAI ? null : _nhoAI,
               icon: _dangChoAI
                   ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                   : const Icon(Icons.auto_awesome, size: 18),
               label: const Text('Nhờ AI sắp xếp thành biên bản'),
             ),
+            ],
           ),
           const SizedBox(height: 12),
           _o1('ket_luan', 'Kết luận của chủ trì', dong: 3, toiDa: 12),

@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import '../data/cham_diem.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
+import '../services/chon_tep.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
 
@@ -24,6 +25,7 @@ class GiaiDe extends StatefulWidget {
 
 class _GiaiDeState extends State<GiaiDe> {
   final _anh = <XFile>[];
+  final _tep = <TepTaiLen>[]; // ảnh, PDF tải lên từ tệp
   final _deChu = TextEditingController();
   final _yeuCau = TextEditingController();
   final _ketQua = TextEditingController();
@@ -59,9 +61,34 @@ class _GiaiDeState extends State<GiaiDe> {
     }
   }
 
+  Future<void> _taiTep() async {
+    try {
+      final t = await chonTep(['pdf', 'docx', 'txt', ...duoiAnh]);
+      if (t == null) return;
+      if (t.chu != null) {
+        setState(() => _deChu.text = [_deChu.text.trim(), t.chu!].where((x) => x.isNotEmpty).join('\n\n'));
+        _bao('Đã lấy chữ từ ${t.ten} vào ô đề.');
+        return;
+      }
+      if (t.pdf != null && _tep.any((x) => x.pdf != null)) {
+        _bao('Mỗi lần gửi một tệp PDF.');
+        return;
+      }
+      if (t.anh != null && _anh.length + _tep.where((x) => x.anh != null).length >= 4) {
+        _bao('Mỗi lần gửi tối đa 4 ảnh.');
+        return;
+      }
+      setState(() => _tep.add(t));
+    } on FormatException catch (e) {
+      _bao(e.message);
+    } catch (_) {
+      _bao('Chưa mở được tệp, thầy cô thử lại.');
+    }
+  }
+
   Future<void> _gui(String loai) async {
-    if (_anh.isEmpty && _deChu.text.trim().isEmpty) {
-      _bao('Thầy cô chụp ảnh đề hoặc gõ đề vào ô bên dưới.');
+    if (_anh.isEmpty && _tep.isEmpty && _deChu.text.trim().isEmpty) {
+      _bao('Thầy cô chụp ảnh đề, tải tệp đề lên hoặc gõ đề vào ô bên dưới.');
       return;
     }
     if (diaChiMayChu.isEmpty) {
@@ -73,11 +100,13 @@ class _GiaiDeState extends State<GiaiDe> {
     for (final a in _anh) {
       anh.add(base64Encode(await File(a.path).readAsBytes()));
     }
+    anh.addAll(_tep.where((t) => t.anh != null).map((t) => t.anh!));
+    final pdf = _tep.where((t) => t.pdf != null).map((t) => t.pdf!).toList();
     final b = StringBuffer('Môn: $_mon.');
     if (_lop.isNotEmpty) b.write(' Lớp: $_lop.');
     if (_deChu.text.trim().isNotEmpty) b.write('\nĐề (giáo viên gõ):\n${_deChu.text.trim()}');
     if (_yeuCau.text.trim().isNotEmpty) b.write('\nYêu cầu thêm của giáo viên: ${_yeuCau.text.trim()}');
-    final kq = await TroLyApi.hoi(b.toString(), loai: loai, anh: anh);
+    final kq = await TroLyApi.hoi(b.toString(), loai: loai, anh: anh, pdf: pdf);
     if (!mounted) return;
     setState(() => _dangCho = false);
     if (kq.traLoi == null) {
@@ -143,7 +172,7 @@ class _GiaiDeState extends State<GiaiDe> {
         children: [
           const CauGiupViec('tao_de'),
           const Text(
-            'Chụp đề hoặc trang sách, AI làm lời giải từng bước, đáp án và gợi ý thang điểm; '
+            'Chụp đề, tải tệp PDF, Word hoặc ảnh, AI làm lời giải từng bước, đáp án và gợi ý thang điểm; '
             'hoặc ra đề tương tự để ôn tập. Thầy cô kiểm tra lại trước khi dùng.',
             style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
           ),
@@ -187,8 +216,31 @@ class _GiaiDeState extends State<GiaiDe> {
                   label: const Text('Chọn ảnh'),
                 ),
               ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: _taiTep,
+                  icon: const Icon(Icons.upload_file),
+                  label: const Text('Tải tệp'),
+                ),
+              ),
             ],
           ),
+          if (_tep.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: [
+                for (var i = 0; i < _tep.length; i++)
+                  InputChip(
+                    avatar: Icon(_tep[i].pdf != null ? Icons.picture_as_pdf_outlined : Icons.image_outlined, size: 18),
+                    label: Text(_tep[i].ten, overflow: TextOverflow.ellipsis),
+                    onDeleted: () => setState(() => _tep.removeAt(i)),
+                  ),
+              ],
+            ),
+          ],
           if (_anh.isNotEmpty) ...[
             const SizedBox(height: 10),
             Wrap(

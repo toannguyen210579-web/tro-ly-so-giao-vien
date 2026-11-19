@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 
 import '../main.dart';
 import '../services/an_danh.dart';
+import '../services/chon_tep.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
 import 'chu_ai.dart';
@@ -34,6 +35,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
   final _ds = <_TinNhan>[];
   bool _dangCho = false;
   XFile? _anh;
+  TepTaiLen? _tep; // tệp PDF hoặc ảnh tải lên
 
   @override
   void initState() {
@@ -45,7 +47,7 @@ class _HoiTroLyState extends State<HoiTroLy> {
   }
 
   Future<void> _chonAnh() async {
-    final nguon = await showModalBottomSheet<ImageSource>(
+    final nguon = await showModalBottomSheet<Object>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -61,14 +63,46 @@ class _HoiTroLyState extends State<HoiTroLy> {
               title: const Text('Chọn ảnh có sẵn'),
               onTap: () => Navigator.pop(ctx, ImageSource.gallery),
             ),
+            ListTile(
+              leading: const Icon(Icons.upload_file),
+              title: const Text('Tải tệp lên (PDF, Word, ảnh)'),
+              onTap: () => Navigator.pop(ctx, 'tep'),
+            ),
           ],
         ),
       ),
     );
     if (nguon == null) return;
+    if (nguon == 'tep') {
+      try {
+        final t = await chonTep(['pdf', 'docx', 'txt', ...duoiAnh]);
+        if (t == null || !mounted) return;
+        if (t.chu != null) {
+          setState(() => _o.text = [_o.text.trim(), t.chu!].where((x) => x.isNotEmpty).join('\n\n'));
+        } else {
+          setState(() {
+            _tep = t;
+            _anh = null;
+          });
+        }
+      } on FormatException catch (e) {
+        if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa mở được tệp, thầy cô thử lại.')));
+        }
+      }
+      return;
+    }
+    if (nguon is! ImageSource) return;
     try {
       final x = await ImagePicker().pickImage(source: nguon, maxWidth: 1568, maxHeight: 1568, imageQuality: 80);
-      if (x != null && mounted) setState(() => _anh = x);
+      if (x != null && mounted) {
+        setState(() {
+          _anh = x;
+          _tep = null;
+        });
+      }
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -87,17 +121,21 @@ class _HoiTroLyState extends State<HoiTroLy> {
   Future<void> _gui([String? cau]) async {
     final c = (cau ?? _o.text).trim();
     final anh = _anh;
-    if ((c.isEmpty && anh == null) || _dangCho) return;
+    final tep = _tep;
+    if ((c.isEmpty && anh == null && tep == null) || _dangCho) return;
     _o.clear();
     setState(() {
-      _ds.add(_TinNhan(true, c.isEmpty ? '(Ảnh)' : c, anh: anh?.path));
+      _ds.add(_TinNhan(true, [if (tep != null) '📎 ${tep.ten}', if (c.isNotEmpty) c else if (anh != null) '(Ảnh)'].join('\n'), anh: anh?.path));
       _anh = null;
+      _tep = null;
       _dangCho = true;
     });
     _cuonXuong();
     final sach = await lamSachCauHoi(c);
     final dsAnh = anh == null ? <String>[] : [base64Encode(await File(anh.path).readAsBytes())];
-    final kq = await TroLyApi.hoi(sach.noiDung, anh: dsAnh, riengTu: sach.riengTu);
+    if (tep?.anh != null) dsAnh.add(tep!.anh!);
+    final kq = await TroLyApi.hoi(sach.noiDung,
+        anh: dsAnh, pdf: tep?.pdf == null ? const [] : [tep!.pdf!], riengTu: sach.riengTu);
     if (!mounted) return;
     setState(() {
       _dangCho = false;
@@ -160,6 +198,18 @@ class _HoiTroLyState extends State<HoiTroLy> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  if (_tep != null)
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: InputChip(
+                          avatar: Icon(_tep!.pdf != null ? Icons.picture_as_pdf_outlined : Icons.image_outlined, size: 18),
+                          label: Text(_tep!.ten, overflow: TextOverflow.ellipsis),
+                          onDeleted: () => setState(() => _tep = null),
+                        ),
+                      ),
+                    ),
                   if (_anh != null)
                     Align(
                       alignment: Alignment.centerLeft,
@@ -188,9 +238,9 @@ class _HoiTroLyState extends State<HoiTroLy> {
                   Row(
                 children: [
                   IconButton(
-                    tooltip: 'Chụp ảnh bài tập',
+                    tooltip: 'Chụp ảnh, tải tệp lên',
                     onPressed: _dangCho ? null : _chonAnh,
-                    icon: const Icon(Icons.photo_camera_outlined, color: MauApp.xanhDam),
+                    icon: const Icon(Icons.attach_file, color: MauApp.xanhDam),
                   ),
                   Expanded(
                     child: TextField(

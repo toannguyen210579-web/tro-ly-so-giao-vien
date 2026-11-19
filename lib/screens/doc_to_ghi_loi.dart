@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
+import '../services/chon_tep.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
 
@@ -154,6 +155,18 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     if (mounted) setState(() => _dangDoc = false);
   }
 
+  Future<void> _moTep() async {
+    try {
+      final t = await chonTep(['docx', 'txt']);
+      if (t?.chu == null) return;
+      setState(() => _chu.text = t!.chu!);
+    } on FormatException catch (e) {
+      _bao(e.message);
+    } catch (_) {
+      _bao('Chưa mở được tệp, thầy cô thử lại.');
+    }
+  }
+
   Future<void> _dan() async {
     final d = await Clipboard.getData(Clipboard.kTextPlain);
     if (d?.text != null) setState(() => _chu.text = d!.text!);
@@ -183,7 +196,13 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
             hintText: 'Dán công văn, bài đọc, đề bài… vào đây',
             border: const OutlineInputBorder(),
             alignLabelWithHint: true,
-            suffixIcon: IconButton(tooltip: 'Dán', icon: const Icon(Icons.content_paste), onPressed: _dan),
+            suffixIcon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(tooltip: 'Dán', icon: const Icon(Icons.content_paste), onPressed: _dan),
+                IconButton(tooltip: 'Mở tệp Word', icon: const Icon(Icons.upload_file), onPressed: _moTep),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 12),
