@@ -95,7 +95,8 @@ class HoSo {
 }
 
 /// Lượt AI miễn phí mỗi ngày (khớp với máy chủ trong server/worker.js).
-const luotMienPhi = {'hoi': 20, 'nhanxet': 100, 'tinnhan': 100};
+// Hỏi Trợ lý không hiện số câu (đã chốt 19/11), nên chỉ hiện các tiện ích có giới hạn rõ.
+const luotMienPhi = {'giaide': 10, 'nhanxet': 100, 'tinnhan': 100};
 
 class TaiKhoan extends StatefulWidget {
   const TaiKhoan({super.key});
@@ -106,7 +107,7 @@ class TaiKhoan extends StatefulWidget {
 
 class _TaiKhoanState extends State<TaiKhoan> {
   List<String> _hoSo = ['', '', ''];
-  int _luotHoi = luotMienPhi['hoi']!;
+  int _luotGiaiDe = luotMienPhi['giaide']!;
   int _luotNhanXet = luotMienPhi['nhanxet']!;
   String _maMay = '';
 
@@ -120,12 +121,12 @@ class _TaiKhoanState extends State<TaiKhoan> {
     final h = await HoSo.doc();
     final ma = await TroLyApi.maMay();
     await TroLyApi.layLuot();
-    final a = await TroLyApi.luotConLai('hoi', luotMienPhi['hoi']!);
+    final a = await TroLyApi.luotConLai('giai_de', luotMienPhi['giaide']!);
     final b = await TroLyApi.luotConLai('nhanxet', luotMienPhi['nhanxet']!);
     if (mounted) {
       setState(() {
         _hoSo = h;
-        _luotHoi = a;
+        _luotGiaiDe = a;
         _luotNhanXet = b;
         _maMay = ma;
       });
@@ -230,7 +231,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
             // Lượt hôm nay
             Row(
               children: [
-                Expanded(child: _oSo('$_luotHoi/${luotMienPhi['hoi']}', 'Lượt hỏi Trợ lý', const Color(0xFFFFF4D6))),
+                Expanded(child: _oSo('$_luotGiaiDe/${luotMienPhi['giaide']}', 'Lượt giải đề hôm nay', const Color(0xFFFFF4D6))),
                 const SizedBox(width: 8),
                 Expanded(child: _oSo('$_luotNhanXet/${luotMienPhi['nhanxet']}', 'Lượt AI viết nhận xét', const Color(0xFFE3ECF8))),
               ],
