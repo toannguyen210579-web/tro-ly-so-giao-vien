@@ -22,7 +22,7 @@ const MAX_INPUT = 2000;      // ký tự tối đa mỗi lần gửi
 const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
 // Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
 const MAX_IN = { bienban: 12000, detuongtu: 4000 };
-const MAX_OUT = { giaide: 4000, detuongtu: 3000, bienban: 3000 };
+const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000 };
 const IMG_MODES = ["giaide", "detuongtu", "hoi"]; // chế độ được gửi ảnh, tối đa 4 ảnh
 // Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
 // Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
@@ -262,7 +262,7 @@ async function callGemini(env, mode, input, imgs) {
   }
   if (!r.ok) {
     let why = "";
-    try { why = ((await r.json()).error || {}).status || ""; } catch {}
+    try { const e = (await r.json()).error || {}; why = (e.status || "") + " " + String(e.message || "").slice(0, 120); } catch {}
     return { err: "loi_ai", status: r.status + (why ? ":" + why : "") };
   }
   const data = await r.json();
