@@ -155,7 +155,7 @@ async function ttsGemini(env, text) {
     }
     if (!r.ok) {
       last = r.status === 429
-        ? { err: "het_luot_chung", msg: "Giọng đọc qua mạng hôm nay đã dùng hết, mai thầy cô dùng tiếp nhé.", status: model + ":429" }
+        ? { err: "het_luot_chung", msg: "Giọng đọc qua mạng tạm hết lượt miễn phí trong ngày, sau 15 giờ thầy cô dùng lại được.", status: model + ":429" }
         : { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: model + ":" + r.status };
       continue; // mỗi mô hình có hạn mức riêng, thử mô hình kế tiếp
     }

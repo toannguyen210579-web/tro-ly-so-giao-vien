@@ -142,7 +142,7 @@ test("Đọc to bằng Gemini: mọi mô hình hết lượt thì báo dễ hi�
   env.GEMINI = { fetch: async () => new Response("{}", { status: 429 }) };
   const r = await goiTts(env, { text: "Xin chào" });
   assert.equal(r.status, 429);
-  assert.match((await r.json()).message, /hôm nay đã dùng hết/);
+  assert.match((await r.json()).message, /tạm hết lượt miễn phí/);
 });
 
 test("Đọc to bằng Google Cloud khi có khóa, đếm ký tự theo ngày", async () => {
