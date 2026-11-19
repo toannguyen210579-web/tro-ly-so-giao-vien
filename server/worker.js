@@ -442,6 +442,7 @@ export default {
     return json({
       ok: true,
       text,
+      by: res.by,
       remaining: Math.max(0, limit - usedNow),
       bonus: Math.max(0, leftBonus),
     });
