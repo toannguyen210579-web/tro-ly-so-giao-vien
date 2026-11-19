@@ -1,7 +1,9 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../data/luu_tru.dart';
+import '../services/doc_danh_sach.dart';
 import '../main.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
@@ -252,6 +254,30 @@ class _HopThemLopState extends State<_HopThemLop> {
   final _mon = TextEditingController();
   final _ds = TextEditingController();
   String _cap = 'tr';
+  String? _baoTep;
+
+  Future<void> _layTuTep() async {
+    try {
+      final kq = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'csv', 'txt']);
+      final duong = kq?.files.single.path;
+      if (duong == null) return;
+      if (duong.toLowerCase().endsWith('.xls')) {
+        setState(() => _baoTep = 'Tệp .xls cũ chưa đọc được. Thầy cô mở bằng Excel, lưu lại dạng .xlsx rồi chọn lại.');
+        return;
+      }
+      final ds = await docDanhSachHocSinh(duong);
+      setState(() {
+        if (ds.isEmpty) {
+          _baoTep = 'Không tìm thấy cột họ tên trong tệp. Thầy cô kiểm tra tệp có cột "Họ và tên".';
+        } else {
+          _ds.text = ds.join('\n');
+          _baoTep = 'Đã lấy ${ds.length} học sinh từ tệp. Thầy cô xem lại rồi bấm Tạo lớp.';
+        }
+      });
+    } catch (_) {
+      setState(() => _baoTep = 'Chưa đọc được tệp. Thầy cô thử lưu lại dạng .xlsx hoặc .csv.');
+    }
+  }
 
   @override
   void dispose() {
@@ -281,13 +307,27 @@ class _HopThemLopState extends State<_HopThemLop> {
               onSelectionChanged: (s) => setState(() => _cap = s.first),
             ),
             const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: _layTuTep,
+                icon: const Icon(Icons.upload_file),
+                label: const Text('Lấy từ tệp Excel'),
+              ),
+            ),
+            if (_baoTep != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(_baoTep!, style: const TextStyle(fontSize: 13)),
+              ),
+            const SizedBox(height: 8),
             TextField(
               controller: _ds,
               minLines: 5,
               maxLines: 10,
               decoration: const InputDecoration(
                 labelText: 'Danh sách học sinh',
-                hintText: 'Mỗi em một dòng. Có thể chép cột họ tên từ Excel rồi dán vào đây.',
+                hintText: 'Mỗi em một dòng, hoặc bấm Lấy từ tệp Excel (tệp xuất từ vnEdu, SMAS).',
                 border: OutlineInputBorder(),
               ),
             ),

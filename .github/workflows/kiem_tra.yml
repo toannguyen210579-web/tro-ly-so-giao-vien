@@ -2,6 +2,8 @@ name: Kiem tra va dong goi
 
 on:
   push:
+    # Chỉ đóng gói lại khi mã app thay đổi (sửa máy chủ không cần đóng gói app)
+    paths-ignore: ["server/**", ".github/workflows/trien_khai_may_chu.yml", ".github/workflows/thu_gemini.yml", "**.md"]
   workflow_dispatch:
 
 jobs:
@@ -29,6 +31,8 @@ jobs:
           path: build/app/outputs/flutter-apk/app-release.apk
 
   ios:
+    # Máy Mac tính phút gấp 10 lần, nên bản iPhone chỉ đóng gói khi bấm chạy tay
+    if: github.event_name == 'workflow_dispatch'
     runs-on: macos-15-intel
     timeout-minutes: 60
     steps:
