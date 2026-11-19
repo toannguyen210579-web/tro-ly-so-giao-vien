@@ -8,14 +8,41 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
-      - name: Xem cách dùng
+      - name: Thử các phiên bản sherpa-onnx với giọng tiếng Việt
         run: |
-          pip install -q sherpa-onnx
-          pip show sherpa-onnx | grep -i version
-          python3 -c "import sherpa_onnx as s; print(s.OfflineTtsVitsModelConfig.__init__.__doc__); print(s.OfflineTtsModelConfig.__init__.__doc__); print(s.OfflineTtsConfig.__init__.__doc__)"
-          git clone -q --depth 1 --filter=blob:none --sparse https://github.com/k2-fsa/sherpa-onnx s && cd s && git sparse-checkout set python-api-examples flutter/sherpa_onnx/lib flutter/sherpa_onnx/pubspec.yaml
-          grep -n "vits\|data_dir\|espeak\|lexicon\|phoneme" python-api-examples/offline-tts.py | head -40
-          grep -n "^version" flutter/sherpa_onnx/pubspec.yaml
-          F=$(grep -rl "class OfflineTtsVitsModelConfig" flutter/sherpa_onnx/lib); echo "TEP $F"; sed -n '1,400p' $F | grep -n "class \|this\.\|required\|generate\|Future\|static\|factory" | head -120
-          grep -rn "initBindings\|writeWave" flutter/sherpa_onnx/lib | head
-          curl -sSL -o m.tar.bz2 https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/vits-piper-vi_VN-vais1000-medium-int8.tar.bz2 && tar xjf m.tar.bz2 && cat vits-piper-vi_VN-vais1000-medium-int8/MODEL_CARD | head -30; ls vits-piper-vi_VN-vais1000-medium-int8/espeak-ng-data | head; ls vits-piper-vi_VN-vais1000-medium-int8/espeak-ng-data | wc -l
+          pip index versions sherpa-onnx 2>/dev/null | head -2
+          mkdir am
+          for M in vits-piper-vi_VN-vais1000-medium-int8 vits-piper-vi_VN-25hours_single-low-int8 vits-piper-vi_VN-vivos-x_low-int8; do
+            curl -sSL https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/$M.tar.bz2 | tar xj
+          done
+          cat > thu.py <<'P'
+          import sys,time,glob,os,wave,array,sherpa_onnx
+          m,out=sys.argv[1],sys.argv[2]
+          d=os.path.abspath(m)+'/'
+          onnx=glob.glob(d+'*.onnx')[0]
+          cfg=sherpa_onnx.OfflineTtsConfig(model=sherpa_onnx.OfflineTtsModelConfig(vits=sherpa_onnx.OfflineTtsVitsModelConfig(model=onnx,tokens=d+'tokens.txt',data_dir=d+'espeak-ng-data'),num_threads=2))
+          t=time.time(); tts=sherpa_onnx.OfflineTts(cfg); t1=time.time()
+          a=tts.generate("Kính gửi quý phụ huynh em Nguyễn Văn An. Nhà trường kính mời quý phụ huynh dự họp lúc bảy giờ sáng Chủ nhật, ngày hai mươi hai tháng mười một.",sid=0,speed=1.0)
+          t2=time.time()
+          n=len(a.samples)
+          print('KQ',sherpa_onnx.__version__ if hasattr(sherpa_onnx,'__version__') else '',m,'nap',round(t1-t,1),'s tao',round(t2-t1,1),'s ->',round(n/max(1,a.sample_rate),1),'s am thanh')
+          if n:
+              w=wave.open(out,'wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(a.sample_rate)
+              w.writeframes(array.array('h',[max(-32767,min(32767,int(x*32767))) for x in a.samples]).tobytes()); w.close()
+          P
+          for V in "" 1.12.20 1.12.10 1.11.6 1.10.46; do
+            pip install -q --force-reinstall "sherpa-onnx${V:+==$V}" >/dev/null 2>&1 || { echo "KQ khong cai duoc $V"; continue; }
+            echo "== phien ban $(pip show sherpa-onnx | grep Version)"
+            python3 thu.py vits-piper-vi_VN-vais1000-medium-int8 am/vais1000_$V.wav 2>&1 | grep -E "KQ|Failed|empty" | head -3
+            if [ -f am/vais1000_$V.wav ]; then
+              python3 thu.py vits-piper-vi_VN-25hours_single-low-int8 am/25hours_$V.wav 2>&1 | grep KQ
+              python3 thu.py vits-piper-vi_VN-vivos-x_low-int8 am/vivos_$V.wav 2>&1 | grep KQ
+              echo "KQ dung duoc phien ban $V"; break
+            fi
+          done
+          ls -la am
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giong-may
+          path: am/*.wav
+          if-no-files-found: ignore
