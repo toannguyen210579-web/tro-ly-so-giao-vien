@@ -535,27 +535,29 @@ function page(path) {
 const PAGES = {
   "/dieu-khoan": {
     title: "Điều khoản sử dụng – Trợ lý số Giáo viên - Một chạm",
-    updated: "18/11/2026",
+    updated: "19/11/2026",
     md: String.raw`## 1. Giới thiệu và chấp nhận điều khoản
 - "Trợ lý số Giáo viên - Một chạm" (gọi tắt là "Ứng dụng") là ứng dụng hỗ trợ công việc hành chính và chuyên môn của giáo viên, do ông Nguyễn Văn Toàn (gọi là "chúng tôi") cung cấp.
 - Khi cài đặt hoặc sử dụng Ứng dụng, thầy cô đồng ý với Điều khoản sử dụng này và [Chính sách quyền riêng tư](/quyen-rieng-tu). Nếu không đồng ý, thầy cô vui lòng ngừng sử dụng và gỡ Ứng dụng.
 - Ứng dụng được phân phối qua Google Play và App Store. Ngoài Điều khoản này, thầy cô còn chịu điều khoản của Google hoặc Apple khi tải, thanh toán và sử dụng.
 ## 2. Điều kiện sử dụng
 - Ứng dụng dành cho giáo viên, cán bộ quản lý và người làm công tác giáo dục từ đủ 18 tuổi. Học sinh không phải là người dùng của Ứng dụng.
-- Bản đầu không cần đăng ký tài khoản. Ứng dụng tạo một mã máy ngẫu nhiên để đếm lượt dùng tính năng AI và ghi nhận gói Pro; mã này không chứa tên, số điện thoại hay email.
-- Gỡ Ứng dụng hoặc xóa dữ liệu Ứng dụng có thể làm mất các tệp lưu trên máy và lượt thưởng chưa dùng. Gói Pro đã mua được khôi phục bằng nút "Khôi phục gói đã mua" trong trang Tài khoản, với cùng tài khoản Google hoặc Apple.
+- Bản đầu không cần đăng ký tài khoản. Ứng dụng tạo một mã máy ngẫu nhiên để đếm lượt dùng tính năng AI; mã này không chứa tên, số điện thoại hay email.
+- Gỡ Ứng dụng hoặc xóa dữ liệu Ứng dụng có thể làm mất các tệp lưu trên máy và lượt thưởng chưa dùng. Khi gói Pro được áp dụng, gói đã mua được khôi phục bằng nút "Khôi phục gói đã mua" trong trang Tài khoản, với cùng tài khoản Google hoặc Apple.
 ## 3. Tính năng AI và lượt sử dụng
-- Các tính năng AI gồm: Hỏi Trợ lý, Nhờ AI viết nhận xét, Nhờ AI soạn tin. Hỏi Trợ lý trả lời câu hỏi thuộc nhiều chủ đề nhưng không có dữ liệu theo thời gian thực (giá cả, tỷ giá, tin tức trong ngày); thầy cô cần tự kiểm tra lại thông tin quan trọng.
+- Các tính năng AI gồm: Hỏi Trợ lý (hỏi bằng chữ hoặc chụp ảnh), Nhờ AI viết nhận xét, Nhờ AI soạn tin, Giải đề, Ra đề tương tự, Nhờ AI sắp xếp biên bản. Hỏi Trợ lý trả lời câu hỏi thuộc nhiều chủ đề nhưng không có dữ liệu theo thời gian thực (giá cả, tỷ giá, tin tức trong ngày); thầy cô cần tự kiểm tra lại thông tin quan trọng.
 - **Mỗi lượt** là một lần bấm nút và nhận được kết quả: một câu trả lời, một đoạn nhận xét cho một học sinh, hoặc một tin nhắn. Bấm "Viết lại" được tính thêm một lượt. Lần bấm bị lỗi (mất mạng, AI bận) không bị trừ lượt.
-- Số lượt miễn phí mỗi ngày của từng tính năng hiển thị trong Ứng dụng và được tính lại từ 0 giờ theo giờ Việt Nam. Chúng tôi có thể điều chỉnh số lượt này và sẽ thông báo trong Ứng dụng.
-- **Xem quảng cáo nhận lượt:** xem hết một quảng cáo nhận thưởng được thêm 5 lượt, tối đa 10 quảng cáo mỗi ngày. Lượt thưởng dùng trong ngày, không cộng dồn sang ngày sau, không đổi thành tiền.
+- Số lượt miễn phí mỗi ngày của Giải đề, nhận xét, tin nhắn hiển thị trong Ứng dụng; Hỏi Trợ lý không hiện số câu nhưng có giới hạn cao để chống lạm dụng. Lượt được tính lại từ 0 giờ theo giờ Việt Nam. Chúng tôi có thể điều chỉnh số lượt này và sẽ thông báo trong Ứng dụng.
+- **Xem quảng cáo nhận lượt:** chưa áp dụng ở bản hiện tại. Khi mở, xem hết một quảng cáo nhận thưởng được thêm 5 lượt, tối đa 10 quảng cáo mỗi ngày. Lượt thưởng dùng trong ngày, không cộng dồn sang ngày sau, không đổi thành tiền.
 - **Nội dung do AI tạo ra có thể sai hoặc chưa phù hợp.** Thầy cô luôn đọc, kiểm tra và sửa trước khi dùng, nhất là nhận xét học sinh, tin nhắn phụ huynh và thông tin về chế độ, văn bản. Nội dung AI không thay thế văn bản chính thức hay ý kiến của cơ quan có thẩm quyền.
 - **Báo cáo nội dung:** gặp nội dung AI sai, xúc phạm hoặc không phù hợp, thầy cô bấm nút "Báo cáo" ngay dưới câu trả lời; chúng tôi xem xét và điều chỉnh.
 - Tính năng AI có thể tạm dừng khi bảo trì, khi nhà cung cấp AI gặp sự cố hoặc khi vượt giới hạn chi phí của hệ thống. Các tiện ích chạy không cần mạng vẫn dùng bình thường.
+
+Ứng dụng hiện được cung cấp miễn phí, không có quảng cáo và không có tính năng trả phí. Trong các phiên bản sau, nhà phát triển có thể bổ sung quảng cáo hoặc gói trả phí; khi đó ứng dụng sẽ thông báo trước ít nhất 7 ngày và Điều khoản này sẽ được cập nhật. Các tính năng cơ bản đang miễn phí vẫn tiếp tục được cung cấp miễn phí.
 ## 4. Gói Pro
-Mục này áp dụng từ khi Ứng dụng mở bán gói Pro.
-- **Quyền lợi:** nhiều lượt AI hơn gói miễn phí, tối đa 100 lượt mỗi tính năng mỗi ngày, và không hiện quảng cáo. Giới hạn lượt mỗi ngày nhằm giữ dịch vụ ổn định và ngăn lạm dụng.
-- **Giá:** 49.000 đồng/tháng hoặc 399.000 đồng/năm. Giá chính thức là giá hiển thị trên Google Play hoặc App Store tại thời điểm mua, đã gồm các khoản thuế do kho ứng dụng áp dụng.
+Gói Pro chưa áp dụng. Giá và quyền lợi sẽ được công bố khi mở gói; mục này áp dụng từ thời điểm đó.
+- **Quyền lợi:** nhiều lượt AI hơn gói miễn phí, tối đa số lượt mỗi tính năng mỗi ngày công bố khi mở gói. Giới hạn lượt mỗi ngày nhằm giữ dịch vụ ổn định và ngăn lạm dụng.
+- **Giá:** công bố khi mở gói. Giá chính thức là giá hiển thị trên Google Play hoặc App Store tại thời điểm mua, đã gồm các khoản thuế do kho ứng dụng áp dụng.
 - **Thanh toán:** thầy cô trả tiền qua tài khoản Google Play hoặc Apple. Chúng tôi không thu tiền trực tiếp và không lưu thông tin thẻ hay tài khoản ngân hàng của thầy cô.
 - **Tự động gia hạn:** gói tự gia hạn và trừ tiền khi hết kỳ, trừ khi thầy cô hủy trước thời điểm gia hạn theo quy định của kho (với App Store: ít nhất 24 giờ trước khi hết kỳ).
 - **Hủy gói:**
@@ -582,8 +584,8 @@ Khi phát hiện vi phạm, chúng tôi có thể tạm dừng hoặc chặn tí
 ## 7. Dữ liệu và quảng cáo
 - Việc thu thập, xử lý dữ liệu cá nhân được nêu chi tiết trong [Chính sách quyền riêng tư](/quyen-rieng-tu), theo pháp luật Việt Nam về bảo vệ dữ liệu cá nhân.
 - Tệp quét, ảnh thẻ, nhận xét, tin nhắn thầy cô tạo được lưu trên máy của thầy cô, trừ khi thầy cô chọn gửi lên AI.
-- Khi dùng tính năng AI, nội dung thầy cô nhập được gửi qua máy chủ của chúng tôi tới nhà cung cấp AI (hiện là Anthropic) để tạo câu trả lời. Tên học sinh được thay bằng mã trước khi gửi. Máy chủ chỉ lưu mã máy, địa chỉ mạng, số lượt và nhật ký kỹ thuật ngắn hạn, không lưu nội dung câu hỏi.
-- Ứng dụng có quảng cáo do Google AdMob cung cấp. Thầy cô có thể điều chỉnh quảng cáo cá nhân hóa trong cài đặt của máy. Nội dung quảng cáo thuộc trách nhiệm của bên quảng cáo.
+- Khi dùng tính năng AI, nội dung thầy cô nhập được gửi qua máy chủ của chúng tôi tới nhà cung cấp AI để tạo câu trả lời. Câu hỏi bằng chữ không có thông tin cá nhân trong Hỏi Trợ lý, Giải đề, Ra đề tương tự được gửi tới Google (Gemini), nội dung này có thể được Google dùng để cải thiện dịch vụ; câu hỏi kèm ảnh, câu hỏi có tên học sinh, số điện thoại, email và các tính năng Nhận xét học sinh, Nhắn phụ huynh, sắp xếp biên bản được gửi tới Anthropic (Claude). Tên học sinh trong danh sách lớp được thay bằng mã trước khi gửi. Máy chủ chỉ lưu mã máy, địa chỉ mạng, số lượt và nhật ký kỹ thuật ngắn hạn, không lưu nội dung câu hỏi (trừ nội dung thầy cô bấm Báo cáo).
+- Bản hiện tại không có quảng cáo. Nếu sau này bổ sung, quảng cáo do Google AdMob cung cấp và được thông báo trước theo mục 3. Thầy cô có thể điều chỉnh quảng cáo cá nhân hóa trong cài đặt của máy. Nội dung quảng cáo thuộc trách nhiệm của bên quảng cáo.
 ## 8. Trách nhiệm, thay đổi và liên hệ
 - **Giới hạn trách nhiệm:** Ứng dụng được cung cấp theo hiện trạng. Trong phạm vi pháp luật cho phép, chúng tôi không chịu trách nhiệm về thiệt hại phát sinh từ việc dùng nội dung AI mà không kiểm tra, về dữ liệu mất do gỡ Ứng dụng hay hỏng máy. Trách nhiệm bồi hoàn của chúng tôi, nếu có, không vượt quá số tiền thầy cô đã trả cho gói Pro trong 3 tháng gần nhất.
 - **Thay đổi dịch vụ:** chúng tôi có thể thêm, sửa hoặc ngừng một tiện ích, đổi nhà cung cấp AI. Nếu ngừng hẳn gói Pro, chúng tôi báo trước ít nhất 30 ngày và ngừng gia hạn.
@@ -593,7 +595,7 @@ Khi phát hiện vi phạm, chúng tôi có thể tạm dừng hoặc chặn tí
   },
   "/quyen-rieng-tu": {
     title: "Chính sách quyền riêng tư – Trợ lý số Giáo viên - Một chạm",
-    updated: "18/11/2026",
+    updated: "19/11/2026",
     md: String.raw`## 1. Tóm tắt
 - Ứng dụng "Trợ lý số Giáo viên - Một chạm" do ông Nguyễn Văn Toàn (gọi là "chúng tôi") cung cấp và chịu trách nhiệm xử lý dữ liệu nêu trong chính sách này.
 - **Chúng tôi thu:** một mã máy ngẫu nhiên, địa chỉ mạng (IP) và số lượt dùng AI để giới hạn lượt và chống lạm dụng; nội dung thầy cô chủ động gửi cho AI, chỉ để tạo câu trả lời.
@@ -603,7 +605,7 @@ Khi phát hiện vi phạm, chúng tôi có thể tạm dừng hoặc chặn tí
 | Dữ liệu | Mục đích | Nơi lưu | Thời gian lưu |
 | --- | --- | --- | --- |
 | Tệp quét PDF, ảnh thẻ, nhận xét, tin nhắn, ghi âm, lịch công tác | Các tiện ích của Ứng dụng | Trên máy của thầy cô | Đến khi thầy cô xóa hoặc gỡ Ứng dụng |
-| Mã máy ngẫu nhiên (do Ứng dụng tạo, không gắn với tên hay số điện thoại) | Đếm lượt AI, ghi nhận lượt thưởng và gói Pro | Trên máy và máy chủ | Bộ đếm lượt tự xóa sau 3 ngày; thông tin gói Pro lưu đến khi gói hết hạn |
+| Mã máy ngẫu nhiên (do Ứng dụng tạo, không gắn với tên hay số điện thoại) | Đếm lượt AI, chống lạm dụng (và ghi nhận gói Pro khi gói được áp dụng) | Trên máy và máy chủ | Bộ đếm lượt tự xóa sau 3 ngày; thông tin gói Pro lưu đến khi gói hết hạn |
 | Địa chỉ mạng (IP) | Giới hạn số lượt mỗi mạng, chống lạm dụng | Máy chủ | Tự xóa sau 3 ngày |
 | Nội dung thầy cô gửi cho AI (kể cả ảnh đề bài khi dùng Giải đề, ghi chép họp khi nhờ AI sắp xếp biên bản) và câu trả lời | Tạo câu trả lời, nhận xét, tin nhắn | Chỉ chuyển qua máy chủ, không lưu; nhà cung cấp AI xử lý theo mục 3 | Không lưu trên máy chủ của chúng tôi |
 | Nhật ký kỹ thuật: thời điểm, mã máy, IP, loại tính năng, số ký tự (token) | Phát hiện lỗi, lạm dụng | Máy chủ | Tối đa 7 ngày |
@@ -614,15 +616,16 @@ Chúng tôi chỉ dùng dữ liệu cho các mục đích trên. Thầy cô đ�
 Chúng tôi không bán dữ liệu của thầy cô. Dữ liệu chỉ đến các bên dưới đây, để Ứng dụng hoạt động; các bên này có thể xử lý dữ liệu ngoài Việt Nam.
 | Bên nhận | Nhận gì | Để làm gì | Chính sách của họ |
 | --- | --- | --- | --- |
-| Anthropic (dịch vụ AI Claude) | Nội dung thầy cô gửi cho AI, đã thay tên học sinh bằng mã; không kèm mã máy hay IP của thầy cô | Tạo câu trả lời | [anthropic.com/legal/privacy](https://www.anthropic.com/legal/privacy) |
+| Google (dịch vụ AI Gemini) | Câu hỏi bằng chữ không có thông tin cá nhân trong Hỏi Trợ lý, Giải đề, Ra đề tương tự; không kèm mã máy hay IP của thầy cô | Tạo câu trả lời; Google có thể dùng nội dung này để cải thiện dịch vụ | [ai.google.dev/gemini-api/terms](https://ai.google.dev/gemini-api/terms) |
+| Anthropic (dịch vụ AI Claude) | Câu hỏi kèm ảnh, câu hỏi có tên học sinh, số điện thoại, email; nội dung Nhận xét học sinh, Nhắn phụ huynh, sắp xếp biên bản. Tên học sinh trong danh sách lớp đã thay bằng mã; không kèm mã máy hay IP | Tạo câu trả lời | [anthropic.com/legal/privacy](https://www.anthropic.com/legal/privacy) |
 | Cloudflare (máy chủ) | Mã máy, IP, bộ đếm lượt, nhật ký kỹ thuật | Vận hành máy chủ của Ứng dụng | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
-| Google AdMob (quảng cáo) | Mã quảng cáo của máy, IP, thông tin thiết bị, tương tác với quảng cáo; mã máy khi xem quảng cáo nhận thưởng | Hiện quảng cáo, xác nhận lượt thưởng | [policies.google.com/privacy](https://policies.google.com/privacy) |
-| Google Play, Apple App Store | Thông tin mua gói Pro (chúng tôi không nhận số thẻ) | Thanh toán, gia hạn, hoàn tiền | [policies.google.com/privacy](https://policies.google.com/privacy), [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
-- Thầy cô có thể tắt quảng cáo cá nhân hóa trong cài đặt của máy (Android: Cài đặt → Google → Quảng cáo; iPhone: khi Ứng dụng hỏi quyền theo dõi, chọn không cho phép).
+| Google AdMob (quảng cáo, chưa dùng ở bản hiện tại) | Mã quảng cáo của máy, IP, thông tin thiết bị, tương tác với quảng cáo; mã máy khi xem quảng cáo nhận thưởng | Hiện quảng cáo, xác nhận lượt thưởng | [policies.google.com/privacy](https://policies.google.com/privacy) |
+| Google Play, Apple App Store | Thông tin mua gói Pro khi gói được áp dụng (chúng tôi không nhận số thẻ) | Thanh toán, gia hạn, hoàn tiền | [policies.google.com/privacy](https://policies.google.com/privacy), [apple.com/legal/privacy](https://www.apple.com/legal/privacy/) |
+- Bản hiện tại không có quảng cáo và không thu dữ liệu quảng cáo. Khi bổ sung quảng cáo, Ứng dụng sẽ thông báo trước và cập nhật chính sách này.
 - Chúng tôi chỉ cung cấp dữ liệu cho cơ quan nhà nước khi có yêu cầu hợp pháp theo quy định của pháp luật Việt Nam.
 ## 4. Dữ liệu học sinh và phụ huynh
 - Ứng dụng dành cho giáo viên. Thông tin học sinh, phụ huynh (tên, điểm, nhận xét, số điện thoại) do thầy cô nhập và được lưu trên máy của thầy cô.
-- Trước khi gửi lên AI, Ứng dụng thay tên học sinh bằng mã (ví dụ "HS07") và đổi lại tên thật trên máy sau khi nhận câu trả lời. Số điện thoại phụ huynh không được gửi lên AI.
+- Trước khi gửi lên AI, Ứng dụng thay tên học sinh có trong danh sách lớp bằng mã (ví dụ "HS07"); trong Nhận xét học sinh, tên thật được ghép lại trên máy sau khi nhận câu trả lời. Câu hỏi có dấu hiệu chứa tên người, số điện thoại, email được gửi tới Claude thay vì Gemini. Số điện thoại phụ huynh không được gửi lên AI.
 - Thầy cô không nhập vào ô gửi AI các thông tin nhạy cảm của học sinh, phụ huynh (sức khỏe, hoàn cảnh gia đình, số định danh). Thầy cô và nhà trường chịu trách nhiệm về việc thu thập, sử dụng thông tin học sinh theo quy định của ngành.
 - Phần Họp (ghi âm, biên bản) mặc định xử lý ngay trên máy; chỉ gửi lên AI khi thầy cô bấm đồng ý cho từng lần.
 ## 5. Quyền truy cập trên máy
@@ -633,7 +636,7 @@ Chúng tôi không bán dữ liệu của thầy cô. Dữ liệu chỉ đến c
 | Micro | Ghi âm cuộc họp, đọc giọng nói thành văn bản, nói vào ô Trợ lý |
 | Ảnh và tệp | Chọn ảnh, lưu tệp PDF, Word, ảnh thẻ |
 | Thông báo | Nhắc việc sắp đến hạn trong Lịch công tác |
-| Mạng | Tính năng AI, quảng cáo, tin cho thầy cô |
+| Mạng | Tính năng AI, tin cho thầy cô |
 Ứng dụng không xin quyền vị trí, danh bạ hay tin nhắn.
 ## 6. Quyền của thầy cô và cách xóa dữ liệu
 Theo pháp luật về bảo vệ dữ liệu cá nhân, thầy cô có quyền biết, xem, yêu cầu sửa, xóa dữ liệu của mình, rút lại đồng ý và khiếu nại.
