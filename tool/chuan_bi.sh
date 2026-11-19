@@ -70,6 +70,20 @@ for G in android/build.gradle.kts android/build.gradle; do
     fi
   fi
 done
+# Flutter mới đòi các thư viện biên dịch với Android API 36 trở lên; vài plugin (file_picker…) còn để 34.
+# Nâng compileSdk của các plugin lên 36 khi đóng gói (không đổi minSdk, máy cũ vẫn cài được).
+G=android/build.gradle.kts
+if [ -f "$G" ] && ! grep -q "compileSdkVersion\"(36)" "$G"; then
+  cat >> "$G" <<'K'
+
+subprojects {
+    val nangSdk: Project.() -> Unit = {
+        extensions.findByName("android")?.withGroovyBuilder { "compileSdkVersion"(36) }
+    }
+    if (state.executed) nangSdk() else afterEvaluate { nangSdk() }
+}
+K
+fi
 # Tên hiện dưới biểu tượng trên màn hình điện thoại
 /usr/bin/env python3 - <<'PY'
 import re
