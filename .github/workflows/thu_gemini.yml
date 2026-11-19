@@ -8,25 +8,33 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
-      - name: Thử ảnh với các mô hình Lite
+      - name: Thử đọc tiếng Việt bằng các mô hình TTS của Gemini (gói miễn phí)
         env:
           K: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          python3 -c "
-          import base64,zlib,struct
-          # ảnh PNG 600x100 trắng có vạch đen giả chữ (không cần thư viện)
-          w,h=600,100
-          rows=b''.join(b'\x00'+bytes([0 if (20<y<80 and (x//12)%3==0 and 30<x<570) else 255 for x in range(w)]) for y in range(h))
-          def ch(t,d): return struct.pack('>I',len(d))+t+d+struct.pack('>I',zlib.crc32(t+d)&0xffffffff)
-          png=b'\x89PNG\r\n\x1a\n'+ch(b'IHDR',struct.pack('>IIBBBBB',w,h,8,0,0,0,0))+ch(b'IDAT',zlib.compress(rows))+ch(b'IEND',b'')
-          open('img.b64','w').write(base64.b64encode(png).decode())
-          "
-          B=$(cat img.b64)
-          for M in gemini-flash-lite-latest gemini-3.1-flash-lite gemini-3.5-flash-lite gemini-3.5-flash; do
+          mkdir am
+          curl -sS -H "x-goog-api-key: $K" "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000" \
+            | python3 -c "import json,sys; [print(m['name'].split('/')[1]) for m in json.load(sys.stdin).get('models',[]) if 'tts' in m['name']]" > mo_hinh.txt
+          echo "Mô hình TTS: $(tr '\n' ' ' < mo_hinh.txt)"
+          for M in $(cat mo_hinh.txt); do
             S=$(date +%s%N)
-            R=$(curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
+            curl -sS -m 90 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
               "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
-              -d "{\"contents\":[{\"parts\":[{\"inline_data\":{\"mime_type\":\"image/png\",\"data\":\"$B\"}},{\"text\":\"Mô tả ngắn ảnh này.\"}]}]}")
+              -d '{"contents":[{"parts":[{"text":"Kính gửi quý phụ huynh em Nguyễn Văn An. Nhà trường kính mời quý phụ huynh dự họp lúc bảy giờ sáng Chủ nhật, ngày hai mươi hai tháng mười một."}]}],"generationConfig":{"responseModalities":["AUDIO"],"speechConfig":{"voiceConfig":{"prebuiltVoiceConfig":{"voiceName":"Kore"}}}}}' > r.json
             E=$(( ($(date +%s%N) - S) / 1000000 ))
-            echo "$R" | python3 -c "import json,sys; j=json.load(sys.stdin); c=(j.get('candidates') or [{}])[0]; print('KQ', '$M', '${E}ms', j.get('modelVersion'), c.get('finishReason'), j.get('error',{}).get('message','')[:90])"
+            python3 - "$M" "$E" <<'P'
+          import json,sys,base64
+          m,e=sys.argv[1],sys.argv[2]
+          j=json.load(open('r.json'))
+          if 'error' in j:
+              print('KQ',m,e+'ms','LOI',j['error'].get('code'),j['error'].get('status'),j['error'].get('message','')[:160]); sys.exit()
+          p=j['candidates'][0]['content']['parts'][0]['inlineData']
+          d=base64.b64decode(p['data']); open('am/'+m+'.pcm','wb').write(d)
+          print('KQ',m,e+'ms','OK',p.get('mimeType'),len(d),'byte, khoảng',round(len(d)/48000,1),'giây')
+          P
           done
+          for f in am/*.pcm; do [ -f "$f" ] && ffmpeg -loglevel error -f s16le -ar 24000 -ac 1 -i "$f" "${f%.pcm}.mp3"; done; ls -la am
+      - uses: actions/upload-artifact@v4
+        with:
+          name: giong-gemini
+          path: am/*.mp3
