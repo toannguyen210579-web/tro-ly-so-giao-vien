@@ -127,6 +127,19 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
       _tongDoan = ds.length;
     });
     await _tts.setSpeechRate(_tocDo);
+    // Máy giả lập hoặc máy thiếu bộ đọc: lệnh đọc không phát tiếng và cũng không báo xong.
+    // Sau 5 giây chưa thấy bắt đầu đọc thì dừng và báo cho thầy cô.
+    var daPhat = false;
+    _tts.setStartHandler(() => daPhat = true);
+    Future.delayed(const Duration(seconds: 5), () async {
+      if (!daPhat && _dangDoc && mounted) {
+        await _dung();
+        if (!mounted) return;
+        setState(() => _canhBao = 'Máy chưa phát được tiếng đọc. Thầy cô cài "Dịch vụ lời nói của Google" '
+            '(Speech Services by Google) trên Play Store, rồi vào Cài đặt > Ngôn ngữ > Chuyển văn bản thành giọng nói, '
+            'chọn Google và tải giọng Tiếng Việt. Máy giả lập như BlueStacks thường chưa có sẵn bộ đọc này.');
+      }
+    });
     for (var i = 0; i < ds.length; i++) {
       if (_dungLai || !mounted) break;
       setState(() => _doanDangDoc = i + 1);
