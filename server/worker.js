@@ -226,13 +226,13 @@ async function callClaude(env, mode, content) {
     // 400 do hết hạn mức chi tiêu, 401 sai khóa, 429 quá tải, 529 dịch vụ bận
     console.log(JSON.stringify({ ev: "ai_error", status: r.status, mode }));
     const code = r.status === 401 ? "sai_khoa_ai" : r.status === 429 || r.status === 529 ? "ai_ban" : "loi_ai";
-    return { err: code, msg: "Dịch vụ AI đang bận hoặc tạm dừng, thầy cô thử lại sau." };
+    return { err: code, msg: "Dịch vụ AI đang bận hoặc tạm dừng, thầy cô thử lại sau.", status: r.status };
   }
   const data = await r.json();
   const text = (data.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
   if (!text) {
     console.log(JSON.stringify({ ev: "ai_empty", mode, stop: data.stop_reason }));
-    return { err: "loi_ai", msg: "AI chưa trả lời được, thầy cô thử lại." };
+    return { err: "loi_ai", msg: "AI chưa trả lời được, thầy cô thử lại.", status: "rong:" + data.stop_reason };
   }
   return { text, by: "claude", usage: data.usage || {} };
 }
@@ -260,7 +260,11 @@ async function callGemini(env, mode, input, imgs) {
   } catch {
     return { err: "loi_mang", status: 0 };
   }
-  if (!r.ok) return { err: "loi_ai", status: r.status };
+  if (!r.ok) {
+    let why = "";
+    try { why = ((await r.json()).error || {}).status || ""; } catch {}
+    return { err: "loi_ai", status: r.status + (why ? ":" + why : "") };
+  }
   const data = await r.json();
   const c = (data.candidates || [])[0] || {};
   const text = ((c.content || {}).parts || []).filter((p) => p.text && !p.thought).map((p) => p.text).join("").trim();
@@ -417,12 +421,16 @@ export default {
     // Câu có thông tin cá nhân (app đánh dấu private) luôn đi qua Claude
     const priv = body.private === true;
     let res = null;
+    let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
     if (!priv && GEMINI_MODES.includes(mode) && env.GEMINI_API_KEY) {
       res = await callGemini(env, mode, input, imgs);
-      if (res.err) console.log(JSON.stringify({ ev: "gemini_fallback", status: res.status, device, mode }));
+      if (res.err) {
+        gem = String(res.status);
+        console.log(JSON.stringify({ ev: "gemini_fallback", status: res.status, device, mode }));
+      }
     }
     if (!res || res.err) res = await callClaude(env, mode, content);
-    if (res.err) return err(res.err, res.msg, 502);
+    if (res.err) return json({ ok: false, error: res.err, message: res.msg, gem, claude: String(res.status || "") }, 502);
     const text = res.text;
     const data = { usage: res.usage };
 
@@ -443,6 +451,7 @@ export default {
       ok: true,
       text,
       by: res.by,
+      ...(gem ? { gem } : {}),
       remaining: Math.max(0, limit - usedNow),
       bonus: Math.max(0, leftBonus),
     });
