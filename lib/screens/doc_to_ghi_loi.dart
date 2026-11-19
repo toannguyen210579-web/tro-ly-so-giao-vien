@@ -11,6 +11,7 @@ import 'package:speech_to_text/speech_to_text.dart';
 import 'package:video_player/video_player.dart';
 
 import '../services/chon_tep.dart';
+import '../services/giong_may.dart';
 import '../services/tro_ly_api.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
@@ -114,6 +115,8 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     } catch (_) {
       _quaMang = true;
     }
+    // Máy không có giọng tiếng Việt: tải sẵn giọng cài sẵn ngay, để lúc bấm Đọc to là đọc được, không cần mạng
+    if (_quaMang && !await GiongMay.sanSang()) unawaited(_taiGiong().then((_) {}, onError: (_) {}));
   }
 
   @override
@@ -172,8 +175,11 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     if (mounted && !chuyen) setState(() => _dangDoc = false);
   }
 
-  /// Đọc qua máy chủ: khối đầu ngắn để có tiếng sớm (thử 19/11: 40 chữ chờ 3,9 giây), các khối sau dài hơn;
-  /// tải sẵn khối sau trong lúc đọc khối trước nên không bị ngắt quãng.
+  /// Đọc dự phòng khi máy không phát được giọng tiếng Việt:
+  /// 1. giọng cài sẵn trong app (không cần mạng, không giới hạn), lần đầu app tự tải về khoảng 21 MB;
+  /// 2. trong lúc chưa tải xong thì đọc bằng giọng Gemini qua mạng (lượt miễn phí ít);
+  /// 3. Gemini hết lượt hoặc mất mạng thì chờ tải xong giọng cài sẵn rồi đọc tiếp.
+  /// Khối đầu ngắn để có tiếng sớm; làm sẵn khối sau trong lúc đọc khối trước nên không bị ngắt quãng.
   Future<void> _docQuaMang(List<String> ds, int tu) async {
     final khoi = <(int, String)>[]; // (số đoạn đầu khối, chữ)
     var dem = '';
@@ -190,24 +196,55 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     if (dem.isNotEmpty) khoi.add((dau, dem));
     final toc = _tocDo * 2; // thanh tốc độ 0,5 là vừa, ứng với tốc độ 1
     final thuMuc = await getTemporaryDirectory();
-    var sau = TroLyApi.docQuaMang(khoi.first.$2, toc: toc);
+    var sau = _layAm(khoi.first.$2, 0, toc, thuMuc);
     for (var k = 0; k < khoi.length; k++) {
       if (_dungLai || !mounted) break;
       setState(() => _doanDangDoc = khoi[k].$1 + 1);
-      final (amThanh, duoi, loi) = await sau;
-      if (k + 1 < khoi.length) sau = TroLyApi.docQuaMang(khoi[k + 1].$2, toc: toc);
+      final (f, tocPhat, loi) = await sau;
+      if (k + 1 < khoi.length) sau = _layAm(khoi[k + 1].$2, k + 1, toc, thuMuc);
       if (_dungLai || !mounted) break;
-      if (amThanh == null) {
+      if (f == null) {
         setState(() => _canhBao = loi);
         break;
       }
-      final f = File('${thuMuc.path}/doc_to_$k.$duoi');
-      await f.writeAsBytes(amThanh, flush: true);
-      // Giọng Google Cloud đã đặt tốc độ trên máy chủ; giọng Gemini chỉnh tốc độ khi phát
-      await _phat(f, toc: duoi == 'wav' ? toc : 1);
+      await _phat(f, toc: tocPhat);
     }
     if (mounted) setState(() => _dangDoc = false);
   }
+
+  /// Lấy âm thanh cho một khối chữ. Trả về (tệp, tốc độ khi phát, lời báo lỗi).
+  Future<(File?, double, String?)> _layAm(String chu, int k, double toc, Directory thuMuc) async {
+    final duong = '${thuMuc.path}/doc_to_${_luotDoc}_$k';
+    Future<(File?, double, String?)> docMay() async {
+      try {
+        return (await GiongMay.tao(chu, toc: toc, duongRa: '$duong.wav'), 1.0, null);
+      } catch (_) {
+        return (null, 1.0, 'Chưa đọc được đoạn này, thầy cô bấm Đọc to lại.');
+      }
+    }
+
+    if (await GiongMay.sanSang()) return docMay();
+    final tai = _taiGiong().then((_) => true, onError: (_) => false); // tải ngầm, lần sau đọc không cần mạng
+    final (am, duoi, _) = await TroLyApi.docQuaMang(chu, toc: toc);
+    if (am != null) {
+      final f = File('$duong.$duoi');
+      await f.writeAsBytes(am, flush: true);
+      // Giọng Google Cloud đã đặt tốc độ trên máy chủ; giọng Gemini chỉnh tốc độ khi phát
+      return (f, duoi == 'wav' ? toc : 1.0, null);
+    }
+    if (!await tai) {
+      return (null, 1.0, 'Chưa tải được giọng đọc. Thầy cô bật mạng (nên dùng wifi) rồi bấm Đọc to lại, chỉ cần tải một lần.');
+    }
+    return docMay();
+  }
+
+  /// Tải giọng cài sẵn về máy (một lần), hiện tiến độ ở ô báo.
+  Future<void> _taiGiong() => GiongMay.taiVe(tienDo: (x) {
+        if (!mounted) return;
+        setState(() => _canhBao = x >= 1
+            ? null
+            : 'Đang tải giọng đọc tiếng Việt về máy (một lần, khoảng ${GiongMay.coMB} MB): ${(x * 100).round()}%');
+      });
 
   /// Phát một tệp âm thanh và chờ phát xong (hoặc thầy cô bấm Dừng).
   Future<void> _phat(File f, {double toc = 1}) async {
@@ -320,7 +357,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
         const SizedBox(height: 10),
         const Text(
           'Dùng giọng đọc có sẵn của điện thoại, đọc được cả khi không có mạng. '
-          'Máy chưa có giọng tiếng Việt thì app tự đọc bằng giọng AI qua mạng.',
+          'Máy chưa có giọng tiếng Việt thì app tự dùng giọng đọc cài sẵn (tải về một lần, sau đó không cần mạng).',
           style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
         ),
       ],

@@ -28,6 +28,8 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   timezone: ">=0.9.4 <1.0.0"
   file_picker: ^8.1.2
+  # Giọng đọc tiếng Việt chạy trên máy. Giữ đúng 1.13.8: từ 2.0 thư viện bỏ bộ phát âm espeak nên không đọc được tiếng Việt
+  sherpa_onnx: 1.13.8
 
 dev_dependencies:
   flutter_test:
