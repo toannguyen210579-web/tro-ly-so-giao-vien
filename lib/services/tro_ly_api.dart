@@ -130,12 +130,12 @@ class TroLyApi {
     }
   }
 
-  /// Đọc to qua máy chủ (giọng Google tiếng Việt) khi điện thoại không có bộ đọc.
-  /// [toc]: 1 là bình thường. Trả về âm thanh MP3, hoặc lời báo lỗi.
-  static Future<(Uint8List?, String?)> docQuaMang(String chu, {double toc = 1}) async {
-    if (diaChiMayChu.isEmpty) return (null, 'Chưa nối máy chủ.');
+  /// Đọc to qua máy chủ (Gemini, hoặc Google Cloud khi có khóa) khi điện thoại không có bộ đọc.
+  /// [toc]: 1 là bình thường. Trả về (âm thanh, đuôi tệp 'wav'/'mp3', lời báo lỗi).
+  static Future<(Uint8List?, String, String?)> docQuaMang(String chu, {double toc = 1}) async {
+    if (diaChiMayChu.isEmpty) return (null, '', 'Chưa nối máy chủ.');
     final ma = await maMay();
-    Future<Map<String, dynamic>> guiMot() => _post('/v1/tts', {'device_id': ma, 'text': chu, 'rate': toc}, giay: 30);
+    Future<Map<String, dynamic>> guiMot() => _post('/v1/tts', {'device_id': ma, 'text': chu, 'rate': toc}, giay: 45);
     try {
       Map<String, dynamic> j;
       try {
@@ -146,10 +146,12 @@ class TroLyApi {
         await Future.delayed(const Duration(seconds: 1));
         j = await guiMot();
       }
-      if (j['ok'] == true && j['audio'] is String) return (base64Decode(j['audio'] as String), null);
-      return (null, (j['message'] as String?) ?? 'Chưa đọc được, thầy cô thử lại.');
+      if (j['ok'] == true && j['audio'] is String) {
+        return (base64Decode(j['audio'] as String), j['mime'] == 'audio/mpeg' ? 'mp3' : 'wav', null);
+      }
+      return (null, '', (j['message'] as String?) ?? 'Chưa đọc được, thầy cô thử lại.');
     } catch (_) {
-      return (null, 'Máy chưa có giọng đọc tiếng Việt và chưa kết nối được mạng. Thầy cô bật mạng rồi bấm Đọc to lại.');
+      return (null, '', 'Máy chưa có giọng đọc tiếng Việt và chưa kết nối được mạng. Thầy cô bật mạng rồi bấm Đọc to lại.');
     }
   }
 

@@ -40,9 +40,13 @@ const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (c�
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
 const MAX_ADS_PER_DAY = 10;  // tối đa 10 quảng cáo nhận thưởng mỗi ngày
 const ADMOB_KEYS_URL = "https://www.gstatic.com/admob/reward/verifier-keys.json";
-const TTS_MAX_CHARS = 2000;    // ký tự mỗi lần đọc
+const TTS_MAX_CHARS = 1000;    // ký tự mỗi lần đọc (app chia nhỏ, đoạn đầu ngắn để đọc sớm)
 const TTS_DAY_CHARS = 30000;   // ký tự mỗi máy mỗi ngày (khoảng 15 trang), Google miễn phí 4 triệu ký tự/tháng
 const TTS_VOICE = "vi-VN-Wavenet-A";
+// Gemini đọc thành tiếng: giọng người dùng chọn 19/11 là gemini-3.1-flash-tts-preview, giọng Kore;
+// hết lượt thì chuyển sang mô hình khác (mỗi mô hình có hạn mức miễn phí riêng)
+const TTS_GEMINI_MODELS = ["gemini-3.1-flash-tts-preview", "gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts", "gemini-3.8-flash-lite-tts"];
+const TTS_GEMINI_VOICE = "Kore";
 const KEEP_MS = 3 * 86400 * 1000; // bộ đếm giữ 3 ngày rồi xóa
 
 const CHUNG =
@@ -107,6 +111,85 @@ function historyOf(body, mode) {
     .filter((t) => t && typeof t.q === "string" && typeof t.a === "string" && t.q.trim() && t.a.trim())
     .slice(-4)
     .map((t) => ({ q: t.q.trim().slice(0, 2000), a: t.a.trim().slice(0, 2000) }));
+}
+
+// Đóng gói âm thanh PCM 16 bit (Gemini trả về dạng thô) thành tệp WAV để điện thoại phát được
+function pcmToWavB64(b64, rate = 24000) {
+  const pcm = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+  const h = new DataView(new ArrayBuffer(44));
+  const s = (o, t) => [...t].forEach((c, i) => h.setUint8(o + i, c.charCodeAt(0)));
+  s(0, "RIFF"); h.setUint32(4, 36 + pcm.length, true); s(8, "WAVE"); s(12, "fmt ");
+  h.setUint32(16, 16, true); h.setUint16(20, 1, true); h.setUint16(22, 1, true);
+  h.setUint32(24, rate, true); h.setUint32(28, rate * 2, true); h.setUint16(32, 2, true); h.setUint16(34, 16, true);
+  s(36, "data"); h.setUint32(40, pcm.length, true);
+  const all = new Uint8Array(44 + pcm.length);
+  all.set(new Uint8Array(h.buffer), 0); all.set(pcm, 44);
+  let bin = "";
+  for (let i = 0; i < all.length; i += 0x8000) bin += String.fromCharCode(...all.subarray(i, i + 0x8000));
+  return btoa(bin);
+}
+
+async function ttsGemini(env, text) {
+  let last = { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: "" };
+  for (const model of TTS_GEMINI_MODELS) {
+    let r;
+    try {
+      r = await env.GEMINI.fetch("https://gemini/", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          model,
+          timeout: 40000,
+          body: {
+            contents: [{ parts: [{ text }] }],
+            generationConfig: {
+              responseModalities: ["AUDIO"],
+              speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: TTS_GEMINI_VOICE } } },
+            },
+          },
+        }),
+      });
+    } catch {
+      last = { err: "loi_mang", msg: "Chưa đọc được, thầy cô thử lại.", status: "mang" };
+      continue;
+    }
+    if (!r.ok) {
+      last = r.status === 429
+        ? { err: "het_luot_chung", msg: "Giọng đọc qua mạng hôm nay đã dùng hết, mai thầy cô dùng tiếp nhé.", status: model + ":429" }
+        : { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: model + ":" + r.status };
+      continue; // mỗi mô hình có hạn mức riêng, thử mô hình kế tiếp
+    }
+    const j = await r.json();
+    const p = ((((j.candidates || [])[0] || {}).content || {}).parts || []).find((x) => x.inlineData);
+    if (!p) { last = { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: model + ":rong" }; continue; }
+    const mime = String(p.inlineData.mimeType || "").toLowerCase();
+    if (mime.includes("wav")) return { audio: p.inlineData.data, mime: "audio/wav", by: "gemini" };
+    const rate = parseInt((mime.match(/rate=(\d+)/) || [])[1] || "24000", 10);
+    return { audio: pcmToWavB64(p.inlineData.data, rate), mime: "audio/wav", by: "gemini" };
+  }
+  return last;
+}
+
+async function ttsGoogle(env, text, rateIn) {
+  const rate = Math.min(2, Math.max(0.5, Number(rateIn) || 1));
+  let r;
+  try {
+    r = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(env.GOOGLE_TTS_KEY), {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        input: { text },
+        voice: { languageCode: "vi-VN", name: TTS_VOICE },
+        audioConfig: { audioEncoding: "MP3", speakingRate: rate },
+      }),
+    });
+  } catch {
+    return { err: "loi_mang", msg: "Chưa đọc được, thầy cô thử lại.", status: "mang" };
+  }
+  if (!r.ok) return { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: "google:" + r.status };
+  const audio = (await r.json()).audioContent;
+  if (!audio) return { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: "google:rong" };
+  return { audio, mime: "audio/mpeg", by: "google" };
 }
 
 function json(obj, status = 200) {
@@ -405,7 +488,8 @@ export default {
       return json({ ok: true, message: "Cảm ơn thầy cô, chúng tôi sẽ xem xét." });
     }
 
-    // Đọc to qua máy chủ (giọng Google), dùng khi điện thoại không có bộ đọc tiếng Việt
+    // Đọc to qua máy chủ, dùng khi điện thoại không có bộ đọc tiếng Việt.
+    // Mặc định dùng Gemini đọc thành tiếng (gói miễn phí, chung khóa Gemini); có khóa Google Cloud thì dùng Google Cloud.
     if (url.pathname === "/v1/tts" && request.method === "POST") {
       let b;
       try { b = await request.json(); } catch { return err("sai_du_lieu", "Dữ liệu gửi lên không đúng định dạng.", 400); }
@@ -414,34 +498,18 @@ export default {
       if (!okDevice(device)) return err("sai_ma_may", "Mã máy không hợp lệ.", 400);
       if (!text) return err("trong", "Chưa có chữ để đọc.", 400);
       if (text.length > TTS_MAX_CHARS) return err("qua_dai", "Mỗi lần đọc tối đa " + TTS_MAX_CHARS + " ký tự.", 400);
-      if (!env.GOOGLE_TTS_KEY) return err("chua_bat", "Giọng đọc qua mạng chưa được bật.", 503);
+      if (!env.GOOGLE_TTS_KEY && !env.GEMINI) return err("chua_bat", "Giọng đọc qua mạng chưa được bật.", 503);
       const key = "t:" + day + ":" + device;
       if ((await getN(db, key)) + text.length > TTS_DAY_CHARS) {
         return err("het_luot", "Hôm nay máy này đã nghe đọc nhiều quá, mai dùng tiếp nhé.", 429);
       }
-      const rate = Math.min(2, Math.max(0.5, Number(b.rate) || 1));
-      let r;
-      try {
-        r = await fetch("https://texttospeech.googleapis.com/v1/text:synthesize?key=" + encodeURIComponent(env.GOOGLE_TTS_KEY), {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            input: { text },
-            voice: { languageCode: "vi-VN", name: TTS_VOICE },
-            audioConfig: { audioEncoding: "MP3", speakingRate: rate },
-          }),
-        });
-      } catch {
-        return err("loi_mang", "Chưa đọc được, thầy cô thử lại.", 502);
+      const res = env.GOOGLE_TTS_KEY ? await ttsGoogle(env, text, b.rate) : await ttsGemini(env, text);
+      if (res.err) {
+        console.log(JSON.stringify({ ev: "tts_error", status: res.status }));
+        return err(res.err, res.msg, res.err === "het_luot_chung" ? 429 : 502);
       }
-      if (!r.ok) {
-        console.log(JSON.stringify({ ev: "tts_error", status: r.status }));
-        return err("loi_tts", "Chưa đọc được, thầy cô thử lại.", 502);
-      }
-      const audio = (await r.json()).audioContent;
-      if (!audio) return err("loi_tts", "Chưa đọc được, thầy cô thử lại.", 502);
       await addN(db, key, text.length);
-      return json({ ok: true, audio });
+      return json({ ok: true, audio: res.audio, mime: res.mime, by: res.by });
     }
 
     if (url.pathname !== "/v1/ai" || request.method !== "POST") {

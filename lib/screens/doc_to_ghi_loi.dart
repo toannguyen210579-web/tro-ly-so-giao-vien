@@ -172,13 +172,15 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     if (mounted && !chuyen) setState(() => _dangDoc = false);
   }
 
-  /// Đọc bằng giọng Google qua máy chủ: gộp đoạn cho đỡ số lần gọi, tải sẵn đoạn sau trong lúc đọc đoạn trước.
+  /// Đọc qua máy chủ: khối đầu ngắn để có tiếng sớm (khoảng 2–3 giây), các khối sau dài hơn;
+  /// tải sẵn khối sau trong lúc đọc khối trước nên không bị ngắt quãng.
   Future<void> _docQuaMang(List<String> ds, int tu) async {
     final khoi = <(int, String)>[]; // (số đoạn đầu khối, chữ)
     var dem = '';
     var dau = tu;
     for (var i = tu; i < ds.length; i++) {
-      if (dem.isNotEmpty && dem.length + ds[i].length + 1 > 1500) {
+      final tran = khoi.isEmpty ? 200 : 600;
+      if (dem.isNotEmpty && dem.length + ds[i].length + 1 > tran) {
         khoi.add((dau, dem));
         dem = '';
         dau = i;
@@ -186,28 +188,29 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
       dem = dem.isEmpty ? ds[i] : '$dem ${ds[i]}';
     }
     if (dem.isNotEmpty) khoi.add((dau, dem));
-    final toc = _tocDo * 2; // thanh tốc độ 0,5 là vừa, ứng với tốc độ 1 của Google
+    final toc = _tocDo * 2; // thanh tốc độ 0,5 là vừa, ứng với tốc độ 1
     final thuMuc = await getTemporaryDirectory();
     var sau = TroLyApi.docQuaMang(khoi.first.$2, toc: toc);
     for (var k = 0; k < khoi.length; k++) {
       if (_dungLai || !mounted) break;
       setState(() => _doanDangDoc = khoi[k].$1 + 1);
-      final (amThanh, loi) = await sau;
+      final (amThanh, duoi, loi) = await sau;
       if (k + 1 < khoi.length) sau = TroLyApi.docQuaMang(khoi[k + 1].$2, toc: toc);
       if (_dungLai || !mounted) break;
       if (amThanh == null) {
         setState(() => _canhBao = loi);
         break;
       }
-      final f = File('${thuMuc.path}/doc_to_$k.mp3');
+      final f = File('${thuMuc.path}/doc_to_$k.$duoi');
       await f.writeAsBytes(amThanh, flush: true);
-      await _phat(f);
+      // Giọng Google Cloud đã đặt tốc độ trên máy chủ; giọng Gemini chỉnh tốc độ khi phát
+      await _phat(f, toc: duoi == 'wav' ? toc : 1);
     }
     if (mounted) setState(() => _dangDoc = false);
   }
 
-  /// Phát một tệp MP3 và chờ phát xong (hoặc thầy cô bấm Dừng).
-  Future<void> _phat(File f) async {
+  /// Phát một tệp âm thanh và chờ phát xong (hoặc thầy cô bấm Dừng).
+  Future<void> _phat(File f, {double toc = 1}) async {
     final loa = VideoPlayerController.file(f);
     _loa = loa;
     try {
@@ -220,8 +223,10 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
         }
       }
       loa.addListener(nghe);
+      if (toc != 1) await loa.setPlaybackSpeed(toc.clamp(0.5, 2.0).toDouble());
       await loa.play();
-      await xong.future.timeout(loa.value.duration + const Duration(seconds: 5), onTimeout: () {});
+      final dai = loa.value.duration * (1 / (toc <= 0 ? 1 : toc));
+      await xong.future.timeout(dai + const Duration(seconds: 5), onTimeout: () {});
       loa.removeListener(nghe);
     } catch (_) {
       // tệp hỏng thì bỏ qua khối này
@@ -315,7 +320,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
         const SizedBox(height: 10),
         const Text(
           'Dùng giọng đọc có sẵn của điện thoại, đọc được cả khi không có mạng. '
-          'Máy chưa có giọng tiếng Việt thì app tự đọc bằng giọng Google qua mạng.',
+          'Máy chưa có giọng tiếng Việt thì app tự đọc bằng giọng AI qua mạng.',
           style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
         ),
       ],

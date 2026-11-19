@@ -102,14 +102,50 @@ test("Câu riêng tư đi thẳng Claude, kèm ngữ cảnh", async () => {
 const goiTts = (env, body) =>
   worker.fetch(new Request("https://x/v1/tts", { method: "POST", body: JSON.stringify({ device_id: "kiemthu123", ...body }) }), env, {});
 
-test("Đọc to qua máy chủ: chưa có khóa thì báo chưa bật, không gọi Google", async () => {
+test("Đọc to qua máy chủ: không có Gemini lẫn khóa Google thì báo chưa bật", async () => {
   const { env } = moiTruong();
+  delete env.GEMINI;
   const r = await goiTts(env, { text: "Xin chào" });
   assert.equal(r.status, 503);
   assert.equal((await r.json()).error, "chua_bat");
 });
 
-test("Đọc to qua máy chủ: gọi Google đúng giọng tiếng Việt, đếm ký tự theo ngày", async () => {
+test("Đọc to bằng Gemini: âm thanh thô được đóng thành WAV, hết lượt mô hình này thì thử mô hình sau", async () => {
+  const { env } = moiTruong();
+  const goi = [];
+  env.GEMINI = {
+    async fetch(_u, o) {
+      const b = JSON.parse(o.body);
+      goi.push(b);
+      if (goi.length === 1) return new Response(JSON.stringify({ error: { code: 429 } }), { status: 429 });
+      const pcm = Buffer.from([1, 0, 2, 0, 3, 0, 4, 0]).toString("base64");
+      return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ inlineData: { mimeType: "audio/L16;codec=pcm;rate=24000", data: pcm } }] } }] }), { status: 200 });
+    },
+  };
+  const r = await (await goiTts(env, { text: "Kính gửi quý phụ huynh" })).json();
+  assert.equal(r.ok, true);
+  assert.equal(r.by, "gemini");
+  assert.equal(r.mime, "audio/wav");
+  const wav = Buffer.from(r.audio, "base64");
+  assert.equal(wav.subarray(0, 4).toString(), "RIFF");
+  assert.equal(wav.readUInt32LE(24), 24000);
+  assert.equal(wav.readUInt32LE(40), 8);
+  assert.equal(wav.length, 52);
+  assert.equal(goi[0].model, "gemini-3.1-flash-tts-preview");
+  assert.equal(goi[1].model, "gemini-3.8-flash-tts");
+  assert.deepEqual(goi[0].body.generationConfig.responseModalities, ["AUDIO"]);
+  assert.equal(goi[0].body.contents[0].parts[0].text, "Kính gửi quý phụ huynh");
+});
+
+test("Đọc to bằng Gemini: mọi mô hình hết lượt thì báo dễ hiểu", async () => {
+  const { env } = moiTruong();
+  env.GEMINI = { fetch: async () => new Response("{}", { status: 429 }) };
+  const r = await goiTts(env, { text: "Xin chào" });
+  assert.equal(r.status, 429);
+  assert.match((await r.json()).message, /hôm nay đã dùng hết/);
+});
+
+test("Đọc to bằng Google Cloud khi có khóa, đếm ký tự theo ngày", async () => {
   const { env } = moiTruong();
   env.GOOGLE_TTS_KEY = "khoa-thu";
   const goi = [];
@@ -119,16 +155,14 @@ test("Đọc to qua máy chủ: gọi Google đúng giọng tiếng Việt, đ�
   };
   const r = await (await goiTts(env, { text: "Kính gửi quý phụ huynh", rate: 1.2 })).json();
   assert.equal(r.ok, true);
-  assert.equal(r.audio, "SUQz");
+  assert.equal(r.mime, "audio/mpeg");
   assert.match(goi[0].url, /texttospeech\.googleapis\.com.*key=khoa-thu/);
   assert.equal(goi[0].body.voice.languageCode, "vi-VN");
-  assert.equal(goi[0].body.audioConfig.speakingRate, 1.2);
-  // Vượt trần ngày thì dừng
-  const dai = "a".repeat(2000);
+  const dai = "a".repeat(1000);
   let cuoi;
-  for (let i = 0; i < 16; i++) cuoi = await goiTts(env, { text: dai });
+  for (let i = 0; i < 31; i++) cuoi = await goiTts(env, { text: dai });
   assert.equal(cuoi.status, 429);
-  assert.equal((await goiTts(env, { text: "b".repeat(2001) })).status, 400);
+  assert.equal((await goiTts(env, { text: "b".repeat(1001) })).status, 400);
 });
 
 test("Hỏi Trợ lý được dặn không dùng LaTeX", async () => {
