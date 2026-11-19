@@ -29,12 +29,16 @@ jobs:
           if 'error' in j:
               print('KQ',m,e+'ms','LOI',j['error'].get('code'),j['error'].get('status'),j['error'].get('message','')[:160]); sys.exit()
           p=j['candidates'][0]['content']['parts'][0]['inlineData']
-          d=base64.b64decode(p['data']); open('am/'+m+'.pcm','wb').write(d)
+          d=base64.b64decode(p['data'])
+          if d[:4]==b'RIFF': open('am/'+m+'.wav','wb').write(d)
+          else:
+              import wave
+              w=wave.open('am/'+m+'.wav','wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000); w.writeframes(d); w.close()
           print('KQ',m,e+'ms','OK',p.get('mimeType'),len(d),'byte, khoảng',round(len(d)/48000,1),'giây')
           P
           done
-          for f in am/*.pcm; do [ -f "$f" ] && ffmpeg -loglevel error -f s16le -ar 24000 -ac 1 -i "$f" "${f%.pcm}.mp3"; done; ls -la am
+          ls -la am
       - uses: actions/upload-artifact@v4
         with:
           name: giong-gemini
-          path: am/*.mp3
+          path: am/*.wav
