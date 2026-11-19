@@ -8,6 +8,9 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
       - name: Thử các phiên bản sherpa-onnx với giọng tiếng Việt
         run: |
           pip index versions sherpa-onnx 2>/dev/null | head -2
@@ -30,7 +33,7 @@ jobs:
               w=wave.open(out,'wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(a.sample_rate)
               w.writeframes(array.array('h',[max(-32767,min(32767,int(x*32767))) for x in a.samples]).tobytes()); w.close()
           P
-          for V in "" 1.12.20 1.12.10 1.11.6 1.10.46; do
+          for V in 1.13.8 1.13.6; do
             pip install -q --force-reinstall "sherpa-onnx${V:+==$V}" >/dev/null 2>&1 || { echo "KQ khong cai duoc $V"; continue; }
             echo "== phien ban $(pip show sherpa-onnx | grep Version)"
             python3 thu.py vits-piper-vi_VN-vais1000-medium-int8 am/vais1000_$V.wav 2>&1 | grep -E "KQ|Failed|empty" | head -3
