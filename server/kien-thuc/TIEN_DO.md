@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (51 mục)
+## Đã nạp (52 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -45,6 +45,7 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 12/2025 phân quyền, phân cấp lĩnh vực nhà giáo (hội thi giáo viên dạy giỏi cấp xã)
 - CV 4567/BGDĐT-GDPT dạy học 2 buổi/ngày (năm học 2025-2026)
 - TT 02/2025 Khung năng lực số người học (6 miền, 24 năng lực; mức CB1–NC1 theo khối lớp, CV 3456)
+- TT 67/2026 thi đua, khen thưởng ngành Giáo dục (thay TT 07/2026; hiệu lực 01/10/2026)
 
 ## Còn phải làm (theo thứ tự)
 1. TT 26/2025 sửa đổi các thông tư phân cấp (kiểm tra phần liên quan phổ thông)
@@ -55,7 +56,7 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 6. TT 06/2019 quy tắc ứng xử trong trường (phần còn hiệu lực)
 7. TT 94/2026 tiêu chí Đề án tiếng Anh ngôn ngữ thứ hai; QĐ 2371/QĐ-TTg
 8. TT 04/2026 chế độ làm việc giáo viên GDTX; TT 48/2026 quy chế trường tư thục
-9. Thi đua khen thưởng ngành giáo dục, kỷ luật nhà giáo (học phí đã nạp NQ 217, NĐ 238)
+9. Kỷ luật nhà giáo, viên chức; Nghị định 368/2026/NĐ-CP và TT 25/2026/TT-BNV (thi đua, khen thưởng chung: Lao động tiên tiến, Chiến sĩ thi đua cơ sở)
 10. NĐ 232/2026, NĐ 188/2026 (kiểm tra nội dung trước khi nạp)
 11. TT 33/2026 Khung năng lực ngoại ngữ
 12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
