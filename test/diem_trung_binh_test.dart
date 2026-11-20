@@ -15,6 +15,9 @@ void main() {
 
   test('Ô hỏi mở đúng tiện ích theo từ khóa', () {
     expect(timTheoCau('Nhận xét lớp 6A')?.ma, 'nhan_xet');
+    // Hai gợi ý ở ô hỏi trang chủ phải mở đúng tiện ích
+    expect(timTheoCau('Làm biên bản họp tổ')?.ma, 'hop');
+    expect(timTheoCau('Chấm trắc nghiệm')?.ma, 'cham_tn');
     expect(timTheoCau('quét giấy tờ')?.ma, 'quet');
     expect(timTheoCau('lương cơ sở là bao nhiêu'), isNotNull);
     expect(timTheoCau('thời tiết hôm nay'), isNull);
