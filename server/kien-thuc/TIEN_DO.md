@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (43 mục)
+## Đã nạp (45 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -38,26 +38,27 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - Ghi chú dự thảo chế độ làm việc mới vào tệp TT 05/2025
 - NQ 217/2025/QH15 miễn học phí; NĐ 238/2025 học phí, hỗ trợ chi phí học tập
 - TT 70/2026 quản lý và sử dụng học bạ số (nguyên văn, hiệu lực 08/10/2026)
+- TT 57/2026 bảo đảm chất lượng, công nhận chuẩn quốc gia (phần 1 Điều 1–27; phần 2 Phụ lục II tiêu chí trường phổ thông). Chưa nạp Phụ lục I (mầm non), III (GDTX), IV, V (biểu mẫu)
 
 ## Còn phải làm (theo thứ tự)
 1. TT 10/2025 (phân quyền, phân cấp; kiểm tra phần sửa đổi TT 22, TT 27, dạy thêm)
-2. TT 57/2026 bảo đảm chất lượng, chuẩn quốc gia trường phổ thông
-3. CV 4567/BGDĐT-GDPT dạy học 2 buổi/ngày; TT 02/2025 khung năng lực số người học
-4. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
-5. NĐ 66/2026/NĐ-CP quy định chi tiết Luật Giáo dục
-6. TT 10/2026 Quy chế văn bằng, chứng chỉ
-7. TT 06/2019 quy tắc ứng xử trong trường (phần còn hiệu lực)
-8. TT 94/2026 tiêu chí Đề án tiếng Anh ngôn ngữ thứ hai; QĐ 2371/QĐ-TTg
-9. TT 04/2026 chế độ làm việc giáo viên GDTX; TT 48/2026 quy chế trường tư thục
-10. Học phí, miễn giảm (nghị định hiện hành), thi đua khen thưởng ngành giáo dục, kỷ luật nhà giáo
-11. NĐ 232/2026, NĐ 188/2026 (kiểm tra nội dung trước khi nạp)
-12. TT 33/2026 Khung năng lực ngoại ngữ; TT 02/2025 Khung năng lực số cho người học
-13. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
+2. CV 4567/BGDĐT-GDPT dạy học 2 buổi/ngày; TT 02/2025 khung năng lực số người học
+3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
+4. NĐ 66/2026/NĐ-CP quy định chi tiết Luật Giáo dục
+5. TT 10/2026 Quy chế văn bằng, chứng chỉ
+6. TT 06/2019 quy tắc ứng xử trong trường (phần còn hiệu lực)
+7. TT 94/2026 tiêu chí Đề án tiếng Anh ngôn ngữ thứ hai; QĐ 2371/QĐ-TTg
+8. TT 04/2026 chế độ làm việc giáo viên GDTX; TT 48/2026 quy chế trường tư thục
+9. Thi đua khen thưởng ngành giáo dục, kỷ luật nhà giáo (học phí đã nạp NQ 217, NĐ 238)
+10. NĐ 232/2026, NĐ 188/2026 (kiểm tra nội dung trước khi nạp)
+11. TT 33/2026 Khung năng lực ngoại ngữ; TT 02/2025 Khung năng lực số cho người học
+12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
 
 Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có chèn lời dặn cho AI, bỏ qua), pbgdpl.cantho.gov.vn, nhandan.vn, luatvietnam.vn, báo chính thống. Không lấy được: thuvienphapluat.vn, vbpl.moj.gov.vn. Dự thảo phải ghi rõ là dự thảo.
 
 ## Mẹo lấy văn bản gốc (20/11/2026)
 - Máy làm việc tải được trực tiếp từ datafiles.chinhphu.vn (curl). Đường dẫn dạng /cpp/files/vbpq/<năm>/<tháng ban hành>/<số>-<ký hiệu>.signed.pdf, ví dụ 2026/5/182-ndcp.signed.pdf, 2025/12/nq248.docx, 2026/11/95-bgddt.signed.pdf. Thử vài cách ghép tên, mã 200 là đúng.
+- Bảng trong bản chụp (trang xoay ngang): xoay ảnh rồi tách ô bằng OpenCV (đường kẻ ngang, dọc), nhận dạng từng ô bằng tesseract --psm 6; ghép theo hàng. Ví dụ đã làm với Phụ lục II TT 57/2026.
 - Bản PDF chụp (không có chữ): pdftoppm -r 300 -gray rồi tesseract -l vie --psm 4; xem lại ảnh trang ở chỗ có công thức, bảng, chữ ký; sửa lỗi chữ trước khi nạp.
 - luatnguyen.vn có toàn văn nhiều thông tư mới (đọc bằng trình duyệt).
 - xaydungchinhsach.chinhphu.vn có bài tóm tắt kèm liên kết toàn văn.
