@@ -1,6 +1,5 @@
 // Chạy thử app thật trên máy Android giả lập: mở từng tiện ích, hỏi Trợ lý, đọc to bằng giọng cài sẵn.
 // Kết quả in ra dòng "KQ ..." và ảnh chụp từng màn hình.
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
