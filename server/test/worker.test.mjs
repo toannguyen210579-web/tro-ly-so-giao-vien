@@ -59,7 +59,7 @@ test("Hỏi Trợ lý biết ngày giờ Việt Nam", async () => {
 });
 
 test("Hỏi tiếp giữ ngữ cảnh: Gemini và Claude đều nhận các lượt trước", async () => {
-  const hist = [{ q: "Phụ cấp thâm niên là gì?", a: "Là khoản..." }, { q: "Tính thế nào?", a: "Lấy 5%..." }];
+  const hist = [{ q: "Trò chơi khởi động là gì?", a: "Là hoạt động..." }, { q: "Chơi thế nào?", a: "Chia nhóm..." }];
   const a = moiTruong();
   await goi(a.env, { mode: "hoi", input: "Cho ví dụ", history: hist });
   const c = a.ghi.gemini[0].body.contents;
@@ -169,4 +169,28 @@ test("Hỏi Trợ lý được dặn không dùng LaTeX", async () => {
   const { env, ghi } = moiTruong();
   await goi(env, { mode: "hoi", input: "Tính 5% + 2%" });
   assert.match(ghi.gemini[0].body.systemInstruction.parts[0].text, /Không dùng LaTeX/);
+});
+
+test("Câu hỏi về lương, phụ cấp, chế độ đi thẳng Claude", async () => {
+  for (const q of ["Phụ cấp ưu đãi theo Nghị định 182/2026 là bao nhiêu?", "giao vien hang II he so bao nhieu", "Thông tư 93 ai được truy lĩnh?", "Nghỉ hưu sớm cần mấy năm đóng BHXH?"]) {
+    const { env, ghi } = moiTruong();
+    const r = await goi(env, { mode: "hoi", input: q });
+    assert.equal(r.ok, true);
+    assert.equal(r.by, "claude", q);
+    assert.equal(ghi.gemini.length, 0, q);
+  }
+});
+
+test("Câu hỏi tiếp nối của chuỗi về chế độ vẫn đi Claude", async () => {
+  const { env, ghi } = moiTruong();
+  const r = await goi(env, { mode: "hoi", input: "còn mầm non thì sao?", history: [{ q: "Phụ cấp ưu đãi tiểu học bao nhiêu?", a: "45%" }] });
+  assert.equal(r.by, "claude");
+  assert.equal(ghi.gemini.length, 0);
+});
+
+test("Câu hỏi thường vẫn dùng Gemini", async () => {
+  const { env, ghi } = moiTruong();
+  const r = await goi(env, { mode: "hoi", input: "Gợi ý trò chơi khởi động tiết Toán lớp 3" });
+  assert.equal(r.by, "gemini");
+  assert.equal(ghi.gemini.length, 1);
 });

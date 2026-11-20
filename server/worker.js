@@ -105,6 +105,27 @@ function sysOf(mode, now = new Date()) {
 }
 
 // Các lượt hỏi đáp trước trong cùng cuộc trò chuyện (chỉ Hỏi Trợ lý), tối đa 4 lượt, mỗi phần tối đa 2.000 ký tự
+// Câu hỏi về lương, phụ cấp, chế độ, chính sách của thầy cô đi thẳng Claude (người dùng chốt 20/11/2026):
+// Gemini bản nhẹ trả lời "không có dữ liệu" về Nghị định 182/2026 khi thử 20/11.
+const CHE_DO_RE = new RegExp(
+  [
+    "lương", "luong", "phụ cấp", "phu cap", "chế độ", "che do", "chính sách", "chinh sach",
+    "thâm niên", "tham nien", "ưu đãi", "uu dai", "truy lĩnh", "truy linh", "hệ số", "he so",
+    "bậc", "nâng bậc", "nang bac", "hạng", "thăng hạng", "thang hang", "xếp lương", "xep luong",
+    "bổ nhiệm", "bo nhiem", "chức danh", "chuc danh", "thưởng", "thuong tet", "nghỉ hưu", "nghi huu",
+    "hưu trí", "huu tri", "bảo hiểm", "bao hiem", "bhxh", "bhyt", "thai sản", "thai san",
+    "nghị định", "nghi dinh", "thông tư", "thong tu", "luật nhà giáo", "luat nha giao", "nghị quyết", "nghi quyet",
+    "định mức", "dinh muc", "tiết dạy", "tiet day", "dạy thêm giờ", "vượt giờ", "vuot gio", "kiêm nhiệm", "kiem nhiem",
+    "tuyển dụng", "tuyen dung", "biên chế", "bien che", "hợp đồng", "hop dong", "thôi việc", "thoi viec",
+    "kỷ luật", "ky luat", "học phí", "hoc phi", "trợ cấp", "tro cap", "hỗ trợ", "ho tro",
+  ].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
+  "i",
+);
+function laCauCheDo(input, hist) {
+  const t = [input, ...hist.slice(-2).map((h) => h.q)].join("\n").toLowerCase();
+  return CHE_DO_RE.test(t);
+}
+
 function historyOf(body, mode) {
   if (mode !== "hoi" || !Array.isArray(body.history)) return [];
   return body.history
@@ -578,7 +599,8 @@ export default {
     let res = null;
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
     // Ảnh gửi Gemini gói miễn phí hay bị treo lâu (thử ngày 19/11), nên câu có ảnh đi thẳng Claude
-    if (!priv && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
+    const cheDo = mode === "hoi" && laCauCheDo(input, hist);
+    if (!priv && !cheDo && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
       res = await callGemini(env, mode, input, imgs, hist);
       if (res.err) {
         gem = String(res.status);
@@ -602,7 +624,7 @@ export default {
     if (Math.random() < 0.01 && ctx && ctx.waitUntil) ctx.waitUntil(cleanup(db));
     // Nhật ký (xem trong Observability > Logs) để phát hiện máy dùng bất thường
     const u = data.usage || {};
-    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, in: u.input_tokens, out: u.output_tokens }));
+    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, in: u.input_tokens, out: u.output_tokens }));
     return json({
       ok: true,
       text,
