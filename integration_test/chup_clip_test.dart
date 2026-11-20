@@ -4,6 +4,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -13,6 +14,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tro_ly_so_giao_vien/data/tien_ich.dart';
 import 'package:tro_ly_so_giao_vien/main.dart' as app;
+import 'package:tro_ly_so_giao_vien/screens/bieu_tuong.dart';
 import 'package:tro_ly_so_giao_vien/screens/dieu_huong.dart';
 import 'package:tro_ly_so_giao_vien/screens/nhan_xet.dart';
 import 'package:tro_ly_so_giao_vien/screens/trang_chu.dart';
@@ -90,13 +92,20 @@ void main() {
   }
 
   /// Cuộn danh sách chính của màn đang mở để [f] nằm ở gần đầu màn hình.
+  /// Đặt thẳng vị trí cuộn (không kéo tay, vì ô nhập nhiều dòng sẽ giữ lấy thao tác kéo).
   Future<void> cuonDen(WidgetTester t, Finder f, {double viTri = 0.08}) async {
     try {
       final sc = find.descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable)).first;
-      await t.scrollUntilVisible(f.first, 250, scrollable: sc, maxScrolls: 80, duration: const Duration(milliseconds: 60));
+      final vt = t.state<ScrollableState>(sc).position;
+      vt.jumpTo(0);
+      await cho(t, 300);
+      for (var i = 0; i < 80 && f.evaluate().isEmpty && vt.pixels < vt.maxScrollExtent; i++) {
+        vt.jumpTo(min(vt.pixels + 300, vt.maxScrollExtent));
+        await cho(t, 200);
+      }
       await Scrollable.ensureVisible(t.element(f.first), alignment: viTri);
     } catch (e) {
-      kq('cuon: LOI $e');
+      kq('cuon: LOI ${e.toString().split('\n').first}');
     }
     await cho(t, 700);
   }
@@ -269,7 +278,7 @@ void main() {
       await moMa(t, 'gio_the');
       await chup(t, '40_gio_the_tren');
       await t.tap(find.text('Ảnh có sẵn'));
-      final doc = await choChu(t, 'Đọc được', giay: 40);
+      final doc = await choChu(t, 'Đọc được', giay: 120);
       kq('gio_the_quet: ${doc ? find.textContaining('Đọc được').evaluate().map((e) => (e.widget as Text).data).join() : "KHONG DOC DUOC"}');
       await chup(t, '41_gio_the_doc_xong', giuThongBao: true);
       await t.tap(find.widgetWithText(ChoiceChip, 'B'));
@@ -308,6 +317,27 @@ void main() {
       await chup(t, '54_nhan_ph_tin');
       await cuonDen(t, find.text('Gửi qua Zalo…'), viTri: 0.5);
       await chup(t, '55_nhan_ph_gui');
+      await quayVe(t);
+    });
+
+    // ---------- biểu tượng các tiện ích (nền trắng) để cắt đưa vào clip
+    await buoc('bieu_tuong', () async {
+      Navigator.of(t.element(find.byType(TrangChu, skipOffstage: false))).push(MaterialPageRoute(
+        builder: (_) => Scaffold(
+          backgroundColor: Colors.white,
+          body: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Wrap(spacing: 40, runSpacing: 40, children: [
+                for (final ma in ['doc_to', 'luong', 'hop', 'gio_the', 'nhan_ph', 'tao_de'])
+                  BieuTuongNoi(ma: ma, icon: timTheoMa(ma).bieuTuong, size: 96),
+              ]),
+            ),
+          ),
+        ),
+      ));
+      await cho(t, 2000);
+      await chup(t, '70_bieu_tuong');
       await quayVe(t);
     });
 

@@ -1,11 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show compute;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart';
+import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
@@ -23,6 +27,37 @@ const _mauDapAn = {
   'C': Color(0xFF0B8A57),
   'D': Color(0xFFE08A00),
 };
+
+/// Đọc ảnh thành ảnh xám để dò chiều mã QR (chạy ở luồng riêng). Ảnh quá lớn thì thu nhỏ cho nhanh.
+AnhXam? _docAnhXam(String duong) {
+  final goc = img.decodeImage(File(duong).readAsBytesSync());
+  if (goc == null) return null;
+  final o = img.bakeOrientation(goc);
+  const toiDa = 3200;
+  final tiLe = o.width > toiDa ? toiDa / o.width : 1.0;
+  final x = tiLe < 1 ? img.copyResize(o, width: toiDa) : o;
+  final s = Uint8List(x.width * x.height);
+  for (final p in x) {
+    s[p.y * x.width + p.x] = (0.299 * p.r + 0.587 * p.g + 0.114 * p.b).round().clamp(0, 255).toInt();
+  }
+  return AnhXam(s, x.width, x.height, tiLe: tiLe);
+}
+
+/// Cắt ảnh thành [cot] x [hang] mảnh chồng nhau, lưu tạm để bộ đọc mã quét lại (mã nhỏ ở lớp đông).
+List<(String, int, int)> _catManh((String, String, int, int) v) {
+  final (duong, thuMuc, cot, hang) = v;
+  final goc = img.decodeImage(File(duong).readAsBytesSync());
+  if (goc == null) return [];
+  final o = img.bakeOrientation(goc);
+  final ds = <(String, int, int)>[];
+  var k = 0;
+  for (final (x, y, w, h) in chiaManh(o.width, o.height, cot, hang)) {
+    final f = '$thuMuc/gio_the_manh_${cot}x${hang}_${k++}.jpg';
+    File(f).writeAsBytesSync(img.encodeJpg(img.copyCrop(o, x: x, y: y, width: w, height: h), quality: 92));
+    ds.add((f, x, y));
+  }
+  return ds;
+}
 
 /// Giơ thẻ: in bộ thẻ QR, học sinh xoay thẻ chọn A/B/C/D, giáo viên chụp một tấm là có đáp án cả lớp.
 class GioThe extends StatefulWidget {
@@ -101,16 +136,36 @@ class _GioTheState extends State<GioThe> {
     if (anh == null) return;
     setState(() => _dangQuet = true);
     final may = BarcodeScanner(formats: [BarcodeFormat.qrCode]);
-    var moi = 0;
+    final daDoc = <int>{}; // thẻ đã đọc được chiều trong ảnh này
+    final chuaRo = <int>{}; // thấy mã nhưng chưa rõ chiều thẻ
     try {
-      final ds = await may.processImage(InputImage.fromFilePath(anh.path));
-      for (final b in ds) {
-        final so = soTuMa(b.rawValue);
-        final g = b.cornerPoints;
-        if (so == null || g.length < 2) continue;
-        final goc = gocCanhTren(g[0].x.toDouble(), g[0].y.toDouble(), g[1].x.toDouble(), g[1].y.toDouble());
-        _cau.traLoi[so] = dapAnTuGoc(goc, hieuChinh: _hieuChinh);
-        moi++;
+      final xam = await compute(_docAnhXam, anh.path);
+      Future<void> doc(String duong, int dx, int dy) async {
+        for (final b in await may.processImage(InputImage.fromFilePath(duong))) {
+          final so = soTuMa(b.rawValue);
+          if (so == null || daDoc.contains(so)) continue;
+          final g = [for (final p in b.cornerPoints) (p.x.toDouble() + dx, p.y.toDouble() + dy)];
+          final goc = xam == null ? null : gocTuAnh(xam, g);
+          if (goc == null) {
+            chuaRo.add(so);
+            continue;
+          }
+          _cau.traLoi[so] = dapAnTuGoc(goc, hieuChinh: _hieuChinh);
+          daDoc.add(so);
+          chuaRo.remove(so);
+        }
+      }
+
+      await doc(anh.path, 0, 0);
+      // Lớp đông, mã nhỏ: quét lại theo từng mảnh ảnh cho đủ thẻ
+      if (xam != null && _cau.traLoi.length < _soThe) {
+        final thuMuc = (await getTemporaryDirectory()).path;
+        for (final (cot, hang) in const [(2, 2), (3, 3)]) {
+          if (_cau.traLoi.length >= _soThe) break;
+          for (final (duong, x, y) in await compute(_catManh, (anh.path, thuMuc, cot, hang))) {
+            await doc(duong, x, y);
+          }
+        }
       }
     } catch (_) {
       _bao('Máy này chưa đọc được ảnh. Thầy cô thử chụp lại.');
@@ -119,9 +174,12 @@ class _GioTheState extends State<GioThe> {
     }
     if (!mounted) return;
     setState(() => _dangQuet = false);
+    final moi = daDoc.length;
     _bao(moi == 0
-        ? 'Chưa thấy thẻ nào. Thầy cô đứng gần hơn, đủ sáng, các em giơ thẻ thẳng về phía máy.'
-        : 'Đọc được $moi thẻ. Còn thiếu em nào thì chụp thêm, kết quả được cộng dồn.');
+        ? (chuaRo.isEmpty
+            ? 'Chưa thấy thẻ nào. Thầy cô đứng gần hơn, đủ sáng, các em giơ thẻ thẳng về phía máy.'
+            : 'Thấy ${chuaRo.length} thẻ nhưng chưa rõ chiều. Thầy cô chụp gần hơn, đủ sáng.')
+        : 'Đọc được $moi thẻ.${chuaRo.isEmpty ? '' : ' ${chuaRo.length} thẻ chưa rõ chiều.'} Còn thiếu em nào thì chụp thêm, kết quả được cộng dồn.');
   }
 
   /// Hiệu chỉnh: một em giơ thẻ chữ A lên trên, chụp; app lấy góc đó làm chuẩn.
@@ -135,10 +193,14 @@ class _GioTheState extends State<GioThe> {
         _bao('Chưa thấy thẻ trong ảnh.');
         return;
       }
-      final g = ds.first.cornerPoints;
-      final goc = gocCanhTren(g[0].x.toDouble(), g[0].y.toDouble(), g[1].x.toDouble(), g[1].y.toDouble());
-      // Làm tròn về bội số 90 độ gần nhất: chỉ sửa trường hợp ảnh bị xoay sẵn.
-      final chuan = (goc / 90).round() * 90.0;
+      final xam = await compute(_docAnhXam, anh.path);
+      final goc = xam == null ? null : gocTuAnh(xam, [for (final p in ds.first.cornerPoints) (p.x.toDouble(), p.y.toDouble())]);
+      if (goc == null) {
+        _bao('Chưa rõ chiều thẻ. Thầy cô chụp gần hơn, đủ sáng.');
+        return;
+      }
+      // Ảnh chụp thẻ chữ A lên trên: góc đọc được chính là độ xoay sẵn của ảnh.
+      final chuan = goc;
       final p = await SharedPreferences.getInstance();
       await p.setDouble('gt_xoay', chuan);
       if (mounted) setState(() => _hieuChinh = chuan);
