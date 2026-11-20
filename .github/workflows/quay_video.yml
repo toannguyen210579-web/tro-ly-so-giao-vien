@@ -1,0 +1,75 @@
+name: Quay video 15 tiện ích
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/quay_video.yml"]
+permissions:
+  contents: write
+jobs:
+  quay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Bật KVM cho máy giả lập
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg >/dev/null
+      - run: bash tool/chuan_bi.sh
+      - run: flutter pub get
+      - name: Ghi kịch bản quay
+        run: |
+          cat > quay.sh <<'SH'
+          set -x
+          mkdir -p video
+          # Quay liên tục, mỗi đoạn tối đa 180 giây (giới hạn của screenrecord)
+          ( i=0; while [ ! -f video/dung ]; do adb shell screenrecord --size 720x1280 --bit-rate 3000000 --time-limit 180 /sdcard/v_$(printf %02d $i).mp4; i=$((i+1)); done ) &
+          sleep 3
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/chup_clip_test.dart 2>&1 | tee kq1.txt | grep -E "KQ|passed|failed" || true
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart 2>&1 | tee kq2.txt | grep -E "KQ|passed|failed" || true
+          touch video/dung
+          sleep 2
+          adb shell pkill -INT screenrecord || true
+          sleep 5
+          for f in $(adb shell ls /sdcard/ | tr -d '\r' | grep '^v_.*mp4$'); do adb pull /sdcard/$f video/$f; done
+          ls -la video
+          SH
+      - name: Chạy app trên Android 14 và quay màn hình
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: bash quay.sh
+      - name: Nối và nén video
+        if: always()
+        run: |
+          cd video
+          ls v_*.mp4 | sort | sed "s/^/file '/; s/$/'/" > ds.txt
+          ffmpeg -hide_banner -loglevel error -f concat -safe 0 -i ds.txt -c copy noi.mp4
+          ffmpeg -hide_banner -loglevel error -i noi.mp4 -vf "scale=540:-2,fps=24" -c:v libx264 -preset veryfast -crf 30 -movflags +faststart 15_tien_ich.mp4
+          ls -la; ffprobe -v error -show_entries format=duration -of csv=p=0 15_tien_ich.mp4
+      - name: Đẩy video lên nhánh video-app
+        if: always()
+        run: |
+          mkdir -p /tmp/v
+          cp video/15_tien_ich.mp4 /tmp/v/ 2>/dev/null || true
+          grep -hE "KQ|All tests passed|Some tests failed" kq1.txt kq2.txt > /tmp/v/ket_qua.txt 2>/dev/null || true
+          cd /tmp/v
+          git init -q -b video-app
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Video 15 tiện ích (${GITHUB_SHA::7})"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" video-app
