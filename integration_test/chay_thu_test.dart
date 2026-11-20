@@ -99,7 +99,13 @@ void main() {
     await cho(t, 2000);
     await t.enterText(find.byType(TextField).first, 'Kính gửi quý phụ huynh. Nhà trường thông báo lịch họp phụ huynh cuối học kỳ một.');
     final dd = Stopwatch()..start();
-    await t.tap(find.text('Đọc to'));
+    // Nút có thể nằm dưới mép màn hình: cuộn tới rồi mới bấm, và báo nếu bấm trượt
+    final nut = find.widgetWithText(FilledButton, 'Đọc to');
+    // ignore: avoid_print
+    print('KQ doc_to_nut: tim thay ${nut.evaluate().length} nut');
+    await t.ensureVisible(nut.first);
+    await t.pumpAndSettle(const Duration(milliseconds: 300));
+    await t.tap(nut.first, warnIfMissed: true);
     int? batDau, ketThuc;
     for (var i = 0; i < 60; i++) {
       await cho(t, 300);
