@@ -1,0 +1,65 @@
+THÔNG TƯ SỐ 02/2025/TT-BGDĐT NGÀY 24/01/2025 CỦA BỘ GIÁO DỤC VÀ ĐÀO TẠO QUY ĐỊNH KHUNG NĂNG LỰC SỐ CHO NGƯỜI HỌC
+Hiệu lực: từ ngày 11/3/2025. Người ký: KT. Bộ trưởng, Thứ trưởng Hoàng Minh Sơn.
+Áp dụng: các cơ sở giáo dục, chương trình giáo dục, đào tạo và người học trong hệ thống giáo dục quốc dân.
+Hướng dẫn thực hiện cho học sinh phổ thông, học viên GDTX: Công văn 3456/BGDĐT-GDPT ngày 27/6/2025 (KT. Bộ trưởng, Thứ trưởng Phạm Ngọc Thưởng).
+Nguồn: toàn văn Thông tư đăng trên hoatieu.vn; cấu trúc khung và mức độ theo khối lớp tổng hợp từ phụ lục Công văn 3456 do hoatieu.vn đăng lại.
+Phân biệt: Khung năng lực số cho GIÁO VIÊN, cán bộ quản lý là Thông tư 18/2026/TT-BGDĐT (6 miền, 20 năng lực thành phần). Thông tư 02/2025 này là khung cho NGƯỜI HỌC (học sinh, sinh viên).
+
+CẤU TRÚC KHUNG NĂNG LỰC SỐ CHO NGƯỜI HỌC: 6 miền năng lực, 24 năng lực thành phần; 4 trình độ (cơ bản, trung cấp, nâng cao, chuyên sâu) chia thành 8 bậc.
+Miền 1. Khai thác dữ liệu và thông tin: 1.1 Duyệt, tìm kiếm và lọc dữ liệu, thông tin và nội dung số; 1.2 Đánh giá dữ liệu, thông tin và nội dung số; 1.3 Quản lý dữ liệu, thông tin và nội dung số.
+Miền 2. Giao tiếp và hợp tác: 2.1 Tương tác thông qua công nghệ số; 2.2 Chia sẻ thông tin và nội dung thông qua công nghệ số; 2.3 Sử dụng công nghệ số để thực hiện trách nhiệm công dân; 2.4 Hợp tác thông qua công nghệ số; 2.5 Quy tắc ứng xử trên mạng; 2.6 Quản lý danh tính số.
+Miền 3. Sáng tạo nội dung số: 3.1 Phát triển nội dung số; 3.2 Tích hợp và tạo lập lại nội dung số; 3.3 Thực thi bản quyền và giấy phép; 3.4 Lập trình.
+Miền 4. An toàn: 4.1 Bảo vệ thiết bị; 4.2 Bảo vệ dữ liệu cá nhân và quyền riêng tư; 4.3 Bảo vệ sức khỏe và an sinh số; 4.4 Bảo vệ môi trường.
+Miền 5. Giải quyết vấn đề: 5.1 Giải quyết các vấn đề kỹ thuật; 5.2 Xác định nhu cầu và giải pháp công nghệ; 5.3 Sử dụng sáng tạo công nghệ số; 5.4 Xác định các vấn đề cần cải thiện về năng lực số.
+Miền 6. Ứng dụng trí tuệ nhân tạo: 6.1 Hiểu biết về trí tuệ nhân tạo; 6.2 Sử dụng AI có đạo đức và trách nhiệm; 6.3 Đánh giá các công cụ AI.
+
+MỨC ĐỘ THÀNH THẠO THEO KHỐI LỚP (phụ lục Công văn 3456/BGDĐT-GDPT):
+- Lớp 1, 2, 3: Cơ bản 1 (CB1) - nhiệm vụ đơn giản, có hướng dẫn.
+- Lớp 4, 5: Cơ bản 2 (CB2) - nhiệm vụ quen thuộc, tự chủ một phần và có hướng dẫn khi cần thiết.
+- Lớp 6, 7: Trung cấp 1 (TC1) - nhiệm vụ được xác định rõ ràng, thường xuyên và các vấn đề đơn giản; tự chủ hoàn toàn.
+- Lớp 8, 9: Trung cấp 2 (TC2).
+- Lớp 10, 11, 12: Nâng cao 1 (NC1).
+Mỗi năng lực thành phần có các chỉ báo theo mức độ, được mã hóa để giáo viên ghi vào kế hoạch bài dạy, ví dụ 1.1.CB1a (năng lực 1.1, mức Cơ bản 1, chỉ báo a). Công văn 3456 hướng dẫn tích hợp nội dung Khung năng lực số vào dạy học các môn học (môn Tin học là phương thức quan trọng); đánh giá dựa trên tiêu chí bám sát các miền năng lực và mức độ cần đạt; nhà trường rà soát, điều chỉnh mức độ để đạt mục tiêu từng cấp học.
+
+NGUYÊN VĂN THÔNG TƯ
+
+Điều 1. Phạm vi điều chỉnh và đối tượng áp dụng
+1. Ban hành kèm theo Thông tư này Khung năng lực số cho người học (sau đây gọi tắt là Khung năng lực số).
+2. Thông tư này áp dụng đối với các cơ sở giáo dục, các chương trình giáo dục, đào tạo (sau đây gọi chung là chương trình giáo dục) và người học trong hệ thống giáo dục quốc dân; các tổ chức, cá nhân có liên quan.
+
+Điều 2. Giải thích từ ngữ
+Trong Thông tư này, các từ ngữ dưới đây được hiểu như sau:
+1. An sinh số là trạng thái cân bằng giữa việc sử dụng công nghệ số và sức khỏe tinh thần, thể chất của người dùng trong việc sử dụng phương tiện kỹ thuật số.
+2. Bắt nạt trên mạng là những hành vi có chủ đích xấu được tiến hành bởi một người hoặc một nhóm người lên một cá nhân bằng cách đe dọa, xâm hại, làm nhục, làm ảnh hưởng, xúc phạm danh dự, nhân phẩm hoặc tra tấn tinh thần thông qua tin nhắn, mạng Internet, các trang mạng xã hội và qua các thiết bị điện tử.
+3. Danh tính số là tổng hợp thông tin về một người tồn tại ở dạng kỹ thuật số để định danh và phân biệt với những người khác, có thể bao gồm các thông tin như giới tính, tính cách, sở thích, tín ngưỡng, quan điểm chính trị, họ tên, ngày tháng năm sinh, số điện thoại, địa chỉ nhà, địa chỉ thư điện tử và các thông tin cá nhân khác.
+4. Danh tiếng trực tuyến là sự đánh giá hoặc nhận thức của xã hội về giá trị, uy tín, hoặc hình ảnh của một cá nhân, tổ chức hay thương hiệu trên môi trường trực tuyến.
+5. Dịch vụ số là các dịch vụ được cung cấp thông qua phương tiện giao tiếp số.
+6. Dữ liệu là những con số hoặc dữ kiện rời rạc mà quan sát hoặc đo đếm được không cần có ngữ cảnh hay diễn giải; được thể hiện ra ngoài bằng cách mã hóa và dễ dàng truyền tải và được chuyển thành thông tin bằng cách thêm giá trị thông qua ngữ cảnh, phân loại, tính toán, hiệu chỉnh và đánh giá.
+7. Điều hướng là quá trình định hướng và di chuyển trong một không gian vật lý hoặc kỹ thuật số nhằm xác định vị trí hiện tại và tìm ra đường đi đến đích mong muốn.
+8. Giải pháp công nghệ là tập hợp các công cụ kỹ thuật có liên quan (phần mềm, phần cứng) hoặc dịch vụ hoặc kết hợp để giải quyết vấn đề đặt ra.
+9. Môi trường có cấu trúc là một không gian hoặc hệ thống trong đó các yếu tố, thành phần hoặc dữ liệu được tổ chức và sắp xếp theo một cách rõ ràng và có quy tắc, giúp dễ dàng tìm kiếm, truy cập và xử lý.
+10. Môi trường số là không gian ảo, nơi các hoạt động, dữ liệu, thông tin và nội dung được tạo ra, lưu trữ và trao đổi thông qua công nghệ số, như mạng Internet, phần mềm và các nền tảng trực tuyến.
+11. Năng lực số là khả năng sử dụng công nghệ số để hoàn thành nhiệm vụ cụ thể hoặc để giải quyết vấn đề trong thực tiễn.
+12. Nghi thức số là tập hợp các quy tắc, chuẩn mực và hành vi ứng xử phù hợp trong môi trường số, bao gồm giao tiếp qua mạng Internet, sử dụng mạng xã hội, email, ứng dụng và các nền tảng trực tuyến.
+13. Nội dung số là nội dung tồn tại dưới dạng dữ liệu số được mã hóa ở định dạng kỹ thuật số có thể đọc được và có thể được tạo, xem, phân phối, sửa đổi và lưu trữ bằng máy tính và công nghệ kỹ thuật số.
+14. Phương tiện giao tiếp số là các nền tảng, công cụ và nội dung được tạo ra, lưu trữ, phân phối và truy cập thông qua công nghệ số, bao gồm mạng Internet, mạng xã hội, ứng dụng di động, các thiết bị điện tử.
+15. Thiết bị số là thiết bị điện tử, máy tính, viễn thông, truyền dẫn, thu phát sóng vô tuyến điện và thiết bị tích hợp khác được sử dụng để sản xuất, truyền đưa, thu thập, xử lý, lưu trữ và trao đổi thông tin số.
+16. Thông tin là dữ liệu đã được tổ chức, xử lý, hoặc phân tích để trở nên có ý nghĩa và có thể hiểu được và sử dụng để ra quyết định, giải quyết vấn đề hoặc truyền đạt ý tưởng.
+17. Tri thức là sự hiểu biết, nhận thức và kinh nghiệm được tích lũy qua quá trình học hỏi, nghiên cứu và trải nghiệm.
+18. Trí tuệ nhân tạo (viết tắt là AI) là việc phát triển các hệ thống máy móc có khả năng thực hiện các nhiệm vụ đòi hỏi trí tuệ con người như học tập, suy luận và giải quyết vấn đề.
+19. Trí tuệ nhân tạo tạo sinh (Generative Artificial Intelligence hay còn gọi là Gen AI) là một lĩnh vực thuộc AI tập trung vào việc tạo ra dữ liệu mới, có thể là văn bản, hình ảnh, âm thanh, hoặc video, mã nguồn lập trình dựa trên dữ liệu đầu vào đã được huấn luyện trước đó.
+
+Điều 3. Mục đích sử dụng Khung năng lực số
+1. Làm cơ sở để xây dựng chuẩn chương trình đào tạo; xây dựng và phát triển chương trình giáo dục; xây dựng tài liệu học tập, tài liệu hướng dẫn để phát triển năng lực số cho người học.
+2. Làm cơ sở để đánh giá yêu cầu, kết quả đạt được về năng lực số của người học trong các chương trình giáo dục; xây dựng tiêu chí trong kiểm tra, đánh giá, công nhận năng lực số của người học.
+3. Bảo đảm tính thống nhất về yêu cầu năng lực số của người học; làm cơ sở để đối sánh hoặc tham chiếu giữa các chương trình giáo dục, khung năng lực số.
+
+Điều 4. Tổ chức thực hiện
+1. Các cơ quan quản lý nhà nước về giáo dục xây dựng kế hoạch và triển khai Khung năng lực số theo chức năng, nhiệm vụ được phân công.
+2. Các cơ sở giáo dục thực hiện quyền tự chủ về chuyên môn, học thuật xây dựng, phát triển chương trình giáo dục, theo đó, trên cơ sở các quy định của Khung năng lực số, triển khai nghiên cứu, bổ sung, cập nhật yêu cầu về năng lực số cho người học vào chương trình, tài liệu học tập, tài liệu hướng dẫn và bảo đảm các điều kiện cần thiết để triển khai Khung năng lực số theo các chỉ đạo, hướng dẫn của các cơ quan quản lý cấp trên và theo các quy định pháp luật hiện hành.
+
+Điều 5. Hiệu lực thi hành
+Thông tư này có hiệu lực thi hành kể từ ngày 11 tháng 3 năm 2025.
+
+Điều 6. Trách nhiệm thi hành
+Chánh Văn phòng, Vụ trưởng Vụ Giáo dục Đại học, Thủ trưởng các đơn vị có liên quan thuộc Bộ Giáo dục và Đào tạo; Chủ tịch Ủy ban nhân dân các cấp; Giám đốc các sở giáo dục và đào tạo; Giám đốc các đại học, học viện; Hiệu trưởng các trường đại học, cao đẳng sư phạm, các trường cao đẳng có ngành đào tạo giáo viên chịu trách nhiệm thi hành Thông tư này.
