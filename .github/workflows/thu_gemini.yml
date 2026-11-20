@@ -8,37 +8,24 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
-      - name: Thử đọc tiếng Việt bằng các mô hình TTS của Gemini (gói miễn phí)
+      - name: Thử Gemini tìm trên Google (gói miễn phí) như các trang AI khác
         env:
           K: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          mkdir am
-          curl -sS -H "x-goog-api-key: $K" "https://generativelanguage.googleapis.com/v1beta/models?pageSize=1000" \
-            | python3 -c "import json,sys; [print(m['name'].split('/')[1]) for m in json.load(sys.stdin).get('models',[]) if 'tts' in m['name']]" > mo_hinh.txt
-          echo "Mô hình TTS: $(tr '\n' ' ' < mo_hinh.txt)"
-          for M in $(cat mo_hinh.txt); do
+          for M in gemini-flash-lite-latest gemini-3.1-flash-lite gemini-flash-latest; do
+          for Q in "clip trên việt nam tiêu điểm nào hay nhất" "giá vàng SJC hôm nay bao nhiêu" "lịch nghỉ Tết Nguyên đán 2027 của giáo viên"; do
             S=$(date +%s%N)
-            curl -sS -m 90 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
+            curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
               "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
-              -d '{"contents":[{"parts":[{"text":"Kính gửi quý phụ huynh em Nguyễn Văn An. Nhà trường kính mời quý phụ huynh dự họp lúc bảy giờ sáng Chủ nhật, ngày hai mươi hai tháng mười một."}]}],"generationConfig":{"responseModalities":["AUDIO"],"speechConfig":{"voiceConfig":{"prebuiltVoiceConfig":{"voiceName":"Kore"}}}}}' > r.json
+              -d "$(python3 -c 'import json,sys;print(json.dumps({"contents":[{"parts":[{"text":sys.argv[1]}]}],"tools":[{"google_search":{}}],"systemInstruction":{"parts":[{"text":"Trả lời bằng tiếng Việt, ngắn gọn, nêu nguồn."}]}}))' "$Q")" > r.json
             E=$(( ($(date +%s%N) - S) / 1000000 ))
-            python3 - "$M" "$E" <<'P'
-          import json,sys,base64
-          m,e=sys.argv[1],sys.argv[2]
+            python3 - "$M" "$Q" "$E" <<'P'
+          import json,sys
+          m,q,e=sys.argv[1:]
           j=json.load(open('r.json'))
-          if 'error' in j:
-              print('KQ',m,e+'ms','LOI',j['error'].get('code'),j['error'].get('status'),j['error'].get('message','')[:160]); sys.exit()
-          p=j['candidates'][0]['content']['parts'][0]['inlineData']
-          d=base64.b64decode(p['data'])
-          if d[:4]==b'RIFF': open('am/'+m+'.wav','wb').write(d)
-          else:
-              import wave
-              w=wave.open('am/'+m+'.wav','wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(24000); w.writeframes(d); w.close()
-          print('KQ',m,e+'ms','OK',p.get('mimeType'),len(d),'byte, khoảng',round(len(d)/48000,1),'giây')
+          if 'error' in j: print('KQ',m,'|',q,'|',e,'ms LOI',j['error'].get('code'),j['error'].get('message','')[:150]); sys.exit()
+          c=j['candidates'][0]; t=''.join(p.get('text','') for p in c['content'].get('parts',[]))
+          g=c.get('groundingMetadata',{}); src=[x.get('web',{}).get('title','') for x in g.get('groundingChunks',[])]
+          print('KQ',m,'|',q,'|',e,'ms | nguon:',len(src),src[:5]); print('   ',t[:500].replace('\n',' / '))
           P
-          done
-          ls -la am
-      - uses: actions/upload-artifact@v4
-        with:
-          name: giong-gemini
-          path: am/*.wav
+          done; done
