@@ -35,6 +35,9 @@ String _boDau(String s) {
   return b.toString().replaceAll(RegExp(r'\s+'), ' ').trim();
 }
 
+/// Đọc trang đầu của tệp .xlsx thành bảng chữ (dùng cả để kiểm thử tệp Excel app tự tạo).
+List<List<String>> docBangXlsx(List<int> byte) => _docXlsx(byte);
+
 /// Lấy cột họ tên từ bảng đã đọc (tách riêng để kiểm thử).
 List<String> layHoTenTuBang(List<List<String>> bang) => _layHoTen(bang);
 
@@ -123,7 +126,7 @@ List<List<String>> _docXlsx(List<int> byte) {
       final than = c.group(2) ?? '';
       var gt = '';
       if (kieu == 'inlineStr') {
-        gt = RegExp(r'<t[^>]*>(.*?)</t>', dotAll: true).allMatches(than).map((m) => m.group(1)!).join();
+        gt = giaiMa(RegExp(r'<t[^>]*>(.*?)</t>', dotAll: true).allMatches(than).map((m) => m.group(1)!).join());
       } else {
         final v = RegExp(r'<v>(.*?)</v>', dotAll: true).firstMatch(than)?.group(1) ?? '';
         gt = kieu == 's' ? (int.tryParse(v) != null && int.parse(v) < chung.length ? chung[int.parse(v)] : '') : v;

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:archive/archive.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
@@ -7,57 +8,11 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 import '../data/luu_tru.dart';
+import '../data/minh_chung.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
+import '../services/tep_xlsx.dart';
 import 'cau_giup_viec.dart';
-
-const dsNhomMinhChung = [
-  'Chuẩn nghề nghiệp',
-  'Thi đua, khen thưởng',
-  'Bồi dưỡng, tập huấn',
-  'Hoạt động chuyên môn',
-  'Kiểm định chất lượng',
-  'Khác',
-];
-
-/// Một minh chứng: tiêu đề, nhóm, ngày, ghi chú và các ảnh kèm theo.
-class MinhChung {
-  String id;
-  String nhom;
-  String tieuDe;
-  DateTime ngay;
-  String ghiChu;
-
-  /// Tên tệp ảnh trong thư mục minh_chung của app.
-  List<String> anh;
-
-  MinhChung({
-    required this.id,
-    required this.nhom,
-    required this.tieuDe,
-    required this.ngay,
-    this.ghiChu = '',
-    List<String>? anh,
-  }) : anh = anh ?? [];
-
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'nhom': nhom,
-        'tieu_de': tieuDe,
-        'ngay': ngay.toIso8601String(),
-        'ghi_chu': ghiChu,
-        'anh': anh,
-      };
-
-  factory MinhChung.fromJson(Map<String, dynamic> j) => MinhChung(
-        id: j['id'] as String,
-        nhom: j['nhom'] as String? ?? 'Khác',
-        tieuDe: j['tieu_de'] as String? ?? '',
-        ngay: DateTime.tryParse(j['ngay'] as String? ?? '') ?? DateTime.now(),
-        ghiChu: j['ghi_chu'] as String? ?? '',
-        anh: (j['anh'] as List<dynamic>? ?? []).cast<String>(),
-      );
-}
 
 const _khoa = 'so_minh_chung';
 
@@ -122,72 +77,167 @@ class _SoMinhChungState extends State<SoMinhChung> {
     await _luu();
   }
 
-  Future<void> _xuatPdf() async {
-    final ds = _dangHien;
-    if (ds.isEmpty) {
-      _bao('Chưa có minh chứng nào để xuất.');
-      return;
-    }
-    setState(() => _dangXuat = true);
-    try {
-      final theme = await PhongPdf.theme();
-      final doc = pw.Document(theme: theme);
-      final noiDung = <pw.Widget>[
-        pw.Center(
-          child: pw.Text('SỔ MINH CHỨNG', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
-        ),
+  /// Tạo PDF cho [ds]. Có [soThuTu]: tệp riêng của một minh chứng (tiêu đề là chính minh chứng đó, ảnh to).
+  Future<List<int>> _taoPdf(List<MinhChung> ds, {int? soThuTu}) async {
+    final theme = await PhongPdf.theme();
+    final doc = pw.Document(theme: theme);
+    final noiDung = <pw.Widget>[];
+    final rieng = soThuTu != null;
+    if (!rieng) {
+      noiDung.addAll([
+        pw.Center(child: pw.Text('SỔ MINH CHỨNG', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold))),
         if (_loc != null) pw.Center(child: pw.Text(_loc!, style: const pw.TextStyle(fontSize: 12))),
         pw.Center(
           child: pw.Text('Xuất ngày ${ngayVN(DateTime.now())}, gồm ${ds.length} minh chứng',
               style: pw.TextStyle(fontSize: 10, fontStyle: pw.FontStyle.italic)),
         ),
         pw.SizedBox(height: 14),
-      ];
-      final nhomCo = dsNhomMinhChung.where((n) => ds.any((m) => m.nhom == n));
-      var stt = 0;
-      for (final n in nhomCo) {
+      ]);
+    }
+    String? nhomTruoc;
+    var stt = soThuTu ?? 0;
+    for (final m in ds) {
+      if (!rieng && m.nhom != nhomTruoc) {
+        nhomTruoc = m.nhom;
         noiDung.add(pw.Padding(
           padding: const pw.EdgeInsets.only(top: 8, bottom: 6),
-          child: pw.Text(n.toUpperCase(), style: pw.TextStyle(fontSize: 12.5, fontWeight: pw.FontWeight.bold)),
+          child: pw.Text(m.nhom.toUpperCase(), style: pw.TextStyle(fontSize: 12.5, fontWeight: pw.FontWeight.bold)),
         ));
-        for (final m in ds.where((m) => m.nhom == n)) {
-          stt++;
-          noiDung.add(pw.Text('$stt. ${m.tieuDe}', style: pw.TextStyle(fontSize: 12, fontWeight: pw.FontWeight.bold)));
-          noiDung.add(pw.Text('Ngày: ${ngayVN(m.ngay)}', style: const pw.TextStyle(fontSize: 10.5)));
-          if (m.ghiChu.trim().isNotEmpty) {
-            noiDung.add(pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 2),
-              child: pw.Text(m.ghiChu.trim(), style: const pw.TextStyle(fontSize: 11)),
-            ));
+      }
+      if (!rieng) stt++;
+      final ma = m.ma.trim().isEmpty ? '' : '[${m.ma.trim()}] ';
+      noiDung.add(pw.Text(rieng ? 'Minh chứng số $stt · ${m.nhom}' : '$stt. $ma${m.tieuDe}',
+          style: pw.TextStyle(fontSize: rieng ? 10.5 : 12, fontWeight: rieng ? null : pw.FontWeight.bold)));
+      if (rieng) {
+        if (ma.isNotEmpty) noiDung.add(pw.Text('Mã minh chứng: ${m.ma.trim()}', style: const pw.TextStyle(fontSize: 10.5)));
+        noiDung.add(pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 6, bottom: 2),
+          child: pw.Text(m.tieuDe, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold)),
+        ));
+      }
+      noiDung.add(pw.Text('Ngày: ${ngayVN(m.ngay)}', style: const pw.TextStyle(fontSize: 10.5)));
+      if (m.ghiChu.trim().isNotEmpty) {
+        noiDung.add(pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 2),
+          child: pw.Text(m.ghiChu.trim(), style: const pw.TextStyle(fontSize: 11)),
+        ));
+      }
+      for (final a in m.anh) {
+        final f = File('$_thuMuc/$a');
+        if (!await f.exists()) continue;
+        noiDung.add(pw.Padding(
+          padding: const pw.EdgeInsets.only(top: 6),
+          child: pw.Center(
+            // Tệp riêng: ảnh to gần hết trang để hệ thống, người chấm đọc rõ chữ trên giấy khen
+            child: pw.Image(pw.MemoryImage(await f.readAsBytes()), height: rieng ? 600 : 300, fit: pw.BoxFit.contain),
+          ),
+        ));
+      }
+      noiDung.add(pw.SizedBox(height: 12));
+    }
+    doc.addPage(pw.MultiPage(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.fromLTRB(56, 42, 42, 42),
+      footer: (c) => pw.Align(
+        alignment: pw.Alignment.centerRight,
+        child: pw.Text('${c.pageNumber}/${c.pagesCount}', style: const pw.TextStyle(fontSize: 9)),
+      ),
+      build: (_) => noiDung,
+    ));
+    return doc.save();
+  }
+
+  /// Hỏi kiểu xuất. Các minh chứng đang hiện (theo nhóm đã chọn) được xếp đúng thứ tự nộp.
+  Future<void> _xuat() async {
+    final ds = xepDeNop(_dangHien);
+    if (ds.isEmpty) {
+      _bao(_loc == null ? 'Chưa có minh chứng nào để xuất. Bấm Thêm minh chứng để chụp giấy khen, giấy chứng nhận.' : 'Nhóm này chưa có minh chứng nào.');
+      return;
+    }
+    final kieu = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (c) => SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+              child: Text('Xuất ${ds.length} minh chứng${_loc == null ? '' : ' nhóm $_loc'}',
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+            ),
+            ListTile(
+              leading: const Icon(Icons.cloud_upload_outlined),
+              title: const Text('Để tải lên hệ thống'),
+              subtitle: const Text('Mỗi minh chứng một tệp PDF đặt tên không dấu (01_..., 02_...), kèm danh mục Excel. '
+                  'Dùng cho TEMIS, phần mềm kiểm định, hồ sơ thi đua trực tuyến.'),
+              onTap: () => Navigator.pop(c, 'tung_tep'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder_zip_outlined),
+              title: const Text('Gói nén .zip'),
+              subtitle: const Text('Cùng các tệp trên, gộp thành một tệp để gửi Zalo, email, mở trên máy tính.'),
+              onTap: () => Navigator.pop(c, 'zip'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: const Text('Một tệp PDF gộp'),
+              subtitle: const Text('Tất cả minh chứng trong một tệp, xếp theo nhóm, để in hoặc nộp bản giấy.'),
+              onTap: () => Navigator.pop(c, 'pdf'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.table_chart_outlined),
+              title: const Text('Danh mục Excel'),
+              subtitle: const Text('Bảng số thứ tự, mã, tên, ngày, ghi chú, tên tệp: chép sang danh mục của hệ thống.'),
+              onTap: () => Navigator.pop(c, 'excel'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (kieu == null || !mounted) return;
+    setState(() => _dangXuat = true);
+    try {
+      final dau = dauThoiGian(DateTime.now());
+      final goc = (await thuMucApp('xuat')).path;
+      final excel = taoXlsx(bangDanhMuc(ds), tenTrang: 'Danh mục minh chứng', doRong: [6, 16, 22, 48, 12, 40, 8, 44]);
+      if (kieu == 'pdf') {
+        final f = File('$goc/So_minh_chung_$dau.pdf');
+        await f.writeAsBytes(await _taoPdf(ds));
+        await Share.shareXFiles([XFile(f.path)]);
+      } else if (kieu == 'excel') {
+        final f = File('$goc/Danh_muc_minh_chung_$dau.xlsx');
+        await f.writeAsBytes(excel);
+        await Share.shareXFiles([XFile(f.path)]);
+      } else {
+        final thu = Directory('$goc/Minh_chung_$dau');
+        await thu.create(recursive: true);
+        final tep = <File>[];
+        for (var i = 0; i < ds.length; i++) {
+          final f = File('${thu.path}/${tenTepMinhChung(i + 1, ds[i])}');
+          await f.writeAsBytes(await _taoPdf([ds[i]], soThuTu: i + 1));
+          tep.add(f);
+        }
+        final dm = File('${thu.path}/00_Danh_muc_minh_chung.xlsx');
+        await dm.writeAsBytes(excel);
+        tep.insert(0, dm);
+        if (kieu == 'zip') {
+          final a = Archive();
+          for (final f in tep) {
+            final b = await f.readAsBytes();
+            a.addFile(ArchiveFile(f.uri.pathSegments.last, b.length, b));
           }
-          for (final a in m.anh) {
-            final f = File('$_thuMuc/$a');
-            if (!await f.exists()) continue;
-            noiDung.add(pw.Padding(
-              padding: const pw.EdgeInsets.only(top: 6),
-              child: pw.Center(
-                child: pw.Image(pw.MemoryImage(await f.readAsBytes()), height: 300, fit: pw.BoxFit.contain),
-              ),
-            ));
-          }
-          noiDung.add(pw.SizedBox(height: 12));
+          final List<int>? z = ZipEncoder().encode(a);
+          final fz = File('$goc/Minh_chung_$dau.zip');
+          await fz.writeAsBytes(z ?? <int>[]);
+          await Share.shareXFiles([XFile(fz.path)]);
+        } else {
+          _bao('Đã tạo ${ds.length} tệp PDF và danh mục. Thầy cô chọn Lưu vào Tệp hoặc Drive để tải lên hệ thống từng tệp.');
+          await Share.shareXFiles([for (final f in tep) XFile(f.path)]);
         }
       }
-      doc.addPage(pw.MultiPage(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.fromLTRB(56, 42, 42, 42),
-        footer: (c) => pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text('${c.pageNumber}/${c.pagesCount}', style: const pw.TextStyle(fontSize: 9)),
-        ),
-        build: (_) => noiDung,
-      ));
-      final ten = 'So_minh_chung_${dauThoiGian(DateTime.now())}.pdf';
-      final f = File('${(await thuMucApp('xuat')).path}/$ten');
-      await f.writeAsBytes(await doc.save());
-      await Share.shareXFiles([XFile(f.path)]);
     } catch (e) {
-      _bao('Chưa xuất được PDF: $e');
+      _bao('Chưa xuất được: $e');
     } finally {
       if (mounted) setState(() => _dangXuat = false);
     }
@@ -205,11 +255,11 @@ class _SoMinhChungState extends State<SoMinhChung> {
         title: const Text('Sổ minh chứng'),
         actions: [
           IconButton(
-            tooltip: 'Xuất PDF',
-            onPressed: _dangXuat ? null : _xuatPdf,
+            tooltip: 'Xuất để nộp hồ sơ',
+            onPressed: _dangXuat ? null : _xuat,
             icon: _dangXuat
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.picture_as_pdf_outlined),
+                : const Icon(Icons.ios_share),
           ),
         ],
       ),
@@ -224,10 +274,21 @@ class _SoMinhChungState extends State<SoMinhChung> {
           const CauGiupViec('minh_chung'),
           const Text(
             'Chụp giấy khen, ảnh hoạt động, giấy chứng nhận… và xếp theo nhóm. '
-            'Khi cần nộp hồ sơ thi đua, đánh giá chuẩn hay kiểm định, bấm biểu tượng PDF ở góc trên để xuất.',
+            'Khi cần nộp hồ sơ thi đua, đánh giá chuẩn hay kiểm định, bấm Xuất để nộp hồ sơ: '
+            'app tạo mỗi minh chứng một tệp PDF kèm danh mục Excel để tải lên hệ thống, hoặc một tệp PDF gộp để in.',
             style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
           ),
           const SizedBox(height: 10),
+          if (_ds.isNotEmpty) ...[
+            FilledButton.tonalIcon(
+              onPressed: _dangXuat ? null : _xuat,
+              icon: _dangXuat
+                  ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.ios_share),
+              label: Text(_dangXuat ? 'Đang tạo tệp…' : 'Xuất để nộp hồ sơ (${ds.length})'),
+            ),
+            const SizedBox(height: 10),
+          ],
           Wrap(
             spacing: 6,
             runSpacing: 6,
@@ -263,7 +324,7 @@ class _SoMinhChungState extends State<SoMinhChung> {
                             errorBuilder: (_, __, ___) => const Icon(Icons.broken_image_outlined)),
                   ),
                 ),
-                title: Text(m.tieuDe, maxLines: 2, overflow: TextOverflow.ellipsis),
+                title: Text('${m.ma.trim().isEmpty ? '' : '[${m.ma.trim()}] '}${m.tieuDe}', maxLines: 2, overflow: TextOverflow.ellipsis),
                 subtitle: Text('${m.nhom} · ${ngayVN(m.ngay)}${m.anh.length > 1 ? ' · ${m.anh.length} ảnh' : ''}'),
               ),
             ),
@@ -292,6 +353,7 @@ class _SuaMinhChung extends StatefulWidget {
 class _SuaMinhChungState extends State<_SuaMinhChung> {
   late final TextEditingController _tieuDe;
   late final TextEditingController _ghiChu;
+  late final TextEditingController _ma;
   late String _nhom;
   late DateTime _ngay;
   late List<String> _anh;
@@ -303,6 +365,7 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
     final g = widget.goc;
     _tieuDe = TextEditingController(text: g?.tieuDe ?? '');
     _ghiChu = TextEditingController(text: g?.ghiChu ?? '');
+    _ma = TextEditingController(text: g?.ma ?? '');
     _nhom = g?.nhom ?? widget.nhomMacDinh ?? dsNhomMinhChung.first;
     _ngay = g?.ngay ?? DateTime.now();
     _anh = [...?g?.anh];
@@ -312,6 +375,7 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
   void dispose() {
     _tieuDe.dispose();
     _ghiChu.dispose();
+    _ma.dispose();
     super.dispose();
   }
 
@@ -373,6 +437,7 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
       tieuDe: _tieuDe.text.trim(),
       ngay: _ngay,
       ghiChu: _ghiChu.text.trim(),
+      ma: _ma.text.trim(),
       anh: _anh,
     )));
   }
@@ -430,6 +495,15 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
               decoration: const InputDecoration(
                 labelText: 'Tiêu đề',
                 hintText: 'Ví dụ: Giấy chứng nhận bồi dưỡng thường xuyên 2025-2026',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: _ma,
+              decoration: const InputDecoration(
+                labelText: 'Mã minh chứng (nếu hồ sơ yêu cầu)',
+                hintText: 'Ví dụ: H1-1.1-01 khi kiểm định, TC3 khi đánh giá chuẩn',
                 border: OutlineInputBorder(),
               ),
             ),
