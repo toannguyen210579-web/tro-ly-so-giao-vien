@@ -8,24 +8,46 @@ jobs:
   thu:
     runs-on: ubuntu-latest
     steps:
-      - name: Thử Gemini tìm trên Google (gói miễn phí) như các trang AI khác
+      - name: Tên các mô hình Gemma có trong tài khoản
         env:
           K: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          for M in gemini-2.5-flash gemini-2.5-flash-lite; do
-          for Q in "clip trên việt nam tiêu điểm nào hay nhất" "giá vàng SJC hôm nay bao nhiêu" "lịch nghỉ Tết Nguyên đán 2027 của giáo viên"; do
-            S=$(date +%s%N)
-            curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
-              "https://generativelanguage.googleapis.com/v1beta/models/$M:generateContent" \
-              -d "$(python3 -c 'import json,sys;print(json.dumps({"contents":[{"parts":[{"text":sys.argv[1]}]}],"tools":[{"google_search":{}}],"systemInstruction":{"parts":[{"text":"Trả lời bằng tiếng Việt, ngắn gọn, nêu nguồn."}]}}))' "$Q")" > r.json
-            E=$(( ($(date +%s%N) - S) / 1000000 ))
-            python3 - "$M" "$Q" "$E" <<'P'
-          import json,sys
-          m,q,e=sys.argv[1:]
-          j=json.load(open('r.json'))
-          if 'error' in j: print('KQ',m,'|',q,'|',e,'ms LOI',j['error'].get('code'),j['error'].get('message','')[:150]); sys.exit()
-          c=j['candidates'][0]; t=''.join(p.get('text','') for p in c['content'].get('parts',[]))
-          g=c.get('groundingMetadata',{}); src=[x.get('web',{}).get('title','') for x in g.get('groundingChunks',[])]
-          print('KQ',m,'|',q,'|',e,'ms | nguon:',len(src),src[:5]); print('   ',t[:500].replace('\n',' / '))
+          curl -sS -H "x-goog-api-key: $K" "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" \
+            | python3 -c 'import json,sys; [print("MH", m["name"], m.get("inputTokenLimit"), m.get("outputTokenLimit")) for m in json.load(sys.stdin).get("models",[]) if "gemma" in m["name"]]'
+      - name: Thử Gemma 4 viết tiếng Việt (có và không có lời dặn hệ thống)
+        env:
+          K: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat > thu.py <<'P'
+          import json, os, sys, time, urllib.request
+          K = os.environ["K"]
+          ds = [l.split()[1].split("/")[1] for l in open("mh.txt") if l.startswith("MH") and "gemma-4" in l]
+          print("Thử:", ds)
+          SYS = "Bạn là trợ lý cho giáo viên Việt Nam. Gọi người dùng là thầy cô, xưng tôi. Trả lời bằng tiếng Việt có dấu, ngắn gọn, đúng chính tả."
+          CAU = [
+            "Gợi ý 3 trò chơi khởi động tiết Toán lớp 6.",
+            "Viết tin nhắn ngắn nhắc phụ huynh lớp 7A nộp phiếu khảo sát trước thứ Sáu.",
+            "Lịch nghỉ Tết 2027 của giáo viên thế nào?\n\n(Kết quả tìm trên mạng: [1] Tết Nguyên đán 2027: công chức, viên chức nghỉ 7 ngày liên tục, từ thứ Năm 4/2 đến hết thứ Tư 10/2/2027. https://nhandan.vn/tet-2027\nDựa vào kết quả trên để trả lời, cuối câu trả lời ghi dòng Nguồn: kèm đường dẫn.)",
+          ]
+          for m in ds:
+            for co_sys in (True, False):
+              for q in CAU:
+                body = {"contents": [{"role": "user", "parts": [{"text": q if co_sys else SYS + "\n\n" + q}]}], "generationConfig": {"maxOutputTokens": 2048}}
+                if co_sys: body["systemInstruction"] = {"parts": [{"text": SYS}]}
+                rq = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
+                  data=json.dumps(body).encode(), headers={"x-goog-api-key": K, "content-type": "application/json"})
+                t = time.time()
+                try:
+                  j = json.load(urllib.request.urlopen(rq, timeout=90))
+                  c = j["candidates"][0]
+                  txt = "".join(p.get("text", "") for p in c["content"].get("parts", []) if not p.get("thought"))
+                  nghi = sum(1 for p in c["content"].get("parts", []) if p.get("thought"))
+                  u = j.get("usageMetadata", {})
+                  print(f"KQ {m} | lời dặn hệ thống: {co_sys} | {time.time()-t:.1f} giây | phần suy nghĩ: {nghi} | chữ ra: {u.get('candidatesTokenCount')} | {c.get('finishReason')}")
+                  print("   ", txt[:700].replace("\n", " / "))
+                except urllib.error.HTTPError as e:
+                  print(f"KQ {m} | lời dặn hệ thống: {co_sys} | LỖI {e.code} {e.read()[:200]}")
           P
-          done; done
+          curl -sS -H "x-goog-api-key: $K" "https://generativelanguage.googleapis.com/v1beta/models?pageSize=200" \
+            | python3 -c 'import json,sys; [print("MH", m["name"]) for m in json.load(sys.stdin).get("models",[]) if "gemma" in m["name"]]' > mh.txt
+          python3 thu.py
