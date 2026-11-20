@@ -12,7 +12,8 @@ import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 class GiongMay {
   // Thử 19/11/2026 trên máy GitHub: nạp 0,9 giây, tạo 0,7 giây cho 7 giây âm thanh.
   static const tenGiong = 'vits-piper-vi_VN-vais1000-medium-int8';
-  static const _diaChi = 'https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/$tenGiong.tar.bz2';
+  // Bản nén gzip đặt ở mục Releases của kho app (giải nén nhanh); bản gốc bzip2 của sherpa-onnx giải nén trên điện thoại quá chậm
+  static const _diaChi = 'https://github.com/toannguyen210579-web/tro-ly-so-giao-vien/releases/download/giong-doc-1/$tenGiong.tar.gz';
   static const coMB = 21;
 
   static Future<Directory> _thuMuc() async => Directory('${(await getApplicationSupportDirectory()).path}/giong_doc');
@@ -40,7 +41,7 @@ class GiongMay {
     if (await sanSang()) return;
     final goc = await _thuMuc();
     await goc.create(recursive: true);
-    final tam = File('${goc.path}/tai.tar.bz2');
+    final tam = File('${goc.path}/tai.tar.gz');
     final kh = http.Client();
     try {
       final res = await kh.send(http.Request('GET', Uri.parse(_diaChi))).timeout(const Duration(seconds: 30));
@@ -61,7 +62,7 @@ class GiongMay {
     final dich = goc.path;
     final nguon = tam.path;
     await Isolate.run(() {
-      final tar = BZip2Decoder().decodeBytes(File(nguon).readAsBytesSync());
+      final tar = gzip.decode(File(nguon).readAsBytesSync()); // giải nén gzip bằng thư viện có sẵn của máy, nhanh
       for (final f in TarDecoder().decodeBytes(tar).files) {
         final p = '$dich/${f.name}';
         if (f.isFile) {

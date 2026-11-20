@@ -247,7 +247,9 @@ class _GiaiDeState extends State<GiaiDe> {
                 child: OutlinedButton.icon(
                   onPressed: () => _themAnh(ImageSource.camera),
                   icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('Chụp đề'),
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                  // Máy màn hẹp: chữ tự thu nhỏ vừa nút, không tràn
+                  label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Chụp đề')),
                 ),
               ),
               const SizedBox(width: 10),
@@ -255,7 +257,9 @@ class _GiaiDeState extends State<GiaiDe> {
                 child: OutlinedButton.icon(
                   onPressed: () => _themAnh(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Chọn ảnh'),
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                  // Máy màn hẹp: chữ tự thu nhỏ vừa nút, không tràn
+                  label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Chọn ảnh')),
                 ),
               ),
               const SizedBox(width: 10),
@@ -263,7 +267,9 @@ class _GiaiDeState extends State<GiaiDe> {
                 child: OutlinedButton.icon(
                   onPressed: _taiTep,
                   icon: const Icon(Icons.upload_file),
-                  label: const Text('Tải tệp'),
+                  style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
+                  // Máy màn hẹp: chữ tự thu nhỏ vừa nút, không tràn
+                  label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Tải tệp')),
                 ),
               ),
             ],

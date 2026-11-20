@@ -1,0 +1,26 @@
+name: Đóng gói giọng đọc cài sẵn
+# Lấy giọng tiếng Việt của sherpa-onnx (nén bzip2, giải nén trên điện thoại rất chậm),
+# nén lại dạng gzip (điện thoại giải nén nhanh bằng thư viện có sẵn) rồi đặt ở mục Releases của kho này.
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/dong_goi_giong.yml"]
+permissions:
+  contents: write
+jobs:
+  dong_goi:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          M=vits-piper-vi_VN-vais1000-medium-int8
+          curl -sSL https://github.com/k2-fsa/sherpa-onnx/releases/download/tts-models/$M.tar.bz2 | tar xj
+          tar czf $M.tar.gz $M
+          ls -la $M.tar.gz; du -sh $M
+          gh release view giong-doc-1 --repo ${{ github.repository }} >/dev/null 2>&1 || \
+            gh release create giong-doc-1 --repo ${{ github.repository }} --title "Giọng đọc tiếng Việt cài sẵn" \
+              --notes "Giọng Piper vi_VN vais1000 (sherpa-onnx), app tự tải ở lần đầu dùng Đọc to." --target noi-may-chu
+          gh release upload giong-doc-1 $M.tar.gz --clobber --repo ${{ github.repository }}
+          curl -sSLI https://github.com/${{ github.repository }}/releases/download/giong-doc-1/$M.tar.gz | grep -iE "^HTTP|content-length" | tail -2

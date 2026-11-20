@@ -67,7 +67,14 @@ void main() {
     // 3. Giọng đọc cài sẵn: tải về, tạo tiếng
     final d1 = Stopwatch()..start();
     try {
-      await GiongMay.taiVe();
+      var moc = 0;
+      await GiongMay.taiVe(tienDo: (x) {
+        if (x * 10 >= moc) {
+          // ignore: avoid_print
+          print('KQ tai_giong: ${(x * 100).round()}% sau ${d1.elapsedMilliseconds} ms');
+          moc = (x * 10).floor() + 1;
+        }
+      });
       // ignore: avoid_print
       print('KQ tai_giong: xong sau ${d1.elapsedMilliseconds} ms, san sang=${await GiongMay.sanSang()}');
       final tam = await getTemporaryDirectory();
@@ -91,5 +98,5 @@ void main() {
     await chup(t, '30_doc_to_dang_doc');
     // ignore: avoid_print
     print('KQ doc_to: ${find.textContaining('Dừng').evaluate().isNotEmpty ? "dang doc" : "khong thay nut Dung"}; loi: ${loi.isEmpty ? "khong" : loi.toSet().join(" | ")}');
-  }, timeout: const Timeout(Duration(minutes: 15)));
+  }, timeout: const Timeout(Duration(minutes: 25)));
 }
