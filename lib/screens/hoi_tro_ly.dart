@@ -171,7 +171,8 @@ class _HoiTroLyState extends State<HoiTroLy> {
         if (tin.isNotEmpty) {
           tinKenh = tin;
           guiDi = '$guiDi\n\n(Thông tin kèm theo để trả lời, không nhắc lại phần này: "Việt Nam Tiêu Điểm" là kênh clip tin giáo dục ngắn '
-              'đi cùng app, xem trong mục Tin của app. Khi gợi ý clip, ghi đúng nguyên văn tít clip trong ngoặc kép; '
+              'đi cùng app, xem trong mục Tin của app. Trả lời đúng điều được hỏi: hỏi clip nào hay thì chọn hẳn một clip cụ thể, '
+              'không né, không trả lời chung chung. Khi gợi ý clip, ghi đúng nguyên văn tít clip trong ngoặc kép; '
               'app sẽ hiện nút bấm mở clip đó ngay dưới câu trả lời, nên không chỉ sang trang web hay kênh khác. '
               'Các clip gần đây, mới nhất trước:\n'
               '${tin.take(15).map((t) => '- ${t.ngay.day}/${t.ngay.month}: "${t.tit}" ${t.tomTat}').join('\n')})';

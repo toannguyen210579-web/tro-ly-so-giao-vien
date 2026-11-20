@@ -222,3 +222,14 @@ test("Mục Tin: /tin trả danh sách clip của kênh", async () => {
   assert.ok(ds.length >= 5);
   assert.ok(ds.every((t) => t.id && t.ngay && t.tit && t.anh_bia));
 });
+
+test("Hỏi về kênh: máy chủ tự kèm danh sách clip, câu khác thì không", async () => {
+  const a = moiTruong();
+  await goi(a.env, { mode: "hoi", input: "cip trên việt nam tiêu điểm nào hay nhất" });
+  const gui = a.ghi.gemini.length ? a.ghi.gemini[0].body.contents.at(-1).parts[0].text : JSON.stringify(a.ghi.claude[0].messages.at(-1));
+  assert.match(gui, /Các clip gần đây/);
+  assert.match(gui, /chọn hẳn một clip cụ thể/);
+  const b = moiTruong();
+  await goi(b.env, { mode: "hoi", input: "Phụ cấp thâm niên tính thế nào?" });
+  assert.doesNotMatch(JSON.stringify(b.ghi.gemini[0] || b.ghi.claude[0] || {}), /Các clip gần đây/);
+});

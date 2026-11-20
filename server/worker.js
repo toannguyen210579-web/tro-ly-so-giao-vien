@@ -111,6 +111,17 @@ function sysOf(mode, now = new Date()) {
     "/" + vn.getUTCFullYear() + ", " + h(vn.getUTCHours()) + " giờ " + h(vn.getUTCMinutes()) + ".";
 }
 
+// Hỏi về kênh Việt Nam Tiêu Điểm: máy chủ tự kèm danh sách clip (mọi bản app đều dùng được) và dặn trả lời đúng câu hỏi
+const HOI_KENH = /ti[eê]u\s*đi[eể]m|vntđ|vntd|(clip|cip|video|tin|kênh)\s+(của|trong|trên)\s+app/i;
+function kemTinKenh(mode, input) {
+  if (mode !== "hoi" || !HOI_KENH.test(input) || input.includes("Các clip gần đây")) return input;
+  const ds = TIN.slice(0, 15).map((t) => "- " + t.ngay.slice(8, 10) + "/" + t.ngay.slice(5, 7) + ': "' + t.tit + '" ' + t.tom_tat.slice(0, 160));
+  return input + "\n\n(Thông tin kèm theo để trả lời, không nhắc lại phần này: \"Việt Nam Tiêu Điểm\" là kênh clip tin giáo dục ngắn " +
+    "đi cùng app, xem trong mục Tin của app. Trả lời đúng điều được hỏi: hỏi clip nào hay thì chọn hẳn một clip cụ thể, " +
+    "ghi đúng nguyên văn tít trong ngoặc kép và nêu lý do ngắn, có thể gợi ý thêm một clip; không né, không trả lời chung chung. " +
+    "Các clip gần đây, mới nhất trước:\n" + ds.join("\n") + ")";
+}
+
 // Các lượt hỏi đáp trước trong cùng cuộc trò chuyện (chỉ Hỏi Trợ lý), tối đa 4 lượt, mỗi phần tối đa 2.000 ký tự
 // Câu hỏi về lương, phụ cấp, chế độ, chính sách của thầy cô đi thẳng Claude (người dùng chốt 20/11/2026):
 // Gemini bản nhẹ trả lời "không có dữ liệu" về Nghị định 182/2026 khi thử 20/11.
@@ -613,7 +624,7 @@ export default {
       return err("sai_du_lieu", "Dữ liệu gửi lên không đúng định dạng.", 400);
     }
     const mode = String(body.mode || "");
-    const input = String(body.input || "").trim();
+    const input = kemTinKenh(mode, String(body.input || "").trim());
     const device = String(body.device_id || "").slice(0, 64);
     if (!SYSTEM[mode]) return err("sai_che_do", "Chế độ không hợp lệ.", 400);
     if (!okDevice(device)) return err("sai_ma_may", "Mã máy không hợp lệ.", 400);
