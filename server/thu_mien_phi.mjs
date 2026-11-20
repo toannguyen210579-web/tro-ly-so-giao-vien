@@ -48,3 +48,20 @@ for (const d of AI_MIEN_PHI) {
 // lần chạy: 2026-11-20T08:16:48Z đủ khóa You, TinyFish, Z.ai, GitHub Models
 // lần chạy: 2026-11-20T08:18:52Z Z.ai tắt suy nghĩ, in lỗi
 // lần chạy: 2026-11-20T08:55:16Z dán lại khóa TinyFish, You
+
+// Thử thêm các cách gọi You.com
+if (env.YOU_API_KEY) {
+  const h = { "X-API-Key": env.YOU_API_KEY };
+  const thu = [
+    ["GET v1", "https://ydc-index.io/v1/search?" + new URLSearchParams({ query: CAU_TIM, count: 5 }), { headers: h }],
+    ["POST v1 không country", "https://ydc-index.io/v1/search", { method: "POST", headers: { ...h, "content-type": "application/json" }, body: JSON.stringify({ query: CAU_TIM, count: 5 }) }],
+    ["GET api.ydc-index.io", "https://api.ydc-index.io/search?" + new URLSearchParams({ query: CAU_TIM }), { headers: h }],
+  ];
+  for (const [ten, u, o] of thu) {
+    try {
+      const r = await fetch(u, o);
+      const t = await r.text();
+      console.log(`YOU ${ten}: mã ${r.status} | ${t.replace(/\s+/g, " ").slice(0, 200)}`);
+    } catch (e) { console.log(`YOU ${ten}: LỖI ${e}`); }
+  }
+}
