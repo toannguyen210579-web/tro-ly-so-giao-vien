@@ -124,6 +124,11 @@ const CHE_DO_RE = new RegExp(
     "chủ nhiệm", "chu nhiem", "giảm tiết", "giam tiet", "điều lệ", "dieu le", "chuẩn nghề nghiệp", "chuan nghe nghiep",
     "thuyên chuyển", "thuyen chuyen", "điều động", "dieu dong", "thi đua", "thi dua", "khen thưởng", "khen thuong",
     "giờ dạy", "gio day", "tập sự", "tap su", "nghỉ ốm", "nghi om",
+    "tuyển sinh", "tuyen sinh", "vào lớp 10", "vao lop 10", "vào lớp 6", "vao lop 6", "thi tốt nghiệp", "thi tot nghiep",
+    "tốt nghiệp thpt", "tot nghiep thpt", "xét tốt nghiệp", "xet tot nghiep", "quy chế thi", "quy che thi", "quy chế tuyển", "quy che tuyen",
+    "miễn thi", "mien thi", "đặc cách", "dac cach", "điểm ưu tiên", "diem uu tien", "cộng điểm", "cong diem",
+    "điểm khuyến khích", "diem khuyen khich", "phúc khảo", "phuc khao", "bảo lưu điểm", "bao luu diem",
+    "thỉnh giảng", "thinh giang", "mã số chức danh", "ma so chuc danh", "bằng tốt nghiệp", "bang tot nghiep",
   ].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "i",
 );
