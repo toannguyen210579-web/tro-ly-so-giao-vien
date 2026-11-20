@@ -2,7 +2,7 @@
 // Nạp văn bản: POST /v1/kt/nap (khóa quản trị X-Kt-Key). Hỏi Trợ lý lấy các điều liên quan nhất đưa cho Claude.
 
 // SHA-256 của khóa quản trị (khóa không nằm trong mã nguồn)
-const KT_KEY_SHA = "1246bac35dd1b0d97fcdc3c565d812fce3de1a41681ec8c02c45ec5610c796f5";
+const KT_KEY_SHA = "18412831a6ff4fea50639207cf0f0ce7f2dec5556479e091067377844e5d0560";
 const MAX_DOAN = 2400; // ký tự tối đa mỗi đoạn lưu
 const MAX_LAY = 7000; // ký tự tối đa đưa vào câu hỏi (khoảng 2–3 trang)
 
