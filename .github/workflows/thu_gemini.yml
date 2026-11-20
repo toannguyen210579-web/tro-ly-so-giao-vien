@@ -12,7 +12,7 @@ jobs:
         env:
           K: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          for M in gemini-flash-lite-latest gemini-3.1-flash-lite gemini-flash-latest; do
+          for M in gemini-2.5-flash gemini-2.5-flash-lite; do
           for Q in "clip trên việt nam tiêu điểm nào hay nhất" "giá vàng SJC hôm nay bao nhiêu" "lịch nghỉ Tết Nguyên đán 2027 của giáo viên"; do
             S=$(date +%s%N)
             curl -sS -m 60 -H "x-goog-api-key: $K" -H 'content-type: application/json' \
