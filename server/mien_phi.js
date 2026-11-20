@@ -166,7 +166,7 @@ export function kemKetQua(input, tim, gio) {
 // Các mô hình xếp theo thứ tự thử; tên sai hoặc bị bỏ thì tự thử tên kế tiếp.
 export const AI_MIEN_PHI = [
   { ten: "workersai", ai: true, mo: ["@cf/openai/gpt-oss-120b", "@cf/meta/llama-3.3-70b-instruct-fp8-fast"] },
-  { ten: "groq", khoa: "GROQ_API_KEY", url: "https://api.groq.com/openai/v1/chat/completions", mo: ["openai/gpt-oss-120b", "llama-3.3-70b-versatile"] },
+  { ten: "groq", khoa: "GROQ_API_KEY", url: "https://api.groq.com/openai/v1/chat/completions", mo: ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"] },
   { ten: "cerebras", khoa: "CEREBRAS_API_KEY", url: "https://api.cerebras.ai/v1/chat/completions", mo: ["gpt-oss-120b", "llama-3.3-70b"] },
   { ten: "mistral", khoa: "MISTRAL_API_KEY", url: "https://api.mistral.ai/v1/chat/completions", mo: ["mistral-medium-latest", "mistral-small-latest"] },
   { ten: "zai", khoa: "ZAI_API_KEY", url: "https://api.z.ai/api/paas/v4/chat/completions", mo: ["glm-4.7-flash", "glm-4.5-flash"] },
