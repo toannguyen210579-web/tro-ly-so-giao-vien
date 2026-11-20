@@ -46,6 +46,26 @@ jobs:
         run: |
           if [ -z "$GOOGLE_TTS_KEY" ]; then echo "Chưa có khóa giọng đọc, bỏ qua"; exit 0; fi
           printf '%s' "$GOOGLE_TTS_KEY" | npx --yes wrangler@4.165.0 secret put GOOGLE_TTS_KEY
+      - name: Đặt khóa các cổng tìm kiếm, AI miễn phí (khóa nào chưa có thì bỏ qua)
+        working-directory: server
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TINYFISH_API_KEY: ${{ secrets.TINYFISH_API_KEY }}
+          LANGSEARCH_API_KEY: ${{ secrets.LANGSEARCH_API_KEY }}
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          YOU_API_KEY: ${{ secrets.YOU_API_KEY }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+          CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
+          MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+          ZAI_API_KEY: ${{ secrets.ZAI_API_KEY }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          GH_MODELS_TOKEN: ${{ secrets.GH_MODELS_TOKEN }}
+        run: |
+          python3 -c "import json,os; t='TINYFISH_API_KEY LANGSEARCH_API_KEY EXA_API_KEY TAVILY_API_KEY YOU_API_KEY FIRECRAWL_API_KEY GROQ_API_KEY CEREBRAS_API_KEY MISTRAL_API_KEY ZAI_API_KEY HF_TOKEN GH_MODELS_TOKEN'.split(); d={k:os.environ[k] for k in t if os.environ.get(k)}; json.dump(d,open('/tmp/khoa.json','w')); print('Có khóa:', ', '.join(d) or 'chưa có')"
+          if [ "$(cat /tmp/khoa.json)" != "{}" ]; then npx --yes wrangler@4.165.0 secret bulk /tmp/khoa.json; fi
+          rm -f /tmp/khoa.json
       - name: Thử máy chủ
         run: |
           sleep 10

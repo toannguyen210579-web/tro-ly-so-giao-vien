@@ -11,6 +11,10 @@ compatibility_date = "2026-11-01"
 binding = "GEMINI"
 service = "tro-ly-gv-gemini"
 
+# AI của Cloudflare (Workers AI, gói miễn phí 10.000 đơn vị/ngày), một trong các AI miễn phí viết câu trả lời
+[ai]
+binding = "AI"
+
 # Biến AI_ENABLED đặt trên bảng điều khiển Cloudflare (keep_vars giữ nguyên khi triển khai)
 
 # Bộ đếm lượt, cờ Pro/chặn, báo cáo nội dung AI (bảng tạo bằng schema.sql)

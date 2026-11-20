@@ -1,22 +1,47 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 /// Hiện câu trả lời của AI có định dạng markdown đơn giản:
 /// tiêu đề (#), chữ đậm (**...**), gạch đầu dòng (- hoặc *), danh sách số.
+/// Đường dẫn (https://…, [chữ](https://…)) bấm vào là mở trang nguồn.
 class ChuAI extends StatelessWidget {
   final String noiDung;
   final TextStyle style;
   const ChuAI(this.noiDung, {super.key, required this.style});
+
+  static final _link = RegExp(r'\[([^\]]+)\]\((https?://[^\s)]+)\)|https?://[^\s)\]>"]+');
+
+  /// Tách đoạn chữ thành chữ thường và đường dẫn bấm được.
+  static List<TextSpan> _lienKet(String chu, TextStyle st) {
+    final ra = <TextSpan>[];
+    var i = 0;
+    for (final k in _link.allMatches(chu)) {
+      if (k.start > i) ra.add(TextSpan(text: chu.substring(i, k.start), style: st));
+      var url = k.group(2) ?? k.group(0)!;
+      url = url.replaceAll(RegExp(r'[.,;:]+$'), '');
+      final hien = k.group(1) ?? url;
+      ra.add(TextSpan(
+        text: hien,
+        style: st.copyWith(color: const Color(0xFF1F6FE5), decoration: TextDecoration.underline),
+        recognizer: TapGestureRecognizer()..onTap = () => launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication),
+      ));
+      i = k.group(1) != null ? k.end : k.start + url.length;
+    }
+    if (i < chu.length) ra.add(TextSpan(text: chu.substring(i), style: st));
+    return ra;
+  }
 
   static List<TextSpan> _dam(String dong, TextStyle st) {
     final ra = <TextSpan>[];
     final m = RegExp(r'\*\*(.+?)\*\*');
     var i = 0;
     for (final k in m.allMatches(dong)) {
-      if (k.start > i) ra.add(TextSpan(text: dong.substring(i, k.start), style: st));
-      ra.add(TextSpan(text: k.group(1), style: st.copyWith(fontWeight: FontWeight.w700)));
+      if (k.start > i) ra.addAll(_lienKet(dong.substring(i, k.start), st));
+      ra.addAll(_lienKet(k.group(1)!, st.copyWith(fontWeight: FontWeight.w700)));
       i = k.end;
     }
-    if (i < dong.length) ra.add(TextSpan(text: dong.substring(i), style: st));
+    if (i < dong.length) ra.addAll(_lienKet(dong.substring(i), st));
     return ra;
   }
 

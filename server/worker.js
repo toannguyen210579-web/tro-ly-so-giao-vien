@@ -1,5 +1,6 @@
 import { KIEN_THUC } from "./kien_thuc.js";
 import { TIN } from "./tin.js";
+import { canTim, timTrenMang, kemKetQua, vietMienPhi } from "./mien_phi.js";
 import { khoaDung, napVanBan, timKienThuc, dsVanBan, xuatVanBan } from "./kien_thuc_db.js";
 // Máy chủ trung gian cho app "Trợ lý số Giáo viên".
 // App gọi POST /v1/ai, Worker gọi Claude (Haiku), đếm lượt theo từng máy mỗi ngày.
@@ -69,7 +70,8 @@ const SYSTEM = {
     " Trả lời mọi câu hỏi của người dùng một cách hữu ích. " +
     "Không dùng LaTeX, không dùng ký hiệu $ bao công thức; viết phép tính bằng ký hiệu thường (5% + 2% = 7%, x², √). " +
     "Ngày giờ hiện tại đã cho ở cuối hướng dẫn này, dùng nó khi được hỏi ngày, giờ, thứ, đếm ngày. " +
-    "Bạn không có dữ liệu thời gian thực khác: hỏi giá cả, tỷ giá, thời tiết, tin tức hôm nay " +
+    "Câu hỏi có kèm kết quả tìm trên mạng thì trả lời dựa vào đó và ghi nguồn. " +
+    "Không có kết quả tìm kèm theo thì bạn không có dữ liệu thời gian thực: hỏi giá cả, tỷ giá, thời tiết, tin tức hôm nay " +
     "thì nói rõ là không có số liệu mới và gợi ý nơi tra cứu, không đoán số.",
   nhanxet:
     CHUNG +
@@ -257,6 +259,12 @@ async function ttsGoogle(env, text, rateIn) {
   const audio = (await r.json()).audioContent;
   if (!audio) return { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: "google:rong" };
   return { audio, mime: "audio/mpeg", by: "google" };
+}
+
+function gioVN(now = new Date()) {
+  const v = new Date(now.getTime() + 7 * 3600 * 1000);
+  const h = (n) => String(n).padStart(2, "0");
+  return h(v.getUTCHours()) + " giờ " + h(v.getUTCMinutes()) + " ngày " + h(v.getUTCDate()) + "/" + h(v.getUTCMonth() + 1) + "/" + v.getUTCFullYear();
 }
 
 function json(obj, status = 200) {
@@ -674,18 +682,29 @@ export default {
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
     // Ảnh gửi Gemini gói miễn phí hay bị treo lâu (thử ngày 19/11), nên câu có ảnh đi thẳng Claude
     const cheDo = mode === "hoi" && laCauCheDo(input, hist);
+    // Câu cần thông tin mới (giá cả, tin tức, lịch, văn bản mới...): tìm trên mạng qua các cổng miễn phí
+    let tim = null;
+    if (mode === "hoi" && !imgs.length && !pdfs.length && env.GEMINI && canTim(input) && !input.includes("Các clip gần đây")) {
+      try { tim = await timTrenMang(env, input); } catch {}
+    }
+    const vao = kemKetQua(input, tim, gioVN());
+    const noiDung = imgs.length || pdfs.length ? content : vao;
     if (!priv && !cheDo && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
-      res = await callGemini(env, mode, input, imgs, hist);
+      res = await callGemini(env, mode, vao, imgs, hist);
       if (res.err) {
         gem = String(res.status);
         console.log(JSON.stringify({ ev: "gemini_fallback", status: res.status, device, mode }));
+        // Gemini bận hoặc hết lượt: các AI miễn phí khác viết thay, đều bận mới dùng Claude
+        const mp = await vietMienPhi(env, sysOf(mode), vao, hist, MAX_OUT[mode] || MAX_TOKENS);
+        if (!mp.err) res = mp;
+        else gem += " | " + mp.status;
       }
     }
     let trich = "";
     if ((!res || res.err) && mode === "hoi") {
       trich = await timKienThuc(db, [input, ...hist.slice(-1).map((h) => h.q)].join("\n"));
     }
-    if (!res || res.err) res = await callClaude(env, mode, content, hist, trich);
+    if (!res || res.err) res = await callClaude(env, mode, noiDung, hist, trich);
     if (res.err) return json({ ok: false, error: res.err, message: res.msg, gem, claude: String(res.status || "") }, 502);
     const text = res.text;
     const data = { usage: res.usage };
@@ -702,12 +721,13 @@ export default {
     if (Math.random() < 0.01 && ctx && ctx.waitUntil) ctx.waitUntil(cleanup(db));
     // Nhật ký (xem trong Observability > Logs) để phát hiện máy dùng bất thường
     const u = data.usage || {};
-    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, kt: trich.length, in: u.input_tokens, out: u.output_tokens }));
+    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, tim: tim ? tim.cong + (tim.luu ? "(luu)" : "") : null, kt: trich.length, in: u.input_tokens, out: u.output_tokens }));
     return json({
       ok: true,
       text,
       by: res.by,
       ...(gem ? { gem } : {}),
+      ...(tim ? { tim: tim.cong } : {}),
       remaining: Math.max(0, limit - usedNow),
       bonus: Math.max(0, leftBonus),
     });
