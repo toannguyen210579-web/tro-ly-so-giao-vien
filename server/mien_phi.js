@@ -169,7 +169,7 @@ export const AI_MIEN_PHI = [
   { ten: "groq", khoa: "GROQ_API_KEY", url: "https://api.groq.com/openai/v1/chat/completions", mo: ["openai/gpt-oss-120b", "qwen/qwen3.8-27b"] },
   { ten: "cerebras", khoa: "CEREBRAS_API_KEY", url: "https://api.cerebras.ai/v1/chat/completions", mo: ["gpt-oss-120b", "llama-3.3-70b"] },
   { ten: "mistral", khoa: "MISTRAL_API_KEY", url: "https://api.mistral.ai/v1/chat/completions", mo: ["mistral-medium-latest", "mistral-small-latest"] },
-  { ten: "zai", khoa: "ZAI_API_KEY", url: "https://api.z.ai/api/paas/v4/chat/completions", mo: ["glm-4.7-flash", "glm-4.5-flash"] },
+  { ten: "zai", khoa: "ZAI_API_KEY", url: "https://api.z.ai/api/paas/v4/chat/completions", mo: ["glm-4.7-flash", "glm-4.5-flash"], them: { thinking: { type: "disabled" } } },
   { ten: "huggingface", khoa: "HF_TOKEN", url: "https://router.huggingface.co/v1/chat/completions", mo: ["openai/gpt-oss-120b", "Qwen/Qwen3-235B-A22B-Instruct-2507"] },
   { ten: "github", khoa: "GH_MODELS_TOKEN", url: "https://models.github.ai/inference/chat/completions", mo: ["openai/gpt-4.1-mini", "openai/gpt-4o-mini"] },
 ];
@@ -193,7 +193,7 @@ async function goiMot(env, d, model, messages, maxOut) {
   }
   const r = await goiNgoai(env, d.url, {
     headers: { Authorization: "Bearer " + env[d.khoa] },
-    data: { model, messages, max_tokens: maxOut, temperature: 0.4 },
+    data: { model, messages, max_tokens: maxOut, temperature: 0.4, ...(d.them || {}) },
     timeout: 30000,
   });
   if (r.status !== 200) return { status: r.status };

@@ -18,7 +18,7 @@ for (const c of CONG_TIM) {
   const t = Date.now();
   try {
     const r = await c.tim(env, CAU_TIM);
-    console.log(`TIM ${c.ten}: mã ${r.status}, ${r.kq?.length || 0} kết quả, ${Date.now() - t} ms | ${(r.kq || []).slice(0, 2).map((x) => x.tit + " " + x.url).join(" | ")}`);
+    console.log(`TIM ${c.ten}: mã ${r.status}, ${r.kq?.length || 0} kết quả, ${Date.now() - t} ms | ${(r.kq || []).slice(0, 2).map((x) => x.tit + " " + x.url).join(" | ")}${r.status !== 200 ? " | báo lỗi: " + JSON.stringify(r.json || "").slice(0, 200) : ""}`);
   } catch (e) { console.log(`TIM ${c.ten}: LỖI ${e}`); }
 }
 
@@ -36,11 +36,14 @@ for (const d of AI_MIEN_PHI) {
   } catch {}
   for (const model of d.mo) {
     const t = Date.now();
-    const r = await fetch(d.url, { method: "POST", headers: { Authorization: "Bearer " + env[d.khoa], "content-type": "application/json" }, body: JSON.stringify({ model, messages: HOI, max_tokens: 600 }) });
-    const j = await r.json().catch(() => ({}));
-    const txt = j.choices?.[0]?.message?.content || JSON.stringify(j).slice(0, 200);
+    const r = await fetch(d.url, { method: "POST", headers: { Authorization: "Bearer " + env[d.khoa], "content-type": "application/json" }, body: JSON.stringify({ model, messages: HOI, max_tokens: 600, ...(d.them || {}) }) });
+    const tho = await r.text();
+    let j = {};
+    try { j = JSON.parse(tho); } catch {}
+    const txt = j.choices?.[0]?.message?.content || tho.slice(0, 300);
     console.log(`AI ${d.ten} ${model}: mã ${r.status}, ${Date.now() - t} ms\n   ${txt.replace(/\s+/g, " ").slice(0, 400)}`);
   }
 }
 // lần chạy: 1795161229
 // lần chạy: 2026-11-20T08:16:48Z đủ khóa You, TinyFish, Z.ai, GitHub Models
+// lần chạy: 2026-11-20T08:18:52Z Z.ai tắt suy nghĩ, in lỗi
