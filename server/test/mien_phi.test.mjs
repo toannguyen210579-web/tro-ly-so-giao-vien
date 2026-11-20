@@ -2,7 +2,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import worker from "../worker.js";
-import { datLaiNghi } from "../mien_phi.js";
+import { datLaiNghi, locKetQua } from "../mien_phi.js";
 
 test.beforeEach(() => datLaiNghi());
 
@@ -162,4 +162,16 @@ test("Kết quả tìm được lưu lại, câu trùng không tìm lần hai", 
   } finally {
     delete globalThis.caches;
   }
+});
+
+test("Lọc kết quả: bỏ kết quả tiếng Hindi, Trung; đưa tiếng Việt, trang .vn lên đầu", () => {
+  const kq = locKetQua([
+    { tit: "सरकारी कर्मचारियों के लिए 2027 की छुट्टियों का कैलेंडर", url: "https://hindi.example.in/a", tom: "छुट्टियों" },
+    { tit: "2027年春节放假安排", url: "https://cn.example.com/b", tom: "春节" },
+    { tit: "Vietnam Tet holiday 2027", url: "https://en.example.com/c", tom: "Seven days off" },
+    { tit: "Lịch nghỉ Tết 2027 của giáo viên", url: "https://baomoi.com/d", tom: "Giáo viên nghỉ 7 ngày" },
+    { tit: "Tết Nguyên đán 2027: nghỉ 7 ngày", url: "https://nhandan.vn/e", tom: "Công chức, viên chức" },
+    { tit: "Không có đường dẫn", url: "", tom: "x" },
+  ]);
+  assert.deepEqual(kq.map((x) => x.url), ["https://nhandan.vn/e", "https://baomoi.com/d", "https://en.example.com/c"]);
 });

@@ -1,6 +1,6 @@
 // Thử thật từng cổng tìm kiếm, từng AI miễn phí bằng khóa trong GitHub Secrets (chạy trên máy GitHub ở Mỹ).
 // In ra: cổng nào chạy, mất bao lâu, AI nào viết tiếng Việt ra sao, tên mô hình nào còn dùng được.
-import { CONG_TIM, AI_MIEN_PHI } from "./mien_phi.js";
+import { CONG_TIM, AI_MIEN_PHI, locKetQua } from "./mien_phi.js";
 
 const env = { ...process.env };
 // Giả máy chủ phụ: gọi thẳng dịch vụ
@@ -18,7 +18,7 @@ for (const c of CONG_TIM) {
   const t = Date.now();
   try {
     const r = await c.tim(env, CAU_TIM);
-    console.log(`TIM ${c.ten}: mã ${r.status}, ${r.kq?.length || 0} kết quả, ${Date.now() - t} ms | ${(r.kq || []).slice(0, 2).map((x) => x.tit + " " + x.url).join(" | ")}${r.status !== 200 ? " | báo lỗi: " + JSON.stringify(r.json || "").slice(0, 200) : ""}`);
+    console.log(`TIM ${c.ten}: mã ${r.status}, ${r.kq?.length || 0} kết quả, ${Date.now() - t} ms | ${(r.kq || []).slice(0, 2).map((x) => x.tit + " " + x.url).join(" | ")}${r.status === 200 ? `\n   sau khi lọc còn ${locKetQua(r.kq).length}: ` + locKetQua(r.kq).slice(0, 3).map((x) => x.tit).join(" | ") : ""}${r.status !== 200 ? " | báo lỗi: " + JSON.stringify(r.json || "").slice(0, 200) : ""}`);
   } catch (e) { console.log(`TIM ${c.ten}: LỖI ${e}`); }
 }
 

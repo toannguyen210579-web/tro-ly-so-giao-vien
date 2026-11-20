@@ -127,6 +127,7 @@ export async function timTrenMang(env, cau, caches = globalThis.caches) {
     } catch {}
   }
   const ds = tronNgauNhien(CONG_TIM.filter((c) => env[c.khoa] && !dangNghi(c.ten)));
+  let duPhong = null;
   for (const c of ds) {
     let r;
     try {
@@ -138,9 +139,16 @@ export async function timTrenMang(env, cau, caches = globalThis.caches) {
     if (r.status === 429 || r.status === 402 || r.status === 403) { choNghi(c.ten, 30 * 60); continue; } // hết lượt
     if (r.status === 401) { choNghi(c.ten, 6 * 3600); continue; } // sai khóa
     if (r.status !== 200) { choNghi(c.ten, 60); continue; }
-    const kq = (r.kq || []).filter((x) => x.url && x.tit).slice(0, 5).map((x) => ({ tit: cat(x.tit, 150), url: x.url, tom: cat(x.tom, 500) }));
-    if (!kq.length) continue;
-    const ra = { kq, cong: c.ten };
+    const kq = locKetQua(r.kq);
+    if (kq.length < 2) { // quá ít kết quả dùng được: giữ làm dự phòng, thử cổng khác
+      if (kq.length && !duPhong) duPhong = { kq, cong: c.ten };
+      continue;
+    }
+    return luuLai({ kq, cong: c.ten });
+  }
+  return duPhong ? luuLai(duPhong) : null;
+
+  async function luuLai(ra) {
     if (kho) {
       try {
         await kho.put(khoaLuu, new Response(JSON.stringify(ra), { headers: { "cache-control": "max-age=21600", "content-type": "application/json" } }));
@@ -148,7 +156,24 @@ export async function timTrenMang(env, cau, caches = globalThis.caches) {
     }
     return ra;
   }
-  return null;
+}
+
+// Chữ không phải Latinh (Hindi, Thái, Trung, Nhật, Hàn, Nga, Ả Rập…): kết quả lạc ngôn ngữ, bỏ.
+const CHU_LA = /[Ͱ-ϿЀ-ӿ֐-ۿऀ-෿฀-๿ᄀ-ᇿ぀-ヿ㐀-鿿가-힯]/;
+const CO_DAU_VIET = /[ăâđêôơưạảấầẩẫậắằẳẵặẹẻẽếềểễệỉịọỏốồổỗộớờởỡợụủứừửữựỳỵỷỹ]/i;
+
+/** Lọc kết quả tìm: bỏ kết quả thiếu đường dẫn hoặc lạc ngôn ngữ, đưa kết quả tiếng Việt, trang .vn lên trước. */
+export function locKetQua(ds) {
+  return (ds || [])
+    .filter((x) => x && x.url && x.tit && /^https?:\/\//.test(x.url) && !CHU_LA.test(x.tit + " " + (x.tom || "")))
+    .map((x) => {
+      let host = "";
+      try { host = new URL(x.url).hostname; } catch {}
+      return { x, diem: (CO_DAU_VIET.test(x.tit + " " + (x.tom || "")) ? 2 : 0) + (/\.vn$/.test(host) ? 1 : 0) };
+    })
+    .sort((a, b) => b.diem - a.diem) // sort ổn định: cùng điểm thì giữ thứ tự của cổng
+    .slice(0, 5)
+    .map(({ x }) => ({ tit: cat(x.tit, 150), url: x.url, tom: cat(x.tom, 500) }));
 }
 
 /** Ghép kết quả tìm vào câu hỏi để AI đọc và viết câu trả lời có nguồn. */
