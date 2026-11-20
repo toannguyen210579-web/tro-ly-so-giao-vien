@@ -156,7 +156,7 @@ class _GiaiDeState extends State<GiaiDe> {
       return;
     }
     setState(() {
-      _ketQua.text = kq.traLoi!;
+      _ketQua.text = boDauMarkdown(kq.traLoi!); // ô kết quả là chữ thường: bỏ dấu ** ## của định dạng
       _loaiVuaLam = loai;
     });
   }

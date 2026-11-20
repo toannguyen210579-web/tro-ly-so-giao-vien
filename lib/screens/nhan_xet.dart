@@ -614,7 +614,8 @@ class _SuaHocSinhState extends State<_SuaHocSinh> {
   @override
   Widget build(BuildContext context) {
     final tb = widget.hs.diemTrungBinh;
-    return Padding(
+    // Cuộn được: bàn phím mở hoặc màn hình nhỏ thì nút Xong không bị che
+    return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,

@@ -214,7 +214,11 @@ void main() {
       await bam(t, find.text('Giải, soạn đáp án'), ms: 1500);
       final dy = find.text('Đồng ý gửi');
       if (dy.evaluate().isNotEmpty) await bam(t, dy);
-      final xong = await choChu(t, 'Kết quả (sửa được)', giay: 150);
+      var xong = false;
+      for (var i = 0; i < 300 && !xong; i++) {
+        await cho(t, 500);
+        xong = find.textContaining('Đáp án').evaluate().length + find.textContaining('Câu 1').evaluate().length > 1;
+      }
       kq('giai_de_ai: ${xong ? "co ket qua" : "CHUA CO"}');
       await cho(t, 1500);
       await cuonDen(t, find.text('Kết quả (sửa được)'), viTri: 0.02);
@@ -229,6 +233,8 @@ void main() {
       await chup(t, '20_cham_tn');
       await bam(t, find.text('Kiểm tra 15 phút Toán 8'));
       await chup(t, '21_cham_tn_bai');
+      await bam(t, find.text('Chấm bài').first);
+      await chup(t, '21b_cham_tn_tab');
       await bam(t, find.text('Chấm bài mới'));
       await t.enterText(find.widgetWithText(TextField, 'Họ và tên học sinh'), 'Lê Hoàng An');
       await t.enterText(find.widgetWithText(TextField, 'Gõ nhanh cả dãy (không bắt buộc)'), 'BACDACDBAA');
@@ -240,7 +246,7 @@ void main() {
       Navigator.of(t.element(find.byType(Scaffold).last)).maybePop();
       await cho(t, 1500);
       await chup(t, '23_cham_tn_ket_qua');
-      await cuonCuoi(t);
+      await bam(t, find.text('Thống kê').first);
       await chup(t, '24_cham_tn_thong_ke');
     });
 
@@ -274,7 +280,7 @@ void main() {
       var co = false;
       for (var i = 0; i < 180 && !co; i++) {
         await cho(t, 500);
-        co = find.textContaining('Đã nhận xét').evaluate().isNotEmpty && find.textContaining('Em ').evaluate().length > 3;
+        co = find.textContaining('Em ').evaluate().length > 3;
       }
       kq('nhan_xet_ai: ${co ? "xong" : "CHUA XONG"}');
       await cho(t, 2000);

@@ -180,7 +180,8 @@ class _HopViecState extends State<_HopViec> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    // Cuộn được: màn hình nhỏ hoặc bàn phím mở thì nút Lưu không bị che
+    return SingleChildScrollView(
       padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
