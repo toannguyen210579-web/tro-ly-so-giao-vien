@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (28 mục)
+## Đã nạp (30 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -25,9 +25,10 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 18/2026 Khung năng lực số giáo viên, cán bộ quản lý
 - TT 08/2026 đánh giá diện rộng quốc gia (tóm tắt)
 - TT 03/2026 Quy tắc ứng xử của nhà giáo
+- TT 89/2026 sửa đổi TT 27/2020 và TT 22/2021 (2 phần, hiệu lực 01/12/2026); đã ghi chú vào đầu tệp TT 27, TT 22
 
 ## Còn phải làm (theo thứ tự)
-1. TT 10/2025 và TT 89/2026 (kiểm tra có sửa đổi TT 22/2021, TT 27/2020 không)
+1. TT 10/2025 (phân quyền, phân cấp; kiểm tra phần sửa đổi TT 22, TT 27, dạy thêm); quy định quản lý, sử dụng Học bạ số
 2. Khung kế hoạch thời gian năm học 2026-2027 (quyết định của Bộ)
 3. Công văn 5208/BGDĐT-GDPT hướng dẫn nhiệm vụ GDPT năm học 2026-2027
 4. TT 01/2026 thẩm quyền tuyển dụng nhà giáo; tuyển dụng giáo viên (NĐ hướng dẫn Luật Nhà giáo đã có NĐ 93/2026)
