@@ -90,8 +90,8 @@ void main() {
     await chup(t, '20_hoi_tro_ly');
     // ignore: avoid_print
     print('KQ hoi_tro_ly: ${coTraLoi ? "co tra loi" : "CHUA THAY TRA LOI"} sau ${dh.elapsedMilliseconds} ms');
-    // Thanh dưới chỉ hiện chữ ở mục đang chọn: bấm theo biểu tượng
-    await t.tap(find.byIcon(Icons.home_outlined).last);
+    // Hỏi Trợ lý mở thành màn riêng đè lên trang chủ: quay lại như nút trở về
+    Navigator.of(t.element(find.byType(Scaffold).last)).pop();
     await cho(t, 1000);
 
     // 4. Màn Đọc to: dán chữ, bấm Đọc to
