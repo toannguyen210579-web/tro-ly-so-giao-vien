@@ -75,16 +75,7 @@ export const CONG_TIM = [
       return { status: r.status, kq: ((r.json || {}).results || []).map((x) => ({ tit: x.title, url: x.url, tom: x.content })) };
     },
   },
-  {
-    ten: "you", khoa: "YOU_API_KEY",
-    async tim(env, q) {
-      const r = await goiNgoai(env, "https://ydc-index.io/v1/search", {
-        headers: { "X-API-Key": env.YOU_API_KEY }, data: { query: q, count: 6, country: "VN" },
-      });
-      const web = (((r.json || {}).results || {}).web) || [];
-      return { status: r.status, kq: web.map((x) => ({ tit: x.title, url: x.url, tom: x.description || (x.snippets || []).join(" ") })) };
-    },
-  },
+  // You.com: bỏ 20/11/2026. Chỉ có 10 đô tín dụng tặng một lần (khoảng 2.000 lượt), khóa bị từ chối ngay ở cổng (403).
   {
     ten: "firecrawl", khoa: "FIRECRAWL_API_KEY",
     async tim(env, q) {
