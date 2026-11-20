@@ -32,8 +32,12 @@ jobs:
           cat > quay.sh <<'SH'
           set -x
           mkdir -p video
-          # Quay liên tục, mỗi đoạn tối đa 180 giây (giới hạn của screenrecord)
-          ( i=0; while [ ! -f video/dung ]; do adb shell screenrecord --size 720x1280 --bit-rate 3000000 --time-limit 180 /sdcard/v_$(printf %02d $i).mp4; i=$((i+1)); done ) &
+          GOI=vn.vietnamtieudiem.tro_ly_so_giao_vien
+          # Cho sẵn quyền micro, máy ảnh, thông báo ngay khi app được cài, để hộp xin quyền không che màn hình trong video
+          ( while [ ! -f video/dung ]; do for q in RECORD_AUDIO CAMERA POST_NOTIFICATIONS; do adb shell pm grant $GOI android.permission.$q >/dev/null 2>&1; done; sleep 1; done ) &
+          # Chỉ bắt đầu quay khi app đã chạy (bỏ mấy phút đóng gói)
+          ( until adb shell pidof $GOI >/dev/null 2>&1; do sleep 1; done
+            i=0; while [ ! -f video/dung ]; do adb shell screenrecord --size 720x1280 --bit-rate 3000000 --time-limit 180 /sdcard/v_$(printf %02d $i).mp4; i=$((i+1)); done ) &
           sleep 3
           flutter drive --driver=test_driver/integration_test.dart --target=integration_test/chup_clip_test.dart 2>&1 | tee kq1.txt | grep -E "KQ|passed|failed" || true
           flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart 2>&1 | tee kq2.txt | grep -E "KQ|passed|failed" || true
@@ -60,13 +64,32 @@ jobs:
           cd video
           ls v_*.mp4 | sort | sed "s/^/file '/; s/$/'/" > ds.txt
           ffmpeg -hide_banner -loglevel error -f concat -safe 0 -i ds.txt -c copy noi.mp4
-          ffmpeg -hide_banner -loglevel error -i noi.mp4 -vf "scale=540:-2,fps=24" -c:v libx264 -preset veryfast -crf 30 -movflags +faststart 15_tien_ich.mp4
+          # Cắt bớt các quãng đứng yên dài (chờ đóng gói, chờ AI): quãng nào đứng yên quá 5 giây chỉ giữ 2,5 giây
+          ffmpeg -hide_banner -nostats -i noi.mp4 -vf "freezedetect=n=0.002:d=5" -map 0:v -f null - 2> dung.txt || true
+          python3 - <<'PY'
+          import re, subprocess
+          t = open('dung.txt').read()
+          a = [float(x) for x in re.findall(r'freeze_start: ([0-9.]+)', t)]
+          b = [float(x) for x in re.findall(r'freeze_end: ([0-9.]+)', t)]
+          tong = float(subprocess.check_output(['ffprobe','-v','error','-show_entries','format=duration','-of','csv=p=0','noi.mp4']).decode().strip())
+          b += [tong] * (len(a) - len(b))
+          giu, dau = [], 0.0
+          for s, e in zip(a, b):
+              giu.append((dau, s + 2.5)); dau = e
+          giu.append((dau, tong))
+          giu = [(x, y) for x, y in giu if y - x > 0.05]
+          bt = '+'.join(f'between(t,{x:.2f},{y:.2f})' for x, y in giu)
+          open('chon.txt', 'w').write(f"select='{bt}',setpts=N/FRAME_RATE/TB,scale=540:-2")
+          print('giu', len(giu), 'doan, con', round(sum(y - x for x, y in giu)), 'giay /', round(tong))
+          PY
+          ffmpeg -hide_banner -loglevel error -i noi.mp4 -filter_script:v chon.txt -r 24 -c:v libx264 -preset veryfast -crf 28 -movflags +faststart 15_tien_ich.mp4
           ls -la; ffprobe -v error -show_entries format=duration -of csv=p=0 15_tien_ich.mp4
       - name: Đẩy video lên nhánh video-app
         if: always()
         run: |
           mkdir -p /tmp/v
           cp video/15_tien_ich.mp4 /tmp/v/ 2>/dev/null || true
+          cp anh_chay_thu/xem_*loi*.png /tmp/v/ 2>/dev/null || true
           grep -hE "KQ|All tests passed|Some tests failed" kq1.txt kq2.txt > /tmp/v/ket_qua.txt 2>/dev/null || true
           cd /tmp/v
           git init -q -b video-app

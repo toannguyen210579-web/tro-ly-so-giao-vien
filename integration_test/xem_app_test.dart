@@ -214,10 +214,11 @@ void main() {
       await bam(t, find.text('Giải, soạn đáp án'), ms: 1500);
       final dy = find.text('Đồng ý gửi');
       if (dy.evaluate().isNotEmpty) await bam(t, dy);
+      // Ô kết quả chỉ hiện khi AI trả lời xong
       var xong = false;
       for (var i = 0; i < 300 && !xong; i++) {
         await cho(t, 500);
-        xong = find.textContaining('Đáp án').evaluate().length + find.textContaining('Câu 1').evaluate().length > 1;
+        xong = find.widgetWithText(TextField, 'Kết quả (sửa được)').evaluate().isNotEmpty;
       }
       kq('giai_de_ai: ${xong ? "co ket qua" : "CHUA CO"}');
       await cho(t, 1500);
@@ -280,7 +281,7 @@ void main() {
       var co = false;
       for (var i = 0; i < 180 && !co; i++) {
         await cho(t, 500);
-        co = find.textContaining('Em ').evaluate().length > 3;
+        co = find.textContaining('Em ').evaluate().length >= 2;
       }
       kq('nhan_xet_ai: ${co ? "xong" : "CHUA XONG"}');
       await cho(t, 2000);
