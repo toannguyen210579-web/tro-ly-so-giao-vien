@@ -125,6 +125,10 @@ void main() {
   }
 
   Future<void> bam(WidgetTester t, Finder f, {int ms = 1500}) async {
+    // Bàn phím vừa đóng hoặc nút nằm dưới: danh sách chưa dựng phần đó, cuộn tới cho có rồi mới bấm
+    FocusManager.instance.primaryFocus?.unfocus();
+    await cho(t, 600);
+    if (f.evaluate().isEmpty) await cuonDen(t, f, viTri: 0.5);
     await t.ensureVisible(f.first);
     await cho(t, 300);
     await t.tap(f.first);
@@ -244,7 +248,7 @@ void main() {
       var xong = false;
       for (var i = 0; i < 300 && !xong; i++) {
         await cho(t, 500);
-        xong = find.widgetWithText(TextField, 'Kết quả (sửa được)').evaluate().isNotEmpty;
+        xong = find.text('Lưu Word').evaluate().isNotEmpty; // nút này chỉ hiện khi đã có kết quả
       }
       kq('giai_de_ai: ${xong ? "co ket qua" : "CHUA CO"}');
       await cho(t, 1500);
