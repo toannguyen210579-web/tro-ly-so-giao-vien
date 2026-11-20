@@ -90,6 +90,7 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
                       child: DropdownButtonFormField<int>(
+                        isExpanded: true,
                         value: _chon,
                         decoration: const InputDecoration(labelText: 'Lớp', border: OutlineInputBorder(), isDense: true),
                         items: [

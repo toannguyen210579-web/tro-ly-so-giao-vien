@@ -484,6 +484,7 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
           padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
           children: [
             DropdownButtonFormField<String>(
+              isExpanded: true,
               value: _nhom,
               decoration: const InputDecoration(labelText: 'Nhóm', border: OutlineInputBorder()),
               items: [for (final n in dsNhomMinhChung) DropdownMenuItem(value: n, child: Text(n))],

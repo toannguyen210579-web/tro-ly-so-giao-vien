@@ -144,6 +144,7 @@ class _TinhLuongState extends State<TinhLuong> {
           Row(children: [
             Expanded(
               child: DropdownButtonFormField<String>(
+                isExpanded: true,
                 value: _cap,
                 decoration: const InputDecoration(labelText: 'Cấp dạy', border: OutlineInputBorder()),
                 items: [for (final c in capDay) DropdownMenuItem(value: c, child: Text(c))],
@@ -157,6 +158,7 @@ class _TinhLuongState extends State<TinhLuong> {
             const SizedBox(width: 8),
             Expanded(
               child: DropdownButtonFormField<String>(
+                isExpanded: true,
                 value: _hang,
                 decoration: const InputDecoration(labelText: 'Hạng', border: OutlineInputBorder()),
                 items: [for (final h in hangGV) DropdownMenuItem(value: h, child: Text(h))],
@@ -170,6 +172,7 @@ class _TinhLuongState extends State<TinhLuong> {
           ]),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
+            isExpanded: true,
             value: _bac,
             decoration: InputDecoration(labelText: 'Bậc lương (hệ số ${ngach.ma})', border: const OutlineInputBorder()),
             items: [
@@ -259,6 +262,7 @@ class _TinhLuongState extends State<TinhLuong> {
                 const SizedBox(width: 8),
                 Expanded(
                   child: DropdownButtonFormField<double>(
+                    isExpanded: true,
                     value: _khuVuc.contains(_kv) ? _kv : 0,
                     decoration: const InputDecoration(labelText: 'Hệ số phụ cấp khu vực'),
                     items: [for (final k in _khuVuc) DropdownMenuItem(value: k, child: Text(k == 0 ? 'Không' : k.toString().replaceAll('.', ',')))],

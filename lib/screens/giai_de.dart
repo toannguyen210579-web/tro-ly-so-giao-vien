@@ -223,8 +223,11 @@ class _GiaiDeState extends State<GiaiDe> {
               Expanded(
                 child: DropdownButtonFormField<String>(
                   value: _mon,
+                  isExpanded: true, // tên môn dài (Khoa học tự nhiên…) co lại, không tràn
                   decoration: const InputDecoration(labelText: 'Môn', border: OutlineInputBorder()),
-                  items: [for (final m in _dsMon) DropdownMenuItem(value: m, child: Text(m))],
+                  items: [
+                    for (final m in _dsMon) DropdownMenuItem(value: m, child: Text(m, maxLines: 1, overflow: TextOverflow.ellipsis)),
+                  ],
                   onChanged: (v) => setState(() => _mon = v ?? _mon),
                 ),
               ),

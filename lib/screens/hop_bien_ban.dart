@@ -504,6 +504,7 @@ class _SuaBienBanState extends State<_SuaBienBan> {
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
           DropdownButtonFormField<String>(
+            isExpanded: true,
             value: _loai,
             decoration: const InputDecoration(labelText: 'Loại cuộc họp', border: OutlineInputBorder()),
             items: [for (final l in dsLoaiHop) DropdownMenuItem(value: l, child: Text(l))],

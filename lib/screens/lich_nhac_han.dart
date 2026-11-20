@@ -205,6 +205,7 @@ class _HopViecState extends State<_HopViec> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<int>(
+            isExpanded: true,
             value: _mucNhac.any((m) => m.$1 == _nhac) ? _nhac : 1440,
             decoration: const InputDecoration(labelText: 'Nhắc', border: OutlineInputBorder()),
             items: [for (final m in _mucNhac) DropdownMenuItem(value: m.$1, child: Text(m.$2))],

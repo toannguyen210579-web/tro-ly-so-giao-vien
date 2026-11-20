@@ -350,6 +350,7 @@ class _GioTheState extends State<GioThe> {
         children: [
           const CauGiupViec('gio_the'),
           DropdownButtonFormField<int>(
+            isExpanded: true,
             value: _chonLop,
             decoration: const InputDecoration(labelText: 'Lớp', border: OutlineInputBorder(), isDense: true),
             items: [
