@@ -194,3 +194,22 @@ test("Câu hỏi thường vẫn dùng Gemini", async () => {
   assert.equal(r.by, "gemini");
   assert.equal(ghi.gemini.length, 1);
 });
+
+test("Thủ tục, tình huống nhạy cảm, Thông tư 22, pháp luật đi Claude", async () => {
+  for (const q of ["Viết giúp đơn xin nghỉ phép", "Học sinh lớp 7 bị bạn bắt nạt, tôi nên làm gì?", "Thông tư 22 xếp loại học lực thế nào?", "Thủ tục sang tên sổ đỏ"]) {
+    const { env, ghi } = moiTruong();
+    const r = await goi(env, { mode: "hoi", input: q });
+    assert.equal(r.by, "claude", q);
+    assert.equal(ghi.gemini.length, 0, q);
+  }
+});
+
+test("Hỏi Trợ lý qua Claude được nạp kiến thức nền, các chế độ khác thì không", async () => {
+  const a = moiTruong();
+  await goi(a.env, { mode: "hoi", input: "Phụ cấp ưu đãi tiểu học bao nhiêu?" });
+  assert.match(a.ghi.claude[0].system, /Nghị định 182\/2026\/NĐ-CP/);
+  assert.match(a.ghi.claude[0].system, /45%/);
+  const b = moiTruong();
+  await goi(b.env, { mode: "nhanxet", input: "HS01 chăm chỉ" });
+  assert.doesNotMatch(b.ghi.claude[0].system, /KIẾN THỨC NỀN/);
+});

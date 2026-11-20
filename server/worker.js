@@ -1,3 +1,4 @@
+import { KIEN_THUC } from "./kien_thuc.js";
 // Máy chủ trung gian cho app "Trợ lý số Giáo viên".
 // App gọi POST /v1/ai, Worker gọi Claude (Haiku), đếm lượt theo từng máy mỗi ngày.
 //
@@ -121,9 +122,26 @@ const CHE_DO_RE = new RegExp(
   ].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "i",
 );
+// Các loại câu khác cũng đi Claude (người dùng chốt 20/11/2026): thủ tục, hồ sơ, văn bản hành chính;
+// tình huống nhạy cảm với học sinh; đánh giá, xếp loại theo Thông tư 22, 27; pháp luật nói chung.
+const KHAC_RE = new RegExp(
+  [
+    "thủ tục", "thu tuc", "hồ sơ", "ho so", "tờ trình", "to trinh", "công văn", "cong van", "đơn xin", "don xin",
+    "đơn đề nghị", "don de nghi", "đơn kiến nghị", "khiếu nại", "khieu nai", "biên bản", "quyết định", "quyet dinh",
+    "bạo lực", "bao luc", "đánh nhau", "danh nhau", "bắt nạt", "bat nat", "xâm hại", "xam hai", "quấy rối", "quay roi",
+    "tự tử", "tu tu", "tự sát", "tự hại", "tu hai", "tự làm đau", "trầm cảm", "tram cam", "rạch tay", "bỏ nhà", "bo nha",
+    "ma túy", "ma tuy", "mang thai", "có thai", "phụ huynh dọa", "phụ huynh đánh", "phụ huynh chửi",
+    "thông tư 22", "thong tu 22", "thông tư 27", "thong tu 27", "xếp loại", "xep loai", "học bạ", "hoc ba",
+    "đánh giá học sinh", "danh gia hoc sinh", "khen thưởng học sinh", "lên lớp", "len lop", "ở lại lớp", "o lai lop", "rèn luyện hè",
+    "pháp luật", "phap luat", "luật ", "luat ", "đất đai", "dat dai", "sổ đỏ", "so do", "thừa kế", "thua ke", "ly hôn", "ly hon",
+    "vi phạm giao thông", "phạt nguội", "phat nguoi", "xử phạt", "xu phat", "tòa án", "toa an", "công an", "cong an", "lừa đảo", "lua dao",
+  ].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
+  "i",
+);
+
 function laCauCheDo(input, hist) {
   const t = [input, ...hist.slice(-2).map((h) => h.q)].join("\n").toLowerCase();
-  return CHE_DO_RE.test(t);
+  return CHE_DO_RE.test(t) || KHAC_RE.test(t);
 }
 
 function historyOf(body, mode) {
@@ -335,6 +353,8 @@ async function quota(db, device, day) {
 }
 
 async function callClaude(env, mode, content, hist = []) {
+  // Hỏi Trợ lý qua Claude luôn kèm kiến thức nền về chế độ nhà giáo (mô hình chưa biết văn bản năm 2026)
+  const system = mode === "hoi" ? sysOf(mode) + "\n" + KIEN_THUC : sysOf(mode);
   let r;
   try {
     r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -347,7 +367,7 @@ async function callClaude(env, mode, content, hist = []) {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: MAX_OUT[mode] || MAX_TOKENS,
-        system: sysOf(mode),
+        system,
         messages: [
           ...hist.flatMap((t) => [{ role: "user", content: t.q }, { role: "assistant", content: t.a }]),
           { role: "user", content },
