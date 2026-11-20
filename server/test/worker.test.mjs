@@ -213,3 +213,12 @@ test("Hỏi Trợ lý qua Claude được nạp kiến thức nền, các chế 
   await goi(b.env, { mode: "nhanxet", input: "HS01 chăm chỉ" });
   assert.doesNotMatch(b.ghi.claude[0].system, /KIẾN THỨC NỀN/);
 });
+
+test("Mục Tin: /tin trả danh sách clip của kênh", async () => {
+  const { env } = moiTruong();
+  const r = await worker.fetch(new Request("https://x/tin"), env, {});
+  assert.equal(r.status, 200);
+  const ds = await r.json();
+  assert.ok(ds.length >= 5);
+  assert.ok(ds.every((t) => t.id && t.ngay && t.tit && t.anh_bia));
+});

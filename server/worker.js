@@ -1,4 +1,5 @@
 import { KIEN_THUC } from "./kien_thuc.js";
+import { TIN } from "./tin.js";
 import { khoaDung, napVanBan, timKienThuc, dsVanBan, xuatVanBan } from "./kien_thuc_db.js";
 // Máy chủ trung gian cho app "Trợ lý số Giáo viên".
 // App gọi POST /v1/ai, Worker gọi Claude (Haiku), đếm lượt theo từng máy mỗi ngày.
@@ -474,6 +475,11 @@ export default {
       });
     }
     if (PAGES[url.pathname]) return page(url.pathname);
+    if (url.pathname === "/tin" && request.method === "GET") {
+      return new Response(JSON.stringify(TIN), {
+        headers: { "content-type": "application/json; charset=utf-8", "cache-control": "public, max-age=300" },
+      });
+    }
     if (!db) return err("chua_cau_hinh", "Máy chủ chưa được cấu hình xong.", 503);
     const day = vnDate();
 
