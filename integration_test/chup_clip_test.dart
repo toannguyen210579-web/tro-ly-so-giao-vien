@@ -281,8 +281,12 @@ void main() {
       final doc = await choChu(t, 'Đọc được', giay: 120);
       kq('gio_the_quet: ${doc ? find.textContaining('Đọc được').evaluate().map((e) => (e.widget as Text).data).join() : "KHONG DOC DUOC"}');
       await chup(t, '41_gio_the_doc_xong', giuThongBao: true);
+      tatThongBao(t);
+      await cho(t, 1000);
+      await cuonDen(t, find.text('Đáp án đúng:'), viTri: 0.5);
       await t.tap(find.widgetWithText(ChoiceChip, 'B'));
       await cho(t, 1000);
+      kq('gio_the_dung: ${find.textContaining('Đúng ').evaluate().map((e) => (e.widget as Text).data).join(' | ')}');
       await cuonDen(t, find.textContaining('Đã nhận'), viTri: 0.05);
       await chup(t, '42_gio_the_ket_qua');
       await cuonDen(t, find.textContaining('Chưa nhận'), viTri: 0.05);
