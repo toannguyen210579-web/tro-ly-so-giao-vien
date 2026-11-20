@@ -36,6 +36,7 @@ dev_dependencies:
     sdk: flutter
   integration_test:
     sdk: flutter
+  image_picker_platform_interface: any
   flutter_lints: ^4.0.0
   flutter_launcher_icons: ^0.14.1
 

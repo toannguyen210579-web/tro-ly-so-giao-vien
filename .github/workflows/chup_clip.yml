@@ -1,0 +1,49 @@
+name: Chụp màn hình app cho clip
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: ["integration_test/chup_clip_test.dart", "integration_test/chup_clip_anh_the.dart", ".github/workflows/chup_clip.yml"]
+permissions:
+  contents: write
+jobs:
+  chup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - name: Bật KVM cho máy giả lập
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules && sudo udevadm trigger --name-match=kvm
+      - run: bash tool/chuan_bi.sh
+      - run: flutter pub get
+      - name: Chạy app trên Android 14 (Pixel 2, 1080x1920), chụp màn hình cho clip
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_2
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/chup_clip_test.dart 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80
+      - name: Đẩy ảnh lên nhánh anh-clip (để tải về bằng git)
+        if: always()
+        run: |
+          mkdir -p /tmp/anh
+          cp anh_chay_thu/clip_*.png /tmp/anh/ 2>/dev/null || true
+          grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt > /tmp/anh/ket_qua.txt 2>/dev/null || true
+          cd /tmp/anh
+          git init -q -b anh-clip
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Ảnh chụp app cho clip (${GITHUB_SHA::7})"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-clip

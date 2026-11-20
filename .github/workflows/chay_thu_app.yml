@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [noi-may-chu]
-    paths: ["integration_test/**", ".github/workflows/chay_thu_app.yml"]
+    paths: ["integration_test/chay_thu_test.dart", ".github/workflows/chay_thu_app.yml"]
 jobs:
   chay:
     runs-on: ubuntu-latest
