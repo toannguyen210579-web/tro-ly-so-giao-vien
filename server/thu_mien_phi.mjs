@@ -42,3 +42,4 @@ for (const d of AI_MIEN_PHI) {
     console.log(`AI ${d.ten} ${model}: mã ${r.status}, ${Date.now() - t} ms\n   ${txt.replace(/\s+/g, " ").slice(0, 400)}`);
   }
 }
+// lần chạy: 1795160638

@@ -1,6 +1,9 @@
 name: Thử cổng tìm kiếm và AI miễn phí
 on:
   workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/thu_mien_phi.yml", "server/thu_mien_phi.mjs"]
 jobs:
   thu:
     runs-on: ubuntu-latest
