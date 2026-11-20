@@ -132,7 +132,7 @@ class _TrangChuState extends State<TrangChu> {
                   spacing: 6,
                   runSpacing: 6,
                   children: [
-                    for (final g in const ['Làm biên bản họp tổ', 'Nhận xét lớp 6A'])
+                    for (final g in const ['Làm biên bản họp tổ', 'Chấm trắc nghiệm'])
                       ActionChip(label: Text(g, style: const TextStyle(fontSize: 12.5)), onPressed: () => _gui(g)),
                   ],
                 ),
