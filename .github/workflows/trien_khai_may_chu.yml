@@ -51,3 +51,7 @@ jobs:
           sleep 10
           curl -fsS https://tro-ly-gv.toannguyen210579.workers.dev/health
           curl -fsS -o /dev/null -w "ho-tro %{http_code}\n" https://tro-ly-gv.toannguyen210579.workers.dev/ho-tro
+      - name: Nạp kho văn bản Hỏi Trợ lý (bỏ qua khi chưa có secret KT_KEY_CI)
+        env:
+          KT_KEY: ${{ secrets.KT_KEY_CI }}
+        run: node server/kien-thuc/nap_ci.mjs
