@@ -128,6 +128,8 @@ const CHE_DO_RE = new RegExp(
     "tốt nghiệp thpt", "tot nghiep thpt", "xét tốt nghiệp", "xet tot nghiep", "quy chế thi", "quy che thi", "quy chế tuyển", "quy che tuyen",
     "miễn thi", "mien thi", "đặc cách", "dac cach", "điểm ưu tiên", "diem uu tien", "cộng điểm", "cong diem",
     "điểm khuyến khích", "diem khuyen khich", "phúc khảo", "phuc khao", "bảo lưu điểm", "bao luu diem",
+    "bao nhiêu tiết", "bao nhieu tiet", "số tiết", "so tiet", "tiết một tuần", "tiết mỗi tuần", "tiết/tuần", "tiet/tuan",
+    "tổng phụ trách", "tong phu trach", "tổ trưởng", "to truong", "nhiệm vụ của giáo viên", "quyền của giáo viên",
     "thỉnh giảng", "thinh giang", "mã số chức danh", "ma so chuc danh", "bằng tốt nghiệp", "bang tot nghiep",
   ].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "i",
