@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive.dart';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
@@ -43,8 +44,10 @@ class GiongMay {
     await goc.create(recursive: true);
     final tam = File('${goc.path}/tai.tar.gz');
     final kh = http.Client();
+    debugPrint('GiongMay: bat dau tai $_diaChi');
     try {
       final res = await kh.send(http.Request('GET', Uri.parse(_diaChi))).timeout(const Duration(seconds: 30));
+      debugPrint('GiongMay: ma tra ve ${res.statusCode}, co ${res.contentLength}');
       if (res.statusCode != 200) throw const HttpException('tải giọng lỗi');
       final tong = res.contentLength ?? coMB * 1024 * 1024;
       var da = 0;
@@ -58,6 +61,7 @@ class GiongMay {
     } finally {
       kh.close();
     }
+    debugPrint('GiongMay: tai xong ${await tam.length()} byte, bat dau giai nen');
     // Giải nén ở luồng riêng để màn hình không bị đứng
     final dich = goc.path;
     final nguon = tam.path;
@@ -75,6 +79,7 @@ class GiongMay {
       }
     });
     await tam.delete();
+    debugPrint('GiongMay: giai nen xong');
     tienDo?.call(1);
     if (!await sanSang()) throw const FileSystemException('Giải nén giọng đọc lỗi');
   }

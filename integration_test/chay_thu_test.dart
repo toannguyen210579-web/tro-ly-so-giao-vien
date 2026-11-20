@@ -27,11 +27,40 @@ void main() {
 
   testWidgets('Chạy thử toàn bộ app', (t) async {
     final loi = <String>[];
-    FlutterError.onError = (d) => loi.add(d.exceptionAsString().split('\n').first);
+    FlutterError.onError = (d) {
+      loi.add(d.exceptionAsString().split('\n').first);
+      // ignore: avoid_print
+      print('KQ chi_tiet_loi: ${d.exceptionAsString().split('\n').first} | ${d.informationCollector?.call().take(2).join(' / ')}');
+    };
     app.main();
     await cho(t, 3000);
     await b.convertFlutterSurfaceToImage();
     await chup(t, '00_trang_chu');
+
+    // 3. Giọng đọc cài sẵn: tải về, tạo tiếng
+    final d1 = Stopwatch()..start();
+    try {
+      var moc = 0;
+      await GiongMay.taiVe(tienDo: (x) {
+        if (x * 10 >= moc) {
+          // ignore: avoid_print
+          print('KQ tai_giong: ${(x * 100).round()}% sau ${d1.elapsedMilliseconds} ms');
+          moc = (x * 10).floor() + 1;
+        }
+      }).timeout(const Duration(minutes: 6));
+      // ignore: avoid_print
+      print('KQ tai_giong: xong sau ${d1.elapsedMilliseconds} ms, san sang=${await GiongMay.sanSang()}');
+      final tam = await getTemporaryDirectory();
+      final d2 = Stopwatch()..start();
+      final f = await GiongMay.tao('Kính gửi quý phụ huynh em Nguyễn Văn An. Nhà trường kính mời quý phụ huynh dự họp lúc bảy giờ sáng Chủ nhật.',
+          duongRa: '${tam.path}/thu.wav');
+      final n = await f.length();
+      // ignore: avoid_print
+      print('KQ tao_tieng: ${n > 20000 ? "on" : "LOI"} ${n} byte (khoang ${(n / 44100).toStringAsFixed(1)} giay), mat ${d2.elapsedMilliseconds} ms');
+    } catch (e) {
+      // ignore: avoid_print
+      print('KQ giong_may: LOI $e');
+    }
 
     // 1. Mở từng tiện ích
     for (final ti in dsTienIch) {
@@ -63,31 +92,6 @@ void main() {
     print('KQ hoi_tro_ly: ${coTraLoi ? "co tra loi" : "CHUA THAY TRA LOI"} sau ${dh.elapsedMilliseconds} ms');
     await t.tap(find.text('Trang chủ').last);
     await cho(t, 1000);
-
-    // 3. Giọng đọc cài sẵn: tải về, tạo tiếng
-    final d1 = Stopwatch()..start();
-    try {
-      var moc = 0;
-      await GiongMay.taiVe(tienDo: (x) {
-        if (x * 10 >= moc) {
-          // ignore: avoid_print
-          print('KQ tai_giong: ${(x * 100).round()}% sau ${d1.elapsedMilliseconds} ms');
-          moc = (x * 10).floor() + 1;
-        }
-      });
-      // ignore: avoid_print
-      print('KQ tai_giong: xong sau ${d1.elapsedMilliseconds} ms, san sang=${await GiongMay.sanSang()}');
-      final tam = await getTemporaryDirectory();
-      final d2 = Stopwatch()..start();
-      final f = await GiongMay.tao('Kính gửi quý phụ huynh em Nguyễn Văn An. Nhà trường kính mời quý phụ huynh dự họp lúc bảy giờ sáng Chủ nhật.',
-          duongRa: '${tam.path}/thu.wav');
-      final n = await f.length();
-      // ignore: avoid_print
-      print('KQ tao_tieng: ${n > 20000 ? "on" : "LOI"} ${n} byte (khoang ${(n / 44100).toStringAsFixed(1)} giay), mat ${d2.elapsedMilliseconds} ms');
-    } catch (e) {
-      // ignore: avoid_print
-      print('KQ giong_may: LOI $e');
-    }
 
     // 4. Màn Đọc to: dán chữ, bấm Đọc to
     moTienIch(t.element(find.byType(TrangChu)), dsTienIch.firstWhere((x) => x.ma == 'doc_to'));
