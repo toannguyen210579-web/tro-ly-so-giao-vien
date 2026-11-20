@@ -1,4 +1,5 @@
 import { KIEN_THUC } from "./kien_thuc.js";
+import { khoaDung, napVanBan, timKienThuc, dsVanBan, xuatVanBan } from "./kien_thuc_db.js";
 // Máy chủ trung gian cho app "Trợ lý số Giáo viên".
 // App gọi POST /v1/ai, Worker gọi Claude (Haiku), đếm lượt theo từng máy mỗi ngày.
 //
@@ -119,6 +120,10 @@ const CHE_DO_RE = new RegExp(
     "định mức", "dinh muc", "tiết dạy", "tiet day", "dạy thêm giờ", "vượt giờ", "vuot gio", "kiêm nhiệm", "kiem nhiem",
     "tuyển dụng", "tuyen dung", "biên chế", "bien che", "hợp đồng", "hop dong", "thôi việc", "thoi viec",
     "kỷ luật", "ky luat", "học phí", "hoc phi", "trợ cấp", "tro cap", "hỗ trợ", "ho tro",
+    "dạy thêm", "day them", "học thêm", "hoc them", "nghỉ hè", "nghi he", "nghỉ phép", "nghi phep",
+    "chủ nhiệm", "chu nhiem", "giảm tiết", "giam tiet", "điều lệ", "dieu le", "chuẩn nghề nghiệp", "chuan nghe nghiep",
+    "thuyên chuyển", "thuyen chuyen", "điều động", "dieu dong", "thi đua", "thi dua", "khen thưởng", "khen thuong",
+    "giờ dạy", "gio day", "tập sự", "tap su", "nghỉ ốm", "nghi om",
   ].map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|"),
   "i",
 );
@@ -237,7 +242,7 @@ function json(obj, status = 200) {
     headers: {
       "Content-Type": "application/json; charset=utf-8",
       "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type, X-App-Key",
+      "Access-Control-Allow-Headers": "Content-Type, X-App-Key, X-Kt-Key",
       "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     },
   });
@@ -352,9 +357,10 @@ async function quota(db, device, day) {
   };
 }
 
-async function callClaude(env, mode, content, hist = []) {
+async function callClaude(env, mode, content, hist = [], trich = "") {
   // Hỏi Trợ lý qua Claude luôn kèm kiến thức nền về chế độ nhà giáo (mô hình chưa biết văn bản năm 2026)
-  const system = mode === "hoi" ? sysOf(mode) + "\n" + KIEN_THUC : sysOf(mode);
+  // và các điều văn bản gốc tìm được trong kho (trich)
+  const system = mode === "hoi" ? sysOf(mode) + "\n" + KIEN_THUC + trich : sysOf(mode);
   let r;
   try {
     r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -553,6 +559,26 @@ export default {
       return json({ ok: true, audio: res.audio, mime: res.mime, by: res.by });
     }
 
+    // Kho văn bản: nạp, xem danh sách, xuất (cần khóa quản trị)
+    if (url.pathname.startsWith("/v1/kt/")) {
+      if (!(await khoaDung(request.headers.get("X-Kt-Key")))) return err("khong_quyen", "Sai khóa quản trị.", 403);
+      if (url.pathname === "/v1/kt/nap" && request.method === "POST") {
+        let vb;
+        try {
+          vb = await request.json();
+        } catch {
+          return err("sai_du_lieu", "Dữ liệu không đúng.", 400);
+        }
+        if (!vb.so || !vb.text || String(vb.text).length < 200) return err("sai_du_lieu", "Thiếu số hiệu hoặc nội dung.", 400);
+        const n = await napVanBan(db, vb);
+        return json({ ok: true, so: vb.so, so_doan: n, ky_tu: String(vb.text).length });
+      }
+      if (url.pathname === "/v1/kt/ds") return json({ ok: true, ds: await dsVanBan(db) });
+      if (url.pathname === "/v1/kt/xuat") return json({ ok: true, text: await xuatVanBan(db, url.searchParams.get("so") || "") });
+      if (url.pathname === "/v1/kt/tim") return json({ ok: true, trich: await timKienThuc(db, url.searchParams.get("q") || "") });
+      return err("khong_tim_thay", "Đường dẫn không đúng.", 404);
+    }
+
     if (url.pathname !== "/v1/ai" || request.method !== "POST") {
       return err("khong_tim_thay", "Đường dẫn không đúng.", 404);
     }
@@ -627,7 +653,11 @@ export default {
         console.log(JSON.stringify({ ev: "gemini_fallback", status: res.status, device, mode }));
       }
     }
-    if (!res || res.err) res = await callClaude(env, mode, content, hist);
+    let trich = "";
+    if ((!res || res.err) && mode === "hoi") {
+      trich = await timKienThuc(db, [input, ...hist.slice(-1).map((h) => h.q)].join("\n"));
+    }
+    if (!res || res.err) res = await callClaude(env, mode, content, hist, trich);
     if (res.err) return json({ ok: false, error: res.err, message: res.msg, gem, claude: String(res.status || "") }, 502);
     const text = res.text;
     const data = { usage: res.usage };
@@ -644,7 +674,7 @@ export default {
     if (Math.random() < 0.01 && ctx && ctx.waitUntil) ctx.waitUntil(cleanup(db));
     // Nhật ký (xem trong Observability > Logs) để phát hiện máy dùng bất thường
     const u = data.usage || {};
-    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, in: u.input_tokens, out: u.output_tokens }));
+    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, kt: trich.length, in: u.input_tokens, out: u.output_tokens }));
     return json({
       ok: true,
       text,
