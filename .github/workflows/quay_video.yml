@@ -63,7 +63,9 @@ jobs:
         run: |
           cd video
           ls v_*.mp4 | sort | sed "s/^/file '/; s/$/'/" > ds.txt
-          ffmpeg -hide_banner -loglevel error -f concat -safe 0 -i ds.txt -c copy noi.mp4
+          ffmpeg -hide_banner -loglevel error -f concat -safe 0 -i ds.txt -c copy noi_vfr.mp4
+          # Máy giả lập chỉ ghi khung hình khi màn hình đổi: chuyển sang đều 24 hình/giây trước khi cắt
+          ffmpeg -hide_banner -loglevel error -i noi_vfr.mp4 -vf fps=24 -c:v libx264 -preset veryfast -crf 18 noi.mp4
           # Cắt bớt các quãng đứng yên dài (chờ đóng gói, chờ AI): quãng nào đứng yên quá 5 giây chỉ giữ 2,5 giây
           ffmpeg -hide_banner -nostats -i noi.mp4 -vf "freezedetect=n=0.002:d=5" -map 0:v -f null - 2> dung.txt || true
           python3 - <<'PY'
@@ -79,7 +81,7 @@ jobs:
           giu.append((dau, tong))
           giu = [(x, y) for x, y in giu if y - x > 0.05]
           bt = '+'.join(f'between(t,{x:.2f},{y:.2f})' for x, y in giu)
-          open('chon.txt', 'w').write(f"select='{bt}',setpts=N/FRAME_RATE/TB,scale=540:-2")
+          open('chon.txt', 'w').write(f"select='{bt}',setpts=N/24/TB,scale=540:-2")
           print('giu', len(giu), 'doan, con', round(sum(y - x for x, y in giu)), 'giay /', round(tong))
           PY
           ffmpeg -hide_banner -loglevel error -i noi.mp4 -filter_script:v chon.txt -r 24 -c:v libx264 -preset veryfast -crf 28 -movflags +faststart 15_tien_ich.mp4
@@ -89,7 +91,7 @@ jobs:
         run: |
           mkdir -p /tmp/v
           cp video/15_tien_ich.mp4 /tmp/v/ 2>/dev/null || true
-          cp anh_chay_thu/xem_*loi*.png /tmp/v/ 2>/dev/null || true
+          cp anh_chay_thu/xem_*.png /tmp/v/ 2>/dev/null || true
           grep -hE "KQ|All tests passed|Some tests failed" kq1.txt kq2.txt > /tmp/v/ket_qua.txt 2>/dev/null || true
           cd /tmp/v
           git init -q -b video-app

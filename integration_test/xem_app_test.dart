@@ -131,6 +131,27 @@ void main() {
     await cho(t, ms);
   }
 
+  /// Bấm "Chọn ảnh" (ảnh mẫu), chờ ảnh hiện; chưa có thì thử lại, ghi thông báo của app nếu có.
+  Future<bool> chonAnh(WidgetTester t, String duong, Finder daCo) async {
+    anhMau.duong = duong;
+    kq('anh_mau: ${File(duong).existsSync() ? "co tep ${File(duong).lengthSync()} byte" : "KHONG CO TEP"}');
+    final truoc = daCo.evaluate().length;
+    for (var lan = 1; lan <= 3; lan++) {
+      await bam(t, find.text('Chọn ảnh'), ms: 500);
+      for (var i = 0; i < 16; i++) {
+        await cho(t, 500);
+        if (daCo.evaluate().length > truoc) {
+          kq('chon_anh: co anh sau lan $lan');
+          return true;
+        }
+      }
+      final tb = find.descendant(of: find.byType(SnackBar), matching: find.byType(Text)).evaluate().map((e) => (e.widget as Text).data).join(' | ');
+      kq('chon_anh: lan $lan chua thay anh; thong bao: ${tb.isEmpty ? "khong" : tb}');
+      tatThongBao(t);
+    }
+    return false;
+  }
+
   Future<void> moMa(WidgetTester t, String ma) async {
     moTienIch(t.element(find.byType(TrangChu, skipOffstage: false)), timTheoMa(ma));
     await cho(t, 2500);
@@ -208,8 +229,13 @@ void main() {
     await buoc('giai_de', () async {
       await moMa(t, 'tao_de');
       await chup(t, '10_giai_de');
-      anhMau.duong = deToan;
-      await bam(t, find.text('Chọn ảnh'), ms: 2500);
+      if (!await chonAnh(t, deToan, find.byType(Image))) {
+        // Không gắn được ảnh thì dán chữ đề để vẫn thử phần AI giải
+        await t.enterText(find.widgetWithText(TextField, 'Hoặc gõ, dán đề vào đây'),
+            'Câu 1. Kết quả khai triển (x + 3)² là: A. x² + 9  B. x² + 6x + 9  C. x² + 3x + 9  D. x² − 6x + 9\n'
+            'Câu 2. Phân tích x² − 16 thành nhân tử: A. (x − 4)²  B. (x + 4)²  C. (x − 4)(x + 4)  D. (x − 8)(x + 8)');
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
       await chup(t, '11_giai_de_co_anh');
       await bam(t, find.text('Giải, soạn đáp án'), ms: 1500);
       final dy = find.text('Đồng ý gửi');
@@ -260,10 +286,9 @@ void main() {
       await t.enterText(td, 'Giấy chứng nhận bồi dưỡng thường xuyên 2025-2026');
       await t.enterText(find.widgetWithText(TextField, 'Mã minh chứng (nếu hồ sơ yêu cầu)'), 'BD-01');
       FocusManager.instance.primaryFocus?.unfocus();
-      anhMau.duong = giayCN;
-      await bam(t, find.text('Chọn ảnh'), ms: 2500);
+      await chonAnh(t, giayCN, find.byType(Image));
       await chup(t, '31_minh_chung_them');
-      await bam(t, find.text('Lưu'), ms: 2000);
+      await bam(t, find.widgetWithText(FilledButton, 'Lưu'), ms: 2000);
       await chup(t, '32_minh_chung_ds');
       await bam(t, find.textContaining('Xuất để nộp hồ sơ'), ms: 1500);
       await chup(t, '33_minh_chung_xuat');
@@ -292,8 +317,7 @@ void main() {
     await buoc('sang_word', () async {
       await moMa(t, 'sang_word');
       await chup(t, '50_sang_word');
-      anhMau.duong = deToan;
-      await bam(t, find.text('Chọn ảnh'), ms: 2000);
+      await chonAnh(t, deToan, find.textContaining('Câu'));
       final doc = await choChu(t, 'Câu', giay: 60);
       kq('sang_word_doc: ${doc ? "doc duoc" : "CHUA DOC"}');
       await chup(t, '51_sang_word_chu', giuThongBao: true);
