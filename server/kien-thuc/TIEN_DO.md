@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (48 mục)
+## Đã nạp (49 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -42,9 +42,10 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 10/2025 phân quyền, phân cấp giáo dục phổ thông (UBND cấp xã thay Phòng GDĐT; hết hiệu lực 01/3/2027)
 - TT 19/2025 khen thưởng, kỷ luật học sinh (nguyên văn)
 - TT 18/2025 tư vấn học đường, công tác xã hội trong trường học (nguyên văn, chưa chép 4 mẫu)
+- TT 12/2025 phân quyền, phân cấp lĩnh vực nhà giáo (hội thi giáo viên dạy giỏi cấp xã)
 
 ## Còn phải làm (theo thứ tự)
-1. TT 26/2025 sửa đổi các thông tư phân cấp (kiểm tra phần liên quan phổ thông); TT 12/2025 phân quyền quản lý nhà giáo
+1. TT 26/2025 sửa đổi các thông tư phân cấp (kiểm tra phần liên quan phổ thông)
 2. CV 4567/BGDĐT-GDPT dạy học 2 buổi/ngày; TT 02/2025 khung năng lực số người học
 3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
 4. NĐ 66/2026/NĐ-CP quy định chi tiết Luật Giáo dục
