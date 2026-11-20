@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../main.dart';
+import '../data/tin_kenh.dart';
+import 'tin_kenh.dart' show ManXemClip;
 import '../services/an_danh.dart';
 import '../services/chon_tep.dart';
 import '../services/tro_ly_api.dart';
@@ -19,7 +22,10 @@ class _TinNhan {
   final bool loi; // câu báo lỗi, không đưa vào ngữ cảnh hỏi tiếp
   final String? cauGoc; // câu thầy cô gõ, để bấm Gửi lại khi lỗi mạng
   final String? traLoiGoc; // câu trả lời còn mã HS01…, dùng làm ngữ cảnh hỏi tiếp và báo cáo
-  const _TinNhan(this.laNguoiDung, this.noiDung, {this.cauHoi, this.anh, this.loi = false, this.cauGoc, this.traLoiGoc});
+  final List<TinKenh> tinKenh; // toàn bộ clip của kênh (để mở xem trong app)
+  final List<int> goiY; // vị trí các clip AI nhắc tới, hiện nút bấm mở ngay
+  const _TinNhan(this.laNguoiDung, this.noiDung,
+      {this.cauHoi, this.anh, this.loi = false, this.cauGoc, this.traLoiGoc, this.tinKenh = const [], this.goiY = const []});
 }
 
 /// Hỏi Trợ lý: hỏi mọi việc, chụp ảnh bài tập để hỏi. Không hiện số câu; máy chủ vẫn có trần chống lạm dụng.
@@ -123,6 +129,15 @@ class _HoiTroLyState extends State<HoiTroLy> {
     super.dispose();
   }
 
+  /// Clip nào có tít xuất hiện trong câu trả lời thì gợi ý; không thấy tít nào thì gợi ý clip mới nhất.
+  List<int> _clipDuocNhac(String traLoi, List<TinKenh> ds) {
+    if (ds.isEmpty) return const [];
+    String chuan(String x) => x.toLowerCase().replaceAll(RegExp(r'[^\p{L}\p{N} ]', unicode: true), '').replaceAll(RegExp(r'\s+'), ' ').trim();
+    final tl = chuan(traLoi);
+    final co = [for (var i = 0; i < ds.length; i++) if (chuan(ds[i].tit).length > 8 && tl.contains(chuan(ds[i].tit))) i];
+    return (co.isEmpty ? [0] : co).take(3).toList();
+  }
+
   Future<void> _gui([String? cau]) async {
     final c = (cau ?? _o.text).trim();
     final anh = _anh;
@@ -146,7 +161,24 @@ class _HoiTroLyState extends State<HoiTroLy> {
     ];
     final dsAnh = anh == null ? <String>[] : [base64Encode(await File(anh.path).readAsBytes())];
     if (tep?.anh != null) dsAnh.add(tep!.anh!);
-    final kq = await TroLyApi.hoi(sach.noiDung,
+    // Hỏi về kênh Việt Nam Tiêu Điểm, clip, tin mới: gửi kèm danh sách clip của kênh để AI trả lời đúng
+    var guiDi = sach.noiDung;
+    var tinKenh = <TinKenh>[];
+    if (RegExp(r'ti[eê]u\s*đi[eể]m|vntđ|vntd|(clip|cip|video|tin|kênh)\s+(của|trong|trên)\s+app', caseSensitive: false)
+        .hasMatch(c)) {
+      try {
+        final tin = await NguonTin.tai();
+        if (tin.isNotEmpty) {
+          tinKenh = tin;
+          guiDi = '$guiDi\n\n(Thông tin kèm theo để trả lời, không nhắc lại phần này: "Việt Nam Tiêu Điểm" là kênh clip tin giáo dục ngắn '
+              'đi cùng app, xem trong mục Tin của app. Khi gợi ý clip, ghi đúng nguyên văn tít clip trong ngoặc kép; '
+              'app sẽ hiện nút bấm mở clip đó ngay dưới câu trả lời, nên không chỉ sang trang web hay kênh khác. '
+              'Các clip gần đây, mới nhất trước:\n'
+              '${tin.take(15).map((t) => '- ${t.ngay.day}/${t.ngay.month}: "${t.tit}" ${t.tomTat}').join('\n')})';
+        }
+      } catch (_) {}
+    }
+    final kq = await TroLyApi.hoi(guiDi,
         anh: dsAnh, pdf: tep?.pdf == null ? const [] : [tep!.pdf!], riengTu: _riengTu, lichSu: lichSu);
     if (!mounted) return;
     setState(() {
@@ -158,6 +190,8 @@ class _HoiTroLyState extends State<HoiTroLy> {
         loi: kq.traLoi == null,
         cauGoc: c,
         traLoiGoc: kq.traLoi,
+        tinKenh: tinKenh,
+        goiY: kq.traLoi == null ? const [] : _clipDuocNhac(kq.traLoi!, tinKenh),
       ));
     });
     _cuonXuong();
@@ -335,6 +369,25 @@ class _HoiTroLyState extends State<HoiTroLy> {
                               label: const Text('Gửi lại'),
                             ),
                           ),
+                        if (!t.laNguoiDung && !t.loi && t.goiY.isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          for (final i in t.goiY)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: OutlinedButton.icon(
+                                onPressed: () => Navigator.of(context)
+                                    .push(MaterialPageRoute(builder: (_) => ManXemClip(ds: t.tinKenh, batDau: i))),
+                                icon: const Icon(Icons.play_circle_outline),
+                                label: Text('Xem clip: ${t.tinKenh[i].tit}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                              ),
+                            ),
+                          if (trangKenhFacebook.isNotEmpty)
+                            TextButton.icon(
+                              onPressed: () => launchUrl(Uri.parse(trangKenhFacebook), mode: LaunchMode.externalApplication),
+                              icon: const Icon(Icons.open_in_new, size: 18),
+                              label: const Text('Mở trang kênh Việt Nam Tiêu Điểm'),
+                            ),
+                        ],
                         if (!t.laNguoiDung && !t.loi) ...[
                           const SizedBox(height: 4),
                           const Text(

@@ -6,6 +6,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../services/tro_ly_api.dart';
 
+/// Địa chỉ trang Facebook của kênh (để Hỏi Trợ lý hiện nút mở trang). Để trống thì không hiện nút.
+const trangKenhFacebook = '';
+
 /// Một tin từ kênh Việt Nam Tiêu Điểm.
 class TinKenh {
   final String id;
