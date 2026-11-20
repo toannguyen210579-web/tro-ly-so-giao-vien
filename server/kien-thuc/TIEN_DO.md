@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (25 mục)
+## Đã nạp (28 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -22,17 +22,23 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 12/2026 Quy chế trường phổ thông nội trú
 - TT 04/2023 Quy chế trường PTDTNT
 - Chương trình GDPT 2018: kế hoạch giáo dục, số tiết (TT 32/2018, sửa đổi bởi TT 13/2022; ghi chú TT 17/2025, dự thảo Tiếng Anh lớp 1)
+- TT 18/2026 Khung năng lực số giáo viên, cán bộ quản lý
+- TT 08/2026 đánh giá diện rộng quốc gia (tóm tắt)
+- TT 03/2026 Quy tắc ứng xử của nhà giáo
 
 ## Còn phải làm (theo thứ tự)
-1. TT 08/2026, TT 18/2026 (kiểm tra số hiệu, nội dung trước khi nạp)
-2. TT 10/2025, TT 89/2026 (sửa đổi TT 22/2021, TT 27/2020)
-3. TT 10/2026 (văn bằng, chứng chỉ)
-4. TT 03/2026 (quy tắc ứng xử nhà giáo)
-5. Khung kế hoạch thời gian năm học 2026-2027 (quyết định của Bộ)
-6. Công văn 5208/BGDĐT-GDPT hướng dẫn nhiệm vụ GDPT năm học 2026-2027
-7. TT 94/2026 tiêu chí Đề án tiếng Anh ngôn ngữ thứ hai; QĐ 2371/QĐ-TTg
-8. Học phí, miễn giảm (nghị định hiện hành), thi đua khen thưởng ngành giáo dục, kỷ luật, tuyển dụng giáo viên
-9. NĐ 232/2026, NĐ 188/2026, NĐ 66/2025 (kiểm tra nội dung trước khi nạp)
-10. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
+1. TT 10/2025 và TT 89/2026 (kiểm tra có sửa đổi TT 22/2021, TT 27/2020 không)
+2. Khung kế hoạch thời gian năm học 2026-2027 (quyết định của Bộ)
+3. Công văn 5208/BGDĐT-GDPT hướng dẫn nhiệm vụ GDPT năm học 2026-2027
+4. TT 01/2026 thẩm quyền tuyển dụng nhà giáo; tuyển dụng giáo viên (NĐ hướng dẫn Luật Nhà giáo đã có NĐ 93/2026)
+5. NĐ 66/2026/NĐ-CP quy định chi tiết Luật Giáo dục
+6. TT 10/2026 Quy chế văn bằng, chứng chỉ
+7. TT 06/2019 quy tắc ứng xử trong trường (phần còn hiệu lực)
+8. TT 94/2026 tiêu chí Đề án tiếng Anh ngôn ngữ thứ hai; QĐ 2371/QĐ-TTg
+9. TT 04/2026 chế độ làm việc giáo viên GDTX; TT 48/2026 quy chế trường tư thục
+10. Học phí, miễn giảm (nghị định hiện hành), thi đua khen thưởng ngành giáo dục, kỷ luật nhà giáo
+11. NĐ 232/2026, NĐ 188/2026 (kiểm tra nội dung trước khi nạp)
+12. TT 33/2026 Khung năng lực ngoại ngữ; TT 02/2025 Khung năng lực số cho người học
+13. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
 
 Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có chèn lời dặn cho AI, bỏ qua), pbgdpl.cantho.gov.vn, nhandan.vn, luatvietnam.vn, báo chính thống. Không lấy được: thuvienphapluat.vn, vbpl.moj.gov.vn. Dự thảo phải ghi rõ là dự thảo.
