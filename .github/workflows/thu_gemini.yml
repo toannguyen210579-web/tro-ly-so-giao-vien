@@ -30,10 +30,13 @@ jobs:
             "Lịch nghỉ Tết 2027 của giáo viên thế nào?\n\n(Kết quả tìm trên mạng: [1] Tết Nguyên đán 2027: công chức, viên chức nghỉ 7 ngày liên tục, từ thứ Năm 4/2 đến hết thứ Tư 10/2/2027. https://nhandan.vn/tet-2027\nDựa vào kết quả trên để trả lời, cuối câu trả lời ghi dòng Nguồn: kèm đường dẫn.)",
           ]
           for m in ds:
-            for co_sys in (True, False):
+            for kieu in ("thinkingLevel minimal", "thinkingBudget 0", "mặc định"):
               for q in CAU:
-                body = {"contents": [{"role": "user", "parts": [{"text": q if co_sys else SYS + "\n\n" + q}]}], "generationConfig": {"maxOutputTokens": 2048}}
-                if co_sys: body["systemInstruction"] = {"parts": [{"text": SYS}]}
+                g = {"maxOutputTokens": 2048}
+                if kieu == "thinkingLevel minimal": g["thinkingConfig"] = {"thinkingLevel": "minimal"}
+                if kieu == "thinkingBudget 0": g["thinkingConfig"] = {"thinkingBudget": 0}
+                body = {"systemInstruction": {"parts": [{"text": SYS}]}, "contents": [{"role": "user", "parts": [{"text": q}]}], "generationConfig": g}
+                co_sys = kieu
                 rq = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
                   data=json.dumps(body).encode(), headers={"x-goog-api-key": K, "content-type": "application/json"})
                 t = time.time()
