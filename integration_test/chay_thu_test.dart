@@ -98,10 +98,24 @@ void main() {
     moTienIch(t.element(find.byType(TrangChu)), dsTienIch.firstWhere((x) => x.ma == 'doc_to'));
     await cho(t, 2000);
     await t.enterText(find.byType(TextField).first, 'Kính gửi quý phụ huynh. Nhà trường thông báo lịch họp phụ huynh cuối học kỳ một.');
+    final dd = Stopwatch()..start();
     await t.tap(find.text('Đọc to'));
-    await cho(t, 8000);
-    await chup(t, '30_doc_to_dang_doc');
+    int? batDau, ketThuc;
+    for (var i = 0; i < 60; i++) {
+      await cho(t, 300);
+      final dangDoc = find.textContaining('Dừng').evaluate().isNotEmpty;
+      if (dangDoc && batDau == null) {
+        batDau = dd.elapsedMilliseconds;
+        await chup(t, '30_doc_to_dang_doc');
+      }
+      if (!dangDoc && batDau != null) {
+        ketThuc = dd.elapsedMilliseconds;
+        break;
+      }
+    }
+    final baoLoi = find.byType(SnackBar).evaluate().map((e) => ((e.widget as SnackBar).content as Text?)?.data ?? '').join(' | ');
     // ignore: avoid_print
-    print('KQ doc_to: ${find.textContaining('Dừng').evaluate().isNotEmpty ? "dang doc" : "khong thay nut Dung"}; loi: ${loi.isEmpty ? "khong" : loi.toSet().join(" | ")}');
+    print('KQ doc_to: ${batDau == null ? "KHONG DOC" : "bat dau doc sau $batDau ms${ketThuc == null ? ", van dang doc" : ", doc xong sau $ketThuc ms"}"}; '
+        'thong bao: ${baoLoi.isEmpty ? "khong" : baoLoi}; loi: ${loi.isEmpty ? "khong" : loi.toSet().join(" | ")}');
   }, timeout: const Timeout(Duration(minutes: 25)));
 }
