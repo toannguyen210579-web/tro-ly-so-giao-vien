@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (42 mục)
+## Đã nạp (43 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -37,11 +37,12 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - NĐ 271/2026 miễn phí sách giáo khoa; QĐ 3588/QĐ-BGDĐT bộ sách thống nhất
 - Ghi chú dự thảo chế độ làm việc mới vào tệp TT 05/2025
 - NQ 217/2025/QH15 miễn học phí; NĐ 238/2025 học phí, hỗ trợ chi phí học tập
+- TT 70/2026 quản lý và sử dụng học bạ số (nguyên văn, hiệu lực 08/10/2026)
 
 ## Còn phải làm (theo thứ tự)
-1. TT 10/2025 (phân quyền, phân cấp; kiểm tra phần sửa đổi TT 22, TT 27, dạy thêm); quy định quản lý, sử dụng Học bạ số
+1. TT 10/2025 (phân quyền, phân cấp; kiểm tra phần sửa đổi TT 22, TT 27, dạy thêm)
 2. TT 57/2026 bảo đảm chất lượng, chuẩn quốc gia trường phổ thông
-3. CV 4567/BGDĐT-GDPT dạy học 2 buổi/ngày; quy định quản lý, sử dụng Học bạ số; TT 02/2025 khung năng lực số người học
+3. CV 4567/BGDĐT-GDPT dạy học 2 buổi/ngày; TT 02/2025 khung năng lực số người học
 4. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
 5. NĐ 66/2026/NĐ-CP quy định chi tiết Luật Giáo dục
 6. TT 10/2026 Quy chế văn bằng, chứng chỉ
