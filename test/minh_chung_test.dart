@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:archive/archive.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tro_ly_so_giao_vien/data/minh_chung.dart';
@@ -50,6 +52,9 @@ void main() {
     for (final ten in ['[Content_Types].xml', 'xl/workbook.xml', 'xl/worksheets/sheet1.xml', 'xl/styles.xml', 'xl/_rels/workbook.xml.rels']) {
       expect(kho.findFile(ten), isNotNull, reason: ten);
     }
+    // Để máy kiểm tra mở thử bằng thư viện Excel khác (openpyxl)
+    Directory('build').createSync(recursive: true);
+    File('build/thu_danh_muc_minh_chung.xlsx').writeAsBytesSync(xlsx);
     final doc = docBangXlsx(xlsx);
     expect(doc.length, 3);
     expect(doc[1], ['1', 'TĐ-01', 'Thi đua, khen thưởng', 'Giấy khen <Chiến sĩ thi đua>', '30/05/2026', '', '0', '01_TD-01_Giay_khen_Chien_si_thi_dua.pdf']);

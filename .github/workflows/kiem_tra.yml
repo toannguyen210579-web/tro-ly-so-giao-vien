@@ -24,6 +24,17 @@ jobs:
       - run: dart run flutter_launcher_icons
       - run: flutter analyze --no-fatal-infos
       - run: flutter test
+      - name: Mở thử tệp Excel app tạo bằng thư viện khác
+        run: |
+          pip install --quiet openpyxl
+          python3 -c "
+          import openpyxl
+          wb = openpyxl.load_workbook('build/thu_danh_muc_minh_chung.xlsx')
+          ws = wb.active
+          print('Trang:', ws.title, '| số dòng:', ws.max_row, '| số cột:', ws.max_column)
+          for r in ws.iter_rows(values_only=True): print(r)
+          assert ws.max_row == 3 and ws.cell(3, 6).value == 'Số 125/GCN-PGDĐT, Phòng GD&ĐT'
+          "
       # Kho thư viện Maven đôi khi báo quá tải (429): chờ rồi đóng gói lại, tối đa 3 lần
       - run: |
           for i in 1 2 3; do
