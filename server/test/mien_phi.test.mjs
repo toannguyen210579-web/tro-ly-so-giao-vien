@@ -175,3 +175,38 @@ test("Lọc kết quả: bỏ kết quả tiếng Hindi, Trung; đưa tiếng Vi
   ]);
   assert.deepEqual(kq.map((x) => x.url), ["https://nhandan.vn/e", "https://baomoi.com/d", "https://en.example.com/c"]);
 });
+
+// Gemini (Flash Lite) hết lượt; Gemma trả lời được hoặc quá tải tùy [gemma]
+function moiTruongGemma(gemma) {
+  const { env, ghi } = moiTruong({ dv: { "api.groq.com": [429, {}] }, khoa: ["GROQ_API_KEY"] });
+  env.GEMINI = {
+    async fetch(_u, o) {
+      const b = JSON.parse(o.body);
+      if (b.url) { ghi.ngoai.push(b); return new Response("{}", { status: 429 }); }
+      ghi.gemini.push(b);
+      if (!b.model.startsWith("gemma")) return new Response("{}", { status: 429 });
+      if (gemma !== 200) return new Response("{}", { status: gemma });
+      return new Response(JSON.stringify({ candidates: [{ content: { parts: [{ text: "nghĩ...", thought: true }, { text: "Gemma trả lời" }] } }] }), { status: 200 });
+    },
+  };
+  return { env, ghi };
+}
+
+test("Gemma đứng sau mọi AI miễn phí nhanh, trả lời được thì chưa tốn Claude", async () => {
+  const { env, ghi } = moiTruongGemma(200);
+  const r = await goi(env, { mode: "hoi", input: "Bài thơ về mùa thu" });
+  assert.equal(r.by, "gemma");
+  assert.equal(r.text, "Gemma trả lời"); // bỏ phần suy nghĩ
+  assert.equal(ghi.claude.length, 0);
+  const g = ghi.gemini.filter((b) => b.model.startsWith("gemma"))[0];
+  assert.equal(g.timeout, 15000);
+  assert.equal(g.body.generationConfig.thinkingConfig.thinkingLevel, "minimal");
+  assert.ok(ghi.ngoai.length >= 1, "Groq phải được thử trước Gemma");
+});
+
+test("Gemma quá tải cả hai mô hình thì Claude trả lời", async () => {
+  const { env, ghi } = moiTruongGemma(503);
+  const r = await goi(env, { mode: "hoi", input: "Bài thơ về mùa thu" });
+  assert.equal(r.by, "claude");
+  assert.deepEqual(ghi.gemini.filter((b) => b.model.startsWith("gemma")).map((b) => b.model), ["gemma-4-26b-a4b-it", "gemma-4-31b-it"]);
+});

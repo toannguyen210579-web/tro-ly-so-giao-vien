@@ -3,7 +3,7 @@
 // Không có đường dẫn công khai: chỉ máy chủ chính tro-ly-gv gọi được qua service binding.
 const CHO_PHEP = [
   "api.search.tinyfish.ai", "api.langsearch.com", "api.exa.ai", "api.tavily.com", "ydc-index.io", "api.firecrawl.dev",
-  "api.groq.com", "api.cerebras.ai", "api.mistral.ai", "api.z.ai", "router.huggingface.co", "models.github.ai",
+  "api.groq.com", "api.cerebras.ai", "api.mistral.ai", "api.z.ai", "router.huggingface.co",
 ];
 
 export default {

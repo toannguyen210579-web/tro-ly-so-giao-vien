@@ -197,6 +197,9 @@ export const AI_MIEN_PHI = [
   { ten: "zai", khoa: "ZAI_API_KEY", url: "https://api.z.ai/api/paas/v4/chat/completions", mo: ["glm-4.7-flash", "glm-4.5-flash"], them: { thinking: { type: "disabled" } } },
   { ten: "huggingface", khoa: "HF_TOKEN", url: "https://router.huggingface.co/v1/chat/completions", mo: ["openai/gpt-oss-120b", "Qwen/Qwen3-235B-A22B-Instruct-2507"] },
   // GitHub Models: GitHub đã đóng hẳn từ 30/7/2026, bỏ.
+  // Gemma 4 qua tài khoản Gemini: 14.400 câu/ngày mỗi mô hình nhưng hay quá tải, chậm (thử 20/11/2026: 2–77 giây).
+  // Chỉ thử sau cùng, trước Claude; chờ tối đa 15 giây.
+  { ten: "gemma", gemma: true, cuoi: true, mo: ["gemma-4-26b-a4b-it", "gemma-4-31b-it"] },
 ];
 
 function tinNhan(system, input, hist) {
@@ -211,6 +214,26 @@ function tinNhan(system, input, hist) {
 const sach = (t) => String(t || "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
 
 async function goiMot(env, d, model, messages, maxOut) {
+  if (d.gemma) {
+    const sys = messages[0].content;
+    const contents = messages.slice(1).map((m) => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+    const r = await env.GEMINI.fetch("https://gemini/", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        model,
+        timeout: 15000,
+        // Gemma không tắt hẳn được phần suy nghĩ; để mức thấp nhất. Phần suy nghĩ cũng tính vào giới hạn chữ ra.
+        body: { systemInstruction: { parts: [{ text: sys }] }, contents, generationConfig: { maxOutputTokens: maxOut + 1024, thinkingConfig: { thinkingLevel: "minimal" } } },
+      }),
+    });
+    if (!r.ok) return { status: r.status };
+    const j = await r.json().catch(() => ({}));
+    const c = (j.candidates || [])[0] || {};
+    const text = sach(((c.content || {}).parts || []).filter((p) => p.text && !p.thought).map((p) => p.text).join(""));
+    const u = j.usageMetadata || {};
+    return text ? { text, usage: { prompt_tokens: u.promptTokenCount, completion_tokens: u.candidatesTokenCount } } : { status: "rong" };
+  }
   if (d.ai) {
     const r = await env.AI.run(model, { messages, max_tokens: maxOut });
     const text = sach(r.response || (((r.choices || [])[0] || {}).message || {}).content);
@@ -228,7 +251,9 @@ async function goiMot(env, d, model, messages, maxOut) {
 
 /** Thử lần lượt các AI miễn phí (ngẫu nhiên để chia tải). Trả về { text, by } hoặc { err, status }. */
 export async function vietMienPhi(env, system, input, hist, maxOut) {
-  const ds = tronNgauNhien(AI_MIEN_PHI.filter((d) => (d.ai ? env.AI : env[d.khoa]) && !dangNghi(d.ten)));
+  const co = AI_MIEN_PHI.filter((d) => (d.gemma ? env.GEMINI : d.ai ? env.AI : env[d.khoa]) && !dangNghi(d.ten));
+  // Dịch vụ nhanh xếp ngẫu nhiên để chia tải; dịch vụ chậm (Gemma) luôn để sau cùng
+  const ds = [...tronNgauNhien(co.filter((d) => !d.cuoi)), ...co.filter((d) => d.cuoi)];
   const messages = tinNhan(system, input, hist);
   let cuoi = "khong_co";
   for (const d of ds) {
@@ -242,6 +267,7 @@ export async function vietMienPhi(env, system, input, hist, maxOut) {
       if (r.text) return { text: r.text, by: d.ten, usage: { input_tokens: r.usage?.prompt_tokens, output_tokens: r.usage?.completion_tokens } };
       cuoi = d.ten + ":" + r.status;
       if (r.status === 404 || r.status === 400) continue; // tên mô hình không còn: thử tên kế
+      if (d.gemma && (r.status === 503 || r.status === 504)) continue; // mô hình này đang quá tải: thử mô hình kia
       break;
     }
     choNghi(d.ten, /:(429|402)$/.test(cuoi) ? 30 * 60 : /:401$/.test(cuoi) ? 6 * 3600 : 60);
