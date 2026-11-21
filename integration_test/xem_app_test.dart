@@ -246,9 +246,12 @@ void main() {
       if (dy.evaluate().isNotEmpty) await bam(t, dy);
       // Ô kết quả chỉ hiện khi AI trả lời xong
       var xong = false;
-      for (var i = 0; i < 300 && !xong; i++) {
-        await cho(t, 500);
-        xong = find.text('Lưu Word').evaluate().isNotEmpty; // nút này chỉ hiện khi đã có kết quả
+      // Phần kết quả nằm cuối danh sách (dựng lười): cuộn xuống cuối rồi mới tìm
+      for (var i = 0; i < 150 && !xong; i++) {
+        await cuonCuoi(t);
+        await cho(t, 700);
+        xong = find.textContaining('Bản do AI làm', skipOffstage: false).evaluate().isNotEmpty ||
+            find.text('Lưu Word', skipOffstage: false).evaluate().isNotEmpty;
       }
       kq('giai_de_ai: ${xong ? "co ket qua" : "CHUA CO"}');
       await cho(t, 1500);
@@ -294,7 +297,15 @@ void main() {
       await chup(t, '31_minh_chung_them');
       await bam(t, find.widgetWithText(FilledButton, 'Lưu'), ms: 2000);
       await chup(t, '32_minh_chung_ds');
-      await bam(t, find.textContaining('Xuất để nộp hồ sơ'), ms: 1500);
+      await bam(t, find.textContaining('Xuất để nộp hồ sơ ('), ms: 1500);
+      final coBang = find.text('Để tải lên hệ thống').evaluate().isNotEmpty;
+      kq('minh_chung_xuat: ${coBang ? "hien bang chon" : "CHUA HIEN"}');
+      if (!coBang) {
+        // Nút chia sẻ ở thanh trên cũng mở bảng xuất
+        final nut = find.byIcon(Icons.ios_share);
+        if (nut.evaluate().isNotEmpty) await bam(t, nut.first, ms: 1500);
+      }
+      await cho(t, 3000); // giữ bảng chọn trên màn hình để video quay được
       await chup(t, '33_minh_chung_xuat');
     });
 
@@ -370,7 +381,11 @@ void main() {
     });
     await buoc('anh_the', () async {
       await moMa(t, 'anh_the');
+      await cho(t, 4000);
       await chup(t, '91_anh_the');
+      await cuonCuoi(t);
+      await cho(t, 4000);
+      await chup(t, '92_anh_the_duoi');
     });
   }, timeout: const Timeout(Duration(minutes: 30)));
 }
