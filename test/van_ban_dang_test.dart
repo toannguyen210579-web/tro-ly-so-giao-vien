@@ -63,4 +63,15 @@ void main() {
     expect(tinhDangPhi(NhomDangPhi.huuTri, soTien: 7000000, giamMotNua: true), 17500);
     expect(tienVN(85000), '85.000 đồng');
   });
+
+  test('Lịch họp chi bộ hằng tháng', () {
+    final ds = lichHopChiBo(31, 14, 0, tu: DateTime(2026, 11, 21, 18));
+    expect(ds.length, 12);
+    expect(ds.first, DateTime(2026, 11, 30, 14));
+    expect(ds[1], DateTime(2026, 12, 31, 14));
+    expect(ds[3], DateTime(2027, 2, 28, 14));
+    final qua = lichHopChiBo(5, 14, 0, tu: DateTime(2026, 11, 21, 18));
+    expect(qua.first, DateTime(2026, 12, 5, 14));
+    expect(qua.length, 12);
+  });
 }

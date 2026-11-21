@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../data/lich.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/van_ban_dang.dart';
@@ -121,6 +122,16 @@ class _CongTacDangState extends State<CongTacDang> {
               subtitle: const Text('Ghi một lần, xuất cả biên bản và nghị quyết chi bộ tháng (tệp Word đúng thể thức văn bản Đảng)'),
               trailing: const Icon(Icons.chevron_right),
               onTap: _moSoan,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.alarm_rounded),
+              title: const Text('Lịch nhắc họp chi bộ'),
+              subtitle: const Text('Đặt ngày họp hằng tháng, điện thoại nhắc trước một ngày'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManLichHopChiBo())),
             ),
           ),
           const SizedBox(height: 8),
@@ -465,6 +476,136 @@ class _ManDangPhiState extends State<ManDangPhi> {
             'lương tối thiểu vùng theo Nghị định số 293/2025/NĐ-CP. Các trường hợp miễn, giảm đảng phí do cấp ủy xem xét.',
             style: TextStyle(color: MauApp.chuPhu, fontSize: 13, height: 1.4),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+
+/// Nhắc họp chi bộ thường kỳ: tạo 12 buổi họp tới trong Lịch công tác, nhắc trước một ngày.
+class ManLichHopChiBo extends StatefulWidget {
+  const ManLichHopChiBo({super.key});
+
+  @override
+  State<ManLichHopChiBo> createState() => _ManLichHopChiBoState();
+}
+
+class _ManLichHopChiBoState extends State<ManLichHopChiBo> {
+  static const _khoa = 'dang_lich_hop';
+  static const _tienTo = 'chibo_';
+  int _ngay = 5;
+  TimeOfDay _gio = const TimeOfDay(hour: 14, minute: 0);
+  bool _bat = false;
+  List<ViecHan> _sap = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _doc();
+  }
+
+  Future<void> _doc() async {
+    final p = await SharedPreferences.getInstance();
+    final j = p.getString(_khoa);
+    final ds = (await docViec()).where((v) => v.id.startsWith(_tienTo) && !v.xong && v.han.isAfter(DateTime.now())).toList();
+    if (!mounted) return;
+    setState(() {
+      if (j != null) {
+        final m = jsonDecode(j) as Map<String, dynamic>;
+        _ngay = m['ngay'] as int? ?? 5;
+        _gio = TimeOfDay(hour: m['gio'] as int? ?? 14, minute: m['phut'] as int? ?? 0);
+        _bat = m['bat'] as bool? ?? false;
+      }
+      _sap = ds;
+    });
+  }
+
+  Future<void> _luu(bool bat) async {
+    final p = await SharedPreferences.getInstance();
+    await p.setString(_khoa, jsonEncode({'ngay': _ngay, 'gio': _gio.hour, 'phut': _gio.minute, 'bat': bat}));
+    final ds = await docViec();
+    for (final v in ds.where((v) => v.id.startsWith(_tienTo))) {
+      await NhacHan.huy(v);
+    }
+    ds.removeWhere((v) => v.id.startsWith(_tienTo));
+    final moi = <ViecHan>[];
+    if (bat) {
+      for (final d in lichHopChiBo(_ngay, _gio.hour, _gio.minute)) {
+        moi.add(ViecHan(
+          id: '$_tienTo${d.year}${d.month.toString().padLeft(2, '0')}',
+          ten: 'Họp chi bộ thường kỳ tháng ${d.month}/${d.year}',
+          han: d,
+          ghiChu: 'Chuẩn bị dự thảo nghị quyết, biên bản trong mục Công tác Đảng',
+        ));
+      }
+      await NhacHan.xinQuyen();
+      for (final v in moi) {
+        await NhacHan.datNhac(v);
+      }
+    }
+    await ghiViec([...ds, ...moi]);
+    if (!mounted) return;
+    setState(() {
+      _bat = bat;
+      _sap = moi;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(bat ? 'Đã đặt nhắc 12 buổi họp chi bộ tới, xem trong Lịch công tác' : 'Đã tắt nhắc họp chi bộ')));
+  }
+
+  String _hai(int n) => n.toString().padLeft(2, '0');
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Lịch nhắc họp chi bộ')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          DropdownButtonFormField<int>(
+            initialValue: _ngay,
+            decoration: const InputDecoration(labelText: 'Ngày họp hằng tháng', border: OutlineInputBorder()),
+            items: [for (var d = 1; d <= 31; d++) DropdownMenuItem(value: d, child: Text('Ngày $d'))],
+            onChanged: (v) => setState(() => _ngay = v ?? _ngay),
+          ),
+          const SizedBox(height: 12),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.schedule_rounded),
+            title: Text('Giờ họp: ${_hai(_gio.hour)}:${_hai(_gio.minute)}'),
+            trailing: const Icon(Icons.edit_rounded),
+            onTap: () async {
+              final g = await showTimePicker(context: context, initialTime: _gio);
+              if (g != null) setState(() => _gio = g);
+            },
+          ),
+          const Text('Tháng không có ngày đã chọn (ví dụ ngày 31) thì họp vào ngày cuối tháng. Điện thoại nhắc trước một ngày.',
+              style: TextStyle(color: MauApp.chuPhu, height: 1.4)),
+          const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: () => _luu(true),
+            icon: const Icon(Icons.alarm_on_rounded),
+            label: Text(_bat ? 'Cập nhật lịch nhắc' : 'Bật nhắc họp chi bộ'),
+          ),
+          if (_bat)
+            TextButton.icon(
+              onPressed: () => _luu(false),
+              icon: const Icon(Icons.alarm_off_rounded),
+              label: const Text('Tắt nhắc'),
+            ),
+          if (_sap.isNotEmpty) ...[
+            const SizedBox(height: 16),
+            const Text('Các buổi họp tới', style: TextStyle(fontWeight: FontWeight.w900, color: MauApp.xanhDam)),
+            for (final v in _sap.take(4))
+              ListTile(
+                dense: true,
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.event_rounded),
+                title: Text(v.ten),
+                subtitle: Text('${_hai(v.han.hour)}:${_hai(v.han.minute)} ngày ${_hai(v.han.day)}/${_hai(v.han.month)}/${v.han.year}'),
+              ),
+          ],
         ],
       ),
     );

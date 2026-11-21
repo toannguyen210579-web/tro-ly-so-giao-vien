@@ -363,3 +363,19 @@ String tienVN(int n) {
   }
   return '$b đồng';
 }
+
+
+/// Các buổi họp chi bộ thường kỳ trong [soThang] tháng tới, vào ngày [ngay] hằng tháng
+/// (tháng không có ngày đó thì lấy ngày cuối tháng). Bỏ buổi đã qua.
+List<DateTime> lichHopChiBo(int ngay, int gio, int phut, {DateTime? tu, int soThang = 12}) {
+  final n = tu ?? DateTime.now();
+  final ds = <DateTime>[];
+  for (var i = 0; ds.length < soThang && i < soThang + 1; i++) {
+    final nam = n.year + (n.month - 1 + i) ~/ 12;
+    final thang = (n.month - 1 + i) % 12 + 1;
+    final cuoi = DateTime(nam, thang + 1, 0).day;
+    final d = DateTime(nam, thang, ngay > cuoi ? cuoi : ngay, gio, phut);
+    if (d.isAfter(n)) ds.add(d);
+  }
+  return ds;
+}

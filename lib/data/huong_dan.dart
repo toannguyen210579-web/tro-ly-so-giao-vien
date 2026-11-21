@@ -52,6 +52,11 @@ const huongDan = <String, List<MucHuongDan>>{
       'Văn bản trình bày theo Hướng dẫn 05-HD/VPTW ngày 27/5/2026 của Văn phòng Trung ương Đảng: lề trên 20, dưới 20, trái 30, phải 15 mm; chữ Times New Roman; số nhỏ hơn 10 thêm số 0.',
       'Mở tệp bằng Word hoặc WPS để sửa thêm, in, ký.',
     ]),
+    MucHuongDan('Lịch nhắc họp chi bộ', [
+      'Bấm "Lịch nhắc họp chi bộ", chọn ngày họp hằng tháng và giờ họp, rồi bấm "Bật nhắc họp chi bộ".',
+      'App tạo sẵn 12 buổi họp tới trong Lịch công tác; điện thoại nhắc trước một ngày, kể cả khi app đang đóng.',
+      'Đổi ngày giờ thì bấm "Cập nhật lịch nhắc"; không cần nữa thì bấm "Tắt nhắc".',
+    ]),
     MucHuongDan('Tính đảng phí', [
       'Bấm "Tính đảng phí", chọn nhóm: đang đóng BHXH bắt buộc, nghỉ ốm đau thai sản, hưu trí, học sinh sinh viên, chưa đến tuổi nghỉ hưu, đủ tuổi nghỉ hưu chưa hưởng lương hưu.',
       'Nhập tiền lương làm căn cứ đóng BHXH tháng trước (hoặc trợ cấp, lương hưu); nhóm tính theo lương tối thiểu thì chọn vùng.',
