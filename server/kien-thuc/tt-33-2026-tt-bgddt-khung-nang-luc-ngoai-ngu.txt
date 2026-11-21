@@ -1,0 +1,103 @@
+THÔNG TƯ 33/2026/TT-BGDĐT BAN HÀNH KHUNG NĂNG LỰC NGOẠI NGỮ DÙNG CHO VIỆT NAM
+
+Số hiệu: 33/2026/TT-BGDĐT
+Cơ quan ban hành: Bộ Giáo dục và Đào tạo (KT. Bộ trưởng, Thứ trưởng Phạm Ngọc Thưởng ký)
+Ngày ký: 15/4/2026
+Hiệu lực: từ ngày 31/5/2026
+Văn bản thay thế: Thông tư 01/2014/TT-BGDĐT (Khung năng lực ngoại ngữ 6 bậc). Chương trình đào tạo, kiểm tra đánh giá đang triển khai theo TT 01/2014 được dùng tiếp đến hết 31/12/2027.
+Điểm mới: thêm mức "Tiền Bậc 1" (tương đương Pre A1 của CEFR) bên cạnh 6 bậc.
+Nguồn: nguyên văn trên luatvietnam.vn; đối chiếu tin luatvietnam.vn, báo Nhân Dân, Văn hóa, Sài Gòn Giải Phóng/The Saigon Times.
+Phạm vi tệp: nguyên văn Thông tư (Điều 1–6), bảng tương thích với CEFR và phần ĐẶC TẢ TỔNG QUÁT của 4 kỹ năng. Các bảng đặc tả chi tiết từng tiểu kỹ năng (khung gốc dài khoảng 190.000 ký tự) chưa chép vào kho.
+
+NGUYÊN VĂN THÔNG TƯ
+
+Căn cứ Luật Giáo dục số 43/2019/QH14 được sửa đổi, bổ sung bởi Luật sửa đổi, bổ sung một số điều của Luật Giáo dục số 123/2025/QH15; Căn cứ Luật Giáo dục nghề nghiệp số 124/2025/QH15; Căn cứ Luật Giáo dục đại học số 125/2025/QH15; Căn cứ Nghị định số 37/2025/NĐ-CP ngày 26 tháng 02 năm 2025 của Chính phủ quy định chức năng, nhiệm vụ, quyền hạn và cơ cấu tổ chức của Bộ Giáo dục và Đào tạo; Căn cứ Quyết định số 1982/QĐ-TTg ngày 18 tháng 10 năm 2016 của Thủ tướng Chính phủ phê duyệt Khung trình độ quốc gia Việt Nam; Theo đề nghị của Cục trưởng Cục Quản lý chất lượng; Bộ trưởng Bộ Giáo dục và Đào tạo ban hành Thông tư về Khung năng lực ngoại ngữ dùng cho Việt Nam.
+
+Điều 1. Phạm vi điều chỉnh và đối tượng áp dụng
+1. Ban hành kèm theo Thông tư này Khung năng lực ngoại ngữ dùng cho Việt Nam (viết tắt là: KNLNNVN).
+2. Thông tư này áp dụng đối với các cơ sở giáo dục; các chương trình đào tạo ngoại ngữ, các cơ sở đào tạo ngoại ngữ và người học ngoại ngữ trong hệ thống giáo dục quốc dân; các tổ chức và cá nhân có liên quan.
+
+Điều 2. Giải thích từ ngữ
+1. Đa ngữ là khả năng giao tiếp bằng nhiều ngoại ngữ với nhiều người dùng các thứ tiếng khác nhau.
+2. Đặc ngữ là cụm từ mang nghĩa đặc biệt chỉ dùng trong các bối cảnh nhất định, thường mang sắc thái nghĩa mạnh hơn thành ngữ.
+3. Liên văn hóa là kỹ năng giao tiếp thể hiện sự phù hợp và tinh tế trong tương tác với người thuộc nền văn hóa khác.
+4. Ngôn ngữ A là ngôn ngữ mà người nói sử dụng trước, thường xuyên.
+5. Ngôn ngữ B là ngôn ngữ mà người sử dụng như một ngoại ngữ.
+6. Ngôn ngữ đích là ngôn ngữ người học đang tập trung luyện tập thành thạo, hoặc ngôn ngữ của văn bản dịch.
+7. Ngữ vực là sắc thái giọng tùy bối cảnh xã hội (ví dụ như trang trọng, thân mật...)
+8. Phương ngữ là thổ ngữ, là các biến thể của một ngôn ngữ toàn dân, được sử dụng phổ biến bởi cộng đồng người ở một vùng địa lý cụ thể hoặc nhóm xã hội nhất định.
+9. Thảo luận trực tuyến thời gian thực là hoạt động trò chuyện qua các kênh mạng trực tuyến có tương tác trực tiếp.
+
+Điều 3. Mục đích sử dụng Khung năng lực ngoại ngữ dùng cho Việt Nam
+1. Làm căn cứ thống nhất về yêu cầu năng lực cho tất cả các ngoại ngữ được giảng dạy trong hệ thống giáo dục quốc dân.
+2. Làm cơ sở để các cơ sở giáo dục, cơ quan, tổ chức nghiên cứu, tham khảo, vận dụng trong xây dựng chương trình, biên soạn hoặc lựa chọn giáo trình, sách giáo khoa, kế hoạch giảng dạy, kiểm tra, đánh giá năng lực ngoại ngữ ở từng cấp học, trình độ đào tạo, chuẩn đầu ra bảo đảm sự liên thông trong đào tạo ngoại ngữ giữa các cấp học và trình độ đào tạo.
+3. Làm cơ sở cho giáo viên, giảng viên lựa chọn và triển khai nội dung, cách thức giảng dạy, kiểm tra, đánh giá, chuẩn đầu ra để người học đạt được yêu cầu của chương trình đào tạo.
+4. Giúp người học hiểu được nội dung, yêu cầu đối với từng trình độ năng lực ngoại ngữ và tự đánh giá năng lực của mình.
+5. Tạo điều kiện thuận lợi cho việc hợp tác, trao đổi giáo dục, công nhận văn bằng, chứng chỉ với các quốc gia ứng dụng Khung tham chiếu chung Châu Âu (CEFR).
+6. Làm căn cứ để công nhận các cấp độ của chứng chỉ năng lực ngoại ngữ của nước ngoài tương đương với các bậc của Khung năng lực ngoại ngữ dùng cho Việt Nam để sử dụng trong tuyển sinh, đào tạo các trình độ của giáo dục đại học.
+
+Điều 4. Tổ chức thực hiện
+1. Các cơ quan quản lý nhà nước về giáo dục xây dựng kế hoạch và triển khai Khung năng lực ngoại ngữ dùng cho Việt Nam theo chức năng, nhiệm vụ được phân công.
+2. Các cơ sở giáo dục thực hiện quyền tự chủ về chuyên môn, học thuật xây dựng, phát triển chương trình giáo dục, theo đó, trên cơ sở các quy định của Khung năng lực ngoại ngữ dùng cho Việt Nam để triển khai nghiên cứu, bổ sung, cập nhật chương trình, tài liệu học tập, tài liệu hướng dẫn và bảo đảm các điều kiện cần thiết để triển khai theo các chỉ đạo, hướng dẫn của các cơ quan quản lý cấp trên và theo các quy định pháp luật hiện hành.
+3. Đối với các quốc gia có ngôn ngữ không thuộc hệ chữ latinh và đã ban hành khung năng lực ngôn ngữ riêng thực hiện theo hướng dẫn của Bộ GDĐT về việc áp dụng và quy đổi tương đương với Khung năng lực ngoại ngữ dùng cho Việt Nam.
+
+Điều 5. Hiệu lực thi hành
+1. Thông tư này có hiệu lực thi hành kể từ ngày 31 tháng 5 năm 2026.
+2. Thông tư này thay thế Thông tư số 01/2014/TT-BGDĐT ngày 24 tháng 01 năm 2014 ban hành Khung năng lực Ngoại ngữ 6 bậc dùng cho Việt Nam của Bộ trưởng Bộ Giáo dục và Đào tạo.
+3. Những chương trình đào tạo, kiểm tra đánh giá đang được triển khai theo Thông tư số 01/2014/TT-BGDĐT ngày 24 tháng 01 năm 2014 được tiếp tục sử dụng cho đến hết ngày 31 tháng 12 năm 2027.
+
+Điều 6. Trách nhiệm thi hành
+Chánh Văn phòng, Cục trưởng Cục Quản lý chất lượng, Thủ trưởng các đơn vị có liên quan thuộc Bộ Giáo dục và Đào tạo; Chủ tịch Ủy ban nhân dân tỉnh, thành phố trực thuộc Trung ương; Giám đốc các sở Giáo dục và Đào tạo; Giám đốc các đại học, học viện, Hiệu trưởng các trường đại học, cao đẳng, trung cấp chịu trách nhiệm thi hành Thông tư này./.
+
+KT. BỘ TRƯỞNG - THỨ TRƯỞNG Phạm Ngọc Thưởng (đã ký)
+
+KHUNG NĂNG LỰC NGOẠI NGỮ DÙNG CHO VIỆT NAM (Kèm theo Thông tư số 33/2026/TT-BGDĐT ngày 15 tháng 4 năm 2026) – TRÍCH
+
+I. Mức độ tương thích giữa Khung năng lực ngoại ngữ dùng Việt Nam và Khung tham chiếu chung Châu Âu
+KNLNNVN được phát triển trên cơ sở tham chiếu, ứng dụng CEFR và một số khung trình độ của các nước, kết hợp với tình hình và điều kiện thực tế dạy, học và sử dụng ngoại ngữ ở Việt Nam. KNLNNVN được chia làm 3 cấp (Sơ cấp, Trung cấp và Cao cấp). Cụ thể như sau:
+- Tiền Bậc 1 – Pre A1
+- Sơ cấp: Bậc 1 – A1; Bậc 2 – A2
+- Trung cấp: Bậc 3 – B1; Bậc 4 – B2
+- Cao cấp: Bậc 5 – C1; Bậc 6 – C2
+
+II. Nội dung Khung (trích phần đặc tả tổng quát)
+
+PHẦN 1: KỸ NĂNG NGHE HIỂU – 1.1. Đặc tả tổng quát (NGHE HIỂU TỔNG QUÁT)
+BẬC 6: Có thể hiểu mọi loại hình ngôn ngữ khi nghe trực tiếp hoặc phát thanh có tốc độ bình thường.
+BẬC 5: Có thể hiểu đủ để theo dõi những bài nói dài về những chủ đề phức tạp và trừu tượng nằm ngoài lĩnh vực chuyên môn của mình, song đôi lúc vẫn cần hỏi lại để nắm bắt thông tin chi tiết, đặc biệt khi nghe giọng không quen thuộc. Có thể nhận ra nhiều thành ngữ, khẩu ngữ và hiểu cách chuyển đổi ngữ vực. Có thể hiểu những bài nói dài ngay cả khi không được cấu trúc rõ ràng và mối quan hệ giữa các ý chỉ được ngầm hiểu, chứ không được thể hiện rõ.
+BẬC 4: Có thể hiểu được ngôn ngữ nói chuẩn mực trong các bài nói trực tiếp hoặc phát thanh về các chủ đề thường gặp trong đời sống, xã hội, học thuật và nghề nghiệp. Năng lực nghe hiểu có thể bị ảnh hưởng trong môi trường tạp âm lớn, cấu trúc diễn ngôn không đầy đủ rõ ràng hoặc khi có thành ngữ. Có thể hiểu các ý chính của bài phát biểu có ngôn ngữ hoặc kiến thức phức tạp về các chủ đề cụ thể và trừu tượng dùng ngôn ngữ chuẩn, bao gồm các cuộc thảo luận mang tính chuyên ngành trong lĩnh vực chuyên môn của mình. Có thể hiểu các bài nói dài và các luồng tranh luận phức tạp miễn là chủ đề tương đối quen thuộc và hướng tranh luận được nêu rõ bằng các (cụm) từ nối rõ ràng.
+BẬC 3: Có thể hiểu thông tin đơn giản thực tế về các chủ đề phổ biến hàng ngày hoặc về công việc, xác định được thông điệp chung cũng như chi tiết cụ thể nêu bài phát biểu được phát âm rõ ràng và có loại hình ngôn ngữ quen thuộc. Có thể hiểu những điểm chính của bài phát biểu mang ngôn ngữ tiêu chuẩn, rõ ràng về các vấn đề quen thuộc thường gặp trong công việc, trường học, giải trí, v.v., bao gồm cả những đoạn trần thuật ngắn.
+BẬC 2: Có thể hiểu đủ để đáp ứng nhu cầu cụ thể với điều kiện lời nói được phát âm rõ ràng và chậm rãi. Có thể hiểu các cụm từ và cách diễn đạt liên quan đến các lĩnh vực cấp thiết (ví dụ: thông tin cá nhân và gia đình rất cơ bản, mua sắm, địa lý địa phương, việc làm), miễn là lời nói được phát âm rõ ràng và chậm rãi.
+BẬC 1: Có thể hiểu lời nói nếu người nói phát âm rất chậm, cẩn thận và dừng lâu để hiểu được ý nghĩa. Có thể nhận ra thông tin cụ thể (ví dụ: địa điểm và thời gian) về các chủ đề quen thuộc gặp trong cuộc sống hàng ngày, nếu thông tin được truyền tải bằng lời nói chậm và rõ ràng.
+Tiền Bậc 1: Có thể hiểu các câu hỏi và các phần trình bày rất ngắn và rất đơn giản nếu được truyền tải chậm và rõ ràng, có kèm theo hình ảnh hoặc cử chỉ để hỗ trợ việc hiểu và được lặp lại nếu cần thiết. Có thể nhận ra những từ ngữ/dấu hiệu quen thuộc nếu chúng được truyền đạt rõ ràng và chậm rãi trong một bối cảnh được xác định rõ ràng, quen thuộc hàng ngày. Có thể nhận ra các con số, giá cả, ngày trong tuần, được diễn đạt chậm và rõ ràng trong bối cảnh hàng ngày cụ thể và quen thuộc.
+
+PHẦN 2: KỸ NĂNG ĐỌC HIỂU – 2.1. Đặc tả tổng quát (ĐỌC HIỂU TỔNG QUÁT)
+BẬC 6: Có thể hiểu hầu như tất cả các dạng của ngôn ngữ viết bao gồm các tác phẩm văn học và phi văn học trừu tượng, có cấu trúc phức tạp hoặc cách diễn văn đời thường. Có thể hiểu một loạt các văn bản dài và phức tạp, đánh giá được sự khác biệt tinh tế của phong cách và ý nghĩa ngầm cũng như ý nghĩa được thể hiện rõ ràng.
+BẬC 5: Có thể hiểu chi tiết các văn bản dài, phức tạp, cho dù chúng có liên quan đến lĩnh vực chuyên môn của mình hay không, miễn là có thể đọc lại các phần khó. Có thể hiểu nhiều loại văn bản bao gồm các tác phẩm văn học, bài báo hoặc tạp chí và các ấn phẩm học thuật hoặc chuyên ngành, nếu được đọc kỹ và có từ điển hoặc công cụ tra cứu khi cần.
+BẬC 4: Nhìn chung có thể tự đọc, điều chỉnh phong cách và tốc độ đọc theo các văn bản và mục đích khác nhau, và sử dụng các nguồn tham khảo thích hợp một cách có chọn lọc. Có thể sử dụng lượng lớn vốn từ vựng đọc, nhưng có thể gặp một số khó khăn với các thành ngữ ít gặp.
+BẬC 3: Có thể đọc các văn bản thực tế đơn giản về các chủ đề liên quan đến lĩnh vực và sở thích của mình với mức độ hiểu vừa đủ.
+BẬC 2: Có thể hiểu các văn bản ngắn, đơn giản về các vấn đề quen thuộc, cụ thể bao gồm các vấn đề thường xảy ra hàng ngày hoặc ngôn ngữ liên quan đến công việc. Có thể hiểu các văn bản ngắn, đơn giản với những từ thông dụng, trong đó có một số từ quốc tế phổ biến.
+BẬC 1: Có thể hiểu những văn bản rất ngắn và đơn giản, đọc từng cụm từ một, nhận biết được tên riêng, từ và cụm từ cơ bản quen thuộc và có thể đọc lại khi cần.
+Tiền Bậc 1: Có thể nhận ra các từ quen thuộc kèm theo hình ảnh, chẳng hạn như thực đơn nhà hàng đồ ăn nhanh được minh họa bằng ảnh hoặc sách ảnh sử dụng từ vựng quen thuộc.
+
+PHẦN 3: KỸ NĂNG NÓI – 3.1.1. Đặc tả tổng quát cho kỹ năng nói sản sinh (NÓI SẢN SINH TỔNG QUÁT)
+BẬC 6: Có thể trình bày một bài phát biểu một cách rõ ràng và trôi chảy với kết cấu logic và hiệu quả giúp người nghe chú ý và nhớ các ý chính.
+BẬC 5: Có thể mô tả và trình bày rõ ràng, chi tiết về các chủ đề phức tạp, tích hợp các chủ đề phụ, phát triển các điểm cụ thể và đưa ra kết luận thích hợp.
+BẬC 4: Có thể mô tả và trình bày rõ ràng bài nói được phát triển một cách có hệ thống, nhấn mạnh các điểm quan trọng và chi tiết hỗ trợ có liên quan. Có thể mô tả và thuyết trình rõ ràng, chi tiết về một loạt các chủ đề liên quan đến lĩnh vực quan tâm, mở rộng và triển khai các ý tưởng với các luận cứ và các luận chứng liên quan.
+BẬC 3: Có thể trình bày khá trôi chảy một mô tả đơn giản về nhiều chủ đề mình quan tâm, theo trình tự từng ý một cách mạch lạc.
+BẬC 2: Có thể đưa ra một mô tả hoặc trình bày một cách đơn giản về con người, điều kiện sống hoặc làm việc, thói quen hàng ngày, thích/không thích, v.v. dưới dạng một loạt các cụm từ và câu đơn giản được liên kết thành một danh sách.
+BẬC 1: Có thể tạo ra các cụm từ đơn giản, riêng lẻ về con người và địa điểm.
+Tiền Bậc 1: Có thể tạo ra các cụm từ ngắn về bản thân, cung cấp thông tin cá nhân cơ bản (tên, địa chỉ, gia đình, quốc tịch, v.v.).
+
+PHẦN 4: KỸ NĂNG VIẾT – 4.1.1. Đặc tả tổng quát cho kỹ năng viết sản sinh (VIẾT SẢN SINH TỔNG QUÁT)
+BẬC 6: Có thể viết các văn bản rõ ràng, trôi chảy, phức tạp theo phong cách phù hợp và hiệu quả, cấu trúc logic giúp người đọc tìm ra những điểm quan trọng.
+BẬC 5: Có thể viết các văn bản rõ ràng, có cấu trúc tốt về các chủ đề phức tạp, nhấn mạnh các vấn đề nổi bật có liên quan, mở rộng và hỗ trợ các quan điểm có chi tiết với các luận cứ và luận chứng liên quan, và kết luận phù hợp. Có thể sử dụng cấu trúc và quy ước của nhiều thể loại văn bản, thay đổi giọng điệu, phong cách và văn phong tùy người nhận, loại văn bản và chủ đề.
+BẬC 4: Có thể viết văn bản rõ ràng, chi tiết về nhiều chủ đề liên quan đến lĩnh vực mình quan tâm, đồng thời tổng hợp và đánh giá thông tin, lập luận từ một số nguồn.
+BẬC 3: Có thể viết các văn bản đơn giản có tính kết nối về một loạt các chủ đề quen thuộc trong lĩnh vực quan tâm, bằng cách liên kết một loạt các yếu tố rời rạc ngắn hơn thành một trình tự tuyến tính.
+BẬC 2: Có thể viết một loạt các cụm từ và câu đơn giản được liên kết bằng các từ nối đơn giản như “và”, “nhưng” và “bởi vì”.
+BẬC 1: Có thể cung cấp thông tin bằng văn bản về các vấn đề cá nhân (ví dụ: điều thích và không thích, gia đình, vật nuôi) bằng cách sử dụng các từ đơn giản và cách diễn đạt cơ bản. Có thể viết các cụm từ và câu rời rạc đơn giản.
+Tiền bậc 1: Có thể cung cấp thông tin cá nhân cơ bản bằng văn bản (ví dụ: tên, địa chỉ, quốc tịch), có thể bằng cách sử dụng từ điển.
+
+LƯU Ý PHÂN BIỆT
+- Văn bản cũ nhắc "Khung năng lực ngoại ngữ 6 bậc theo Thông tư 01/2014/TT-BGDĐT" (ví dụ yêu cầu B1, B2 với giáo viên, sinh viên) nay hiểu theo Khung tại Thông tư 33/2026; bậc 3 = B1, bậc 4 = B2 không đổi. Chương trình, đề kiểm tra đánh giá đang làm theo TT 01/2014 dùng tiếp đến hết 31/12/2027.
+- Việc miễn thi ngoại ngữ trong xét tốt nghiệp THPT bằng chứng chỉ ngoại ngữ thực hiện theo Quy chế thi tốt nghiệp THPT (TT 24/2024 và văn bản sửa đổi), không quy định trong thông tư này.

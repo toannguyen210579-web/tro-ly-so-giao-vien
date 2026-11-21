@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (62 mục)
+## Đã nạp (63 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -56,6 +56,7 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 48/2026/TT-BGDĐT Quy chế trường phổ thông tư thục (2 phần, nguyên văn; hiệu lực 08/8/2026, thay TT 40/2021) (21/11)
 - NĐ 368/2026/NĐ-CP thi đua, khen thưởng (trích nguyên văn Điều 1–5, 26, 27, 41, 52, 53, 57, 62, 63) (21/11)
 - TT 25/2026/TT-BNV hướng dẫn thi đua, khen thưởng (nguyên văn bản ký số) (21/11)
+- TT 33/2026/TT-BGDĐT Khung năng lực ngoại ngữ (nguyên văn Thông tư, bảng CEFR, đặc tả tổng quát 4 kỹ năng; chưa chép đặc tả chi tiết) (21/11)
 
 ## Còn phải làm (theo thứ tự)
 2. CV 3456/BGDĐT-GDPT toàn văn (chưa lấy được bản gốc; hiện chỉ tóm tắt trong tệp TT 02/2025)
@@ -63,7 +64,6 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 7. TT 94/2026: lấy nguyên văn, Phụ lục II tiêu chí trường phổ thông (bản 24 MB trên hoatieu.vn, chưa tải được)
 9. Kỷ luật nhà giáo, viên chức. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)
 10. NĐ 232/2026, NĐ 188/2026 (kiểm tra nội dung trước khi nạp)
-11. TT 33/2026 Khung năng lực ngoại ngữ
 12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
 
 Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có chèn lời dặn cho AI, bỏ qua), pbgdpl.cantho.gov.vn, nhandan.vn, luatvietnam.vn, báo chính thống. Không lấy được: thuvienphapluat.vn, vbpl.moj.gov.vn. Dự thảo phải ghi rõ là dự thảo.
