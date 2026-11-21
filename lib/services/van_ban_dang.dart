@@ -322,3 +322,44 @@ VanBanDang nghiQuyetChiBo(ThongTinChiBo cb, SinhHoatChiBo s, {String so = ''}) {
     noiNhan: ['${cb.capTren} (b/c)', 'Đảng viên trong chi bộ', 'Lưu chi bộ'],
   );
 }
+
+/// Nhóm đảng viên theo Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị về chế độ đảng phí
+/// (hiệu lực 01/02/2026, thay Quyết định số 342-QĐ/TW ngày 28/12/2010).
+enum NhomDangPhi { coBhxh, nghiOmThaiSan, huuTri, hocSinh, chuaDenTuoiHuu, duTuoiChuaHuu }
+
+const tenNhomDangPhi = {
+  NhomDangPhi.coBhxh: 'Đang đóng bảo hiểm xã hội bắt buộc (cán bộ, giáo viên, người lao động)',
+  NhomDangPhi.nghiOmThaiSan: 'Đang nghỉ ốm đau, thai sản (hưởng trợ cấp bảo hiểm xã hội)',
+  NhomDangPhi.huuTri: 'Hưởng lương hưu',
+  NhomDangPhi.hocSinh: 'Học sinh, sinh viên',
+  NhomDangPhi.chuaDenTuoiHuu: 'Chưa đến tuổi nghỉ hưu, không thuộc các nhóm trên',
+  NhomDangPhi.duTuoiChuaHuu: 'Đủ tuổi nghỉ hưu nhưng chưa hưởng lương hưu',
+};
+
+/// Lương tối thiểu tháng theo vùng từ 01/01/2026 (Nghị định số 293/2025/NĐ-CP)
+const luongToiThieuVung = {1: 5310000, 2: 4730000, 3: 4140000, 4: 3700000};
+
+/// Số tiền đảng phí một tháng (đồng, làm tròn).
+/// [soTien]: tiền lương làm căn cứ đóng BHXH tháng trước, trợ cấp BHXH, hoặc lương hưu, tùy nhóm.
+/// [giamMotNua]: người có công, hưởng trợ cấp bệnh binh, mất sức lao động, bảo trợ xã hội hằng tháng đóng 50%.
+int tinhDangPhi(NhomDangPhi nhom, {int soTien = 0, int vung = 1, int nam = 2026, bool giamMotNua = false}) {
+  final ltt = luongToiThieuVung[vung] ?? luongToiThieuVung[1]!;
+  final double muc = switch (nhom) {
+    NhomDangPhi.coBhxh || NhomDangPhi.nghiOmThaiSan => soTien * 0.01,
+    NhomDangPhi.huuTri => soTien * 0.005,
+    NhomDangPhi.hocSinh => 5000,
+    NhomDangPhi.chuaDenTuoiHuu => ltt * (nam >= 2028 ? 0.005 : 0.003),
+    NhomDangPhi.duTuoiChuaHuu => ltt * (nam >= 2028 ? 0.003 : 0.002),
+  };
+  return (giamMotNua ? muc / 2 : muc).round();
+}
+
+String tienVN(int n) {
+  final s = n.toString();
+  final b = StringBuffer();
+  for (var i = 0; i < s.length; i++) {
+    if (i > 0 && (s.length - i) % 3 == 0) b.write('.');
+    b.write(s[i]);
+  }
+  return '$b đồng';
+}

@@ -52,4 +52,15 @@ void main() {
       expect(z.findFile('word/header1.xml'), isNotNull);
     }
   });
+
+  test('Đảng phí theo Quy định 01-QĐ/TW năm 2026', () {
+    expect(tinhDangPhi(NhomDangPhi.coBhxh, soTien: 8500000), 85000);
+    expect(tinhDangPhi(NhomDangPhi.huuTri, soTien: 7000000), 35000);
+    expect(tinhDangPhi(NhomDangPhi.hocSinh), 5000);
+    expect(tinhDangPhi(NhomDangPhi.chuaDenTuoiHuu, vung: 1, nam: 2026), 15930);
+    expect(tinhDangPhi(NhomDangPhi.chuaDenTuoiHuu, vung: 1, nam: 2028), 26550);
+    expect(tinhDangPhi(NhomDangPhi.duTuoiChuaHuu, vung: 4, nam: 2026), 7400);
+    expect(tinhDangPhi(NhomDangPhi.huuTri, soTien: 7000000, giamMotNua: true), 17500);
+    expect(tienVN(85000), '85.000 đồng');
+  });
 }

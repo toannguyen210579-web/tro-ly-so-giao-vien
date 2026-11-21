@@ -126,6 +126,16 @@ class _CongTacDangState extends State<CongTacDang> {
           const SizedBox(height: 8),
           Card(
             child: ListTile(
+              leading: const Icon(Icons.savings_rounded),
+              title: const Text('Tính đảng phí'),
+              subtitle: const Text('Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, cách nộp qua Cổng Dịch vụ công'),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi())),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
               leading: const Icon(Icons.question_answer_rounded),
               title: const Text('Hỏi về công tác Đảng'),
               subtitle: const Text('Điều lệ Đảng, sinh hoạt chi bộ, thủ tục đảng viên; có dẫn nguồn văn bản'),
@@ -332,6 +342,130 @@ class _SoanSinhHoatChiBoState extends State<SoanSinhHoatChiBo> {
             ),
           ]),
         ),
+      ),
+    );
+  }
+}
+
+
+/// Tính đảng phí hằng tháng theo Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị.
+class ManDangPhi extends StatefulWidget {
+  const ManDangPhi({super.key});
+
+  @override
+  State<ManDangPhi> createState() => _ManDangPhiState();
+}
+
+class _ManDangPhiState extends State<ManDangPhi> {
+  NhomDangPhi _nhom = NhomDangPhi.coBhxh;
+  final _tien = TextEditingController();
+  int _vung = 1;
+  bool _giam = false;
+
+  @override
+  void dispose() {
+    _tien.dispose();
+    super.dispose();
+  }
+
+  bool get _canTien => _nhom == NhomDangPhi.coBhxh || _nhom == NhomDangPhi.nghiOmThaiSan || _nhom == NhomDangPhi.huuTri;
+  bool get _canVung => _nhom == NhomDangPhi.chuaDenTuoiHuu || _nhom == NhomDangPhi.duTuoiChuaHuu;
+
+  String get _nhanTien => switch (_nhom) {
+        NhomDangPhi.nghiOmThaiSan => 'Tiền trợ cấp ốm đau, thai sản BHXH trả trong tháng (đồng)',
+        NhomDangPhi.huuTri => 'Lương hưu hằng tháng (đồng)',
+        _ => 'Tiền lương làm căn cứ đóng BHXH của tháng trước (đồng)',
+      };
+
+  String get _canCu => switch (_nhom) {
+        NhomDangPhi.coBhxh => '1% tiền lương làm căn cứ đóng bảo hiểm xã hội của tháng trước',
+        NhomDangPhi.nghiOmThaiSan => '1% tiền trợ cấp do cơ quan bảo hiểm xã hội chi trả',
+        NhomDangPhi.huuTri => '0,5% mức lương hưu',
+        NhomDangPhi.hocSinh => '5.000 đồng mỗi tháng',
+        NhomDangPhi.chuaDenTuoiHuu => '0,3% lương tối thiểu vùng (năm 2026, 2027); 0,5% từ năm 2028',
+        NhomDangPhi.duTuoiChuaHuu => '0,2% lương tối thiểu vùng (năm 2026, 2027); 0,3% từ năm 2028',
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final soTien = int.tryParse(_tien.text.replaceAll(RegExp(r'[^0-9]'), '')) ?? 0;
+    final muc = tinhDangPhi(_nhom, soTien: soTien, vung: _vung, nam: DateTime.now().year, giamMotNua: _giam);
+    final coKq = !_canTien || soTien > 0;
+    return Scaffold(
+      appBar: AppBar(title: const Text('Tính đảng phí')),
+      body: ListView(
+        padding: const EdgeInsets.all(16),
+        children: [
+          DropdownButtonFormField<NhomDangPhi>(
+            isExpanded: true,
+            initialValue: _nhom,
+            decoration: const InputDecoration(labelText: 'Đảng viên thuộc nhóm', border: OutlineInputBorder()),
+            items: [
+              for (final n in NhomDangPhi.values)
+                DropdownMenuItem(value: n, child: Text(tenNhomDangPhi[n]!, maxLines: 2, overflow: TextOverflow.ellipsis)),
+            ],
+            onChanged: (v) => setState(() => _nhom = v ?? _nhom),
+          ),
+          const SizedBox(height: 12),
+          if (_canTien)
+            TextField(
+              controller: _tien,
+              keyboardType: TextInputType.number,
+              onChanged: (_) => setState(() {}),
+              decoration: InputDecoration(labelText: _nhanTien, border: const OutlineInputBorder()),
+            ),
+          if (_canVung)
+            DropdownButtonFormField<int>(
+              isExpanded: true,
+              initialValue: _vung,
+              decoration: const InputDecoration(labelText: 'Vùng lương tối thiểu nơi cư trú', border: OutlineInputBorder()),
+              items: [
+                for (final e in luongToiThieuVung.entries)
+                  DropdownMenuItem(value: e.key, child: Text('Vùng ${e.key}: ${tienVN(e.value)}/tháng')),
+              ],
+              onChanged: (v) => setState(() => _vung = v ?? _vung),
+            ),
+          if (_nhom != NhomDangPhi.hocSinh)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              value: _giam,
+              onChanged: (v) => setState(() => _giam = v),
+              title: const Text('Người có công, hưởng trợ cấp bệnh binh, mất sức lao động, bảo trợ xã hội hằng tháng'),
+              subtitle: const Text('Đóng bằng 50% mức của nhóm tương ứng'),
+            ),
+          const SizedBox(height: 12),
+          Card(
+            color: const Color(0xFFFFF4E5),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Đảng phí mỗi tháng', style: TextStyle(fontWeight: FontWeight.w800)),
+                  const SizedBox(height: 4),
+                  Text(coKq ? tienVN(muc) : 'Nhập số tiền để tính',
+                      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: Color(0xFFC62828))),
+                  const SizedBox(height: 6),
+                  Text('Cách tính: $_canCu${_giam ? ', giảm 50%' : ''}.', style: const TextStyle(height: 1.4)),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Text('Cách nộp', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: MauApp.xanhDam)),
+          const SizedBox(height: 6),
+          const Text(
+            'Đóng hằng tháng qua Cổng Dịch vụ công quốc gia hoặc nộp trực tiếp cho chi bộ. '
+            'Không đóng đảng phí 3 tháng trong năm mà không có lý do chính đáng thì chi bộ xem xét, đề nghị xóa tên.',
+            style: TextStyle(height: 1.45),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            'Căn cứ: Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị về chế độ đảng phí (hiệu lực từ 01/02/2026, thay Quyết định số 342-QĐ/TW); '
+            'lương tối thiểu vùng theo Nghị định số 293/2025/NĐ-CP. Các trường hợp miễn, giảm đảng phí do cấp ủy xem xét.',
+            style: TextStyle(color: MauApp.chuPhu, fontSize: 13, height: 1.4),
+          ),
+        ],
       ),
     );
   }

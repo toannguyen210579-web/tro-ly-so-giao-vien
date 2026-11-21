@@ -52,6 +52,12 @@ const huongDan = <String, List<MucHuongDan>>{
       'Văn bản trình bày theo Hướng dẫn 05-HD/VPTW ngày 27/5/2026 của Văn phòng Trung ương Đảng: lề trên 20, dưới 20, trái 30, phải 15 mm; chữ Times New Roman; số nhỏ hơn 10 thêm số 0.',
       'Mở tệp bằng Word hoặc WPS để sửa thêm, in, ký.',
     ]),
+    MucHuongDan('Tính đảng phí', [
+      'Bấm "Tính đảng phí", chọn nhóm: đang đóng BHXH bắt buộc, nghỉ ốm đau thai sản, hưu trí, học sinh sinh viên, chưa đến tuổi nghỉ hưu, đủ tuổi nghỉ hưu chưa hưởng lương hưu.',
+      'Nhập tiền lương làm căn cứ đóng BHXH tháng trước (hoặc trợ cấp, lương hưu); nhóm tính theo lương tối thiểu thì chọn vùng.',
+      'Người có công, hưởng trợ cấp bệnh binh, mất sức lao động, bảo trợ xã hội hằng tháng thì bật ô giảm 50%.',
+      'Mức tính theo Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị, hiệu lực từ 01/02/2026.',
+    ]),
     MucHuongDan('Bảo mật', [
       'Nội dung nhập chỉ lưu trên điện thoại, không gửi lên máy chủ.',
       'Không nhập tài liệu có độ mật vào app.',
