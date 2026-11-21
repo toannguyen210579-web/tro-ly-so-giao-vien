@@ -18,8 +18,8 @@ MinhChung mc(String nhom, String tieuDe, DateTime ngay, {String ma = '', String 
 
 void main() {
   test('Tên tệp: không dấu, không khoảng trắng, có số thứ tự và mã', () {
-    final m = mc('Thi đua, khen thưởng', 'Giấy khen giáo viên dạy giỏi cấp huyện 2025-2026', DateTime(2026, 5, 1), ma: 'H1-1.1-01');
-    expect(tenTepMinhChung(3, m), '03_H1-1.1-01_Giay_khen_giao_vien_day_gioi_cap_huyen_2025-2026.pdf');
+    final m = mc('Thi đua, khen thưởng', 'Giấy khen giáo viên dạy giỏi cấp xã 2025-2026', DateTime(2026, 5, 1), ma: 'H1-1.1-01');
+    expect(tenTepMinhChung(3, m), '03_H1-1.1-01_Giay_khen_giao_vien_day_gioi_cap_xa_2025-2026.pdf');
     final khongMa = mc('Khác', 'Ảnh hoạt động "Ngày hội đọc sách" / lớp 6A?', DateTime(2026, 4, 21));
     expect(tenTepMinhChung(12, khongMa), '12_Anh_hoat_dong_Ngay_hoi_doc_sach_lop_6A.pdf');
     final dai = mc('Khác', 'Đ' * 100, DateTime(2026));
@@ -41,7 +41,7 @@ void main() {
 
   test('Danh mục Excel mở lại đọc đúng chữ có dấu, cột tên tệp khớp tệp PDF', () {
     final ds = xepDeNop([
-      mc('Bồi dưỡng, tập huấn', 'Giấy chứng nhận BDTX 2025-2026', DateTime(2026, 6, 15), ghiChu: 'Số 125/GCN-PGDĐT, Phòng GD&ĐT', anh: 2),
+      mc('Bồi dưỡng, tập huấn', 'Giấy chứng nhận BDTX 2025-2026', DateTime(2026, 6, 15), ghiChu: 'Số 88/GCN-SGDĐT, Sở GD&ĐT', anh: 2),
       mc('Thi đua, khen thưởng', 'Giấy khen <Chiến sĩ thi đua>', DateTime(2026, 5, 30), ma: 'TĐ-01'),
     ]);
     final bang = bangDanhMuc(ds);
@@ -58,7 +58,7 @@ void main() {
     final doc = docBangXlsx(xlsx);
     expect(doc.length, 3);
     expect(doc[1], ['1', 'TĐ-01', 'Thi đua, khen thưởng', 'Giấy khen <Chiến sĩ thi đua>', '30/05/2026', '', '0', '01_TD-01_Giay_khen_Chien_si_thi_dua.pdf']);
-    expect(doc[2][5], 'Số 125/GCN-PGDĐT, Phòng GD&ĐT');
+    expect(doc[2][5], 'Số 88/GCN-SGDĐT, Sở GD&ĐT');
     expect(doc[2][7], tenTepMinhChung(2, ds[1]));
   });
 

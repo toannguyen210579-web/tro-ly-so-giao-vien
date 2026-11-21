@@ -16,9 +16,14 @@ import 'cau_giup_viec.dart';
 const khoaLop = 'nhan_xet_lop';
 
 /// Mức đánh giá theo cấp học.
-/// Tiểu học theo Thông tư 27/2020/TT-BGDĐT; THCS, THPT theo Thông tư 22/2021/TT-BGDĐT.
-const mucTieuHoc = ['Hoàn thành tốt', 'Hoàn thành', 'Chưa hoàn thành'];
-const mucTrungHoc = ['Tốt', 'Khá', 'Đạt', 'Chưa đạt'];
+/// Tiểu học theo Thông tư 27/2020/TT-BGDĐT; THCS, THPT theo Thông tư 22/2021/TT-BGDĐT;
+/// cả hai được sửa đổi bởi Thông tư 89/2026/TT-BGDĐT (hiệu lực 01/12/2026).
+/// "Miễn": môn học, hoạt động học sinh khuyết tật được miễn theo kế hoạch giáo dục cá nhân, ghi "Miễn" trong Học bạ số
+/// (Điều 8 Thông tư 27/2020 và Điều 11 Thông tư 22/2021, sửa đổi bởi Thông tư 89/2026).
+const mucMien = 'Miễn';
+const mucTieuHoc = ['Hoàn thành tốt', 'Hoàn thành', 'Chưa hoàn thành', mucMien];
+const mucTrungHoc = ['Tốt', 'Khá', 'Đạt', 'Chưa đạt', mucMien];
+const vanBanDanhGia = 'Thông tư 27/2020 (tiểu học), Thông tư 22/2021 (THCS, THPT), sửa đổi bởi Thông tư 89/2026/TT-BGDĐT, hiệu lực 01/12/2026';
 
 class HocSinh {
   String ten;
@@ -28,10 +33,15 @@ class HocSinh {
   String diemGk;
   String diemCk;
 
-  HocSinh(this.ten, {this.muc = '', this.nhanXet = '', this.diemTx = '', this.diemGk = '', this.diemCk = ''});
+  /// Học sinh khuyết tật: đánh giá theo kế hoạch giáo dục cá nhân, dựa trên sự tiến bộ của chính em,
+  /// không so sánh với bạn khác (Thông tư 89/2026/TT-BGDĐT).
+  bool khuyetTat;
+
+  HocSinh(this.ten,
+      {this.muc = '', this.nhanXet = '', this.diemTx = '', this.diemGk = '', this.diemCk = '', this.khuyetTat = false});
 
   Map<String, dynamic> toJson() =>
-      {'ten': ten, 'muc': muc, 'nx': nhanXet, 'tx': diemTx, 'gk': diemGk, 'ck': diemCk};
+      {'ten': ten, 'muc': muc, 'nx': nhanXet, 'tx': diemTx, 'gk': diemGk, 'ck': diemCk, if (khuyetTat) 'kt': true};
 
   factory HocSinh.fromJson(Map<String, dynamic> j) => HocSinh(
         j['ten'] as String? ?? '',
@@ -40,6 +50,7 @@ class HocSinh {
         diemTx: j['tx'] as String? ?? '',
         diemGk: j['gk'] as String? ?? '',
         diemCk: j['ck'] as String? ?? '',
+        khuyetTat: j['kt'] == true,
       );
 
   /// Điểm trung bình môn học kỳ theo Điều 9 Thông tư 22/2021/TT-BGDĐT:
@@ -69,7 +80,7 @@ class Lop {
   Lop(this.ten, this.cap, this.mon, this.hocSinh);
 
   List<String> get dsMuc => cap == 'th' ? mucTieuHoc : mucTrungHoc;
-  String get tenCap => cap == 'th' ? 'Tiểu học · Thông tư 27' : 'THCS, THPT · Thông tư 22';
+  String get tenCap => cap == 'th' ? 'Tiểu học · Thông tư 27, sửa đổi bởi Thông tư 89/2026' : 'THCS, THPT · Thông tư 22, sửa đổi bởi Thông tư 89/2026';
 
   Map<String, dynamic> toJson() =>
       {'ten': ten, 'cap': cap, 'mon': mon, 'hs': hocSinh.map((h) => h.toJson()).toList()};
@@ -128,6 +139,8 @@ String _nhomMuc(String muc) {
     case 'Hoàn thành':
     case 'Đạt':
       return 'dat';
+    case mucMien:
+      return 'mien';
     default:
       return 'chua';
   }
@@ -384,6 +397,10 @@ class _ManLopState extends State<_ManLop> {
     final dem = <String, int>{};
     for (final h in lop.hocSinh) {
       if (h.muc.isEmpty || h.nhanXet.trim().isNotEmpty) continue;
+      if (h.muc == mucMien) {
+        h.nhanXet = mucMien;
+        continue;
+      }
       final n = _nhomMuc(h.muc);
       final i = dem[n] ?? 0;
       final ds = _mau[n]!;
@@ -396,7 +413,14 @@ class _ManLopState extends State<_ManLop> {
   /// Gửi lên AI chỉ mã học sinh (HS01, HS02...) và mức, không gửi tên thật.
   /// Chỉ viết cho em chưa có nhận xét, để không mất phần thầy cô đã sửa; em nào cũng có rồi thì viết lại cả lớp.
   Future<void> _nhoAI() async {
-    final coMuc = [for (var i = 0; i < lop.hocSinh.length; i++) if (lop.hocSinh[i].muc.isNotEmpty) i];
+    // Môn được miễn: ghi "Miễn" như Học bạ số, không cần AI viết
+    for (final h in lop.hocSinh) {
+      if (h.muc == mucMien) h.nhanXet = mucMien;
+    }
+    final coMuc = [
+      for (var i = 0; i < lop.hocSinh.length; i++)
+        if (lop.hocSinh[i].muc.isNotEmpty && lop.hocSinh[i].muc != mucMien) i,
+    ];
     if (coMuc.isEmpty) {
       _bao('Thầy cô chạm chọn mức cho học sinh trước, AI dựa vào mức để viết.');
       return;
@@ -444,9 +468,15 @@ class _ManLopState extends State<_ManLop> {
     final cauHoi = StringBuffer()
       ..writeln('Cấp học: ${lop.tenCap}. Môn: ${lop.mon.isEmpty ? 'chưa ghi' : lop.mon}.')
       ..writeln('Viết lời nhận xét ngắn (1–2 câu) cho từng học sinh theo mức sau.')
-      ..writeln('Trả về mỗi học sinh đúng một dòng, dạng "HS01: lời nhận xét", không thêm tiêu đề hay giải thích.');
+      ..writeln('Trả về mỗi học sinh đúng một dòng, dạng "HS01: lời nhận xét", không thêm tiêu đề hay giải thích.')
+      ..writeln('Căn cứ: $vanBanDanhGia.');
+    if (dot.any((i) => lop.hocSinh[i].khuyetTat)) {
+      cauHoi.writeln('Em ghi "khuyết tật": nhận xét theo kế hoạch giáo dục cá nhân, dựa trên sự tiến bộ của chính em, '
+          'động viên sự cố gắng vượt khó, không so sánh với bạn khác.');
+    }
     for (final i in dot) {
-      cauHoi.writeln('HS${(i + 1).toString().padLeft(2, '0')}: ${lop.hocSinh[i].muc}');
+      final h = lop.hocSinh[i];
+      cauHoi.writeln('HS${(i + 1).toString().padLeft(2, '0')}: ${h.muc}${h.khuyetTat ? ' (khuyết tật)' : ''}');
     }
     return cauHoi.toString();
   }
@@ -537,6 +567,14 @@ class _ManLopState extends State<_ManLop> {
                             Expanded(
                               child: Text('${i + 1}. ${h.ten}', style: const TextStyle(fontWeight: FontWeight.w700)),
                             ),
+                            if (h.khuyetTat)
+                              const Padding(
+                                padding: EdgeInsets.only(right: 4),
+                                child: Tooltip(
+                                  message: 'Học sinh khuyết tật: nhận xét theo kế hoạch giáo dục cá nhân',
+                                  child: Icon(Icons.accessibility_new, size: 18, color: MauApp.xanhDam),
+                                ),
+                              ),
                             if (lop.cap == 'tr' && tb != null)
                               Text('ĐTB: ${tb.toStringAsFixed(1)}', style: const TextStyle(color: MauApp.xanhDam)),
                             IconButton(
@@ -548,6 +586,7 @@ class _ManLopState extends State<_ManLop> {
                         ),
                         Wrap(
                           spacing: 6,
+                          runSpacing: 4,
                           children: [
                             for (final m in lop.dsMuc)
                               ChoiceChip(
@@ -622,7 +661,15 @@ class _SuaHocSinhState extends State<_SuaHocSinh> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.hs.ten, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 12),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            value: widget.hs.khuyetTat,
+            onChanged: (v) => setState(() => widget.hs.khuyetTat = v),
+            title: const Text('Học sinh khuyết tật'),
+            subtitle: const Text('Nhận xét theo kế hoạch giáo dục cá nhân, dựa trên sự tiến bộ của chính em. '
+                'Môn được miễn thì chọn mức "Miễn".'),
+          ),
+          const SizedBox(height: 4),
           TextField(
             controller: _nx,
             minLines: 2,
@@ -665,7 +712,7 @@ class _SuaHocSinhState extends State<_SuaHocSinh> {
               style: const TextStyle(fontWeight: FontWeight.w700, color: MauApp.xanhDam),
             ),
             const Text(
-              'Cách tính theo Điều 9 Thông tư 22/2021/TT-BGDĐT.',
+              'Cách tính theo Điều 9 Thông tư 22/2021/TT-BGDĐT (Thông tư 89/2026 không đổi cách tính).',
               style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
             ),
           ],

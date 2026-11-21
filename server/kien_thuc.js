@@ -2,7 +2,7 @@
 // Mô hình AI chưa biết các văn bản năm 2026, nên phải nạp sẵn (người dùng chốt 20/11/2026).
 // Nội dung đã đối chiếu văn bản gốc khi làm clip kênh Việt Nam Tiêu Điểm và lịch trả lời bình luận (15–20/11/2026).
 // Có văn bản mới thì sửa tệp này, cập nhật ngày ở dòng KIEN_THUC_NGAY.
-export const KIEN_THUC_NGAY = "20/11/2026";
+export const KIEN_THUC_NGAY = "21/11/2026";
 
 export const KIEN_THUC = `
 KIẾN THỨC NỀN VỀ CHẾ ĐỘ NHÀ GIÁO (cập nhật ${KIEN_THUC_NGAY}; ưu tiên dùng phần này hơn hiểu biết cũ của bạn).
@@ -39,4 +39,8 @@ Cách dùng: câu hỏi thuộc phần này thì trả lời theo đúng phần 
 10. Nghỉ hưu: theo Luật Nhà giáo (hiệu lực 1/1/2026), giáo viên mầm non được nghỉ hưu sớm tối đa 5 năm, cần đủ 15 năm đóng BHXH bắt buộc, không bị trừ tỷ lệ lương hưu; năm 2026 sớm nhất nữ 52 tuổi, nam 56 tuổi 6 tháng.
 
 11. Bảo hiểm thất nghiệp (Luật Việc làm 2025, từ 1/1/2026): chỉ hưởng khi chấm dứt hợp đồng đúng pháp luật, đã đóng đủ 12 tháng trong 24 tháng trước khi nghỉ, nộp hồ sơ trong 3 tháng; người đủ điều kiện hưởng lương hưu không được hưởng; không rút khi đang làm việc.
+
+12. Quản lý trường học từ 01/7/2025 (chính quyền địa phương hai cấp): không còn cấp huyện, không còn Phòng Giáo dục và Đào tạo. Trường mầm non, tiểu học, THCS thuộc Ủy ban nhân dân xã, phường (Chủ tịch UBND cấp xã quyết định các việc trước đây của Trưởng phòng GDĐT, UBND cấp huyện); trường THPT thuộc Sở Giáo dục và Đào tạo. Sở GDĐT hướng dẫn chuyên môn, nghiệp vụ cho mọi cấp. Không khuyên thầy cô gửi việc lên "Phòng GDĐT".
+
+13. Đánh giá học sinh: tiểu học theo Thông tư 27/2020/TT-BGDĐT, THCS, THPT theo Thông tư 22/2021/TT-BGDĐT, cả hai sửa đổi bởi Thông tư 89/2026/TT-BGDĐT ngày 16/10/2026, hiệu lực 01/12/2026. Mức đánh giá và cách tính điểm trung bình môn không đổi. Điểm mới: Học bạ số thay học bạ giấy (giáo viên môn ký số kết quả môn mình, giáo viên chủ nhiệm ký số sau); Sở GDĐT ra đề kiểm tra định kỳ chung cuối học kỳ I, cuối năm cho lớp 5 và cuối học kỳ I, II cho lớp 9, lớp 12 ở một số môn tính điểm do Sở chọn; được kiểm tra định kỳ trên máy tính khi đủ điều kiện; học sinh khuyết tật đánh giá theo kế hoạch giáo dục cá nhân, dựa trên tiến bộ của chính em, môn được miễn ghi "Miễn" trong Học bạ số; học sinh chấp hành xong kỷ luật được đánh giá lại rèn luyện; rèn luyện cả năm Chưa đạt nhưng rèn luyện hè đạt từ mức Đạt thì được kiểm tra lại các môn; lớp 9, lớp 12 kiểm tra lại trong hè bố trí linh hoạt, không ảnh hưởng tuyển sinh; không khảo sát, kiểm tra lại học sinh đã hoàn thành chương trình tiểu học khi vào lớp 6.
 `;

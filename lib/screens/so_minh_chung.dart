@@ -421,7 +421,7 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
 
   void _luu() {
     if (_tieuDe.text.trim().isEmpty) {
-      _bao('Thầy cô ghi tiêu đề minh chứng, ví dụ "Giấy khen giáo viên dạy giỏi cấp huyện".');
+      _bao('Thầy cô ghi tiêu đề minh chứng, ví dụ "Giấy khen giáo viên dạy giỏi cấp trường".');
       return;
     }
     // Ảnh bị bỏ khỏi minh chứng cũ: xóa tệp khi lưu.

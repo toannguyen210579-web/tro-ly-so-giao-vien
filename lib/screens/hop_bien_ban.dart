@@ -566,7 +566,7 @@ class _SuaBienBanState extends State<_SuaBienBan> {
           const Divider(height: 28),
           const Text('Thông tin đơn vị (app tự nhớ cho lần sau)', style: TextStyle(fontWeight: FontWeight.w800)),
           const SizedBox(height: 8),
-          TextField(controller: _donViTren, decoration: const InputDecoration(labelText: 'Cơ quan cấp trên', hintText: 'Ví dụ: Phòng GD&ĐT …')),
+          TextField(controller: _donViTren, decoration: const InputDecoration(labelText: 'Cơ quan cấp trên', hintText: 'Ví dụ: UBND xã/phường (MN, TH, THCS) hoặc Sở GD&ĐT (THPT)')),
           TextField(controller: _donVi, decoration: const InputDecoration(labelText: 'Tên trường, tổ', hintText: 'Ví dụ: Trường THCS …')),
           TextField(controller: _diaDanh, decoration: const InputDecoration(labelText: 'Địa danh ghi ngày tháng', hintText: 'Ví dụ: Hà Nội')),
           const SizedBox(height: 20),

@@ -216,10 +216,10 @@ void main() {
       MinhChung(
         id: '1',
         nhom: 'Thi đua, khen thưởng',
-        tieuDe: 'Giấy khen giáo viên dạy giỏi cấp huyện 2025-2026',
+        tieuDe: 'Giấy khen giáo viên dạy giỏi cấp xã 2025-2026',
         ngay: DateTime(2026, 5, 15),
         ma: 'TĐ-01',
-        ghiChu: 'Số 125/QĐ-PGDĐT, Phòng GD&ĐT Hòa Bình',
+        ghiChu: 'Số 125/QĐ-UBND, UBND phường Hòa Bình',
         anh: ['mau_giay_khen.jpg'],
       ).toJson(),
     ]);
