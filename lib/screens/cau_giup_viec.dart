@@ -20,7 +20,8 @@ class CauGiupViec extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFE8F6EF),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFBFE6D2)),
+        border: Border.all(color: const Color(0xFF9FD8BC)),
+        boxShadow: const [BoxShadow(color: Color(0x330B6553), blurRadius: 10, offset: Offset(0, 4))],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -32,7 +33,7 @@ class CauGiupViec extends StatelessWidget {
               children: [
                 const Icon(Icons.task_alt, color: MauApp.xanhLa, size: 20),
                 const SizedBox(width: 8),
-                Expanded(child: Text(cau, style: const TextStyle(fontSize: 13.5, height: 1.35, fontWeight: FontWeight.w600, color: Color(0xFF0B4F40)))),
+                Expanded(child: Text(cau, style: const TextStyle(fontSize: 13.5, height: 1.35, fontWeight: FontWeight.w700, color: Color(0xFF0B4F40)))),
               ],
             ),
           ),
