@@ -1,4 +1,5 @@
 name: Xem app qua ảnh chụp
+# Chụp lại 21/11/2026: giao diện kiểu nổi, Trang chủ ở giữa thanh dưới
 on:
   workflow_dispatch:
   push:
