@@ -52,22 +52,23 @@ class _TrangChuState extends State<TrangChu> {
         ),
       ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: 0,
+        selectedIndex: 2,
         onDestinationSelected: (i) {
+          // Thứ tự: Hỏi Trợ lý, Tin tức, Trang chủ (giữa), Tệp của tôi, Tài khoản
           final man = switch (i) {
-            2 => const ManTin(),
+            1 => const ManTin(),
             3 => const TepCuaToi(),
             4 => const TaiKhoan(),
             _ => null,
           };
-          if (i == 1) moHoiTroLy(context);
+          if (i == 0) moHoiTroLy(context);
           if (man != null) Navigator.of(context).push(MaterialPageRoute(builder: (_) => man));
         },
         indicatorColor: Colors.transparent,
         destinations: const [
-          NavigationDestination(icon: KhoiMau(icon: Icons.home_rounded, mau: mauTrangChu), label: 'Trang chủ'),
           NavigationDestination(icon: KhoiMau(icon: Icons.chat_rounded, mau: mauHoiTroLy), label: 'Hỏi Trợ lý'),
           NavigationDestination(icon: KhoiMau(icon: Icons.play_arrow_rounded, mau: mauTinTuc, coIcon: 23), label: 'Tin tức'),
+          NavigationDestination(icon: KhoiMau(icon: Icons.home_rounded, mau: mauTrangChu), label: 'Trang chủ'),
           NavigationDestination(icon: KhoiMau(icon: Icons.folder_rounded, mau: mauTep), label: 'Tệp của tôi'),
           NavigationDestination(icon: KhoiMau(icon: Icons.person_rounded, mau: mauTaiKhoan), label: 'Tài khoản'),
         ],
