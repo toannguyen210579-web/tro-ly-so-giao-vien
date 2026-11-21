@@ -317,6 +317,17 @@ void main() {
       await chup(t, '42_nhan_xet_ai', giuThongBao: true);
     });
 
+    // ---------- Nút Hướng dẫn sử dụng (thử ở Nhận xét học sinh)
+    await buoc('huong_dan', () async {
+      await moMa(t, 'nhan_xet');
+      await bam(t, find.text('Hướng dẫn sử dụng'));
+      await cho(t, 1200);
+      kq('huong_dan: ${find.text('Hướng dẫn: Nhận xét học sinh').evaluate().isNotEmpty ? "mo duoc" : "CHUA MO"}');
+      await chup(t, '43_huong_dan');
+      await cuonDen(t, find.text('Học sinh khuyết tật'));
+      await chup(t, '44_huong_dan_tt89');
+    });
+
     // ---------- Ảnh sang Word
     await buoc('sang_word', () async {
       await moMa(t, 'sang_word');
