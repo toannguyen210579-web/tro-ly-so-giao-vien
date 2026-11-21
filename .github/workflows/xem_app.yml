@@ -1,5 +1,5 @@
 name: Xem app qua ảnh chụp
-# Chụp lại 21/11/2026: giao diện kiểu nổi, Trang chủ ở giữa thanh dưới
+# Chụp lại 21/11/2026: gợi ý một dòng, con trỏ nhấp nháy trong ô hỏi
 on:
   workflow_dispatch:
   push:

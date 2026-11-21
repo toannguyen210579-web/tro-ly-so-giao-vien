@@ -20,10 +20,20 @@ class TrangChu extends StatefulWidget {
 
 class _TrangChuState extends State<TrangChu> {
   final _o = TextEditingController();
+  final _tieuDiem = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // Ô trống, chưa bấm vào: hiện con trỏ nhấp nháy để thầy cô biết chỗ gõ
+    _tieuDiem.addListener(() => setState(() {}));
+    _o.addListener(() => setState(() {}));
+  }
 
   @override
   void dispose() {
     _o.dispose();
+    _tieuDiem.dispose();
     super.dispose();
   }
 
@@ -115,31 +125,43 @@ class _TrangChuState extends State<TrangChu> {
         children: [
           TextField(
             controller: _o,
+            focusNode: _tieuDiem,
             textInputAction: TextInputAction.send,
             onSubmitted: (_) => _gui(),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: 'Thầy cô cần làm gì?',
-              hintStyle: TextStyle(fontWeight: FontWeight.w700, color: MauApp.chuPhu),
+              hintStyle: const TextStyle(fontWeight: FontWeight.w700, color: MauApp.chuPhu),
               border: InputBorder.none,
+              prefixIcon: (!_tieuDiem.hasFocus && _o.text.isEmpty) ? const ConTroNhapNhay() : null,
+              prefixIconConstraints: const BoxConstraints(minWidth: 10, minHeight: 24),
             ),
           ),
           Row(
             children: [
               Expanded(
-                child: Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: [
-                    for (final g in const ['Làm biên bản họp tổ', 'Chấm trắc nghiệm'])
-                      ActionChip(
-                        label: Text(g, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w800, color: MauApp.xanhDam)),
-                        backgroundColor: const Color(0xFFEAF2FF),
-                        side: const BorderSide(color: Color(0xFF9DBCF3)),
-                        elevation: 3,
-                        shadowColor: const Color(0x552C6EE8),
-                        onPressed: () => _gui(g),
-                      ),
-                  ],
+                // Hai gợi ý luôn nằm gọn một dòng (máy hẹp thì tự thu nhỏ)
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    children: [
+                      for (final g in const ['Làm biên bản họp tổ', 'Chấm trắc nghiệm'])
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: ActionChip(
+                            label: Text(g, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: MauApp.xanhDam)),
+                            backgroundColor: const Color(0xFFEAF2FF),
+                            side: const BorderSide(color: Color(0xFF9DBCF3)),
+                            elevation: 3,
+                            shadowColor: const Color(0x552C6EE8),
+                            visualDensity: VisualDensity.compact,
+                            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                            onPressed: () => _gui(g),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               IconButton(
@@ -295,6 +317,41 @@ class KhoiMau extends StatelessWidget {
               child: hinh,
             )
           : hinh,
+    );
+  }
+}
+
+
+/// Con trỏ nhấp nháy đặt trước chữ nhắc trong ô hỏi, báo chỗ bấm vào để gõ.
+class ConTroNhapNhay extends StatefulWidget {
+  const ConTroNhapNhay({super.key});
+
+  @override
+  State<ConTroNhapNhay> createState() => _ConTroNhapNhayState();
+}
+
+class _ConTroNhapNhayState extends State<ConTroNhapNhay> with SingleTickerProviderStateMixin {
+  late final AnimationController _a =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 530))..repeat(reverse: true);
+
+  @override
+  void dispose() {
+    _a.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(right: 4),
+      child: FadeTransition(
+        opacity: _a.drive(CurveTween(curve: Curves.easeInOut)),
+        child: Container(
+          width: 2.5,
+          height: 22,
+          decoration: BoxDecoration(color: MauApp.xanhTroi, borderRadius: BorderRadius.circular(2)),
+        ),
+      ),
     );
   }
 }
