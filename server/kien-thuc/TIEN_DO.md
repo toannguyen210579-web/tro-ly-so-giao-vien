@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (55 mục)
+## Đã nạp (56 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -50,11 +50,11 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 26/2025/TT-BGDĐT sửa đổi TT 10, 11, 12, 13/2025 phân quyền, phân cấp (21/11)
 - NĐ 66/2026/NĐ-CP quy định chi tiết Luật Giáo dục (Điều 1, 2, 6, 7, 8, 11, 13–15; hiệu lực 15/3/2026, thay NĐ 84/2020) (21/11)
 - TT 10/2026/TT-BGDĐT Quy chế văn bằng, chứng chỉ (chuyển chữ từ bản ký số; hiệu lực 15/4/2026, thay TT 21/2019) (21/11)
+- TT 06/2019/TT-BGDĐT Quy tắc ứng xử trong trường (nguyên văn; Điều 6 hết hiệu lực theo TT 03/2026) (21/11)
 
 ## Còn phải làm (theo thứ tự)
 2. CV 3456/BGDĐT-GDPT toàn văn (chưa lấy được bản gốc; hiện chỉ tóm tắt trong tệp TT 02/2025)
 3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
-6. TT 06/2019 quy tắc ứng xử trong trường (phần còn hiệu lực)
 7. TT 94/2026 tiêu chí Đề án tiếng Anh ngôn ngữ thứ hai; QĐ 2371/QĐ-TTg
 8. TT 04/2026 chế độ làm việc giáo viên GDTX; TT 48/2026 quy chế trường tư thục
 9. Kỷ luật nhà giáo, viên chức; Nghị định 368/2026/NĐ-CP và TT 25/2026/TT-BNV (thi đua, khen thưởng chung: Lao động tiên tiến, Chiến sĩ thi đua cơ sở)
