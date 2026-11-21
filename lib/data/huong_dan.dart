@@ -36,6 +36,10 @@ const huongDan = <String, List<MucHuongDan>>{
     _riengTu,
   ],
   'dang': [
+    MucHuongDan('Sổ tay đảng viên iCPV - Book', [
+      'Bấm "Sổ tay đảng viên iCPV - Book" để mở ứng dụng chính thức trong App Store hoặc CH Play; đã cài thì bấm "Mở".',
+      'Đăng nhập iCPV - Book bằng số định danh cá nhân và mật khẩu đảng viên, hoặc bằng VNeID. Trợ lý số không lưu và không hỏi các thông tin này.',
+    ]),
     MucHuongDan('Lịch nhắc họp chi bộ', [
       'Bấm "Lịch nhắc họp chi bộ", chọn ngày họp hằng tháng và giờ họp, rồi bấm "Bật nhắc họp chi bộ".',
       'App tạo sẵn 12 buổi họp tới trong Lịch công tác; điện thoại nhắc trước một ngày, kể cả khi app đang đóng.',

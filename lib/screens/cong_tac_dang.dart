@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../data/lich.dart';
 import '../main.dart';
@@ -100,6 +101,18 @@ class _CongTacDangState extends State<CongTacDang> {
     await Navigator.of(context).push(MaterialPageRoute(builder: (_) => SoanSinhHoatChiBo(chiBo: _cb!)));
   }
 
+  /// Mở iCPV - Book (Viettel phát triển cho cơ quan Đảng) trên kho ứng dụng; đã cài thì kho có nút "Mở".
+  Future<void> _moIcpv() async {
+    final url = Platform.isIOS
+        ? 'https://apps.apple.com/vn/app/id6744908429'
+        : 'https://play.google.com/store/search?q=iCPV%20-%20Book&c=apps';
+    final ok = await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Không mở được kho ứng dụng. Thầy cô tìm "iCPV - Book" trong App Store hoặc CH Play.')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final cb = _cb;
@@ -148,6 +161,16 @@ class _CongTacDangState extends State<CongTacDang> {
               subtitle: const Text('Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, cách nộp qua Cổng Dịch vụ công'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi())),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.menu_book_rounded, color: Color(0xFFC62828)),
+              title: const Text('Sổ tay đảng viên iCPV - Book'),
+              subtitle: const Text('Mở ứng dụng chính thức để đọc tài liệu, theo dõi sinh hoạt chi bộ (đăng nhập bằng tài khoản đảng viên hoặc VNeID)'),
+              trailing: const Icon(Icons.open_in_new_rounded),
+              onTap: _moIcpv,
             ),
           ),
           const SizedBox(height: 8),
