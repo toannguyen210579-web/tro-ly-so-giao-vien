@@ -1,0 +1,120 @@
+CÔNG VĂN 3456/BGDĐT-GDPT HƯỚNG DẪN TRIỂN KHAI THỰC HIỆN KHUNG NĂNG LỰC SỐ CHO HỌC SINH PHỔ THÔNG VÀ HỌC VIÊN GIÁO DỤC THƯỜNG XUYÊN
+
+Số hiệu: 3456/BGDĐT-GDPT
+Cơ quan ban hành: Bộ Giáo dục và Đào tạo (KT. Bộ trưởng, Thứ trưởng Phạm Ngọc Thưởng ký)
+Ngày ký: 27/6/2025
+Kính gửi: Các Sở Giáo dục và Đào tạo
+Căn cứ hướng dẫn: Thông tư 02/2025/TT-BGDĐT Khung năng lực số cho người học (xem tệp TT 02/2025 trong kho).
+Loại văn bản: công văn hướng dẫn chuyên môn (không phải văn bản quy phạm pháp luật); triển khai đại trà từ năm học 2025-2026.
+Nguồn: nguyên văn trên luatvietnam.vn.
+Phạm vi tệp: nguyên văn công văn và mục 1 của Phụ lục (mức độ thành thạo theo khối lớp). Mục 2 Phụ lục (mô tả từng năng lực thành phần theo khối lớp, dạng bảng dài) chưa chép vào kho.
+
+NGUYÊN VĂN
+
+Thực hiện Nghị quyết số 57-NQ/TW ngày 22/12/2024 của Bộ Chính trị về đột phá phát triển khoa học, công nghệ, đổi mới sáng tạo và chuyển đổi số quốc gia, Kế hoạch số 01-KH/BCĐTW ngày 21/3/2025 của Ban Chỉ đạo Trung ương về Triển khai Phong trào “Bình dân học vụ số” (Kế hoạch số 01), Quyết định số 899/QĐ-BGDĐT ngày 04/4/2025 ban hành Kế hoạch hành động thực hiện Kế hoạch số 01, Thông tư số 02/2025/TT-BGDĐT ngày 24/01/2025 Quy định Khung năng lực số (NLS) cho người học (Thông tư số 02), Bộ GDĐT hướng dẫn triển khai thực hiện Khung NLS cho học sinh phổ thông và học viên giáo dục thường xuyên (sau đây gọi chung là học sinh) theo Thông tư số 02 như sau:
+
+I. MỤC ĐÍCH, YÊU CẦU
+
+1. Mục đích
+Triển khai các hoạt động nhằm nâng cao NLS cho học sinh theo các tiêu chí trong Khung NLS cho học sinh phổ thông và học viên giáo dục thường xuyên (GDTX) trên cơ sở Khung NLS cho người học ban hành kèm theo Thông tư số 02 nhằm giúp học sinh nâng cao NLS để ứng dụng trong học tập và cuộc sống. Qua đó, hình thành và phát triển những năng lực thiết yếu của công dân số, sẵn sàng tham gia vào môi trường số trong thời đại Cách mạng công nghiệp 4.0.
+
+2. Yêu cầu
+Tổ chức thực hiện Khung NLS cho học sinh dựa trên Khung NLS cho người học ban hành kèm theo Thông tư số 02, đối với từng khối lớp trong quá trình triển khai thực hiện tham khảo các nội dung, mức độ cần đạt cho từng đối tượng theo Phụ lục đính kèm, bảo đảm các yêu cầu sau:
+- Tính phù hợp và thực tiễn: Việc tổ chức thực hiện Khung NLS phải đáp ứng các chuẩn mực quốc tế nhưng vẫn phù hợp với điều kiện thực tế của Việt Nam. Quá trình triển khai cần được thực hiện từng bước, có lộ trình đồng bộ, đảm bảo tính khả thi.
+- Không gây quá tải: Việc triển khai không làm thay đổi hay gây quá tải cho Chương trình Giáo dục phổ thông (GDPT) 2018 và Chương trình GDTX. Cần đối chiếu với yêu cầu cần đạt của từng môn học và hoạt động giáo dục để lồng ghép các nội dung nâng cao NLS cho từng đối tượng một cách hợp lý. Nội dung và hoạt động phát triển NLS phải được thiết kế phù hợp với tâm lý lứa tuổi, nhu cầu và khả năng tiếp cận công nghệ của học sinh ở từng cấp học.
+- Tối ưu hóa nguồn lực: Cần phát huy tối đa nguồn lực và cơ sở vật chất sẵn có, tránh đầu tư dàn trải, không hiệu quả.
+- Đảm bảo công bằng: Có giải pháp phù hợp để mọi học sinh, nhất là các em ở vùng có điều kiện kinh tế - xã hội khó khăn, đều có cơ hội tiếp cận với giáo dục kỹ năng công dân số.
+- Vai trò của các môn học: Môn Tin học giữ vai trò chủ đạo, cung cấp kiến thức nền tảng và hệ thống các kỹ năng số cốt lõi cho học sinh; các môn học và hoạt động giáo dục khác tạo môi trường để học sinh vận dụng kỹ năng số vào thực tiễn, qua đó củng cố và phát triển năng lực một cách toàn diện. Năng lực số của học sinh được hình thành và phát triển một cách liên tục, tích hợp trong suốt quá trình học tập thông qua các môn học và hoạt động giáo dục.
+
+II. NỘI DUNG, HÌNH THỨC TỔ CHỨC THỰC HIỆN
+
+1. Nội dung
+
+1.1. Chuẩn bị điều kiện cần thiết
+- Nâng cao nhận thức: Các cơ sở giáo dục cần đẩy mạnh công tác tuyên truyền, phổ biến về tầm quan trọng của NLS, bao gồm các kỹ năng thiết yếu như sử dụng Internet an toàn, bảo mật thông tin cá nhân và khai thác các công cụ học tập trực tuyến.
+- Bồi dưỡng đội ngũ giáo viên: Tổ chức các khóa đào tạo, tập huấn chuyên môn để giáo viên có thể ứng dụng hiệu quả công nghệ số trong giảng dạy, thiết kế bài giảng tương tác và hướng dẫn học sinh phát triển các kỹ năng số.
+- Bảo đảm nguồn lực: Xây dựng kế hoạch đầu tư, nâng cấp cơ sở vật chất, phần mềm và các nền tảng công nghệ cần thiết. Đồng thời, khuyến khích các cơ sở giáo dục chủ động huy động nguồn lực xã hội hóa thông qua hợp tác với doanh nghiệp, tổ chức và cá nhân theo quy định của pháp luật.
+
+1.2. Triển khai Khung NLS
+a) Đánh giá thực trạng
+Các cơ sở giáo dục tiến hành rà soát, đánh giá thực trạng NLS của học sinh để điều chỉnh các tiêu chí trong Khung NLS cho phù hợp với điều kiện tổ chức của nhà trường; hình thức đánh giá cần đa dạng, linh hoạt (trực tiếp hoặc trực tuyến) phù hợp với điều kiện thực tiễn.
+b) Xây dựng và triển khai thực hiện Kế hoạch giáo dục
+Cơ sở giáo dục xây dựng kế hoạch tổ chức dạy học các môn học/hoạt động giáo dục ở trong và ngoài nhà trường. Cụ thể như sau:
+- Kế hoạch giáo dục nhà trường: Xác định mục tiêu phát triển NLS theo lớp/cấp học và nhiệm vụ phát triển NLS của học sinh ở từng môn học/hoạt động giáo dục.
+- Kế hoạch môn học: Xác định các năng lực thành phần cần phát triển thông qua từng môn/hoạt động giáo dục. Chú ý đến các công nghệ và lĩnh vực công nghệ mới nổi như trí tuệ nhân tạo (AI), Internet vạn vật (IoT), ứng dụng thực tế ảo (VR),...
+- Kế hoạch bài dạy: Nêu rõ nội dung, hoạt động dạy học cụ thể nhằm phát triển NLS trong từng hoạt động/nội dung dạy học.
+- Phổ biến rộng rãi Khung NLS dưới nhiều định dạng, đăng tải trên website của nhà trường để học sinh và phụ huynh dễ dàng tiếp cận. Thường xuyên rà soát và điều chỉnh các mức độ năng lực cho phù hợp với tiến độ hằng năm.
+- Tổ chức các hoạt động giáo dục trải nghiệm tăng cường nhằm phát triển NLS cho học sinh: các hoạt động trải nghiệm đổi mới, sáng tạo, câu lạc bộ công nghệ số phù hợp tâm lý lứa tuổi, điều kiện gia đình và địa phương.
+- Huy động sự tham gia của các bên như: cha mẹ học sinh, giáo viên, các đơn vị, tổ chức có liên quan trong địa bàn.
+- Các cơ sở giáo dục cần lập kế hoạch đánh giá NLS của học sinh sau mỗi năm học. Hoạt động đánh giá này phải được thực hiện dựa trên các tiêu chí cụ thể, bám sát các miền năng lực và mức độ cần đạt trong Khung NLS ban hành kèm theo Thông tư số 02. Dựa trên kết quả đánh giá, các cơ sở giáo dục tiến hành rà soát, xem xét và điều chỉnh các mức độ năng lực nhằm đảm bảo đạt được mục tiêu đã đề ra cho từng cấp học.
+
+2. Hình thức tổ chức
+
+2.1. Dạy học môn Tin học Chương trình GDPT 2018
+Môn Tin học giữ vai trò chủ đạo, cung cấp kiến thức nền tảng và hệ thống các kỹ năng số cốt lõi cho học sinh. Việc triển khai giảng dạy môn Tin học theo Chương trình GDPT 2018 là phương thức quan trọng để phát triển NLS cho học sinh, là hình thức chủ yếu và nền tảng trong số các hình thức phát triển NLS hiện nay.
+Giáo viên Tin học có vai trò tư vấn, hỗ trợ giáo viên các môn học khác trong việc khai thác, ứng dụng các công cụ số và tích hợp các nội dung phát triển NLS vào quá trình dạy học.
+
+2.2. Tích hợp phát triển NLS trong dạy học các môn học, hoạt động giáo dục
+Các môn học và hoạt động giáo dục khác trong Chương trình GDPT và GDTX tạo môi trường để học sinh vận dụng kỹ năng số vào thực tiễn, qua đó củng cố và phát triển năng lực một cách toàn diện. Việc tích hợp nội dung Khung NLS vào quá trình dạy học các môn học là một giải pháp khả thi và hiệu quả để thực hiện phát triển NLS cho học sinh.
+Giáo viên nghiên cứu Chương trình môn học/hoạt động giáo dục, đối chiếu nội dung môn học với Khung NLS để xây dựng kế hoạch dạy học phù hợp, xác định rõ các nội dung, hình thức và “địa chỉ” tích hợp NLS trong từng bài học, thiết kế kế hoạch bài dạy sao cho vừa đáp ứng mục tiêu và yêu cầu cần đạt của bài học, vừa tích hợp hiệu quả nội dung của Khung NLS nhằm phát triển một hoặc nhiều năng lực thành phần trong các miền năng lực của Khung NLS.
+Việc phát triển NLS thông qua dạy học tích hợp cần được chú trọng ở cả hai hình thức: tích hợp nội môn và tích hợp liên môn, khuyến khích tích hợp phát triển NLS thông qua các hoạt động giáo dục STEM, nghiên cứu khoa học, các dự án học tập liên quan đến Trí tuệ nhân tạo (AI).
+
+2.3. Tổ chức dạy học tăng cường, câu lạc bộ thực hiện phát triển NLS
+Căn cứ Khung NLS và điều kiện thực tiễn, các cơ sở giáo dục xây dựng kế hoạch tăng cường thực hiện Khung NLS với nội dung và thời lượng phù hợp để hình thành sớm các kỹ năng cần thiết cho công dân số từ lớp 1 và củng cố, khắc sâu thêm các NLS cần thiết cho học sinh.
+Tăng cường tổ chức các hoạt động dưới hình thức Câu lạc bộ phát triển NLS nhằm đáp ứng nhu cầu, nguyện vọng, của các học sinh có năng khiếu, sở trường, sở thích. Nội dung giáo dục NLS của các câu lạc bộ thường được xây dựng theo các chủ đề, mô-đun, mạch nội dung kiến thức thuộc/đáp ứng một hay một số miền năng lực thuộc Khung NLS.
+Căn cứ điều kiện cụ thể của cơ sở giáo dục và nhu cầu, nguyện vọng của học sinh, cơ sở giáo dục lựa chọn nội dung và hình thức tổ chức các câu lạc bộ phù hợp xây dựng kế hoạch, chương trình câu lạc bộ nhằm tạo các sân chơi sáng tạo giúp học sinh huy động, tổng hợp kiến thức, kỹ năng từ nhiều lĩnh vực (môn học, chủ đề nội dung); phát huy năng khiếu, sở trường; phát triển năng lực, phẩm chất đáp ứng Khung NLS.
+Thực hiện hiệu quả chủ trương xã hội hóa giáo dục, phối hợp với các cơ sở giáo dục đại học, cơ sở nghiên cứu, cơ sở giáo dục nghề nghiệp, doanh nghiệp, tổ chức, cá nhân, gia đình học sinh để tổ chức đa dạng các hoạt động tăng cường giáo dục kỹ năng công dân số phù hợp với điều kiện của địa phương theo quy định (1) của pháp luật hiện hành.
+(1) Quy định tại Điều 6, Điều 7 Nghị định số 24/2021/NĐ-CP ngày 23/3/2021 của Chính phủ Quy định việc quản lý trong cơ sở giáo dục mầm non và cơ sở giáo dục phổ thông công lập và các quy định của pháp luật có liên quan.
+
+III. TỔ CHỨC THỰC HIỆN
+
+1. Các đơn vị thuộc Bộ GDĐT
+a) Vụ Giáo dục Phổ thông chủ trì, phối hợp với các đơn vị liên quan:
+- Chỉ đạo, hướng dẫn và giám sát việc thực hiện Khung NLS cho học sinh phổ thông tại các địa phương; Theo dõi, tổng hợp tình hình thực hiện Khung NLS cho học sinh, khó khăn, vướng mắc từ các Sở GDĐT để kịp thời tham mưu Lãnh đạo Bộ điều chỉnh, bổ sung các nội dung triển khai phù hợp.
+- Hướng dẫn lồng ghép, tích hợp phát triển NLS trong các chương trình bồi dưỡng, các hoạt động giáo dục kỹ năng cho học sinh trong các cơ sở GDPT.
+- Xây dựng tài liệu hướng dẫn triển khai Khung NLS, Tổ chức tập huấn, bồi dưỡng cho cán bộ quản lý, giáo viên về triển khai Khung NLS cho học sinh phổ thông.
+b) Cục Giáo dục nghề nghiệp và Giáo dục thường xuyên chủ trì, phối hợp với các đơn vị liên quan:
+- Chỉ đạo, hướng dẫn và giám sát việc thực hiện Khung NLS đối với các cơ sở GDTX, bảo đảm phù hợp với đối tượng học viên và điều kiện thực tiễn.
+- Hướng dẫn lồng ghép, tích hợp phát triển NLS trong các chương trình bồi dưỡng, các hoạt động giáo dục kỹ năng cho học viên GDTX.
+- Xây dựng tài liệu hướng dẫn triển khai Khung NLS, tổ chức tập huấn nâng cao năng lực cho đội ngũ cán bộ quản lý, giáo viên tại các cơ sở GDTX.
+c) Cục Khoa học, Công nghệ và Thông tin chủ trì, phối hợp với các đơn vị liên quan:
+- Tham mưu về ứng dụng công nghệ thông tin, lựa chọn nền tảng, công cụ hỗ trợ triển khai Khung NLS hiệu quả, phù hợp với điều kiện của các địa phương và cơ sở giáo dục. Triển khai các giải pháp kỹ thuật bảo đảm an toàn thông tin, bảo mật dữ liệu trong quá trình triển khai Khung NLS.
+- Hướng dẫn, hỗ trợ xây dựng, phát triển hệ thống học liệu số, tài nguyên giáo dục mở phục vụ phát triển NLS.
+
+2. Các cơ sở đào tạo, bồi dưỡng giáo viên
+- Chủ trì, phối hợp với các đơn vị liên quan nghiên cứu, cập nhật và tích hợp các nội dung của Khung NLS dành cho học sinh vào chương trình đào tạo, bồi dưỡng giáo viên. Xây dựng các học phần, chuyên đề chuyên sâu về phương pháp dạy học phát triển NLS, kỹ năng thiết kế bài giảng tương tác và ứng dụng công nghệ mới. Tổ chức nghiên cứu khoa học, biên soạn tài liệu, học liệu mẫu và các tài nguyên dạy học số để hỗ trợ giáo viên.
+- Phối hợp chặt chẽ với các Sở GDĐT để tổ chức các khóa tập huấn, bồi dưỡng cho giáo viên của các cơ sở GDPT và các trung tâm GDTX theo nhu cầu và lộ trình thực tế.
+
+3. Các sở Giáo dục và Đào tạo
+- Triển khai hiệu quả công tác tuyên truyền, nâng cao nhận thức cho cán bộ quản lý, giáo viên, cha mẹ học sinh và học sinh về vai trò, ý nghĩa của việc thực hiện Khung NLS đối với việc hình thành, phát triển phẩm chất, năng lực học sinh theo Chương trình GDPT 2018 và Chương trình GDTX. Tạo sự đồng thuận, huy động sự tham gia, ủng hộ của cộng đồng trong triển khai thực hiện Khung NLS.
+- Xây dựng kế hoạch tổng thể và lộ trình triển khai thực hiện Khung NLS phù hợp với điều kiện thực tiễn của địa phương nhằm nâng cao chất lượng, hiệu quả thực hiện Chương trình GDPT và GDTX. Tổ chức hội nghị, hội thảo, tập huấn nhằm chuẩn bị các điều kiện triển khai đại trà Khung NLS từ năm học 2025 - 2026. Xây dựng và chia sẻ ngân hàng bài học mẫu, tài nguyên dạy học minh họa cho việc tích hợp phát triển NLS trong các môn học và hoạt động giáo dục.
+- Tham mưu Ủy ban nhân dân trình Hội đồng nhân dân cấp tỉnh ban hành cơ chế, chính sách, chỉ đạo các sở, ban, ngành liên quan bố trí nguồn lực, kinh phí, trang bị cơ sở vật chất, thiết bị cần thiết để bảo đảm điều kiện triển khai thực hiện Khung NLS tại các cơ sở giáo dục trên địa bàn. Tiếp tục tăng cường các điều kiện về đội ngũ giáo viên đủ về số lượng, cơ cấu, trình độ chuyên môn, đặc biệt là giáo viên Tin học. Bảo đảm cơ sở vật chất, thiết bị dạy học phục vụ dạy học môn Tin học và triển khai Khung NLS đáp ứng yêu cầu của Chương trình GDPT 2018 và GDTX.
+- Ban hành văn bản hướng dẫn, chỉ đạo, kiểm tra, giám sát hoạt động phối hợp, liên kết thực hiện các hoạt động giáo dục tăng cường NLS giữa các cơ sở giáo dục phổ thông, các trung tâm GDTX với các cơ sở giáo dục đại học, cơ sở nghiên cứu, doanh nghiệp, tổ chức, cá nhân theo thẩm quyền, quy định của pháp luật.
+- Hướng dẫn, hỗ trợ các cơ sở giáo dục triển khai thực hiện:
++ Chỉ đạo các cơ sở giáo dục xây dựng kế hoạch giáo dục của nhà trường, trong đó lồng ghép các mục tiêu của Khung NLS vào kế hoạch dạy học của từng môn học và hoạt động giáo dục, đảm bảo phù hợp với điều kiện thực tiễn. Hướng dẫn việc lựa chọn và triển khai các hình thức tổ chức dạy học đa dạng, hiệu quả như: tích hợp trong các môn học, dạy học tăng cường, hoặc thành lập các câu lạc bộ, phù hợp với từng khối lớp và điều kiện thực tế; việc huy động các nguồn lực hợp pháp theo quy định và sử dụng đúng mục đích, hiệu quả để phục vụ triển khai Khung NLS.
++ Hướng dẫn tổ chức các hoạt động tập huấn, bồi dưỡng chuyên môn về Khung NLS cho cán bộ quản lý và giáo viên tại trường; xây dựng các ví dụ minh họa cụ thể, phù hợp với bối cảnh địa phương, để làm rõ các tiêu chí của Khung NLS. Chỉ đạo đẩy mạnh sinh hoạt chuyên môn theo các chuyên đề về triển khai Khung NLS nhằm nâng cao chất lượng đội ngũ.
++ Yêu cầu các cơ sở giáo dục tổng hợp ý kiến, báo cáo định kỳ về Sở GDĐT về quá trình triển khai và các nội dung liên quan.
+- Tổ chức kiểm tra, giám sát, sơ kết, tổng kết, đánh giá công tác triển khai thực hiện Khung NLS trên địa bàn. Tổng hợp, báo cáo kết quả thực hiện về Bộ GDĐT khi kết thúc năm học.
+
+Bộ GDĐT yêu cầu các Sở GDĐT chỉ đạo các cơ sở giáo dục triển khai thực hiện đầy đủ, nghiêm túc hướng dẫn này. Trong quá trình triển khai, nếu có những vấn đề vướng mắc, đề nghị các Sở GDĐT phản ánh kịp thời về Bộ GDĐT (qua Vụ Giáo dục Phổ thông) để kịp thời giải quyết./.
+
+KT. BỘ TRƯỞNG - THỨ TRƯỞNG Phạm Ngọc Thưởng (đã ký)
+
+PHỤ LỤC (Kèm theo Công văn số 3456/BGDĐT-GDPT ngày 27 tháng 6 năm 2025) – TRÍCH MỤC 1
+1) CÁC TỪ KHÓA CHÍNH ĐẶC TRƯNG CỦA CÁC MỨC ĐỘ THÀNH THẠO
+Mức độ thành thạo của các khối lớp – Tình huống/nhiệm vụ dạy học – Mức độ tự chủ:
+- Lớp 1, 2, 3 (Cơ bản 1): Nhiệm vụ đơn giản – Với sự hướng dẫn.
+- Lớp 4, 5 (Cơ bản 2): Nhiệm vụ đơn giản – Tự chủ và có hướng dẫn khi cần thiết.
+- Lớp 6, 7 (Trung cấp 1): Nhiệm vụ được xác định rõ ràng và thường xuyên và các vấn đề đơn giản – Tự chủ hoàn toàn.
+- Lớp 8, 9 (Trung cấp 2): Nhiệm vụ được xác định rõ ràng và không thường xuyên – Độc lập và theo nhu cầu cá nhân.
+- Lớp 10, 11, 12 (Nâng cao 1): Các nhiệm vụ và vấn đề khác nhau – Hướng dẫn người khác.
+Mỗi mức độ năng lực của mỗi khối lớp được xem xét nhiều yếu tố một lúc:
+- Mức độ quen thuộc của học sinh với tình huống đặt ra (đơn giản, quen thuộc, mới);
+- Mức độ phức tạp của hoạt động sử dụng công cụ kỹ thuật số (cơ bản, phức tạp);
+- Mức độ tự chủ (làm có sự giúp đỡ, tự thực hiện một mình, hướng dẫn người khác);
+- Mức độ phức tạp của các quy trình (ứng dụng, phát triển) và mục tiêu cần đạt được;
+- Kiến thức cần thiết để thực hiện nhiệm vụ.
+2) MÔ TẢ CÁC NĂNG LỰC THÀNH PHẦN THEO CÁC BẬC CỦA KHUNG NLS CHO HỌC SINH (6 miền, 24 năng lực thành phần, mô tả theo nhóm lớp L1-L3, L4-L5, L6-L7, L8-L9, L10-L12): chưa chép vào kho; xem nguyên văn tại luatvietnam.vn hoặc bản gốc của Bộ GD&ĐT.
+
+LƯU Ý
+- Từ 01/7/2025 không còn Phòng GD&ĐT; công văn gửi Sở GD&ĐT, trường tiểu học, THCS thuộc UBND cấp xã, trường THPT thuộc Sở GD&ĐT.

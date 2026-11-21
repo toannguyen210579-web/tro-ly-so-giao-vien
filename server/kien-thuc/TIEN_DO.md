@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (65 mục)
+## Đã nạp (68 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -59,11 +59,13 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 33/2026/TT-BGDĐT Khung năng lực ngoại ngữ (nguyên văn Thông tư, bảng CEFR, đặc tả tổng quát 4 kỹ năng; chưa chép đặc tả chi tiết) (21/11)
 - NĐ 188/2026/NĐ-CP chính sách học sinh trường phổ thông nội trú xã biên giới (nguyên văn, chuyển chữ từ bản chụp) (21/11)
 - NĐ 232/2026/NĐ-CP vị trí việc làm viên chức (nguyên văn Điều 1–19, chuyển chữ từ bản chụp; chưa chép Phụ lục I–IV) (21/11)
+- TT 94/2026/TT-BGDĐT nguyên văn (phần 1 Điều 1–15; phần 2 Phụ lục II trường phổ thông); chưa chép Phụ lục I, III, IV, V, VI (21/11)
+- CV 3456/BGDĐT-GDPT nguyên văn (chưa chép mục 2 Phụ lục mô tả năng lực theo khối lớp) (21/11)
 
 ## Còn phải làm (theo thứ tự)
-2. CV 3456/BGDĐT-GDPT toàn văn (chưa lấy được bản gốc; hiện chỉ tóm tắt trong tệp TT 02/2025)
+2. CV 3456: chép mục 2 Phụ lục (mô tả 24 năng lực thành phần theo nhóm lớp) nếu cần; nguyên văn ở luatvietnam.vn ...-412289-d6.html
 3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
-7. TT 94/2026: lấy nguyên văn, Phụ lục II tiêu chí trường phổ thông (bản 24 MB trên hoatieu.vn, chưa tải được)
+7. TT 94/2026: Phụ lục I (mầm non), III (GDTX), VI (biểu mẫu) nếu cần; nguyên văn ở luatvietnam.vn ...-455513-d1.html
 9. Kỷ luật nhà giáo, viên chức. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)
 10. NĐ 232/2026: chép Phụ lục II, III (danh mục vị trí việc làm và bậc nghề nghiệp, có dòng ngành giáo dục, tư vấn học sinh) – bảng bản chụp cần tách ô bằng OpenCV; hoatieu.vn có bài "Danh mục vị trí việc làm giáo dục theo NĐ 232"
 12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi

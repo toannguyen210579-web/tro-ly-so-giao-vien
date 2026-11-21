@@ -282,7 +282,7 @@
  {
   "file": "tt-94-2026-qd-2371-tieng-anh-ngon-ngu-thu-hai.txt",
   "so": "94/2026/TT-BGDĐT",
-  "ten": "Đánh giá mức độ triển khai Đề án đưa tiếng Anh thành ngôn ngữ thứ hai (hiệu lực 19/12/2026) kèm mục tiêu QĐ 2371/QĐ-TTg (tóm tắt)"
+  "ten": "Đề án tiếng Anh ngôn ngữ thứ hai: tóm tắt mục tiêu QĐ 2371/QĐ-TTg (nguyên văn TT 94/2026 ở 2 tệp riêng)"
  },
  {
   "file": "tt-04-2026-tt-bgddt-che-do-lam-viec-giao-vien-gdtx.txt",
@@ -323,5 +323,20 @@
   "file": "nd-232-2026-nd-cp-vi-tri-viec-lam-vien-chuc.txt",
   "so": "232/2026/NĐ-CP",
   "ten": "Vị trí việc làm viên chức (bậc nghề nghiệp 1–5 tương ứng lương loại B đến A3.1, tỷ lệ bậc; hiệu lực 01/7/2026; nhà giáo theo Luật Nhà giáo)"
+ },
+ {
+  "file": "tt-94-2026-tt-bgddt-danh-gia-de-an-tieng-anh-phan-1.txt",
+  "so": "94/2026/TT-BGDĐT (phần 1)",
+  "ten": "Tiêu chuẩn, tiêu chí, đánh giá mức độ triển khai Đề án tiếng Anh ngôn ngữ thứ hai: Điều 1–15 (tự đánh giá, tự công nhận, báo cáo; hiệu lực 19/12/2026)"
+ },
+ {
+  "file": "tt-94-2026-tt-bgddt-danh-gia-de-an-tieng-anh-phan-2-pho-thong.txt",
+  "so": "94/2026/TT-BGDĐT (phần 2)",
+  "ten": "Phụ lục II TT 94/2026: tiêu chí Mức độ 1, 2, 3 đối với trường phổ thông (lớp dạy tiếng Anh như ngôn ngữ thứ hai ≥35 tiết/năm)"
+ },
+ {
+  "file": "cv-3456-bgddt-gdpt-huong-dan-khung-nang-luc-so-hoc-sinh.txt",
+  "so": "3456/BGDĐT-GDPT",
+  "ten": "Hướng dẫn triển khai Khung năng lực số cho học sinh phổ thông, học viên GDTX (27/6/2025; mức độ thành thạo theo khối lớp)"
  }
 ]
