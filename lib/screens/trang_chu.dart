@@ -195,7 +195,7 @@ class _TrangChuState extends State<TrangChu> {
         Row(
           children: [
             for (final t in ds) Expanded(child: _o1(t.ten, t.bieuTuong, t.ma, () => moTienIch(context, t), moTa: t.moTa)),
-            Expanded(child: _o1('Khác', Icons.apps, 'khac', () => moXemThem(context), moTa: 'Xem đủ 15 tiện ích')),
+            Expanded(child: _o1('Khác', Icons.apps, 'khac', () => moXemThem(context), moTa: 'Xem đủ 16 tiện ích')),
           ],
         ),
       ],

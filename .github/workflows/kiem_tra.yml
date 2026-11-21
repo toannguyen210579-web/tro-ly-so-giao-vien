@@ -6,6 +6,9 @@ on:
     paths-ignore: ["server/**", ".github/workflows/trien_khai_may_chu.yml", ".github/workflows/thu_gemini.yml", "**.md"]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   android:
     runs-on: ubuntu-latest
@@ -35,6 +38,13 @@ jobs:
           for r in ws.iter_rows(values_only=True): print(r)
           assert ws.max_row == 3 and ws.cell(3, 6).value == 'Số 88/GCN-SGDĐT, Sở GD&ĐT'
           "
+      - name: Đẩy tệp Word văn bản Đảng mẫu lên nhánh tep-thu (để xem lại)
+        if: always()
+        run: |
+          mkdir -p /tmp/tep && cp build/thu_*_chi_bo.docx /tmp/tep/ 2>/dev/null || true
+          cd /tmp/tep && ls && git init -q -b tep-thu && git add . \
+            && git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Tệp thử (${GITHUB_SHA::7})" \
+            && git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" tep-thu || true
       # Kho thư viện Maven đôi khi báo quá tải (429): chờ rồi đóng gói lại, tối đa 3 lần
       - run: |
           for i in 1 2 3; do

@@ -5,6 +5,7 @@ import 'anh_sang_word.dart';
 import 'anh_the.dart';
 import 'cham_trac_nghiem.dart';
 import 'cong_cu_tren_lop.dart';
+import 'cong_tac_dang.dart';
 import 'doc_to_ghi_loi.dart';
 import 'giai_de.dart';
 import 'gio_the.dart';
@@ -54,6 +55,8 @@ void moTienIch(BuildContext context, TienIch t) {
       man = const AnhSangWord();
     case 'gio_the':
       man = const GioThe();
+    case 'dang':
+      man = const CongTacDang();
     default:
       man = SapCo(tienIch: t);
   }

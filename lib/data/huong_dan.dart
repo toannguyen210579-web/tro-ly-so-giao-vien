@@ -35,6 +35,28 @@ const huongDan = <String, List<MucHuongDan>>{
     ]),
     _riengTu,
   ],
+  'dang': [
+    MucHuongDan('Ghi thông tin chi bộ', [
+      'Bấm "Ghi thông tin chi bộ": cấp ủy cấp trên trực tiếp (ví dụ Đảng bộ xã Hòa Thắng), tên chi bộ, địa danh ghi ở ngày tháng, họ tên Bí thư. Ghi một lần, app nhớ cho các lần sau.',
+    ]),
+    MucHuongDan('Soạn buổi sinh hoạt chi bộ', [
+      'Bấm "Sinh hoạt chi bộ thường kỳ", chọn ngày, giờ bắt đầu, kết thúc, địa điểm, chủ trì, thư ký.',
+      'Ghi tổng số đảng viên, số có mặt, người vắng (có lý do, không lý do).',
+      'Ghi nội dung theo 5 phần: thông tin thời sự; kết quả tháng; ý kiến thảo luận; phương hướng tháng tới; kết luận. Mỗi ý một dòng.',
+      'Ô số tán thành để trống thì app tính là tất cả đảng viên có mặt đều tán thành.',
+      'App tự lưu bản đang soạn, thoát ra vào lại vẫn còn.',
+    ]),
+    MucHuongDan('Xuất văn bản', [
+      '"Xuất biên bản": tệp Word biên bản sinh hoạt chi bộ, thư ký ký bên trái, chủ trì ký bên phải.',
+      '"Xuất nghị quyết": tệp Word nghị quyết chi bộ tháng, có phần nơi nhận, T/M CHI BỘ, BÍ THƯ ký.',
+      'Văn bản trình bày theo Hướng dẫn 05-HD/VPTW ngày 27/5/2026 của Văn phòng Trung ương Đảng: lề trên 20, dưới 20, trái 30, phải 15 mm; chữ Times New Roman; số nhỏ hơn 10 thêm số 0.',
+      'Mở tệp bằng Word hoặc WPS để sửa thêm, in, ký.',
+    ]),
+    MucHuongDan('Bảo mật', [
+      'Nội dung nhập chỉ lưu trên điện thoại, không gửi lên máy chủ.',
+      'Không nhập tài liệu có độ mật vào app.',
+    ]),
+  ],
   'quet': [
     MucHuongDan('Quét giấy tờ', [
       'Bấm "Quét giấy tờ", đưa máy ảnh vào trang giấy. App tự tìm mép giấy, làm phẳng trang.',

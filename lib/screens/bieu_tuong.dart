@@ -18,6 +18,7 @@ const mauTienIch = <String, (Color, Color)>{
   'gio_the': (Color(0xFFFF7E92), Color(0xFFBC1340)),
   'cong_cu': (Color(0xFF63F0D8), Color(0xFF0E7A70)),
   'hoi': (Color(0xFF6FD3FF), Color(0xFF2563EB)),
+  'dang': (Color(0xFFFF7B6B), Color(0xFFC62828)),
   'khac': (Color(0xFFA9B6C8), Color(0xFF4B5A70)),
 };
 
