@@ -169,8 +169,9 @@ void main() {
     try {
       await viec();
       kq('$ten: xong');
-    } catch (e) {
+    } catch (e, st) {
       kq('$ten: LOI ${e.toString().split('\n').first}');
+      kq('$ten: tai ${st.toString().split('\n').where((d) => d.contains('xem_app_test') || d.contains('lib/')).take(4).join(' <- ')}');
       await chup(t0!, '${ten}_loi', giuThongBao: true);
     }
   }
