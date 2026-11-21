@@ -33,7 +33,7 @@ jobs:
           ws = wb.active
           print('Trang:', ws.title, '| số dòng:', ws.max_row, '| số cột:', ws.max_column)
           for r in ws.iter_rows(values_only=True): print(r)
-          assert ws.max_row == 3 and ws.cell(3, 6).value == 'Số 125/GCN-PGDĐT, Phòng GD&ĐT'
+          assert ws.max_row == 3 and ws.cell(3, 6).value == 'Số 88/GCN-SGDĐT, Sở GD&ĐT'
           "
       # Kho thư viện Maven đôi khi báo quá tải (429): chờ rồi đóng gói lại, tối đa 3 lần
       - run: |
