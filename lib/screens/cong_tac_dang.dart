@@ -492,10 +492,23 @@ class _ManDangPhiState extends State<ManDangPhi> {
             ),
           ),
           const SizedBox(height: 16),
+          FilledButton.icon(
+            onPressed: () async {
+              final ok = await launchUrl(Uri.parse('https://dichvucong.gov.vn'), mode: LaunchMode.externalApplication);
+              if (!ok && context.mounted) {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(const SnackBar(content: Text('Không mở được, thầy cô vào dichvucong.gov.vn bằng trình duyệt.')));
+              }
+            },
+            icon: const Icon(Icons.open_in_new_rounded),
+            label: const Text('Nộp đảng phí trực tuyến'),
+          ),
+          const SizedBox(height: 16),
           const Text('Cách nộp', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: MauApp.xanhDam)),
           const SizedBox(height: 6),
           const Text(
             'Đóng hằng tháng qua Cổng Dịch vụ công quốc gia hoặc nộp trực tiếp cho chi bộ. '
+            'Nộp trực tuyến: đăng nhập bằng tài khoản định danh điện tử VNeID, chọn "Nộp đảng phí", kiểm tra số tiền kỳ này, chọn ngân hàng để thanh toán, xong có biên lai. '
             'Không đóng đảng phí 3 tháng trong năm mà không có lý do chính đáng thì chi bộ xem xét, đề nghị xóa tên.',
             style: TextStyle(height: 1.45),
           ),

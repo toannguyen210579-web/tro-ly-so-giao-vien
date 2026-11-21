@@ -49,6 +49,7 @@ const huongDan = <String, List<MucHuongDan>>{
       'Bấm "Tính đảng phí", chọn nhóm: đang đóng BHXH bắt buộc, nghỉ ốm đau thai sản, hưu trí, học sinh sinh viên, chưa đến tuổi nghỉ hưu, đủ tuổi nghỉ hưu chưa hưởng lương hưu.',
       'Nhập tiền lương làm căn cứ đóng BHXH tháng trước (hoặc trợ cấp, lương hưu); nhóm tính theo lương tối thiểu thì chọn vùng.',
       'Người có công, hưởng trợ cấp bệnh binh, mất sức lao động, bảo trợ xã hội hằng tháng thì bật ô giảm 50%.',
+      'Bấm "Nộp đảng phí trực tuyến" để mở Cổng Dịch vụ công quốc gia, đăng nhập bằng VNeID, chọn "Nộp đảng phí" rồi thanh toán qua ngân hàng.',
       'Mức tính theo Quy định số 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị, hiệu lực từ 01/02/2026.',
     ]),
     MucHuongDan('Bảo mật', [
