@@ -1,0 +1,97 @@
+I/flutter (11639): KQ chup 00_trang_chu: on
+I/flutter (11639): KQ chup 02_du_15_tien_ich: on
+I/flutter (11639): KQ giong_may: san sang=true
+I/flutter (11639): KQ chup 10_doc_to_truoc: on
+I/flutter (11639): KQ chup 11_doc_to_dang_doc: on
+I/flutter (11639): KQ doc_to: dang doc
+I/flutter (11639): KQ chup 12_ghi_loi_trong: on
+I/flutter (11639): KQ chup 13_ghi_loi_co_chu: on
+I/flutter (11639): KQ chup 20_luong_tren: on
+I/flutter (11639): KQ chup 21_luong_muc_uu_dai: on
+I/flutter (11639): KQ chup 22_luong_ket_qua: on
+I/flutter (11639): KQ chup 23_luong_nang_bac: on
+I/flutter (11639): KQ chup 24_luong_can_cu: on
+I/flutter (11639): KQ chup 30_hop_danh_sach: on
+I/flutter (11639): KQ chup 31_hop_sua_tren: on
+I/flutter (11639): KQ chup 32_hop_ghi_chep: on
+I/flutter (11639): KQ chup 33_hop_hoi_dong_y: on
+I/flutter (11639): KQ hop_ai: xong
+I/flutter (11639): KQ chup 34_hop_ai_xong: on
+I/flutter (11639): KQ chup 35_hop_ai_ghi_chep: on
+I/flutter (11639): KQ chup 36_hop_ket_luan: on
+I/flutter (11639): KQ chup 40_gio_the_tren: on
+I/flutter (11639): KQ gio_the_quet: Đọc được 27 thẻ. Còn thiếu em nào thì chụp thêm, kết quả được cộng dồn.
+I/flutter (11639): KQ chup 41_gio_the_doc_xong: on
+I/flutter (11639): KQ gio_the_dung: Đúng 17/27 em (63%)
+I/flutter (11639): KQ chup 42_gio_the_ket_qua: on
+I/flutter (11639): KQ chup 43_gio_the_tung_em: on
+I/flutter (11639): KQ chup 50_nhan_ph_tren: on
+I/flutter (11639): KQ chup 51_nhan_ph_chon_ten: on
+I/flutter (11639): KQ chup 52_nhan_ph_mau: on
+I/flutter (11639): KQ nhan_ph_ai: xong
+I/flutter (11639): KQ chup 53_nhan_ph_ai: on
+I/flutter (11639): KQ chup 54_nhan_ph_tin: on
+I/flutter (11639): KQ chup 55_nhan_ph_gui: on
+I/flutter (11639): KQ chup 70_bieu_tuong: on
+I/flutter (11639): KQ hoi: co tra loi
+I/flutter (11639): KQ chup 60_hoi_tro_ly: on
+I/flutter (11639): KQ chup 61_hoi_tro_ly_duoi: on
+I/flutter (11639): 02:30 +2: All tests passed!
+All tests passed.
+I/flutter (15094): KQ chup 00_trang_chu: on
+I/flutter (15094): KQ chup 10_giai_de: on
+I/flutter (15094): KQ anh_mau: co tep 139265 byte
+I/flutter (15094): KQ chon_anh: co anh sau lan 1
+I/flutter (15094): KQ chup 11_giai_de_co_anh: on
+I/flutter (15094): KQ giai_de_ai: co ket qua
+I/flutter (15094): KQ chup 12_giai_de_ket_qua: on
+I/flutter (15094): KQ chup 13_giai_de_nut: on
+I/flutter (15094): KQ giai_de: xong
+I/flutter (15094): KQ chup 20_cham_tn: on
+I/flutter (15094): KQ chup 21_cham_tn_bai: on
+I/flutter (15094): KQ chup 21b_cham_tn_tab: on
+I/flutter (15094): KQ cham_tn_diem: Đúng 9/10 · 9 điểm
+I/flutter (15094): KQ chup 22_cham_tn_nhap: on
+I/flutter (15094): KQ chup 23_cham_tn_ket_qua: on
+I/flutter (15094): KQ chup 24_cham_tn_thong_ke: on
+I/flutter (15094): KQ cham_tn: xong
+I/flutter (15094): KQ chup 30_minh_chung: on
+I/flutter (15094): KQ anh_mau: co tep 130021 byte
+I/flutter (15094): KQ chon_anh: co anh sau lan 1
+I/flutter (15094): KQ chup 31_minh_chung_them: on
+I/flutter (15094): KQ chup 32_minh_chung_ds: on
+I/flutter (15094): KQ minh_chung_xuat: hien bang chon
+I/flutter (15094): KQ chup 33_minh_chung_xuat: on
+I/flutter (15094): KQ minh_chung: xong
+I/flutter (15094): KQ chup 40_nhan_xet: on
+I/flutter (15094): KQ chup 41_nhan_xet_lop: on
+I/flutter (15094): KQ nhan_xet_ai: CHUA XONG
+I/flutter (15094): KQ chup 42_nhan_xet_ai: on
+I/flutter (15094): KQ nhan_xet: xong
+I/flutter (15094): KQ huong_dan: mo duoc
+I/flutter (15094): KQ chup 43_huong_dan: on
+I/flutter (15094): KQ chup 44_huong_dan_tt89: on
+I/flutter (15094): KQ huong_dan: xong
+I/flutter (15094): KQ chup 50_sang_word: on
+I/flutter (15094): KQ anh_mau: co tep 139265 byte
+I/flutter (15094): KQ chon_anh: co anh sau lan 1
+I/flutter (15094): KQ sang_word_doc: doc duoc
+I/flutter (15094): KQ chup 51_sang_word_chu: on
+I/flutter (15094): KQ sang_word: xong
+I/flutter (15094): KQ chup 60_lich: on
+I/flutter (15094): KQ chup 61_lich_them: on
+I/flutter (15094): KQ chup 62_lich_ds: on
+I/flutter (15094): KQ lich: xong
+I/flutter (15094): KQ chup 70_o_chu: on
+I/flutter (15094): KQ chup 71_o_chu_moi: on
+I/flutter (15094): KQ o_chu: xong
+I/flutter (15094): KQ chup 80_cong_cu: on
+I/flutter (15094): KQ chup 81_cong_cu_duoi: on
+I/flutter (15094): KQ cong_cu: xong
+I/flutter (15094): KQ chup 90_quet_pdf: on
+I/flutter (15094): KQ quet: xong
+I/flutter (15094): KQ chup 91_anh_the: on
+I/flutter (15094): KQ chup 92_anh_the_duoi: on
+I/flutter (15094): KQ anh_the: xong
+I/flutter (15094): 04:40 +2: All tests passed!
+All tests passed.
