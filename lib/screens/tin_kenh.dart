@@ -129,7 +129,7 @@ class _ManTinState extends State<ManTin> {
   Widget build(BuildContext context) {
     final ds = _ds;
     return Scaffold(
-      appBar: AppBar(title: const Text('Tin cho thầy cô')),
+      appBar: AppBar(title: const Text('Tin tức')),
       body: ds == null
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

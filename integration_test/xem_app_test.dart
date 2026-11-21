@@ -393,5 +393,12 @@ void main() {
       await cho(t, 4000);
       await chup(t, '92_anh_the_duoi');
     });
+
+    // ---------- Nút Tin tức ở thanh dưới
+    await buoc('tin_tuc', () async {
+      await chup(t, '95_thanh_duoi');
+      await bam(t, find.text('Tin tức').first, ms: 3000);
+      await chup(t, '96_tin_tuc');
+    });
   }, timeout: const Timeout(Duration(minutes: 30)));
 }

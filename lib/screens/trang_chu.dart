@@ -66,7 +66,7 @@ class _TrangChuState extends State<TrangChu> {
         destinations: const [
           NavigationDestination(icon: Icon(Icons.home_outlined), label: 'Trang chủ'),
           NavigationDestination(icon: Icon(Icons.chat_bubble_outline), label: 'Hỏi Trợ lý'),
-          NavigationDestination(icon: Icon(Icons.play_circle_outline), label: 'Tin'),
+          NavigationDestination(icon: BieuTuongTinTuc(), label: 'Tin tức'),
           NavigationDestination(icon: Icon(Icons.folder_outlined), label: 'Tệp của tôi'),
           NavigationDestination(icon: Icon(Icons.person_outline), label: 'Tài khoản'),
         ],
@@ -231,4 +231,30 @@ class _TrangChuState extends State<TrangChu> {
     );
   }
 
+}
+
+
+/// Nút Tin tức ở thanh dưới: khung chữ nhật bo góc có nút phát, màu chuyển như biểu tượng app,
+/// nổi hơn các nút bên cạnh để thầy cô thấy ngay có clip mới.
+class BieuTuongTinTuc extends StatelessWidget {
+  const BieuTuongTinTuc({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 34,
+      height: 25,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(7),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF6FD0FB), Color(0xFF2C6EE8), Color(0xFF16A58E)],
+          stops: [0, 0.5, 1],
+        ),
+        boxShadow: const [BoxShadow(color: Color(0x732C6EE8), blurRadius: 8, offset: Offset(0, 3))],
+      ),
+      child: const Icon(Icons.play_arrow_rounded, color: Colors.white, size: 21),
+    );
+  }
 }
