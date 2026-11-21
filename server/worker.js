@@ -864,7 +864,7 @@ Khi phát hiện vi phạm, chúng tôi có thể tạm dừng hoặc chặn tí
   },
   "/quyen-rieng-tu": {
     title: "Chính sách quyền riêng tư – Trợ lý số Giáo viên - Một chạm",
-    updated: "19/11/2026",
+    updated: "21/11/2026",
     md: String.raw`## 1. Tóm tắt
 - Ứng dụng "Trợ lý số Giáo viên - Một chạm" do ông Nguyễn Văn Toàn (gọi là "chúng tôi") cung cấp và chịu trách nhiệm xử lý dữ liệu nêu trong chính sách này.
 - **Chúng tôi thu:** một mã máy ngẫu nhiên, địa chỉ mạng (IP) và số lượt dùng AI để giới hạn lượt và chống lạm dụng; nội dung thầy cô chủ động gửi cho AI, chỉ để tạo câu trả lời.
@@ -886,6 +886,8 @@ Chúng tôi không bán dữ liệu của thầy cô. Dữ liệu chỉ đến c
 | Bên nhận | Nhận gì | Để làm gì | Chính sách của họ |
 | --- | --- | --- | --- |
 | Google (dịch vụ AI Gemini) | Câu hỏi bằng chữ không có thông tin cá nhân trong Hỏi Trợ lý, Giải đề, Ra đề tương tự; không kèm mã máy hay IP của thầy cô | Tạo câu trả lời; Google có thể dùng nội dung này để cải thiện dịch vụ | [ai.google.dev/gemini-api/terms](https://ai.google.dev/gemini-api/terms) |
+| Các dịch vụ AI miễn phí dự phòng: Cloudflare Workers AI, Groq, Mistral AI, Z.ai, Hugging Face, Cerebras | Như dòng Gemini: câu hỏi bằng chữ không có thông tin cá nhân, chỉ khi Gemini bận hoặc hết lượt; không kèm mã máy hay IP | Tạo câu trả lời thay Gemini | Chính sách của từng nhà cung cấp trên trang chủ của họ |
+| Dịch vụ tìm kiếm trên mạng: TinyFish, LangSearch, Exa, Tavily, Firecrawl | Câu hỏi bằng chữ cần thông tin mới (giá cả, tin tức, văn bản mới) trong Hỏi Trợ lý, sau khi app đã thay tên học sinh bằng mã và che số điện thoại, email, số giấy tờ; không kèm mã máy hay IP | Tìm thông tin mới để trả lời | Chính sách của từng nhà cung cấp trên trang chủ của họ |
 | Anthropic (dịch vụ AI Claude) | Câu hỏi kèm ảnh, câu hỏi có tên học sinh, số điện thoại, email; nội dung Nhận xét học sinh, Nhắn phụ huynh, sắp xếp biên bản. Tên học sinh trong danh sách lớp đã thay bằng mã; không kèm mã máy hay IP | Tạo câu trả lời | [anthropic.com/legal/privacy](https://www.anthropic.com/legal/privacy) |
 | Cloudflare (máy chủ) | Mã máy, IP, bộ đếm lượt, nhật ký kỹ thuật | Vận hành máy chủ của Ứng dụng | [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/) |
 | Google AdMob (quảng cáo, chưa dùng ở bản hiện tại) | Mã quảng cáo của máy, IP, thông tin thiết bị, tương tác với quảng cáo; mã máy khi xem quảng cáo nhận thưởng | Hiện quảng cáo, xác nhận lượt thưởng | [policies.google.com/privacy](https://policies.google.com/privacy) |

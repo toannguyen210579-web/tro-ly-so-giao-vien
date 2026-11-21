@@ -46,6 +46,23 @@ jobs:
         with:
           name: tro-ly-so-gv-android
           path: build/app/outputs/flutter-apk/app-release.apk
+      # Bản đóng gói để tải lên Google Play (AAB)
+      - run: |
+          for i in 1 2 3; do
+            flutter build appbundle --release && exit 0
+            echo "Đóng gói AAB lỗi lần $i, chờ rồi thử lại"; sleep $((i * 60))
+          done
+          exit 1
+      - name: Kiểm tra bản đóng gói (mã gói, phiên bản, Android đích, chữ ký)
+        run: |
+          AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt | sort -V | tail -1)
+          $AAPT dump badging build/app/outputs/flutter-apk/app-release.apk | grep -E "^package:|targetSdkVersion|sdkVersion|uses-permission" || true
+          ls -la build/app/outputs/bundle/release/
+          jarsigner -verify build/app/outputs/bundle/release/app-release.aab | tail -1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tro-ly-so-gv-google-play-aab
+          path: build/app/outputs/bundle/release/app-release.aab
 
   ios:
     # Máy Mac tính phút gấp 10 lần, nên bản iPhone chỉ đóng gói khi bấm chạy tay
