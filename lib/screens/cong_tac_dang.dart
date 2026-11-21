@@ -32,6 +32,10 @@ Future<void> luuChiBo(ThongTinChiBo cb) async {
 }
 
 /// Mục Công tác Đảng: soạn biên bản sinh hoạt chi bộ, nghị quyết chi bộ tháng đúng thể thức văn bản Đảng.
+/// Phần soạn biên bản, nghị quyết chi bộ đang ẩn (thầy chốt 21/11/2026). Bật lại khi dựng app:
+/// flutter build ... --dart-define=CHI_BO_VAN_BAN=true
+const coSoanVanBanChiBo = bool.fromEnvironment('CHI_BO_VAN_BAN');
+
 class CongTacDang extends StatefulWidget {
   const CongTacDang({super.key});
 
@@ -105,6 +109,7 @@ class _CongTacDangState extends State<CongTacDang> {
         padding: const EdgeInsets.all(16),
         children: [
           const CauGiupViec('dang'),
+          if (coSoanVanBanChiBo) ...[
           Card(
             child: ListTile(
               leading: const Icon(Icons.groups_rounded),
@@ -125,6 +130,7 @@ class _CongTacDangState extends State<CongTacDang> {
             ),
           ),
           const SizedBox(height: 8),
+          ],
           Card(
             child: ListTile(
               leading: const Icon(Icons.alarm_rounded),
