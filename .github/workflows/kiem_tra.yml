@@ -58,7 +58,12 @@ jobs:
           AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt | sort -V | tail -1)
           $AAPT dump badging build/app/outputs/flutter-apk/app-release.apk | grep -E "^package:|targetSdkVersion|sdkVersion|uses-permission" || true
           ls -la build/app/outputs/bundle/release/
-          jarsigner -verify build/app/outputs/bundle/release/app-release.aab | tail -1
+          jarsigner -verify build/app/outputs/bundle/release/app-release.aab | head -3
+      - name: Dung lượng tải về trên từng loại máy (Google Play giới hạn 200 MB)
+        run: |
+          curl -sL -o bt.jar https://github.com/google/bundletool/releases/download/1.18.1/bundletool-all-1.18.1.jar
+          java -jar bt.jar build-apks --bundle=build/app/outputs/bundle/release/app-release.aab --output=thu.apks
+          java -jar bt.jar get-size total --apks=thu.apks --dimensions=ABI
       - uses: actions/upload-artifact@v4
         with:
           name: tro-ly-so-gv-google-play-aab
