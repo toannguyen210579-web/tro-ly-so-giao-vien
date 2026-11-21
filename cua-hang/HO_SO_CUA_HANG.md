@@ -108,7 +108,7 @@ Không khai: vị trí, danh bạ, tin nhắn, tài chính, sức khỏe, ghi â
 | Tệp | Nơi lấy |
 | --- | --- |
 | Bản đóng gói Google Play (.aab) | GitHub Actions, workflow "Kiem tra va dong goi", tệp đính kèm tro-ly-so-gv-google-play-aab |
-| Biểu tượng 512x512 | Chờ chốt màu biểu tượng |
+| Biểu tượng 512x512 | cua-hang/anh/bieu_tuong_512.png (phương án A, chốt 21/11/2026) |
 | Ảnh nổi bật 1024x500 | cua-hang/anh/anh_noi_bat_1024x500.png |
 | Ảnh màn hình điện thoại (tối thiểu 2, nên 8) | cua-hang/anh/man_hinh_*.png |
 
