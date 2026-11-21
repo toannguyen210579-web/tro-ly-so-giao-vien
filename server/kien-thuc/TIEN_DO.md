@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (57 mục)
+## Đã nạp (62 mục)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -52,13 +52,16 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - TT 10/2026/TT-BGDĐT Quy chế văn bằng, chứng chỉ (chuyển chữ từ bản ký số; hiệu lực 15/4/2026, thay TT 21/2019) (21/11)
 - TT 06/2019/TT-BGDĐT Quy tắc ứng xử trong trường (nguyên văn; Điều 6 hết hiệu lực theo TT 03/2026) (21/11)
 - TT 94/2026 đánh giá Đề án tiếng Anh ngôn ngữ thứ hai + mục tiêu QĐ 2371/QĐ-TTg (tóm tắt; còn thiếu nguyên văn và Phụ lục tiêu chí) (21/11)
+- TT 04/2026/TT-BGDĐT chế độ làm việc giáo viên GDTX (nguyên văn, hiệu lực 10/02/2026) (21/11)
+- TT 48/2026/TT-BGDĐT Quy chế trường phổ thông tư thục (2 phần, nguyên văn; hiệu lực 08/8/2026, thay TT 40/2021) (21/11)
+- NĐ 368/2026/NĐ-CP thi đua, khen thưởng (trích nguyên văn Điều 1–5, 26, 27, 41, 52, 53, 57, 62, 63) (21/11)
+- TT 25/2026/TT-BNV hướng dẫn thi đua, khen thưởng (nguyên văn bản ký số) (21/11)
 
 ## Còn phải làm (theo thứ tự)
 2. CV 3456/BGDĐT-GDPT toàn văn (chưa lấy được bản gốc; hiện chỉ tóm tắt trong tệp TT 02/2025)
 3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
 7. TT 94/2026: lấy nguyên văn, Phụ lục II tiêu chí trường phổ thông (bản 24 MB trên hoatieu.vn, chưa tải được)
-8. TT 04/2026 chế độ làm việc giáo viên GDTX; TT 48/2026 quy chế trường tư thục
-9. Kỷ luật nhà giáo, viên chức; Nghị định 368/2026/NĐ-CP và TT 25/2026/TT-BNV (thi đua, khen thưởng chung: Lao động tiên tiến, Chiến sĩ thi đua cơ sở)
+9. Kỷ luật nhà giáo, viên chức. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)
 10. NĐ 232/2026, NĐ 188/2026 (kiểm tra nội dung trước khi nạp)
 11. TT 33/2026 Khung năng lực ngoại ngữ
 12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
@@ -71,3 +74,4 @@ Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có 
 - Bản PDF chụp (không có chữ): pdftoppm -r 300 -gray rồi tesseract -l vie --psm 4; xem lại ảnh trang ở chỗ có công thức, bảng, chữ ký; sửa lỗi chữ trước khi nạp.
 - luatnguyen.vn có toàn văn nhiều thông tư mới (đọc bằng trình duyệt).
 - xaydungchinhsach.chinhphu.vn có bài tóm tắt kèm liên kết toàn văn.
+- (21/11) luatvietnam.vn hiển thị nguyên văn nhiều văn bản 2026 khi mở bằng trình duyệt tích hợp (TT 04, TT 48, NĐ 368). Biết mã số văn bản thì mở thẳng luatvietnam.vn/giao-duc/thong-tu-<số>-<năm>-tt-bgddt-<mã>-d1.html, trang tự chuyển đúng đường dẫn. Máy làm việc trên đám mây chỉ curl được datafiles.chinhphu.vn (hoatieu, vbpl, các trang khác bị chặn); trình duyệt không cho chèn thư viện ngoài (pdf.js, tesseract.js) nên không nhận dạng chữ bản chụp ngay trong trình duyệt được.
