@@ -162,17 +162,22 @@ void main() {
   }
 
   Future<void> buoc(String ten, Future<void> Function() viec) async {
-    try {
-      Navigator.of(t0!.element(find.byType(TrangChu, skipOffstage: false))).popUntil((r) => r.isFirst);
-      await cho(t0!, 800);
-    } catch (_) {}
-    try {
-      await viec();
-      kq('$ten: xong');
-    } catch (e, st) {
-      kq('$ten: LOI ${e.toString().split('\n').first}');
-      kq('$ten: tai ${st.toString().split('\n').where((d) => d.contains('xem_app_test') || d.contains('lib/')).take(4).join(' <- ')}');
-      await chup(t0!, '${ten}_loi', giuThongBao: true);
+    // Hỏng lần đầu (thường do màn hình chưa kịp dựng) thì làm lại một lần
+    for (var lan = 1; lan <= 2; lan++) {
+      try {
+        Navigator.of(t0!.element(find.byType(TrangChu, skipOffstage: false))).popUntil((r) => r.isFirst);
+        await cho(t0!, 800);
+      } catch (_) {}
+      try {
+        await viec();
+        kq('$ten: xong${lan > 1 ? " (lan 2)" : ""}');
+        return;
+      } catch (e, st) {
+        kq('$ten: LOI lan $lan ${e.toString().split('\n').first}');
+        kq('$ten: tai ${st.toString().split('\n').where((d) => d.contains('xem_app_test') || d.contains('lib/')).take(4).join(' <- ')}');
+        await chup(t0!, '${ten}_loi', giuThongBao: true);
+        tatThongBao(t0!);
+      }
     }
   }
 

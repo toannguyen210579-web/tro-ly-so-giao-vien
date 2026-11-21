@@ -1,4 +1,5 @@
 name: Quay video 15 tiện ích
+# Quay lại 21/11/2026: có nút Hướng dẫn sử dụng, bảng xuất Sổ minh chứng
 on:
   workflow_dispatch:
   push:
