@@ -167,11 +167,11 @@ class _HoiTroLyState extends State<HoiTroLy> {
     if (RegExp(r'ti[eê]u\s*đi[eể]m|vntđ|vntd|(clip|cip|video|tin|kênh)\s+(của|trong|trên)\s+app', caseSensitive: false)
         .hasMatch(c)) {
       try {
-        final tin = await NguonTin.tai();
+        final tin = (await NguonTin.tai()).where((t) => !t.laTinBao).toList();
         if (tin.isNotEmpty) {
           tinKenh = tin;
           guiDi = '$guiDi\n\n(Thông tin kèm theo để trả lời, không nhắc lại phần này: "Việt Nam Tiêu Điểm" là kênh clip tin giáo dục ngắn '
-              'đi cùng app, xem trong mục Tin của app. Trả lời đúng điều được hỏi: hỏi clip nào hay thì chọn hẳn một clip cụ thể, '
+              'đi cùng app, xem trong mục Tin tức của app. Trả lời đúng điều được hỏi: hỏi clip nào hay thì chọn hẳn một clip cụ thể, '
               'không né, không trả lời chung chung. Khi gợi ý clip, ghi đúng nguyên văn tít clip trong ngoặc kép; '
               'app sẽ hiện nút bấm mở clip đó ngay dưới câu trả lời, nên không chỉ sang trang web hay kênh khác. '
               'Các clip gần đây, mới nhất trước:\n'

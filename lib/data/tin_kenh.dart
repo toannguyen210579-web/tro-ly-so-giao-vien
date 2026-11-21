@@ -25,6 +25,10 @@ class TinKenh {
   /// Đường dẫn tệp mp4 (Cloudflare R2) để phát ngay trong app.
   final String? video;
 
+  /// Tin tức lấy từ báo, cổng thông tin (không phải clip của kênh): tên nguồn và đường dẫn bài gốc.
+  final String? nguon;
+  final String? link;
+
   const TinKenh({
     required this.id,
     required this.ngay,
@@ -33,6 +37,8 @@ class TinKenh {
     required this.anhBia,
     this.linkFacebook,
     this.video,
+    this.nguon,
+    this.link,
   });
 
   factory TinKenh.fromJson(Map<String, dynamic> j) => TinKenh(
@@ -43,7 +49,12 @@ class TinKenh {
         anhBia: j['anh_bia'] as String? ?? '',
         linkFacebook: (j['link_facebook'] as String?)?.trim().isEmpty ?? true ? null : j['link_facebook'] as String,
         video: (j['video'] as String?)?.trim().isEmpty ?? true ? null : j['video'] as String,
+        nguon: (j['nguon'] as String?)?.trim().isEmpty ?? true ? null : j['nguon'] as String,
+        link: (j['link'] as String?)?.trim().isEmpty ?? true ? null : j['link'] as String,
       );
+
+  /// Tin từ báo (có nguồn), không phải clip của kênh
+  bool get laTinBao => nguon != null;
 
   bool get anhDongGoi => anhBia.startsWith('asset:');
   String get duongDanAnh => anhDongGoi ? anhBia.substring(6) : anhBia;

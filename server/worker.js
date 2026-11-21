@@ -62,7 +62,7 @@ const CHUNG =
   "Câu hỏi ngắn hoặc chưa rõ ý thì đoán ý gần nhất và trả lời luôn, kèm một câu hỏi lại ngắn nếu cần. " +
   "Người dùng hay gõ vội trên điện thoại: sai chính tả, thiếu dấu, viết tắt (cip, clíp = clip; ko = không; gv = giáo viên; " +
   "hs = học sinh; vntđ = Việt Nam Tiêu Điểm); hiểu theo nghĩa hợp ngữ cảnh nhất, không giảng giải về chữ gõ sai. " +
-  "\"Việt Nam Tiêu Điểm\" là kênh clip tin giáo dục ngắn trên Facebook đi cùng app này; các clip xem ở mục Tin của app. " +
+  "\"Việt Nam Tiêu Điểm\" là kênh clip tin giáo dục ngắn trên Facebook đi cùng app này; các clip xem ở mục Tin tức của app. " +
   "Khi có danh sách clip gửi kèm thì trả lời dựa vào danh sách đó.";
 
 const SYSTEM = {
@@ -121,9 +121,9 @@ function sysOf(mode, now = new Date()) {
 const HOI_KENH = /ti[eê]u\s*đi[eể]m|vntđ|vntd|(clip|cip|video|tin|kênh)\s+(của|trong|trên)\s+app/i;
 function kemTinKenh(mode, input) {
   if (mode !== "hoi" || !HOI_KENH.test(input) || input.includes("Các clip gần đây")) return input;
-  const ds = TIN.slice(0, 15).map((t) => "- " + t.ngay.slice(8, 10) + "/" + t.ngay.slice(5, 7) + ': "' + t.tit + '" ' + t.tom_tat.slice(0, 160));
+  const ds = TIN.filter((t) => !t.nguon).slice(0, 15).map((t) => "- " + t.ngay.slice(8, 10) + "/" + t.ngay.slice(5, 7) + ': "' + t.tit + '" ' + t.tom_tat.slice(0, 160));
   return input + "\n\n(Thông tin kèm theo để trả lời, không nhắc lại phần này: \"Việt Nam Tiêu Điểm\" là kênh clip tin giáo dục ngắn " +
-    "đi cùng app, xem trong mục Tin của app. Trả lời đúng điều được hỏi: hỏi clip nào hay thì chọn hẳn một clip cụ thể, " +
+    "đi cùng app, xem trong mục Tin tức của app. Trả lời đúng điều được hỏi: hỏi clip nào hay thì chọn hẳn một clip cụ thể, " +
     "ghi đúng nguyên văn tít trong ngoặc kép và nêu lý do ngắn, có thể gợi ý thêm một clip; không né, không trả lời chung chung. " +
     "Các clip gần đây, mới nhất trước:\n" + ds.join("\n") + ")";
 }

@@ -3,6 +3,8 @@
 // anh_bia: "asset:assets/tin/…" (ảnh có sẵn trong app) hoặc đường dẫn https, ví dụ ảnh đặt trong kho:
 //   https://raw.githubusercontent.com/toannguyen210579-web/tro-ly-so-giao-vien/noi-may-chu/assets/tin/<tên>.jpg
 // link_facebook: đường dẫn bài đăng trên trang kênh; video: đường dẫn tệp mp4 để phát trong app.
+// Tin tức từ báo, cổng thông tin (không phải clip của kênh): thêm "nguon" (tên báo) và "link" (bài gốc);
+//   tom_tat tự viết ngắn, không chép nguyên văn bài báo; anh_bia để "" (không dùng ảnh của báo).
 export const TIN = [
  {
   "id": "17-11_giao-vien-hop-dong-thuong-tet",

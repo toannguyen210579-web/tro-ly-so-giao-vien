@@ -32,8 +32,19 @@ Future<void> moFacebook(BuildContext context, TinKenh t) async {
 }
 
 void chiaSeTin(TinKenh t) {
-  final link = t.linkFacebook == null ? '' : '\n${t.linkFacebook}';
-  Share.share('${t.tit}\n${t.tomTat}$link\n(Theo $tenKenh)');
+  final lk = t.laTinBao ? t.link : t.linkFacebook;
+  final link = lk == null ? '' : '\n$lk';
+  Share.share('${t.tit}\n${t.tomTat}$link\n(Theo ${t.nguon ?? tenKenh})');
+}
+
+/// Mở bài gốc trên trang báo
+Future<void> moBaiGoc(BuildContext context, TinKenh t) async {
+  final link = t.link;
+  if (link == null) return;
+  final ok = await launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication);
+  if (!ok && context.mounted) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa mở được trang báo.')));
+  }
 }
 
 /// Dòng "Tin mới" gọn trên trang chủ: tít tin mới nhất, bấm vào mở trang Tin.
@@ -186,9 +197,20 @@ class _TheTinState extends State<TheTin> {
           children: [
             Row(
               children: [
-                ClipOval(child: Image.asset('assets/tin/logo_vntd.png', width: 34, height: 34, fit: BoxFit.cover)),
+                if (t.laTinBao)
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: const BoxDecoration(color: Color(0xFFE8F0FE), shape: BoxShape.circle),
+                    child: const Icon(Icons.newspaper_rounded, color: MauApp.xanhTroi, size: 20),
+                  )
+                else
+                  ClipOval(child: Image.asset('assets/tin/logo_vntd.png', width: 34, height: 34, fit: BoxFit.cover)),
                 const SizedBox(width: 8),
-                const Text(tenKenh, style: TextStyle(fontWeight: FontWeight.w700)),
+                Flexible(
+                  child: Text(t.nguon ?? tenKenh,
+                      maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+                ),
                 Text('  ·  ${ngayVN(t.ngay)}', style: const TextStyle(color: MauApp.chuPhu, fontSize: 12.5)),
               ],
             ),
@@ -212,6 +234,17 @@ class _TheTinState extends State<TheTin> {
                   child: Text('Xem thêm', style: TextStyle(color: MauApp.chuPhu, fontWeight: FontWeight.w600)),
                 ),
               ),
+            if (t.laTinBao && t.anhBia.isNotEmpty) ...[
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => moBaiGoc(context, t),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: AspectRatio(aspectRatio: 16 / 9, child: anhTin(t)),
+                ),
+              ),
+            ],
+            if (!t.laTinBao) ...[
             const SizedBox(height: 10),
             GestureDetector(
               onTap: () => t.video != null
@@ -233,6 +266,7 @@ class _TheTinState extends State<TheTin> {
                 ),
               ),
             ),
+            ],
             const SizedBox(height: 6),
             Row(
               children: [
@@ -244,12 +278,19 @@ class _TheTinState extends State<TheTin> {
                 ),
                 IconButton(tooltip: 'Chia sẻ', onPressed: () => chiaSeTin(t), icon: const Icon(Icons.share_outlined)),
                 const Spacer(),
-                FilledButton.icon(
-                  onPressed: () => moFacebook(context, t),
-                  style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),
-                  icon: const Icon(Icons.play_circle_outline, size: 18),
-                  label: const Text('Xem trên Facebook'),
-                ),
+                if (t.laTinBao)
+                  FilledButton.icon(
+                    onPressed: t.link == null ? null : () => moBaiGoc(context, t),
+                    icon: const Icon(Icons.open_in_new, size: 18),
+                    label: const Text('Đọc bài gốc'),
+                  )
+                else
+                  FilledButton.icon(
+                    onPressed: () => moFacebook(context, t),
+                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),
+                    icon: const Icon(Icons.play_circle_outline, size: 18),
+                    label: const Text('Xem trên Facebook'),
+                  ),
               ],
             ),
           ],
