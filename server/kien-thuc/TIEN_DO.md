@@ -79,3 +79,20 @@ Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có 
 - luatnguyen.vn có toàn văn nhiều thông tư mới (đọc bằng trình duyệt).
 - xaydungchinhsach.chinhphu.vn có bài tóm tắt kèm liên kết toàn văn.
 - (21/11) luatvietnam.vn hiển thị nguyên văn nhiều văn bản 2026 khi mở bằng trình duyệt tích hợp (TT 04, TT 48, NĐ 368). Biết mã số văn bản thì mở thẳng luatvietnam.vn/giao-duc/thong-tu-<số>-<năm>-tt-bgddt-<mã>-d1.html, trang tự chuyển đúng đường dẫn. Máy làm việc trên đám mây chỉ curl được datafiles.chinhphu.vn (hoatieu, vbpl, các trang khác bị chặn); trình duyệt không cho chèn thư viện ngoài (pdf.js, tesseract.js) nên không nhận dạng chữ bản chụp ngay trong trình duyệt được.
+
+
+## Văn bản công tác Đảng (thầy chốt 22/11/2026)
+Mỗi tối nạp 5 văn bản công tác Đảng (cùng 5 văn bản giáo dục). Chỉ lấy văn bản công khai (đăng trên báo Nhân Dân, Cổng TTĐT Đảng, báo chính thống); không lấy văn bản mật, nội bộ. Mỗi văn bản lưu thêm một bản vào Google Drive, kho "VAN BẢN CĂN CỨ", thư mục "Công tác Đảng" (ID 1nRGyx1_8iR5qLF_cwI9QXk5T7CPwrkVf).
+
+Đã nạp:
+- Quy định 207-QĐ/TW ngày 26/7/2026 về những điều đảng viên không được làm (19 điều, nguyên văn; thay QĐ 37-QĐ/TW) (22/11)
+
+Còn phải làm (theo thứ tự):
+1. Quy định 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị về chế độ đảng phí (hiệu lực 01/02/2026, thay QĐ 342-QĐ/TW)
+2. Quy định 208-QĐ/TW ngày 26/7/2026 về thi hành Điều lệ Đảng (hiệu lực từ ngày ký) — văn bản dài, chia phần
+3. Quy định 212-QĐ/TW ngày 17/8/2026 của Bộ Chính trị về kỷ luật tổ chức đảng, đảng viên vi phạm (đối chiếu ngày ký, văn bản thay thế QĐ 69-QĐ/TW và QĐ 264-QĐ/TW)
+4. Hướng dẫn 42-HD/BTCTW (2025) về đổi mới, nâng cao chất lượng sinh hoạt chi bộ (thực hiện Chỉ thị 50-CT/TW); kiểm tra còn hiệu lực; Hướng dẫn sinh hoạt tổ đảng
+5. Quy định 366-QĐ/TW (2025) về kiểm điểm, đánh giá, xếp loại chất lượng tập thể, cá nhân; Hướng dẫn kiểm điểm năm 2026 của Ban Tổ chức Trung ương
+6. Điều lệ Đảng (Đại hội XI, 2011; Đại hội XIV chưa sửa đổi) — nguyên văn, chia phần
+7. Quy định về thể thức văn bản Đảng 399-QĐ/TW và Hướng dẫn 05-HD/VPTW (phần dùng cho chi bộ)
+8. Hướng dẫn thực hiện Quy định 207-QĐ/TW; quy định về chuyển sinh hoạt đảng, kết nạp đảng viên (trong QĐ 208 và hướng dẫn kèm)
