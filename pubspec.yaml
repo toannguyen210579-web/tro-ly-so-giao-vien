@@ -1,7 +1,7 @@
 name: tro_ly_so_giao_vien
 description: "Trợ lý số Giáo viên - Một chạm"
 publish_to: "none"
-version: 0.3.0+3
+version: 0.4.0+4
 
 environment:
   sdk: ">=3.4.0 <4.0.0"
