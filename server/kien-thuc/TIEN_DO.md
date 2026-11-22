@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (68 mục)
+## Đã nạp (75 mục trong ds.json)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -61,11 +61,13 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - NĐ 232/2026/NĐ-CP vị trí việc làm viên chức (nguyên văn Điều 1–19, chuyển chữ từ bản chụp; chưa chép Phụ lục I–IV) (21/11)
 - TT 94/2026/TT-BGDĐT nguyên văn (phần 1 Điều 1–15; phần 2 Phụ lục II trường phổ thông); chưa chép Phụ lục I, III, IV, V, VI (21/11)
 - CV 3456/BGDĐT-GDPT nguyên văn (21/11); Phụ lục mục 2 mô tả 24 năng lực thành phần theo nhóm lớp (22/11)
+- NĐ 234/2026/NĐ-CP xử lý kỷ luật viên chức (nguyên văn, chuyển chữ từ bản chụp; hiệu lực 01/7/2026, thay NĐ 112/2020) (22/11)
+- NĐ 233/2026/NĐ-CP đánh giá, xếp loại chất lượng viên chức (nguyên văn Điều 1–4, 10–21, Phụ lục I; Chương II đơn vị chỉ tóm tắt; hiệu lực 01/7/2026, thay NĐ 90/2020) (22/11)
 
 ## Còn phải làm (theo thứ tự)
-3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
+3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp (22/11: chưa thấy ban hành)
 7. TT 94/2026: Phụ lục I (mầm non), III (GDTX), VI (biểu mẫu) nếu cần; nguyên văn ở luatvietnam.vn ...-455513-d1.html
-9. Kỷ luật nhà giáo, viên chức. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)
+9. (Đã nạp NĐ 234/2026 kỷ luật viên chức, NĐ 233/2026 đánh giá viên chức.) Còn: kỷ luật riêng nhà giáo theo Luật Nhà giáo (nếu có văn bản); NĐ 233 Chương II nguyên văn nếu cần. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)
 10. NĐ 232/2026: chép Phụ lục II, III (danh mục vị trí việc làm và bậc nghề nghiệp, có dòng ngành giáo dục, tư vấn học sinh) – bảng bản chụp cần tách ô bằng OpenCV; hoatieu.vn có bài "Danh mục vị trí việc làm giáo dục theo NĐ 232"
 12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
 
@@ -81,14 +83,15 @@ Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có 
 
 
 ## Văn bản công tác Đảng (thầy chốt 22/11/2026)
-Mỗi tối nạp 5 văn bản công tác Đảng (cùng 5 văn bản giáo dục). Chỉ lấy văn bản công khai (đăng trên báo Nhân Dân, Cổng TTĐT Đảng, báo chính thống); không lấy văn bản mật, nội bộ. Mỗi văn bản lưu thêm một bản vào Google Drive, kho "VAN BẢN CĂN CỨ", thư mục "Công tác Đảng" (ID 1nRGyx1_8iR5qLF_cwI9QXk5T7CPwrkVf).
+Mỗi tối nạp 2 văn bản công tác Đảng và 2 văn bản giáo dục (thầy chốt lại 22/11/2026). Chỉ lấy văn bản công khai (đăng trên báo Nhân Dân, Cổng TTĐT Đảng, báo chính thống); không lấy văn bản mật, nội bộ. Mỗi văn bản lưu thêm một bản vào Google Drive, kho "VAN BẢN CĂN CỨ", thư mục "Công tác Đảng" (ID 1nRGyx1_8iR5qLF_cwI9QXk5T7CPwrkVf).
 
 Đã nạp:
 - Quy định 207-QĐ/TW ngày 26/7/2026 về những điều đảng viên không được làm (19 điều, nguyên văn; thay QĐ 37-QĐ/TW) (22/11)
+- Quy định 01-QĐ/TW ngày 03/02/2026 về chế độ đảng phí (nguyên văn 8 điều; hiệu lực 01/02/2026, thay QĐ 342-QĐ/TW) (22/11)
+- Quy định 208-QĐ/TW ngày 26/7/2026 thi hành Điều lệ Đảng: phần 1 (Chương I, VII, VIII) và phần 2 (Chương III đảng viên, mục 1–4, 6–8) nguyên văn (22/11)
 
 Còn phải làm (theo thứ tự):
-1. Quy định 01-QĐ/TW ngày 03/02/2026 của Bộ Chính trị về chế độ đảng phí (hiệu lực 01/02/2026, thay QĐ 342-QĐ/TW)
-2. Quy định 208-QĐ/TW ngày 26/7/2026 về thi hành Điều lệ Đảng (hiệu lực từ ngày ký) — văn bản dài, chia phần
+2. QĐ 208-QĐ/TW: còn Chương II (nguyên tắc tổ chức, đại hội, bầu cử, chi bộ), IV, V (kiểm tra, khen thưởng), VI, và Chương III mục 5 (đảng tịch). Nguyên văn ở luatvietnam.vn ...-441932-d6.html (mở bằng trình duyệt, ~91.000 ký tự). Kèm Hướng dẫn 02-HD/TW 2026 thi hành Điều lệ Đảng (luatvietnam.vn ...-444353-d6.html)
 3. Quy định 212-QĐ/TW ngày 17/8/2026 của Bộ Chính trị về kỷ luật tổ chức đảng, đảng viên vi phạm (đối chiếu ngày ký, văn bản thay thế QĐ 69-QĐ/TW và QĐ 264-QĐ/TW)
 4. Hướng dẫn 42-HD/BTCTW (2025) về đổi mới, nâng cao chất lượng sinh hoạt chi bộ (thực hiện Chỉ thị 50-CT/TW); kiểm tra còn hiệu lực; Hướng dẫn sinh hoạt tổ đảng
 5. Quy định 366-QĐ/TW (2025) về kiểm điểm, đánh giá, xếp loại chất lượng tập thể, cá nhân; Hướng dẫn kiểm điểm năm 2026 của Ban Tổ chức Trung ương
