@@ -161,7 +161,7 @@ class _CongTacDangState extends State<CongTacDang> {
             child: ListTile(
               leading: const Icon(Icons.savings_rounded),
               title: const Text('Tính đảng phí'),
-              subtitle: const Text('Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, cách nộp qua Cổng Dịch vụ công'),
+              subtitle: const Text('Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, nút nộp trực tuyến'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi())),
             ),
