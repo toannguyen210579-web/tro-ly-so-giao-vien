@@ -35,6 +35,9 @@ Future<void> luuChiBo(ThongTinChiBo cb) async {
 /// Mục Công tác Đảng: soạn biên bản sinh hoạt chi bộ, nghị quyết chi bộ tháng đúng thể thức văn bản Đảng.
 /// Phần soạn biên bản, nghị quyết chi bộ đang ẩn (thầy chốt 21/11/2026). Bật lại khi dựng app:
 /// flutter build ... --dart-define=CHI_BO_VAN_BAN=true
+/// Nền tảng chuyển đổi số cho đảng viên: thu nộp đảng phí, chuyển sinh hoạt đảng.
+const congDichVuDang = 'https://dichvucong.dcs.vn/web/home';
+
 const coSoanVanBanChiBo = bool.fromEnvironment('CHI_BO_VAN_BAN');
 
 class CongTacDang extends StatefulWidget {
@@ -161,6 +164,22 @@ class _CongTacDangState extends State<CongTacDang> {
               subtitle: const Text('Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, cách nộp qua Cổng Dịch vụ công'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi())),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.how_to_reg_rounded, color: Color(0xFFC62828)),
+              title: const Text('Dịch vụ công của Đảng'),
+              subtitle: const Text('Thu nộp đảng phí, chuyển sinh hoạt đảng chính thức, tạm thời (đăng nhập bằng VNeID)'),
+              trailing: const Icon(Icons.open_in_new_rounded),
+              onTap: () async {
+                final ok = await launchUrl(Uri.parse(congDichVuDang), mode: LaunchMode.externalApplication);
+                if (!ok && context.mounted) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('Không mở được, thầy cô vào dichvucong.dcs.vn bằng trình duyệt.')));
+                }
+              },
             ),
           ),
           const SizedBox(height: 8),
@@ -494,10 +513,10 @@ class _ManDangPhiState extends State<ManDangPhi> {
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: () async {
-              final ok = await launchUrl(Uri.parse('https://dichvucong.gov.vn'), mode: LaunchMode.externalApplication);
+              final ok = await launchUrl(Uri.parse(congDichVuDang), mode: LaunchMode.externalApplication);
               if (!ok && context.mounted) {
                 ScaffoldMessenger.of(context)
-                    .showSnackBar(const SnackBar(content: Text('Không mở được, thầy cô vào dichvucong.gov.vn bằng trình duyệt.')));
+                    .showSnackBar(const SnackBar(content: Text('Không mở được, thầy cô vào dichvucong.dcs.vn bằng trình duyệt.')));
               }
             },
             icon: const Icon(Icons.open_in_new_rounded),
@@ -508,7 +527,7 @@ class _ManDangPhiState extends State<ManDangPhi> {
           const SizedBox(height: 6),
           const Text(
             'Đóng hằng tháng qua Cổng Dịch vụ công quốc gia hoặc nộp trực tiếp cho chi bộ. '
-            'Nộp trực tuyến: đăng nhập bằng tài khoản định danh điện tử VNeID, chọn "Nộp đảng phí", kiểm tra số tiền kỳ này, chọn ngân hàng để thanh toán, xong có biên lai. '
+            'Nộp trực tuyến trên Nền tảng chuyển đổi số cho đảng viên (dichvucong.dcs.vn): đăng nhập bằng tài khoản định danh điện tử VNeID, chọn "Thu nộp đảng phí", kiểm tra số tiền kỳ này, chọn ngân hàng để thanh toán, xong có biên lai. Có thể nộp hộ cho đảng viên khác. '
             'Không đóng đảng phí 3 tháng trong năm mà không có lý do chính đáng thì chi bộ xem xét, đề nghị xóa tên.',
             style: TextStyle(height: 1.45),
           ),
