@@ -114,7 +114,7 @@ Mỗi mức độ năng lực của mỗi khối lớp được xem xét nhiều
 - Mức độ tự chủ (làm có sự giúp đỡ, tự thực hiện một mình, hướng dẫn người khác);
 - Mức độ phức tạp của các quy trình (ứng dụng, phát triển) và mục tiêu cần đạt được;
 - Kiến thức cần thiết để thực hiện nhiệm vụ.
-2) MÔ TẢ CÁC NĂNG LỰC THÀNH PHẦN THEO CÁC BẬC CỦA KHUNG NLS CHO HỌC SINH (6 miền, 24 năng lực thành phần, mô tả theo nhóm lớp L1-L3, L4-L5, L6-L7, L8-L9, L10-L12): chưa chép vào kho; xem nguyên văn tại luatvietnam.vn hoặc bản gốc của Bộ GD&ĐT.
+2) MÔ TẢ CÁC NĂNG LỰC THÀNH PHẦN THEO CÁC BẬC CỦA KHUNG NLS CHO HỌC SINH (6 miền, 24 năng lực thành phần, mô tả theo nhóm lớp L1-L3, L4-L5, L6-L7, L8-L9, L10-L12): đã chép nguyên văn ở tệp cv-3456-bgddt-gdpt-phu-luc-mo-ta-nang-luc-so-theo-khoi-lop.txt.
 
 LƯU Ý
 - Từ 01/7/2025 không còn Phòng GD&ĐT; công văn gửi Sở GD&ĐT, trường tiểu học, THCS thuộc UBND cấp xã, trường THPT thuộc Sở GD&ĐT.

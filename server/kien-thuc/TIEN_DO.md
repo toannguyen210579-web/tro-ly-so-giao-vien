@@ -60,10 +60,9 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - NĐ 188/2026/NĐ-CP chính sách học sinh trường phổ thông nội trú xã biên giới (nguyên văn, chuyển chữ từ bản chụp) (21/11)
 - NĐ 232/2026/NĐ-CP vị trí việc làm viên chức (nguyên văn Điều 1–19, chuyển chữ từ bản chụp; chưa chép Phụ lục I–IV) (21/11)
 - TT 94/2026/TT-BGDĐT nguyên văn (phần 1 Điều 1–15; phần 2 Phụ lục II trường phổ thông); chưa chép Phụ lục I, III, IV, V, VI (21/11)
-- CV 3456/BGDĐT-GDPT nguyên văn (chưa chép mục 2 Phụ lục mô tả năng lực theo khối lớp) (21/11)
+- CV 3456/BGDĐT-GDPT nguyên văn (21/11); Phụ lục mục 2 mô tả 24 năng lực thành phần theo nhóm lớp (22/11)
 
 ## Còn phải làm (theo thứ tự)
-2. CV 3456: chép mục 2 Phụ lục (mô tả 24 năng lực thành phần theo nhóm lớp) nếu cần; nguyên văn ở luatvietnam.vn ...-412289-d6.html
 3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp
 7. TT 94/2026: Phụ lục I (mầm non), III (GDTX), VI (biểu mẫu) nếu cần; nguyên văn ở luatvietnam.vn ...-455513-d1.html
 9. Kỷ luật nhà giáo, viên chức. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)

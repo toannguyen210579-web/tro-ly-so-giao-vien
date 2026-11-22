@@ -1,347 +1,352 @@
 [
- {
-  "file": "luat-nha-giao-73-2025-qh15-phan-1.txt",
-  "so": "73/2025/QH15 (Điều 1–20)",
-  "ten": "Luật Nhà giáo 73/2025/QH15 (Điều 1–20)"
- },
- {
-  "file": "luat-nha-giao-73-2025-qh15-phan-2.txt",
-  "so": "73/2025/QH15 (Điều 21–42)",
-  "ten": "Luật Nhà giáo 73/2025/QH15 (Điều 21–42)"
- },
- {
-  "file": "vbhn-04-2026-bgddt-day-them-hoc-them.txt",
-  "so": "04/VBHN-BGDĐT",
-  "ten": "Văn bản hợp nhất 04/VBHN-BGDĐT (TT 29/2024 sửa bởi TT 19/2026) dạy thêm, học thêm"
- },
- {
-  "file": "tt-15-2026-tt-bgddt-dieu-le-truong-pho-thong-phan-1.txt",
-  "so": "15/2026/TT-BGDĐT (phần 1)",
-  "ten": "Thông tư 15/2026 Điều lệ trường phổ thông (Điều 1–14)"
- },
- {
-  "file": "tt-15-2026-tt-bgddt-dieu-le-truong-pho-thong-phan-2.txt",
-  "so": "15/2026/TT-BGDĐT (phần 2)",
-  "ten": "Thông tư 15/2026 Điều lệ trường phổ thông (Điều 15–31)"
- },
- {
-  "file": "tt-15-2026-tt-bgddt-dieu-le-truong-pho-thong-phan-3.txt",
-  "so": "15/2026/TT-BGDĐT (phần 3)",
-  "ten": "Thông tư 15/2026 Điều lệ trường phổ thông (Điều 32–46)"
- },
- {
-  "file": "tt-30-2026-tt-bgddt-chuan-nghe-nghiep-giao-vien-pho-thong-phan-1.txt",
-  "so": "30/2026/TT-BGDĐT (phần 1)",
-  "ten": "Thông tư 30/2026 chuẩn nghề nghiệp giáo viên phổ thông (Điều 1–11)"
- },
- {
-  "file": "tt-30-2026-tt-bgddt-chuan-nghe-nghiep-giao-vien-pho-thong-phan-2.txt",
-  "so": "30/2026/TT-BGDĐT (phần 2)",
-  "ten": "Thông tư 30/2026 chuẩn nghề nghiệp giáo viên phổ thông (Điều 12–20)"
- },
- {
-  "file": "tt-31-2026-tt-bgddt-ma-so-bo-nhiem-xep-luong-nha-giao.txt",
-  "so": "31/2026/TT-BGDĐT",
-  "ten": "Thông tư 31/2026 mã số, bổ nhiệm, xếp lương nhà giáo"
- },
- {
-  "file": "tt-30-2024-tt-bgddt-quy-che-tuyen-sinh-thcs-thpt-phan-1.txt",
-  "so": "30/2024/TT-BGDĐT (phần 1)",
-  "ten": "Thông tư 30/2024 Quy chế tuyển sinh THCS, THPT (Điều 1–13)"
- },
- {
-  "file": "tt-30-2024-tt-bgddt-quy-che-tuyen-sinh-thcs-thpt-phan-2.txt",
-  "so": "30/2024/TT-BGDĐT (phần 2)",
-  "ten": "Thông tư 30/2024 Quy chế tuyển sinh THCS, THPT (Điều 13–23)"
- },
- {
-  "file": "tt-24-2024-tt-bgddt-quy-che-thi-tot-nghiep-thpt-phan-1.txt",
-  "so": "24/2024/TT-BGDĐT (phần 1)",
-  "ten": "Thông tư 24/2024 Quy chế thi tốt nghiệp THPT (Điều 1–5, 19–21)"
- },
- {
-  "file": "tt-24-2024-tt-bgddt-quy-che-thi-tot-nghiep-thpt-phan-2.txt",
-  "so": "24/2024/TT-BGDĐT (phần 2)",
-  "ten": "Thông tư 24/2024 Quy chế thi tốt nghiệp THPT (Điều 39–49)"
- },
- {
-  "file": "tt-93-2026-tt-bgddt-sua-doi-chuan-nghe-nghiep-bo-nhiem-xep-luong.txt",
-  "so": "93/2026/TT-BGDĐT",
-  "ten": "Thông tư 93/2026 sửa đổi bổ nhiệm, xếp lương nhà giáo (tóm tắt)"
- },
- {
-  "file": "tt-05-2025-tt-bgddt-dieu-7-13.txt",
-  "so": "05/2025/TT-BGDĐT",
-  "ten": "Thông tư 05/2025 (Điều 7–13)"
- },
- {
-  "file": "nd-93-2026-nd-cp-huong-dan-luat-nha-giao.txt",
-  "so": "93/2026/NĐ-CP",
-  "ten": "Nghị định 93/2026 hướng dẫn Luật Nhà giáo (Điều 1–26: chức danh, tuyển dụng, điều động, thuyên chuyển, nghỉ hè, nghỉ hưu tuổi cao, đào tạo bồi dưỡng)"
- },
- {
-  "file": "tt-22-2021-tt-bgddt-danh-gia-hoc-sinh-thcs-thpt.txt",
-  "so": "22/2021/TT-BGDĐT",
-  "ten": "Thông tư 22/2021 đánh giá học sinh THCS, THPT"
- },
- {
-  "file": "tt-27-2020-tt-bgddt-danh-gia-hoc-sinh-tieu-hoc.txt",
-  "so": "27/2020/TT-BGDĐT",
-  "ten": "Thông tư 27/2020 đánh giá học sinh tiểu học"
- },
- {
-  "file": "tt-11-2026-tt-bgddt-che-do-lam-viec-giao-vien-mam-non.txt",
-  "so": "11/2026/TT-BGDĐT",
-  "ten": "Thông tư 11/2026 chế độ làm việc giáo viên mầm non"
- },
- {
-  "file": "tt-59-2026-tt-bgddt-nha-giao-nghi-huu-thinh-giang.txt",
-  "so": "59/2026/TT-BGDĐT",
-  "ten": "Thông tư 59/2026 nhà giáo nghỉ hưu, thỉnh giảng"
- },
- {
-  "file": "tt-05-2025-tt-bgddt-dieu-1-6-14-15.txt",
-  "so": "05/2025/TT-BGDĐT (Điều 1–6, 14–15)",
-  "ten": "Thông tư 05/2025 chế độ làm việc giáo viên phổ thông (nhiệm vụ GVCN, thời gian làm việc, nghỉ hè, thai sản)"
- },
- {
-  "file": "tt-13-2026-tt-bgddt-sua-doi-quy-che-thi-tot-nghiep-tom-tat.txt",
-  "so": "13/2026/TT-BGDĐT",
-  "ten": "Thông tư 13/2026 sửa đổi Quy chế thi tốt nghiệp THPT (tóm tắt các điểm sửa đổi)"
- },
- {
-  "file": "tt-12-2026-tt-bgddt-quy-che-pho-thong-noi-tru.txt",
-  "so": "12/2026/TT-BGDĐT",
-  "ten": "Thông tư 12/2026 Quy chế tổ chức và hoạt động trường phổ thông nội trú (Điều 1–22)"
- },
- {
-  "file": "tt-04-2023-tt-bgddt-quy-che-pho-thong-dan-toc-noi-tru.txt",
-  "so": "04/2023/TT-BGDĐT",
-  "ten": "Thông tư 04/2023 Quy chế tổ chức và hoạt động trường phổ thông dân tộc nội trú (Điều 1–18)"
- },
- {
-  "file": "ct-gdpt-2018-ke-hoach-giao-duc-tt32-2018-tt13-2022.txt",
-  "so": "32/2018/TT-BGDĐT (kế hoạch giáo dục, sửa đổi bởi 13/2022/TT-BGDĐT)",
-  "ten": "Chương trình GDPT 2018: môn học, số tiết từng lớp, thời lượng tiểu học, THCS, THPT (Thông tư 32/2018, sửa đổi bởi Thông tư 13/2022; ghi chú Thông tư 17/2025 và dự thảo Tiếng Anh lớp 1)"
- },
- {
-  "file": "tt-18-2026-tt-bgddt-khung-nang-luc-so-giao-vien.txt",
-  "so": "18/2026/TT-BGDĐT",
-  "ten": "Thông tư 18/2026 Khung năng lực số đối với giáo viên, cán bộ quản lý cơ sở giáo dục mầm non, phổ thông, GDTX (6 miền, 20 năng lực thành phần, có miền AI)"
- },
- {
-  "file": "tt-08-2026-tt-bgddt-danh-gia-dien-rong-quoc-gia-tom-tat.txt",
-  "so": "08/2026/TT-BGDĐT",
-  "ten": "Thông tư 08/2026 Quy định đánh giá diện rộng cấp quốc gia chất lượng giáo dục phổ thông (lớp 5, lớp 9, 5 năm một lần) – tóm tắt"
- },
- {
-  "file": "tt-03-2026-tt-bgddt-quy-tac-ung-xu-nha-giao.txt",
-  "so": "03/2026/TT-BGDĐT",
-  "ten": "Thông tư 03/2026 Quy tắc ứng xử của nhà giáo (với người học, đồng nghiệp, cán bộ quản lý, cha mẹ học sinh, cộng đồng)"
- },
- {
-  "file": "tt-89-2026-tt-bgddt-sua-doi-danh-gia-hoc-sinh-phan-1-tieu-hoc.txt",
-  "so": "89/2026/TT-BGDĐT (phần 1)",
-  "ten": "Thông tư 89/2026 sửa đổi đánh giá học sinh – Phần 1: tiểu học (sửa Thông tư 27/2020; Học bạ số, đề chung lớp 5, học sinh khuyết tật), hiệu lực 01/12/2026"
- },
- {
-  "file": "tt-89-2026-tt-bgddt-sua-doi-danh-gia-hoc-sinh-phan-2-thcs-thpt.txt",
-  "so": "89/2026/TT-BGDĐT (phần 2)",
-  "ten": "Thông tư 89/2026 sửa đổi đánh giá học sinh – Phần 2: THCS, THPT (sửa Thông tư 22/2021; đề chung lớp 9, 12, kiểm tra trên máy tính, kiểm tra lại hè), hiệu lực 01/12/2026"
- },
- {
-  "file": "qd-2308-qd-bgddt-khung-ke-hoach-thoi-gian-nam-hoc.txt",
-  "so": "2308/QĐ-BGDĐT",
-  "ten": "Quyết định 2308/QĐ-BGDĐT Khung kế hoạch thời gian năm học (tựu trường, khai giảng 5/9, học kỳ I trước 18/1, kết thúc năm học trước 31/5, 35 tuần) áp dụng từ năm học 2026-2027"
- },
- {
-  "file": "cv-5208-bgddt-gdpt-nhiem-vu-gdpt-nam-hoc-2026-2027.txt",
-  "so": "5208/BGDĐT-GDPT",
-  "ten": "Công văn 5208/BGDĐT-GDPT hướng dẫn nhiệm vụ giáo dục phổ thông năm học 2026-2027 (kế hoạch giáo dục, STEM, AI, tiếng Anh, sắp xếp trường, học bạ số, dạy thêm, lạm thu)"
- },
- {
-  "file": "tt-01-2026-tt-bgddt-tham-quyen-tuyen-dung-nha-giao.txt",
-  "so": "01/2026/TT-BGDĐT",
-  "ten": "Thông tư 01/2026 quy định thẩm quyền tuyển dụng nhà giáo (Giám đốc Sở Giáo dục và Đào tạo tuyển dụng giáo viên mầm non, phổ thông công lập)"
- },
- {
-  "file": "nq-248-2025-qh15-co-che-dac-thu-giao-duc.txt",
-  "so": "248/2025/QH15",
-  "ten": "Nghị quyết 248/2025/QH15 của Quốc hội về cơ chế, chính sách đặc thù, vượt trội phát triển giáo dục (tuyển dụng, phụ cấp ưu đãi nghề tối thiểu 70%, sách giáo khoa thống nhất, miễn phí sách)"
- },
- {
-  "file": "nd-182-2026-nd-cp-phu-cap-uu-dai-theo-nghe-nha-giao.txt",
-  "so": "182/2026/NĐ-CP",
-  "ten": "Nghị định 182/2026/NĐ-CP phụ cấp ưu đãi theo nghề nhà giáo, cán bộ quản lý, nhân viên trường công lập (20%–80%, thực hiện từ 01/01/2026, công thức tính)"
- },
- {
-  "file": "nd-161-2026-nd-cp-luong-co-so-tien-thuong.txt",
-  "so": "161/2026/NĐ-CP",
-  "ten": "Nghị định 161/2026/NĐ-CP mức lương cơ sở 2.530.000 đồng/tháng từ 01/7/2026 và chế độ tiền thưởng (quỹ thưởng 10% quỹ lương)"
- },
- {
-  "file": "nd-77-2021-nd-cp-phu-cap-tham-nien-nha-giao.txt",
-  "so": "77/2021/NĐ-CP",
-  "ten": "Nghị định 77/2021/NĐ-CP chế độ phụ cấp thâm niên nhà giáo (5% sau đủ 5 năm, mỗi năm thêm 1%; vẫn áp dụng năm 2026)"
- },
- {
-  "file": "tt-21-2025-tt-bgddt-tra-tien-luong-day-them-gio.txt",
-  "so": "21/2025/TT-BGDĐT",
-  "ten": "Thông tư 21/2025 chế độ trả tiền lương dạy thêm giờ nhà giáo công lập (150%, tối đa 200 tiết/năm, công thức tiền lương 01 tiết)"
- },
- {
-  "file": "nd-271-2026-nd-cp-mien-phi-sach-giao-khoa.txt",
-  "so": "271/2026/NĐ-CP",
-  "ten": "Nghị định 271/2026/NĐ-CP miễn phí sách giáo khoa (mượn - trả, toàn quốc từ năm học 2029-2030, bồi hoàn khi mất sách) và miễn học phí Giáo dục quốc phòng và an ninh"
- },
- {
-  "file": "qd-3588-qd-bgddt-bo-sach-giao-khoa-thong-nhat.txt",
-  "so": "3588/QĐ-BGDĐT",
-  "ten": "Quyết định 3588/QĐ-BGDĐT chọn bộ sách giáo khoa Kết nối tri thức với cuộc sống dùng thống nhất toàn quốc từ năm học 2026-2027"
- },
- {
-  "file": "nq-217-2025-qh15-mien-ho-tro-hoc-phi.txt",
-  "so": "217/2025/QH15",
-  "ten": "Nghị quyết 217/2025/QH15 miễn học phí mầm non, phổ thông công lập, hỗ trợ học phí tư thục từ năm học 2025-2026"
- },
- {
-  "file": "nd-238-2025-nd-cp-hoc-phi-mien-giam-ho-tro-chi-phi-hoc-tap.txt",
-  "so": "238/2025/NĐ-CP",
-  "ten": "Nghị định 238/2025/NĐ-CP học phí, miễn, giảm, hỗ trợ học phí, hỗ trợ chi phí học tập 150.000 đồng/tháng (khung học phí mầm non, phổ thông, thủ tục)"
- },
- {
-  "file": "tt-70-2026-tt-bgddt-quan-ly-su-dung-hoc-ba-so.txt",
-  "so": "70/2026/TT-BGDĐT",
-  "ten": "Thông tư 70/2026/TT-BGDĐT quy định về quản lý và sử dụng học bạ số (hiệu lực 08/10/2026)"
- },
- {
-  "file": "tt-57-2026-tt-bgddt-bao-dam-chat-luong-chuan-quoc-gia-phan-1.txt",
-  "so": "57/2026/TT-BGDĐT (phần 1)",
-  "ten": "Thông tư 57/2026/TT-BGDĐT bảo đảm chất lượng giáo dục, công nhận trường đạt chuẩn quốc gia (Điều 1–27)"
- },
- {
-  "file": "tt-57-2026-tt-bgddt-bao-dam-chat-luong-chuan-quoc-gia-phan-2-tieu-chi-pho-thong.txt",
-  "so": "57/2026/TT-BGDĐT (phần 2)",
-  "ten": "Thông tư 57/2026/TT-BGDĐT, Phụ lục II: tiêu chí bảo đảm chất lượng trường phổ thông"
- },
- {
-  "file": "tt-10-2025-tt-bgddt-phan-quyen-phan-cap-giao-duc-pho-thong.txt",
-  "so": "10/2025/TT-BGDĐT",
-  "ten": "Thông tư 10/2025/TT-BGDĐT phân quyền, phân cấp quản lý giáo dục phổ thông khi bỏ cấp huyện (UBND cấp xã thay Phòng GDĐT)"
- },
- {
-  "file": "tt-19-2025-tt-bgddt-khen-thuong-ky-luat-hoc-sinh.txt",
-  "so": "19/2025/TT-BGDĐT",
-  "ten": "Thông tư 19/2025/TT-BGDĐT quy định về khen thưởng và kỷ luật học sinh (hiệu lực 31/10/2025)"
- },
- {
-  "file": "tt-18-2025-tt-bgddt-tu-van-hoc-duong-cong-tac-xa-hoi.txt",
-  "so": "18/2025/TT-BGDĐT",
-  "ten": "Thông tư 18/2025/TT-BGDĐT hướng dẫn công tác tư vấn học đường và công tác xã hội trong trường học (hiệu lực 31/10/2025)"
- },
- {
-  "file": "tt-12-2025-tt-bgddt-phan-quyen-phan-cap-nha-giao.txt",
-  "so": "12/2025/TT-BGDĐT",
-  "ten": "Thông tư 12/2025/TT-BGDĐT phân quyền, phân cấp lĩnh vực nhà giáo, cán bộ quản lý (hội thi giáo viên dạy giỏi cấp xã)"
- },
- {
-  "file": "cv-4567-bgddt-gdpt-day-hoc-2-buoi-ngay.txt",
-  "so": "4567/BGDĐT-GDPT",
-  "ten": "Công văn 4567/BGDĐT-GDPT hướng dẫn tổ chức dạy học 2 buổi/ngày đối với giáo dục phổ thông"
- },
- {
-  "file": "tt-02-2025-tt-bgddt-khung-nang-luc-so-nguoi-hoc.txt",
-  "so": "02/2025/TT-BGDĐT",
-  "ten": "Thông tư 02/2025/TT-BGDĐT Khung năng lực số cho người học (kèm mức độ theo khối lớp, Công văn 3456/BGDĐT-GDPT)"
- },
- {
-  "file": "tt-67-2026-tt-bgddt-thi-dua-khen-thuong-nganh-giao-duc.txt",
-  "so": "67/2026/TT-BGDĐT",
-  "ten": "Thông tư 67/2026/TT-BGDĐT hướng dẫn Luật Thi đua, khen thưởng ngành Giáo dục (Kỷ niệm chương, Bằng khen Bộ; hiệu lực 01/10/2026)"
- },
- {
-  "file": "tt-26-2025-tt-bgddt-sua-doi-thong-tu-phan-quyen-phan-cap.txt",
-  "so": "26/2025/TT-BGDĐT",
-  "ten": "Sửa đổi các Thông tư 10, 11, 12, 13/2025 về phân quyền, phân cấp (HĐ xét tốt nghiệp THCS do Chủ tịch UBND xã; phụ cấp lãnh đạo trường PTDT bán trú, nội trú THCS như hạng I)"
- },
- {
-  "file": "nd-66-2026-nd-cp-quy-dinh-chi-tiet-luat-giao-duc.txt",
-  "so": "66/2026/NĐ-CP",
-  "ten": "Quy định chi tiết một số điều của Luật Giáo dục (bổ nhiệm cán bộ quản lý, học bổng khuyến khích học tập, học bổng chính sách học sinh PTDTNT, giảm giá vé cho học sinh; thay NĐ 84/2020)"
- },
- {
-  "file": "tt-10-2026-tt-bgddt-quy-che-van-bang-chung-chi.txt",
-  "so": "10/2026/TT-BGDĐT",
-  "ten": "Quy chế văn bằng, chứng chỉ của hệ thống giáo dục quốc dân (bằng tốt nghiệp THPT, văn bằng số, cấp lại, chỉnh sửa, bản sao từ sổ gốc; không còn bằng tốt nghiệp THCS; thay TT 21/2019)"
- },
- {
-  "file": "tt-06-2019-tt-bgddt-quy-tac-ung-xu-trong-truong.txt",
-  "so": "06/2019/TT-BGDĐT",
-  "ten": "Quy tắc ứng xử trong cơ sở giáo dục mầm non, phổ thông, GDTX (còn hiệu lực trừ Điều 6 ứng xử của giáo viên, đã thay bằng TT 03/2026)"
- },
- {
-  "file": "tt-94-2026-qd-2371-tieng-anh-ngon-ngu-thu-hai.txt",
-  "so": "94/2026/TT-BGDĐT",
-  "ten": "Đề án tiếng Anh ngôn ngữ thứ hai: tóm tắt mục tiêu QĐ 2371/QĐ-TTg (nguyên văn TT 94/2026 ở 2 tệp riêng)"
- },
- {
-  "file": "tt-04-2026-tt-bgddt-che-do-lam-viec-giao-vien-gdtx.txt",
-  "so": "04/2026/TT-BGDĐT",
-  "ten": "Chế độ làm việc giáo viên cơ sở giáo dục thường xuyên (17 tiết/tuần, nghỉ hè 4–8 tuần; hiệu lực 10/02/2026)"
- },
- {
-  "file": "tt-48-2026-tt-bgddt-quy-che-truong-pho-thong-tu-thuc-phan-1.txt",
-  "so": "48/2026/TT-BGDĐT (phần 1)",
-  "ten": "Quy chế tổ chức và hoạt động trường tiểu học, THCS, THPT tư thục: Thông tư, Điều 1–9 (Hội đồng trường, kiểm soát nội bộ, Hiệu trưởng, chương trình; hiệu lực 08/8/2026, thay TT 40/2021)"
- },
- {
-  "file": "tt-48-2026-tt-bgddt-quy-che-truong-pho-thong-tu-thuc-phan-2.txt",
-  "so": "48/2026/TT-BGDĐT (phần 2)",
-  "ten": "Quy chế trường phổ thông tư thục: Điều 10–18 (giáo viên cơ hữu, học sinh, tài chính, học phí, khen thưởng) và mẫu hồ sơ Hội đồng trường"
- },
- {
-  "file": "nd-368-2026-nd-cp-thi-dua-khen-thuong-trich.txt",
-  "so": "368/2026/NĐ-CP",
-  "ten": "Quy định chi tiết Luật Thi đua, khen thưởng (trích: nguyên tắc, tỷ lệ Chiến sĩ thi đua cơ sở 10%, mức tiền thưởng; hiệu lực 01/10/2026, thay NĐ 152/2025)"
- },
- {
-  "file": "tt-25-2026-tt-bnv-huong-dan-thi-dua-khen-thuong.txt",
-  "so": "25/2026/TT-BNV",
-  "ten": "Biện pháp thi hành Luật Thi đua, khen thưởng và NĐ 368/2026 (bình xét Lao động tiên tiến, sáng kiến; hiệu lực 01/10/2026, thay TT 15/2025/TT-BNV)"
- },
- {
-  "file": "tt-33-2026-tt-bgddt-khung-nang-luc-ngoai-ngu.txt",
-  "so": "33/2026/TT-BGDĐT",
-  "ten": "Khung năng lực ngoại ngữ dùng cho Việt Nam (Tiền bậc 1 và 6 bậc tương ứng CEFR; hiệu lực 31/5/2026, thay TT 01/2014); trích đặc tả tổng quát 4 kỹ năng"
- },
- {
-  "file": "nd-188-2026-nd-cp-chinh-sach-hoc-sinh-pho-thong-noi-tru-xa-bien-gioi.txt",
-  "so": "188/2026/NĐ-CP",
-  "ten": "Chính sách cho học sinh và trường phổ thông nội trú tại các xã biên giới đất liền (tiền ăn 1.170.000 đ/tháng, gạo 15 kg; hiệu lực 15/7/2026)"
- },
- {
-  "file": "nd-232-2026-nd-cp-vi-tri-viec-lam-vien-chuc.txt",
-  "so": "232/2026/NĐ-CP",
-  "ten": "Vị trí việc làm viên chức (bậc nghề nghiệp 1–5 tương ứng lương loại B đến A3.1, tỷ lệ bậc; hiệu lực 01/7/2026; nhà giáo theo Luật Nhà giáo)"
- },
- {
-  "file": "tt-94-2026-tt-bgddt-danh-gia-de-an-tieng-anh-phan-1.txt",
-  "so": "94/2026/TT-BGDĐT (phần 1)",
-  "ten": "Tiêu chuẩn, tiêu chí, đánh giá mức độ triển khai Đề án tiếng Anh ngôn ngữ thứ hai: Điều 1–15 (tự đánh giá, tự công nhận, báo cáo; hiệu lực 19/12/2026)"
- },
- {
-  "file": "tt-94-2026-tt-bgddt-danh-gia-de-an-tieng-anh-phan-2-pho-thong.txt",
-  "so": "94/2026/TT-BGDĐT (phần 2)",
-  "ten": "Phụ lục II TT 94/2026: tiêu chí Mức độ 1, 2, 3 đối với trường phổ thông (lớp dạy tiếng Anh như ngôn ngữ thứ hai ≥35 tiết/năm)"
- },
- {
-  "file": "cv-3456-bgddt-gdpt-huong-dan-khung-nang-luc-so-hoc-sinh.txt",
-  "so": "3456/BGDĐT-GDPT",
-  "ten": "Hướng dẫn triển khai Khung năng lực số cho học sinh phổ thông, học viên GDTX (27/6/2025; mức độ thành thạo theo khối lớp)"
- },
- {
-  "file": "qd-207-qd-tw-2026-nhung-dieu-dang-vien-khong-duoc-lam.txt",
-  "so": "207-QĐ/TW",
-  "ten": "Quy định 207-QĐ/TW ngày 26/7/2026 của Ban Chấp hành Trung ương về những điều đảng viên không được làm (thay Quy định 37-QĐ/TW)"
- }
+  {
+    "file": "luat-nha-giao-73-2025-qh15-phan-1.txt",
+    "so": "73/2025/QH15 (Điều 1–20)",
+    "ten": "Luật Nhà giáo 73/2025/QH15 (Điều 1–20)"
+  },
+  {
+    "file": "luat-nha-giao-73-2025-qh15-phan-2.txt",
+    "so": "73/2025/QH15 (Điều 21–42)",
+    "ten": "Luật Nhà giáo 73/2025/QH15 (Điều 21–42)"
+  },
+  {
+    "file": "vbhn-04-2026-bgddt-day-them-hoc-them.txt",
+    "so": "04/VBHN-BGDĐT",
+    "ten": "Văn bản hợp nhất 04/VBHN-BGDĐT (TT 29/2024 sửa bởi TT 19/2026) dạy thêm, học thêm"
+  },
+  {
+    "file": "tt-15-2026-tt-bgddt-dieu-le-truong-pho-thong-phan-1.txt",
+    "so": "15/2026/TT-BGDĐT (phần 1)",
+    "ten": "Thông tư 15/2026 Điều lệ trường phổ thông (Điều 1–14)"
+  },
+  {
+    "file": "tt-15-2026-tt-bgddt-dieu-le-truong-pho-thong-phan-2.txt",
+    "so": "15/2026/TT-BGDĐT (phần 2)",
+    "ten": "Thông tư 15/2026 Điều lệ trường phổ thông (Điều 15–31)"
+  },
+  {
+    "file": "tt-15-2026-tt-bgddt-dieu-le-truong-pho-thong-phan-3.txt",
+    "so": "15/2026/TT-BGDĐT (phần 3)",
+    "ten": "Thông tư 15/2026 Điều lệ trường phổ thông (Điều 32–46)"
+  },
+  {
+    "file": "tt-30-2026-tt-bgddt-chuan-nghe-nghiep-giao-vien-pho-thong-phan-1.txt",
+    "so": "30/2026/TT-BGDĐT (phần 1)",
+    "ten": "Thông tư 30/2026 chuẩn nghề nghiệp giáo viên phổ thông (Điều 1–11)"
+  },
+  {
+    "file": "tt-30-2026-tt-bgddt-chuan-nghe-nghiep-giao-vien-pho-thong-phan-2.txt",
+    "so": "30/2026/TT-BGDĐT (phần 2)",
+    "ten": "Thông tư 30/2026 chuẩn nghề nghiệp giáo viên phổ thông (Điều 12–20)"
+  },
+  {
+    "file": "tt-31-2026-tt-bgddt-ma-so-bo-nhiem-xep-luong-nha-giao.txt",
+    "so": "31/2026/TT-BGDĐT",
+    "ten": "Thông tư 31/2026 mã số, bổ nhiệm, xếp lương nhà giáo"
+  },
+  {
+    "file": "tt-30-2024-tt-bgddt-quy-che-tuyen-sinh-thcs-thpt-phan-1.txt",
+    "so": "30/2024/TT-BGDĐT (phần 1)",
+    "ten": "Thông tư 30/2024 Quy chế tuyển sinh THCS, THPT (Điều 1–13)"
+  },
+  {
+    "file": "tt-30-2024-tt-bgddt-quy-che-tuyen-sinh-thcs-thpt-phan-2.txt",
+    "so": "30/2024/TT-BGDĐT (phần 2)",
+    "ten": "Thông tư 30/2024 Quy chế tuyển sinh THCS, THPT (Điều 13–23)"
+  },
+  {
+    "file": "tt-24-2024-tt-bgddt-quy-che-thi-tot-nghiep-thpt-phan-1.txt",
+    "so": "24/2024/TT-BGDĐT (phần 1)",
+    "ten": "Thông tư 24/2024 Quy chế thi tốt nghiệp THPT (Điều 1–5, 19–21)"
+  },
+  {
+    "file": "tt-24-2024-tt-bgddt-quy-che-thi-tot-nghiep-thpt-phan-2.txt",
+    "so": "24/2024/TT-BGDĐT (phần 2)",
+    "ten": "Thông tư 24/2024 Quy chế thi tốt nghiệp THPT (Điều 39–49)"
+  },
+  {
+    "file": "tt-93-2026-tt-bgddt-sua-doi-chuan-nghe-nghiep-bo-nhiem-xep-luong.txt",
+    "so": "93/2026/TT-BGDĐT",
+    "ten": "Thông tư 93/2026 sửa đổi bổ nhiệm, xếp lương nhà giáo (tóm tắt)"
+  },
+  {
+    "file": "tt-05-2025-tt-bgddt-dieu-7-13.txt",
+    "so": "05/2025/TT-BGDĐT",
+    "ten": "Thông tư 05/2025 (Điều 7–13)"
+  },
+  {
+    "file": "nd-93-2026-nd-cp-huong-dan-luat-nha-giao.txt",
+    "so": "93/2026/NĐ-CP",
+    "ten": "Nghị định 93/2026 hướng dẫn Luật Nhà giáo (Điều 1–26: chức danh, tuyển dụng, điều động, thuyên chuyển, nghỉ hè, nghỉ hưu tuổi cao, đào tạo bồi dưỡng)"
+  },
+  {
+    "file": "tt-22-2021-tt-bgddt-danh-gia-hoc-sinh-thcs-thpt.txt",
+    "so": "22/2021/TT-BGDĐT",
+    "ten": "Thông tư 22/2021 đánh giá học sinh THCS, THPT"
+  },
+  {
+    "file": "tt-27-2020-tt-bgddt-danh-gia-hoc-sinh-tieu-hoc.txt",
+    "so": "27/2020/TT-BGDĐT",
+    "ten": "Thông tư 27/2020 đánh giá học sinh tiểu học"
+  },
+  {
+    "file": "tt-11-2026-tt-bgddt-che-do-lam-viec-giao-vien-mam-non.txt",
+    "so": "11/2026/TT-BGDĐT",
+    "ten": "Thông tư 11/2026 chế độ làm việc giáo viên mầm non"
+  },
+  {
+    "file": "tt-59-2026-tt-bgddt-nha-giao-nghi-huu-thinh-giang.txt",
+    "so": "59/2026/TT-BGDĐT",
+    "ten": "Thông tư 59/2026 nhà giáo nghỉ hưu, thỉnh giảng"
+  },
+  {
+    "file": "tt-05-2025-tt-bgddt-dieu-1-6-14-15.txt",
+    "so": "05/2025/TT-BGDĐT (Điều 1–6, 14–15)",
+    "ten": "Thông tư 05/2025 chế độ làm việc giáo viên phổ thông (nhiệm vụ GVCN, thời gian làm việc, nghỉ hè, thai sản)"
+  },
+  {
+    "file": "tt-13-2026-tt-bgddt-sua-doi-quy-che-thi-tot-nghiep-tom-tat.txt",
+    "so": "13/2026/TT-BGDĐT",
+    "ten": "Thông tư 13/2026 sửa đổi Quy chế thi tốt nghiệp THPT (tóm tắt các điểm sửa đổi)"
+  },
+  {
+    "file": "tt-12-2026-tt-bgddt-quy-che-pho-thong-noi-tru.txt",
+    "so": "12/2026/TT-BGDĐT",
+    "ten": "Thông tư 12/2026 Quy chế tổ chức và hoạt động trường phổ thông nội trú (Điều 1–22)"
+  },
+  {
+    "file": "tt-04-2023-tt-bgddt-quy-che-pho-thong-dan-toc-noi-tru.txt",
+    "so": "04/2023/TT-BGDĐT",
+    "ten": "Thông tư 04/2023 Quy chế tổ chức và hoạt động trường phổ thông dân tộc nội trú (Điều 1–18)"
+  },
+  {
+    "file": "ct-gdpt-2018-ke-hoach-giao-duc-tt32-2018-tt13-2022.txt",
+    "so": "32/2018/TT-BGDĐT (kế hoạch giáo dục, sửa đổi bởi 13/2022/TT-BGDĐT)",
+    "ten": "Chương trình GDPT 2018: môn học, số tiết từng lớp, thời lượng tiểu học, THCS, THPT (Thông tư 32/2018, sửa đổi bởi Thông tư 13/2022; ghi chú Thông tư 17/2025 và dự thảo Tiếng Anh lớp 1)"
+  },
+  {
+    "file": "tt-18-2026-tt-bgddt-khung-nang-luc-so-giao-vien.txt",
+    "so": "18/2026/TT-BGDĐT",
+    "ten": "Thông tư 18/2026 Khung năng lực số đối với giáo viên, cán bộ quản lý cơ sở giáo dục mầm non, phổ thông, GDTX (6 miền, 20 năng lực thành phần, có miền AI)"
+  },
+  {
+    "file": "tt-08-2026-tt-bgddt-danh-gia-dien-rong-quoc-gia-tom-tat.txt",
+    "so": "08/2026/TT-BGDĐT",
+    "ten": "Thông tư 08/2026 Quy định đánh giá diện rộng cấp quốc gia chất lượng giáo dục phổ thông (lớp 5, lớp 9, 5 năm một lần) – tóm tắt"
+  },
+  {
+    "file": "tt-03-2026-tt-bgddt-quy-tac-ung-xu-nha-giao.txt",
+    "so": "03/2026/TT-BGDĐT",
+    "ten": "Thông tư 03/2026 Quy tắc ứng xử của nhà giáo (với người học, đồng nghiệp, cán bộ quản lý, cha mẹ học sinh, cộng đồng)"
+  },
+  {
+    "file": "tt-89-2026-tt-bgddt-sua-doi-danh-gia-hoc-sinh-phan-1-tieu-hoc.txt",
+    "so": "89/2026/TT-BGDĐT (phần 1)",
+    "ten": "Thông tư 89/2026 sửa đổi đánh giá học sinh – Phần 1: tiểu học (sửa Thông tư 27/2020; Học bạ số, đề chung lớp 5, học sinh khuyết tật), hiệu lực 01/12/2026"
+  },
+  {
+    "file": "tt-89-2026-tt-bgddt-sua-doi-danh-gia-hoc-sinh-phan-2-thcs-thpt.txt",
+    "so": "89/2026/TT-BGDĐT (phần 2)",
+    "ten": "Thông tư 89/2026 sửa đổi đánh giá học sinh – Phần 2: THCS, THPT (sửa Thông tư 22/2021; đề chung lớp 9, 12, kiểm tra trên máy tính, kiểm tra lại hè), hiệu lực 01/12/2026"
+  },
+  {
+    "file": "qd-2308-qd-bgddt-khung-ke-hoach-thoi-gian-nam-hoc.txt",
+    "so": "2308/QĐ-BGDĐT",
+    "ten": "Quyết định 2308/QĐ-BGDĐT Khung kế hoạch thời gian năm học (tựu trường, khai giảng 5/9, học kỳ I trước 18/1, kết thúc năm học trước 31/5, 35 tuần) áp dụng từ năm học 2026-2027"
+  },
+  {
+    "file": "cv-5208-bgddt-gdpt-nhiem-vu-gdpt-nam-hoc-2026-2027.txt",
+    "so": "5208/BGDĐT-GDPT",
+    "ten": "Công văn 5208/BGDĐT-GDPT hướng dẫn nhiệm vụ giáo dục phổ thông năm học 2026-2027 (kế hoạch giáo dục, STEM, AI, tiếng Anh, sắp xếp trường, học bạ số, dạy thêm, lạm thu)"
+  },
+  {
+    "file": "tt-01-2026-tt-bgddt-tham-quyen-tuyen-dung-nha-giao.txt",
+    "so": "01/2026/TT-BGDĐT",
+    "ten": "Thông tư 01/2026 quy định thẩm quyền tuyển dụng nhà giáo (Giám đốc Sở Giáo dục và Đào tạo tuyển dụng giáo viên mầm non, phổ thông công lập)"
+  },
+  {
+    "file": "nq-248-2025-qh15-co-che-dac-thu-giao-duc.txt",
+    "so": "248/2025/QH15",
+    "ten": "Nghị quyết 248/2025/QH15 của Quốc hội về cơ chế, chính sách đặc thù, vượt trội phát triển giáo dục (tuyển dụng, phụ cấp ưu đãi nghề tối thiểu 70%, sách giáo khoa thống nhất, miễn phí sách)"
+  },
+  {
+    "file": "nd-182-2026-nd-cp-phu-cap-uu-dai-theo-nghe-nha-giao.txt",
+    "so": "182/2026/NĐ-CP",
+    "ten": "Nghị định 182/2026/NĐ-CP phụ cấp ưu đãi theo nghề nhà giáo, cán bộ quản lý, nhân viên trường công lập (20%–80%, thực hiện từ 01/01/2026, công thức tính)"
+  },
+  {
+    "file": "nd-161-2026-nd-cp-luong-co-so-tien-thuong.txt",
+    "so": "161/2026/NĐ-CP",
+    "ten": "Nghị định 161/2026/NĐ-CP mức lương cơ sở 2.530.000 đồng/tháng từ 01/7/2026 và chế độ tiền thưởng (quỹ thưởng 10% quỹ lương)"
+  },
+  {
+    "file": "nd-77-2021-nd-cp-phu-cap-tham-nien-nha-giao.txt",
+    "so": "77/2021/NĐ-CP",
+    "ten": "Nghị định 77/2021/NĐ-CP chế độ phụ cấp thâm niên nhà giáo (5% sau đủ 5 năm, mỗi năm thêm 1%; vẫn áp dụng năm 2026)"
+  },
+  {
+    "file": "tt-21-2025-tt-bgddt-tra-tien-luong-day-them-gio.txt",
+    "so": "21/2025/TT-BGDĐT",
+    "ten": "Thông tư 21/2025 chế độ trả tiền lương dạy thêm giờ nhà giáo công lập (150%, tối đa 200 tiết/năm, công thức tiền lương 01 tiết)"
+  },
+  {
+    "file": "nd-271-2026-nd-cp-mien-phi-sach-giao-khoa.txt",
+    "so": "271/2026/NĐ-CP",
+    "ten": "Nghị định 271/2026/NĐ-CP miễn phí sách giáo khoa (mượn - trả, toàn quốc từ năm học 2029-2030, bồi hoàn khi mất sách) và miễn học phí Giáo dục quốc phòng và an ninh"
+  },
+  {
+    "file": "qd-3588-qd-bgddt-bo-sach-giao-khoa-thong-nhat.txt",
+    "so": "3588/QĐ-BGDĐT",
+    "ten": "Quyết định 3588/QĐ-BGDĐT chọn bộ sách giáo khoa Kết nối tri thức với cuộc sống dùng thống nhất toàn quốc từ năm học 2026-2027"
+  },
+  {
+    "file": "nq-217-2025-qh15-mien-ho-tro-hoc-phi.txt",
+    "so": "217/2025/QH15",
+    "ten": "Nghị quyết 217/2025/QH15 miễn học phí mầm non, phổ thông công lập, hỗ trợ học phí tư thục từ năm học 2025-2026"
+  },
+  {
+    "file": "nd-238-2025-nd-cp-hoc-phi-mien-giam-ho-tro-chi-phi-hoc-tap.txt",
+    "so": "238/2025/NĐ-CP",
+    "ten": "Nghị định 238/2025/NĐ-CP học phí, miễn, giảm, hỗ trợ học phí, hỗ trợ chi phí học tập 150.000 đồng/tháng (khung học phí mầm non, phổ thông, thủ tục)"
+  },
+  {
+    "file": "tt-70-2026-tt-bgddt-quan-ly-su-dung-hoc-ba-so.txt",
+    "so": "70/2026/TT-BGDĐT",
+    "ten": "Thông tư 70/2026/TT-BGDĐT quy định về quản lý và sử dụng học bạ số (hiệu lực 08/10/2026)"
+  },
+  {
+    "file": "tt-57-2026-tt-bgddt-bao-dam-chat-luong-chuan-quoc-gia-phan-1.txt",
+    "so": "57/2026/TT-BGDĐT (phần 1)",
+    "ten": "Thông tư 57/2026/TT-BGDĐT bảo đảm chất lượng giáo dục, công nhận trường đạt chuẩn quốc gia (Điều 1–27)"
+  },
+  {
+    "file": "tt-57-2026-tt-bgddt-bao-dam-chat-luong-chuan-quoc-gia-phan-2-tieu-chi-pho-thong.txt",
+    "so": "57/2026/TT-BGDĐT (phần 2)",
+    "ten": "Thông tư 57/2026/TT-BGDĐT, Phụ lục II: tiêu chí bảo đảm chất lượng trường phổ thông"
+  },
+  {
+    "file": "tt-10-2025-tt-bgddt-phan-quyen-phan-cap-giao-duc-pho-thong.txt",
+    "so": "10/2025/TT-BGDĐT",
+    "ten": "Thông tư 10/2025/TT-BGDĐT phân quyền, phân cấp quản lý giáo dục phổ thông khi bỏ cấp huyện (UBND cấp xã thay Phòng GDĐT)"
+  },
+  {
+    "file": "tt-19-2025-tt-bgddt-khen-thuong-ky-luat-hoc-sinh.txt",
+    "so": "19/2025/TT-BGDĐT",
+    "ten": "Thông tư 19/2025/TT-BGDĐT quy định về khen thưởng và kỷ luật học sinh (hiệu lực 31/10/2025)"
+  },
+  {
+    "file": "tt-18-2025-tt-bgddt-tu-van-hoc-duong-cong-tac-xa-hoi.txt",
+    "so": "18/2025/TT-BGDĐT",
+    "ten": "Thông tư 18/2025/TT-BGDĐT hướng dẫn công tác tư vấn học đường và công tác xã hội trong trường học (hiệu lực 31/10/2025)"
+  },
+  {
+    "file": "tt-12-2025-tt-bgddt-phan-quyen-phan-cap-nha-giao.txt",
+    "so": "12/2025/TT-BGDĐT",
+    "ten": "Thông tư 12/2025/TT-BGDĐT phân quyền, phân cấp lĩnh vực nhà giáo, cán bộ quản lý (hội thi giáo viên dạy giỏi cấp xã)"
+  },
+  {
+    "file": "cv-4567-bgddt-gdpt-day-hoc-2-buoi-ngay.txt",
+    "so": "4567/BGDĐT-GDPT",
+    "ten": "Công văn 4567/BGDĐT-GDPT hướng dẫn tổ chức dạy học 2 buổi/ngày đối với giáo dục phổ thông"
+  },
+  {
+    "file": "tt-02-2025-tt-bgddt-khung-nang-luc-so-nguoi-hoc.txt",
+    "so": "02/2025/TT-BGDĐT",
+    "ten": "Thông tư 02/2025/TT-BGDĐT Khung năng lực số cho người học (kèm mức độ theo khối lớp, Công văn 3456/BGDĐT-GDPT)"
+  },
+  {
+    "file": "tt-67-2026-tt-bgddt-thi-dua-khen-thuong-nganh-giao-duc.txt",
+    "so": "67/2026/TT-BGDĐT",
+    "ten": "Thông tư 67/2026/TT-BGDĐT hướng dẫn Luật Thi đua, khen thưởng ngành Giáo dục (Kỷ niệm chương, Bằng khen Bộ; hiệu lực 01/10/2026)"
+  },
+  {
+    "file": "tt-26-2025-tt-bgddt-sua-doi-thong-tu-phan-quyen-phan-cap.txt",
+    "so": "26/2025/TT-BGDĐT",
+    "ten": "Sửa đổi các Thông tư 10, 11, 12, 13/2025 về phân quyền, phân cấp (HĐ xét tốt nghiệp THCS do Chủ tịch UBND xã; phụ cấp lãnh đạo trường PTDT bán trú, nội trú THCS như hạng I)"
+  },
+  {
+    "file": "nd-66-2026-nd-cp-quy-dinh-chi-tiet-luat-giao-duc.txt",
+    "so": "66/2026/NĐ-CP",
+    "ten": "Quy định chi tiết một số điều của Luật Giáo dục (bổ nhiệm cán bộ quản lý, học bổng khuyến khích học tập, học bổng chính sách học sinh PTDTNT, giảm giá vé cho học sinh; thay NĐ 84/2020)"
+  },
+  {
+    "file": "tt-10-2026-tt-bgddt-quy-che-van-bang-chung-chi.txt",
+    "so": "10/2026/TT-BGDĐT",
+    "ten": "Quy chế văn bằng, chứng chỉ của hệ thống giáo dục quốc dân (bằng tốt nghiệp THPT, văn bằng số, cấp lại, chỉnh sửa, bản sao từ sổ gốc; không còn bằng tốt nghiệp THCS; thay TT 21/2019)"
+  },
+  {
+    "file": "tt-06-2019-tt-bgddt-quy-tac-ung-xu-trong-truong.txt",
+    "so": "06/2019/TT-BGDĐT",
+    "ten": "Quy tắc ứng xử trong cơ sở giáo dục mầm non, phổ thông, GDTX (còn hiệu lực trừ Điều 6 ứng xử của giáo viên, đã thay bằng TT 03/2026)"
+  },
+  {
+    "file": "tt-94-2026-qd-2371-tieng-anh-ngon-ngu-thu-hai.txt",
+    "so": "94/2026/TT-BGDĐT",
+    "ten": "Đề án tiếng Anh ngôn ngữ thứ hai: tóm tắt mục tiêu QĐ 2371/QĐ-TTg (nguyên văn TT 94/2026 ở 2 tệp riêng)"
+  },
+  {
+    "file": "tt-04-2026-tt-bgddt-che-do-lam-viec-giao-vien-gdtx.txt",
+    "so": "04/2026/TT-BGDĐT",
+    "ten": "Chế độ làm việc giáo viên cơ sở giáo dục thường xuyên (17 tiết/tuần, nghỉ hè 4–8 tuần; hiệu lực 10/02/2026)"
+  },
+  {
+    "file": "tt-48-2026-tt-bgddt-quy-che-truong-pho-thong-tu-thuc-phan-1.txt",
+    "so": "48/2026/TT-BGDĐT (phần 1)",
+    "ten": "Quy chế tổ chức và hoạt động trường tiểu học, THCS, THPT tư thục: Thông tư, Điều 1–9 (Hội đồng trường, kiểm soát nội bộ, Hiệu trưởng, chương trình; hiệu lực 08/8/2026, thay TT 40/2021)"
+  },
+  {
+    "file": "tt-48-2026-tt-bgddt-quy-che-truong-pho-thong-tu-thuc-phan-2.txt",
+    "so": "48/2026/TT-BGDĐT (phần 2)",
+    "ten": "Quy chế trường phổ thông tư thục: Điều 10–18 (giáo viên cơ hữu, học sinh, tài chính, học phí, khen thưởng) và mẫu hồ sơ Hội đồng trường"
+  },
+  {
+    "file": "nd-368-2026-nd-cp-thi-dua-khen-thuong-trich.txt",
+    "so": "368/2026/NĐ-CP",
+    "ten": "Quy định chi tiết Luật Thi đua, khen thưởng (trích: nguyên tắc, tỷ lệ Chiến sĩ thi đua cơ sở 10%, mức tiền thưởng; hiệu lực 01/10/2026, thay NĐ 152/2025)"
+  },
+  {
+    "file": "tt-25-2026-tt-bnv-huong-dan-thi-dua-khen-thuong.txt",
+    "so": "25/2026/TT-BNV",
+    "ten": "Biện pháp thi hành Luật Thi đua, khen thưởng và NĐ 368/2026 (bình xét Lao động tiên tiến, sáng kiến; hiệu lực 01/10/2026, thay TT 15/2025/TT-BNV)"
+  },
+  {
+    "file": "tt-33-2026-tt-bgddt-khung-nang-luc-ngoai-ngu.txt",
+    "so": "33/2026/TT-BGDĐT",
+    "ten": "Khung năng lực ngoại ngữ dùng cho Việt Nam (Tiền bậc 1 và 6 bậc tương ứng CEFR; hiệu lực 31/5/2026, thay TT 01/2014); trích đặc tả tổng quát 4 kỹ năng"
+  },
+  {
+    "file": "nd-188-2026-nd-cp-chinh-sach-hoc-sinh-pho-thong-noi-tru-xa-bien-gioi.txt",
+    "so": "188/2026/NĐ-CP",
+    "ten": "Chính sách cho học sinh và trường phổ thông nội trú tại các xã biên giới đất liền (tiền ăn 1.170.000 đ/tháng, gạo 15 kg; hiệu lực 15/7/2026)"
+  },
+  {
+    "file": "nd-232-2026-nd-cp-vi-tri-viec-lam-vien-chuc.txt",
+    "so": "232/2026/NĐ-CP",
+    "ten": "Vị trí việc làm viên chức (bậc nghề nghiệp 1–5 tương ứng lương loại B đến A3.1, tỷ lệ bậc; hiệu lực 01/7/2026; nhà giáo theo Luật Nhà giáo)"
+  },
+  {
+    "file": "tt-94-2026-tt-bgddt-danh-gia-de-an-tieng-anh-phan-1.txt",
+    "so": "94/2026/TT-BGDĐT (phần 1)",
+    "ten": "Tiêu chuẩn, tiêu chí, đánh giá mức độ triển khai Đề án tiếng Anh ngôn ngữ thứ hai: Điều 1–15 (tự đánh giá, tự công nhận, báo cáo; hiệu lực 19/12/2026)"
+  },
+  {
+    "file": "tt-94-2026-tt-bgddt-danh-gia-de-an-tieng-anh-phan-2-pho-thong.txt",
+    "so": "94/2026/TT-BGDĐT (phần 2)",
+    "ten": "Phụ lục II TT 94/2026: tiêu chí Mức độ 1, 2, 3 đối với trường phổ thông (lớp dạy tiếng Anh như ngôn ngữ thứ hai ≥35 tiết/năm)"
+  },
+  {
+    "file": "cv-3456-bgddt-gdpt-huong-dan-khung-nang-luc-so-hoc-sinh.txt",
+    "so": "3456/BGDĐT-GDPT",
+    "ten": "Hướng dẫn triển khai Khung năng lực số cho học sinh phổ thông, học viên GDTX (27/6/2025; mức độ thành thạo theo khối lớp)"
+  },
+  {
+    "file": "qd-207-qd-tw-2026-nhung-dieu-dang-vien-khong-duoc-lam.txt",
+    "so": "207-QĐ/TW",
+    "ten": "Quy định 207-QĐ/TW ngày 26/7/2026 của Ban Chấp hành Trung ương về những điều đảng viên không được làm (thay Quy định 37-QĐ/TW)"
+  },
+  {
+    "file": "cv-3456-bgddt-gdpt-phu-luc-mo-ta-nang-luc-so-theo-khoi-lop.txt",
+    "so": "3456/BGDĐT-GDPT (Phụ lục mô tả năng lực số theo khối lớp)",
+    "ten": "Công văn 3456/BGDĐT-GDPT: Phụ lục mục 2, mô tả 24 năng lực số thành phần của học sinh theo nhóm lớp 1-3, 4-5, 6-7, 8-9, 10-12"
+  }
 ]
