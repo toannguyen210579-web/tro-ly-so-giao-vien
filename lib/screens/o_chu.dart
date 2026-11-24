@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 
 import '../data/luu_tru.dart';
 import '../data/o_chu.dart';
+import '../data/o_chu_moi_ngay.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
+import 'o_chu_moi_ngay.dart';
 
 const _khoa = 'o_chu';
 
@@ -28,6 +30,8 @@ class OChuMan extends StatefulWidget {
 
 class _OChuManState extends State<OChuMan> {
   List<OChu>? _ds;
+  TienDoNgay? _homNay;
+  int _chuoi = 0;
 
   @override
   void initState() {
@@ -38,7 +42,68 @@ class _OChuManState extends State<OChuMan> {
   Future<void> _tai() async {
     var ds = (await LuuTru.docDanhSach(_khoa)).map(OChu.fromJson).toList();
     if (ds.isEmpty) ds = [_mau()];
-    if (mounted) setState(() => _ds = ds);
+    final nay = DateTime.now();
+    final homNay = await LuuOChuNgay.doc(maNgay(nay));
+    final chuoi = chuoiNgay(await LuuOChuNgay.ngayDaXong(), nay);
+    if (mounted) {
+      setState(() {
+        _ds = ds;
+        _homNay = homNay;
+        _chuoi = chuoi;
+      });
+    }
+  }
+
+  Future<void> _moNgay() async {
+    await Navigator.of(context).push(MaterialPageRoute(builder: (_) => const OChuNgayMan()));
+    await _tai();
+  }
+
+  /// Thẻ Ô chữ hôm nay ở đầu màn: chủ đề, trạng thái, nút giải.
+  Widget _theHomNay() {
+    final nay = DateTime.now();
+    final o = oChuCuaNgay(nay);
+    final t = _homNay;
+    final String trangThai;
+    if (t != null && t.daXong) {
+      trangThai = 'Đã xong trong ${thoiGianVN(t.thoiGian)}${_chuoi > 0 ? ' · 🔥 $_chuoi ngày liền' : ''}';
+    } else if (t != null && t.daBatDauGiai) {
+      trangThai = 'Đang giải: đã mở ${t.soHangDaMo}/${o.hang.length} hàng';
+    } else {
+      trangThai = _chuoi > 0 ? '🔥 Đang có chuỗi $_chuoi ngày liền, giải tiếp hôm nay nhé' : 'Mỗi ngày một ô chữ mới, giải xong chia sẻ kết quả';
+    }
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: _moNgay,
+        child: Ink(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [Color(0xFFFFA24C), Color(0xFFEF4A23)]),
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Row(children: [
+            const Icon(Icons.today, color: Colors.white, size: 36),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('Ô chữ hôm nay · ${nay.day}/${nay.month}', style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.w900)),
+                Text('Chủ đề: ${o.ten}', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 2),
+                Text(trangThai, style: const TextStyle(color: Colors.white, fontSize: 12.5)),
+              ]),
+            ),
+            const SizedBox(width: 8),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.white, foregroundColor: const Color(0xFFE5570B)),
+              onPressed: _moNgay,
+              child: Text(t != null && t.daXong ? 'Xem lại' : (t != null && t.daBatDauGiai ? 'Giải tiếp' : 'Giải ngay')),
+            ),
+          ]),
+        ),
+      ),
+    );
   }
 
   Future<void> _luu() async {
@@ -74,6 +139,10 @@ class _OChuManState extends State<OChuMan> {
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
               children: [
                 const CauGiupViec('o_chu'),
+                _theHomNay(),
+                const SizedBox(height: 16),
+                const Text('Ô chữ của tôi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: MauApp.chu)),
+                const SizedBox(height: 2),
                 const Text(
                   'Mỗi hàng ngang là một câu hỏi. Chữ ở cột tô màu của các hàng ghép thành từ khóa. '
                   'Kết nối điện thoại với ti vi hoặc máy chiếu, bấm Chơi, mở từng hàng khi học sinh trả lời.',

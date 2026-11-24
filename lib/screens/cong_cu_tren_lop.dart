@@ -11,6 +11,7 @@ import '../main.dart';
 import '../services/tep_pdf.dart';
 import 'cau_giup_viec.dart';
 import 'nhan_xet.dart';
+import 'thu_thach.dart';
 
 /// Chia danh sách thành [soNhom] nhóm đều nhau (đã xáo trộn).
 List<List<String>> chiaNhom(List<String> ten, int soNhom, Random r) {
@@ -22,7 +23,7 @@ List<List<String>> chiaNhom(List<String> ten, int soNhom, Random r) {
   return kq;
 }
 
-/// Công cụ trên lớp: gọi tên ngẫu nhiên, chia nhóm, điểm danh, đồng hồ.
+/// Công cụ trên lớp: gọi tên ngẫu nhiên, chia nhóm, điểm danh, đồng hồ, thử thách cả lớp.
 /// Dùng lại danh sách lớp đã nhập ở Nhận xét học sinh.
 class CongCuTrenLop extends StatefulWidget {
   const CongCuTrenLop({super.key});
@@ -61,7 +62,7 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
   Widget build(BuildContext context) {
     final ds = _ds;
     return DefaultTabController(
-      length: 4,
+      length: 5,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Công cụ trên lớp'),
@@ -70,6 +71,7 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
             Tab(text: 'Chia nhóm'),
             Tab(text: 'Điểm danh'),
             Tab(text: 'Đồng hồ'),
+            Tab(text: 'Thử thách'),
           ]),
         ),
         body: ds == null
@@ -82,7 +84,7 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
                       padding: EdgeInsets.fromLTRB(16, 10, 16, 0),
                       child: Text(
                         'Chưa có lớp nào. Thầy cô tạo lớp ở tiện ích Nhận xét học sinh (dán danh sách tên), rồi quay lại đây. '
-                        'Đồng hồ vẫn dùng được ngay.',
+                        'Đồng hồ, Thử thách vẫn dùng được ngay.',
                         style: TextStyle(color: MauApp.chuPhu),
                       ),
                     )
@@ -109,6 +111,7 @@ class _CongCuTrenLopState extends State<CongCuTrenLop> {
                       _ChiaNhom(key: ValueKey('c$_chon'), ten: _ten),
                       _DiemDanh(key: ValueKey('d$_chon'), ten: _ten, tenLop: ds.isEmpty ? '' : ds[_chon].ten),
                       const _DongHo(),
+                      ThuThachTab(key: ValueKey('t$_chon'), ten: _ten, tenLop: ds.isEmpty ? '' : ds[_chon].ten),
                     ]),
                   ),
                 ],
