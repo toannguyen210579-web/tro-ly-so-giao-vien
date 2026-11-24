@@ -21,6 +21,11 @@ void main() {
   }
 
   Future<void> chup(WidgetTester t, String ten) async {
+    // Bàn phím đang mở thì hạ trước khi chụp: chụp lúc bàn phím đổi cỡ màn hình làm máy giả lập mất kết nối (24/11/2026)
+    if (FocusManager.instance.primaryFocus?.hasPrimaryFocus ?? false) {
+      FocusManager.instance.primaryFocus?.unfocus();
+      await cho(t, 1000);
+    }
     await cho(t, 600);
     await b.takeScreenshot(ten);
   }
@@ -180,6 +185,8 @@ void main() {
         find.byType(SnackBar).evaluate().map((e) => ((e.widget as SnackBar).content as Text?)?.data ?? '').join(' | ');
 
     Future<void> buoc(String ten, Future<void> Function() viec) async {
+      // ignore: avoid_print
+      print('KQ bat_dau $ten');
       final truoc = loi.length;
       try {
         await viec();

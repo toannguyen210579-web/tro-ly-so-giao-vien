@@ -62,8 +62,10 @@ Future<void> baoDaLuuTep(BuildContext context, File f, {String tieuDe = 'Đã l�
     context: context,
     showDragHandle: true,
     useSafeArea: true,
+    // Cao theo nội dung, cuộn được: máy màn nhỏ không bị tràn (thử trên máy giả lập 320x640, 24/11/2026)
+    isScrollControlled: true,
     builder: (c) => SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
