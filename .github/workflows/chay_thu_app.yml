@@ -4,6 +4,8 @@ on:
   push:
     branches: [noi-may-chu]
     paths: ["integration_test/chay_thu_test.dart", ".github/workflows/chay_thu_app.yml"]
+permissions:
+  contents: write
 jobs:
   chay:
     runs-on: ubuntu-latest
@@ -40,3 +42,14 @@ jobs:
           path: |
             anh_chay_thu/*.png
             ket_qua.txt
+      - name: Đẩy ảnh, kết quả lên nhánh anh-chay-thu (tải về bằng git, máy làm việc không tải được Artifacts)
+        if: always()
+        run: |
+          mkdir -p /tmp/anh
+          cp anh_chay_thu/*.png /tmp/anh/ 2>/dev/null || true
+          grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt > /tmp/anh/ket_qua.txt 2>/dev/null || true
+          cd /tmp/anh
+          git init -q -b anh-chay-thu
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Ảnh chạy thử app (${GITHUB_SHA::7})"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-chay-thu
