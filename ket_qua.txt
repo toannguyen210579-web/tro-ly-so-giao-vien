@@ -1,0 +1,26 @@
+I/flutter ( 5994): KQ o_chu_hom_nay: Âm nhạc dân tộc (Bài ca, 5 hàng)
+I/flutter ( 5994): KQ chup 01_o_chu: on
+I/flutter ( 5994): KQ chup 02_o_chu_ngay: on
+I/flutter ( 5994): KQ chup 03_tra_loi_sai: on
+I/flutter ( 5994): KQ chup 04_dang_giai: on
+I/flutter ( 5994): KQ chup 05_xong: on
+I/flutter ( 5994): KQ o_chu_xong: true
+I/flutter ( 5994): KQ chup 06_o_chu_sau_khi_giai: on
+I/flutter ( 5994): KQ o_chu_ngay: xong
+I/flutter ( 5994): KQ chup 10_thu_thach: on
+I/flutter ( 5994): KQ chup 11_cau_hoi: on
+I/flutter ( 5994): KQ chup 12_dem_gio: on
+I/flutter ( 5994): KQ chup 13_dap_an_chon_em_sai: on
+I/flutter ( 5994): KQ chup 14_cau_trac_nghiem: on
+I/flutter ( 5994): KQ chup 15_ket_thuc: on
+I/flutter ( 5994): KQ thu_thach: xong
+I/flutter ( 5994): KQ chup 20_soan_bo_dan_chu: on
+I/flutter ( 5994): KQ chup 21_ai_soan: on
+I/flutter ( 5994): KQ ai_soan: co ket qua; Đọc được 13 câu.
+I/flutter ( 5994): KQ chup 21b_ai_soan_doc_duoc: on
+I/flutter ( 5994): KQ chup 22_danh_sach_bo: on
+I/flutter ( 5994): KQ soan_bo: xong
+I/flutter ( 5994): KQ chup 30_trang_chu: on
+I/flutter ( 5994): KQ ket_thuc: xong
+I/flutter ( 5994): 02:27 +2: All tests passed!
+All tests passed.
