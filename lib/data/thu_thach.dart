@@ -20,6 +20,8 @@ class CauThuThach {
       final l = RegExp(r'^\s*([A-Da-d])\s*[.)]\s*(.+)$').firstMatch(dong);
       if (l != null && l.group(1)!.toUpperCase() == chu) return '$chu. ${l.group(2)!.trim()}';
     }
+    final cungDong = RegExp('(?:^|[\\s,;(:])$chu\\s*[.)]\\s*(.+?)\\s*(?=[,;]?\\s*[A-D]\\s*[.)]\\s|[,;.]?\\s*\$)', multiLine: true).firstMatch(hoi);
+    if (cungDong != null) return '$chu. ${cungDong.group(1)!.trim()}';
     return chu;
   }
 

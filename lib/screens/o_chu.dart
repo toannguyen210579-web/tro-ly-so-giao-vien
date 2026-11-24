@@ -373,6 +373,8 @@ class _ChoiOChuState extends State<_ChoiOChu> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF14233A),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
         title: Text(o.ten),
       ),
       body: ListView(
@@ -405,7 +407,11 @@ class _ChoiOChuState extends State<_ChoiOChu> {
               label: const Text('Mở từ khóa'),
             ),
             OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.transparent,
+                side: const BorderSide(color: Colors.white54, width: 1.4),
+              ),
               onPressed: () => setState(() {
                 for (var i = 0; i < _mo.length; i++) {
                   _mo[i] = false;

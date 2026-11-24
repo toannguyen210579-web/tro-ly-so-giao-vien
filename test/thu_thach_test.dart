@@ -30,6 +30,10 @@ câu 3: Đỉnh núi cao nhất Việt Nam?
     expect(c[0], const CauThuThach('Hành tinh gần Mặt Trời nhất là hành tinh nào?', 'Sao Thủy'));
     expect(c[1].hoi, 'Con vật nào là động vật có vú?\nA. Cá chép\nB. Cá voi\nC. Cá mập\nD. Cá ngựa');
     expect(c[1].dapAnDayDu, 'B. Cá voi');
+    const cungDong = 'Phân số nào bằng 1/2: A. 2/3, B. 3/6, C. 4/9, D. 5/8';
+    expect(const CauThuThach(cungDong, 'B').dapAnDayDu, 'B. 3/6');
+    expect(const CauThuThach(cungDong, 'd').dapAnDayDu, 'D. 5/8');
+    expect(const CauThuThach('Câu hỏi không có lựa chọn', 'C').dapAnDayDu, 'C');
     expect(c[2], const CauThuThach('Đỉnh núi cao nhất Việt Nam?', 'Phan Xi Păng'));
   });
 

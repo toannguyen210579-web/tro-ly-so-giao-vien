@@ -242,8 +242,13 @@ class _SuaBoThuThachState extends State<_SuaBoThuThach> {
                 ),
               ])),
             ),
-          const SizedBox(height: 14),
-          FilledButton.icon(
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+          child: FilledButton.icon(
+            style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
             onPressed: cau.isEmpty
                 ? null
                 : () {
@@ -257,7 +262,7 @@ class _SuaBoThuThachState extends State<_SuaBoThuThach> {
             icon: const Icon(Icons.check),
             label: const Text('Lưu bộ câu hỏi'),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -432,6 +437,8 @@ class _ChoiThuThachState extends State<ChoiThuThach> {
       appBar: AppBar(
         backgroundColor: _nen,
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w900),
         title: Text(bo.ten),
         actions: [
           if (_coLop && _v.biLoai.isNotEmpty && _b != _Buoc.ketThuc)
@@ -450,7 +457,68 @@ class _ChoiThuThachState extends State<ChoiThuThach> {
           children: _b == _Buoc.ketThuc ? _ketThuc(co) : _dangChoi(co),
         );
       }),
+      // Nút chính luôn nằm cuối màn hình, không phải cuộn tìm khi lớp đông
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 6, 16, 12),
+          child: _nutChinh(),
+        ),
+      ),
     );
+  }
+
+  static final _phu = FilledButton.styleFrom(
+    backgroundColor: const Color(0xFF2B3E5C),
+    foregroundColor: Colors.white,
+    padding: const EdgeInsets.symmetric(vertical: 16),
+  );
+
+  Widget _nutChinh() {
+    const chu = TextStyle(fontSize: 18);
+    switch (_b) {
+      case _Buoc.cho:
+        return FilledButton.icon(
+          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFF14A3A1)),
+          onPressed: _batDau,
+          icon: const Icon(Icons.play_arrow),
+          label: Text('Bắt đầu tính giờ (${widget.giay} giây)', style: chu),
+        );
+      case _Buoc.dem:
+        return FilledButton.icon(style: _phu, onPressed: _xemDapAn, icon: const Icon(Icons.stop), label: const Text('Dừng giờ, xem đáp án', style: chu));
+      case _Buoc.hetGio:
+        return FilledButton.icon(
+          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+          onPressed: _xemDapAn,
+          icon: const Icon(Icons.visibility),
+          label: const Text('Xem đáp án', style: chu),
+        );
+      case _Buoc.dapAn:
+        return FilledButton.icon(
+          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFFE5570B)),
+          onPressed: _tiep,
+          icon: const Icon(Icons.arrow_forward),
+          label: Text(_i >= widget.bo.cau.length - 1 ? 'Xem kết quả' : 'Câu tiếp theo', style: chu),
+        );
+      case _Buoc.ketThuc:
+        return Row(children: [
+          Expanded(
+            child: FilledButton.icon(
+              style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
+              onPressed: () => Share.share(ketQuaThuThach(
+                tenBo: widget.bo.ten,
+                tenLop: widget.tenLop,
+                soCau: _i + 1,
+                conLai: _v.conLai,
+                siSo: widget.ten.length,
+              )),
+              icon: const Icon(Icons.send),
+              label: const Text('Gửi kết quả'),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: FilledButton.icon(style: _phu, onPressed: _choiLai, icon: const Icon(Icons.replay), label: const Text('Chơi lại'))),
+        ]);
+    }
   }
 
   List<Widget> _dangChoi(double co) {
@@ -468,11 +536,9 @@ class _ChoiThuThachState extends State<ChoiThuThach> {
       ),
       const SizedBox(height: 16),
       if (_b == _Buoc.cho)
-        FilledButton.icon(
-          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFF14A3A1)),
-          onPressed: _batDau,
-          icon: const Icon(Icons.play_arrow),
-          label: Text('Bắt đầu tính giờ (${widget.giay} giây)', style: const TextStyle(fontSize: 18)),
+        Center(
+          child: Text('Đọc câu hỏi cho cả lớp rồi bấm bắt đầu tính giờ.',
+              textAlign: TextAlign.center, style: TextStyle(color: Colors.white70, fontSize: co * 0.6)),
         ),
       if (_b == _Buoc.dem) ...[
         Center(
@@ -491,23 +557,9 @@ class _ChoiThuThachState extends State<ChoiThuThach> {
           color: _con <= 5 ? const Color(0xFFFF6B6B) : const Color(0xFF14A3A1),
           backgroundColor: const Color(0xFF2B3E5C),
         ),
-        const SizedBox(height: 12),
-        OutlinedButton(
-          style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-          onPressed: _xemDapAn,
-          child: const Text('Dừng giờ, xem đáp án'),
-        ),
       ],
-      if (_b == _Buoc.hetGio) ...[
+      if (_b == _Buoc.hetGio)
         Center(child: Text('Hết giờ! Các em giơ bảng.', style: TextStyle(color: const Color(0xFFFFC27A), fontSize: co, fontWeight: FontWeight.w900))),
-        const SizedBox(height: 12),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-          onPressed: _xemDapAn,
-          icon: const Icon(Icons.visibility),
-          label: const Text('Xem đáp án', style: TextStyle(fontSize: 18)),
-        ),
-      ],
       if (_b == _Buoc.dapAn) ...[
         Container(
           padding: const EdgeInsets.all(16),
@@ -530,13 +582,6 @@ class _ChoiThuThachState extends State<ChoiThuThach> {
               ),
           ]),
         ],
-        const SizedBox(height: 16),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16), backgroundColor: const Color(0xFFE5570B)),
-          onPressed: _tiep,
-          icon: const Icon(Icons.arrow_forward),
-          label: Text(_i >= widget.bo.cau.length - 1 ? 'Xem kết quả' : 'Câu tiếp theo', style: const TextStyle(fontSize: 18)),
-        ),
       ],
     ];
   }
@@ -560,25 +605,6 @@ class _ChoiThuThachState extends State<ChoiThuThach> {
         ]),
       ] else
         Center(child: Text('Đã chơi xong $soCau câu hỏi.', style: const TextStyle(color: Colors.white70, fontSize: 16))),
-      const SizedBox(height: 20),
-      FilledButton.icon(
-        onPressed: () => Share.share(ketQuaThuThach(
-          tenBo: widget.bo.ten,
-          tenLop: widget.tenLop,
-          soCau: soCau,
-          conLai: con,
-          siSo: widget.ten.length,
-        )),
-        icon: const Icon(Icons.send),
-        label: const Text('Gửi kết quả'),
-      ),
-      const SizedBox(height: 8),
-      OutlinedButton.icon(
-        style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
-        onPressed: _choiLai,
-        icon: const Icon(Icons.replay),
-        label: const Text('Chơi lại'),
-      ),
     ];
   }
 }

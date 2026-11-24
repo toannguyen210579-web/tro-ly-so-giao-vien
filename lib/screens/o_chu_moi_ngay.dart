@@ -206,8 +206,9 @@ class _OChuNgayManState extends State<OChuNgayMan> {
         const SizedBox(height: 10),
         TextField(
           controller: _go,
-          textInputAction: TextInputAction.done,
-          onSubmitted: (_) => _traLoi(),
+          textInputAction: TextInputAction.send,
+          // Bấm phím gửi trên bàn phím: trả lời mà vẫn giữ bàn phím để gõ tiếp hàng sau
+          onEditingComplete: _traLoi,
           decoration: InputDecoration(
             labelText: 'Đáp án hàng ${c + 1}',
             hintText: 'Gõ có dấu hay không dấu đều được',

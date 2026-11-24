@@ -1,6 +1,8 @@
 // Chụp màn hình Ô chữ mỗi ngày và Thử thách cả lớp để người dùng xem mà không cần cài app.
 // Dữ liệu mẫu (lớp 7A) là dữ liệu tự đặt. Ảnh lưu vào anh_chay_thu/xem_*.png.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -45,9 +47,29 @@ void main() {
     }
   }
 
+  /// Cuộn danh sách chính cho đến khi [f] được dựng (danh sách dài chỉ dựng phần gần màn hình).
+  Future<void> cuonToi(WidgetTester t, Finder f) async {
+    if (f.evaluate().isNotEmpty) return;
+    try {
+      final sc = find.descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable)).first;
+      final vt = t.state<ScrollableState>(sc).position;
+      for (var i = 0; i < 60 && f.evaluate().isEmpty && vt.pixels < vt.maxScrollExtent; i++) {
+        vt.jumpTo(min(vt.pixels + 300, vt.maxScrollExtent));
+        await cho(t, 200);
+      }
+    } catch (_) {}
+  }
+
+  /// Gõ chữ thẳng vào ô (bàn phím thật trên máy giả lập hay nuốt lần gõ thứ hai).
+  Future<void> go(WidgetTester t, Finder o, String chu) async {
+    t.widget<TextField>(o).controller!.text = chu;
+    await cho(t, 300);
+  }
+
   Future<void> bam(WidgetTester t, Finder f, {int ms = 1200}) async {
     FocusManager.instance.primaryFocus?.unfocus();
     await cho(t, 500);
+    await cuonToi(t, f);
     await t.ensureVisible(f.first);
     await cho(t, 300);
     await t.tap(f.first);
@@ -99,18 +121,18 @@ void main() {
       await bam(t, find.text('Giải ngay'), ms: 2500);
       await chup(t, '02_o_chu_ngay');
       // Một câu sai, rồi giải hai hàng đầu
-      await t.enterText(find.byType(TextField), 'chưa biết');
+      await go(t, find.byType(TextField), 'chưa biết');
       await bam(t, find.text('Trả lời'));
       await cuonDau(t);
       await chup(t, '03_tra_loi_sai');
       for (var i = 0; i < 2; i++) {
-        await t.enterText(find.byType(TextField), o.hang[i].dapAn.toLowerCase());
+        await go(t, find.byType(TextField), o.hang[i].dapAn.toLowerCase());
         await bam(t, find.text('Trả lời'));
       }
       await cuonDau(t);
       await chup(t, '04_dang_giai');
       for (var i = 2; i < o.hang.length; i++) {
-        await t.enterText(find.byType(TextField), o.hang[i].dapAn);
+        await go(t, find.byType(TextField), o.hang[i].dapAn);
         await bam(t, find.text('Trả lời'));
       }
       await cuonDau(t);
@@ -166,17 +188,24 @@ void main() {
       // Nhờ AI soạn thật qua máy chủ, xem câu trả lời đọc ra được mấy câu
       await bam(t, find.text('Nhờ AI soạn câu hỏi'), ms: 1500);
       await t.enterText(find.widgetWithText(TextField, 'Chủ đề, bài học'), 'Phân số, Toán 6');
-      await t.enterText(find.widgetWithText(TextField, 'Dành cho lớp (không bắt buộc)'), 'lớp 6');
+      await cho(t, 500);
+      await go(t, find.widgetWithText(TextField, 'Dành cho lớp (không bắt buộc)'), 'lớp 6');
       await bam(t, find.text('Soạn'), ms: 1000);
       var xong = false;
       for (var i = 0; i < 120 && !xong; i++) {
         await cho(t, 1000);
         xong = find.textContaining('Bản do AI soạn').evaluate().isNotEmpty;
       }
-      final docDuoc = find.textContaining('Đọc được').evaluate().map((e) => (e.widget as Text).data).join(' | ');
-      kq('ai_soan: ${xong ? "co ket qua" : "KHONG CO KET QUA"}; $docDuoc');
       await cho(t, 1000);
       await chup(t, '21_ai_soan');
+      // Phần app đọc ra từ câu trả lời của AI: số câu, đáp án từng câu
+      await cuonToi(t, find.textContaining('Đọc được'));
+      final docDuoc = find.textContaining('Đọc được').evaluate().map((e) => (e.widget as Text).data).join(' | ');
+      kq('ai_soan: ${xong ? "co ket qua" : "KHONG CO KET QUA"}; $docDuoc');
+      if (find.textContaining('Đọc được').evaluate().isNotEmpty) {
+        await Scrollable.ensureVisible(t.element(find.textContaining('Đọc được').first), alignment: 0.05);
+      }
+      await chup(t, '21b_ai_soan_doc_duoc');
       await bam(t, find.text('Lưu bộ câu hỏi'), ms: 2000);
       await chup(t, '22_danh_sach_bo');
     });
