@@ -11,7 +11,7 @@ if ! grep -q NSCameraUsageDescription "$PLIST"; then
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 them='''	<key>NSCameraUsageDescription</key>
-	<string>Dùng máy ảnh để quét giấy tờ và chụp ảnh thẻ.</string>
+	<string>Dùng máy ảnh để quét giấy tờ, chụp ảnh thẻ, chụp đề, chụp văn bản sang Word, chụp minh chứng và quét thẻ Giơ thẻ.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Chọn ảnh có sẵn để làm ảnh thẻ.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -27,6 +27,23 @@ fi
 if [ -f ios/Podfile ]; then
   sed -i.bak -E "s/^#? *platform :ios.*/platform :ios, '15.5'/" ios/Podfile && rm -f ios/Podfile.bak
 fi
+
+# Bản iPhone (đã chốt 22/11/2026): chỉ chạy trên iPhone, khai không dùng mã hóa đặc biệt
+# (app chỉ dùng HTTPS) để khỏi khai lại mỗi lần tải bản mới lên App Store Connect.
+if ! grep -q ITSAppUsesNonExemptEncryption "$PLIST"; then
+  /usr/bin/env python3 - "$PLIST" <<'PY'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+i=s.rfind('</dict>'); s=s[:i]+'\t<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>\n'+s[i:]
+open(p,'w',encoding='utf-8').write(s)
+PY
+fi
+/usr/bin/env python3 - <<'PY'
+p='ios/Runner.xcodeproj/project.pbxproj'
+s=open(p,encoding='utf-8').read()
+s=s.replace('TARGETED_DEVICE_FAMILY = "1,2";','TARGETED_DEVICE_FAMILY = 1;')
+open(p,'w',encoding='utf-8').write(s)
+PY
 
 # Android: quyền micro và khai báo bộ nhận giọng, bộ đọc văn bản (bắt buộc từ Android 11).
 MF=android/app/src/main/AndroidManifest.xml

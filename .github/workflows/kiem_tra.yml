@@ -97,4 +97,51 @@ jobs:
       - run: bash tool/chuan_bi.sh
       - run: flutter pub get
       - run: dart run flutter_launcher_icons
-      - run: flutter build ios --release --no-codesign
+      - name: Kiểm tra cấu hình iPhone (chỉ iPhone, mã hóa, câu xin quyền máy ảnh)
+        run: |
+          grep -c 'TARGETED_DEVICE_FAMILY = 1;' ios/Runner.xcodeproj/project.pbxproj
+          if grep -q 'TARGETED_DEVICE_FAMILY = "1,2"' ios/Runner.xcodeproj/project.pbxproj; then echo "Còn cấu hình iPad"; exit 1; fi
+          /usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :NSCameraUsageDescription' ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' ios/Runner/Info.plist
+      # Đóng gói bản lưu trữ (xcarchive) chưa ký; bước sau ký bằng chứng chỉ do Apple quản lý
+      - run: flutter build ipa --release --no-codesign
+      # Ký và đẩy lên TestFlight bằng khóa API App Store Connect (quyền Admin).
+      # Key ID, Issuer ID không phải bí mật; khóa riêng .p8 lấy từ secret ASC_KEY_P8 do người dùng tự cất.
+      - name: Ký bản iPhone và đẩy lên TestFlight
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          TEAM_ID: D4MA24SYBY
+        run: |
+          if [ -z "$ASC_KEY_P8" ]; then echo "Chưa có secret ASC_KEY_P8, bỏ qua bước ký"; exit 0; fi
+          KEY=$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8
+          printf '%s\n' "$ASC_KEY_P8" > "$KEY"
+          cat > $RUNNER_TEMP/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+          ARCHIVE=$(ls -d build/ios/archive/*.xcarchive | head -1)
+          echo "Bản lưu trữ: $ARCHIVE"
+          xcodebuild -exportArchive \
+            -archivePath "$ARCHIVE" \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -exportPath build/ios/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Xóa tệp khóa tạm
+        if: always()
+        run: rm -f $RUNNER_TEMP/AuthKey_*.p8
