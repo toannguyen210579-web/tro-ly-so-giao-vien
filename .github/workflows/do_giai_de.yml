@@ -1,0 +1,72 @@
+name: Do toc do Giai de
+# Đo thời gian Giải đề, soạn đáp án qua máy chủ thật và gọi thẳng từng mô hình Gemini (24/11/2026,
+# thầy cô báo đề Toán lớp 9 chờ rất lâu). Mỗi lượt dùng vài lượt giải đề của một mã máy thử riêng.
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/do_giai_de.yml"]
+jobs:
+  do:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Đo qua máy chủ app (/v1/ai, chế độ giaide)
+        run: |
+          cat > do.py <<'P'
+          import json, time, urllib.request
+          URL = "https://tro-ly-gv.toannguyen210579.workers.dev/v1/ai"
+          DE = [
+            ("ngan", "Môn: Toán. Lớp: 9.\nĐề (giáo viên gõ):\nA - 3"),
+            ("rut_gon", "Môn: Toán. Lớp: 9.\nĐề (giáo viên gõ):\nRút gọn biểu thức A = (√x/(√x − 3) − 3/(√x + 3)) : ((x + 9)/(x − 9)) với x ≥ 0, x ≠ 9."),
+            ("ba_cau", "Môn: Toán. Lớp: 9.\nĐề (giáo viên gõ):\nCâu 1. Giải hệ phương trình x + y = 5 và 2x − y = 1.\n"
+                       "Câu 2. Cho phương trình x² − 2(m + 1)x + m² + 3 = 0. Tìm m để phương trình có hai nghiệm phân biệt.\n"
+                       "Câu 3. Cho tam giác ABC vuông tại A, AB = 6 cm, AC = 8 cm. Tính BC và đường cao AH."),
+          ]
+          for ten, de in DE:
+            body = json.dumps({"device_id": "ci-do-giai-de-01", "mode": "giaide", "input": de}).encode()
+            rq = urllib.request.Request(URL, data=body, headers={"content-type": "application/json", "user-agent": "ci-do"})
+            t = time.time()
+            try:
+              j = json.load(urllib.request.urlopen(rq, timeout=180))
+            except urllib.error.HTTPError as e:
+              j = json.loads(e.read() or b"{}")
+            except Exception as e:
+              j = {"loi": str(e)}
+            print(f"KQ {ten}: {time.time()-t:.1f} giây | ok={j.get('ok')} | by={j.get('by')} | gem={j.get('gem')} | "
+                  f"loi={j.get('error')} {j.get('message','')} | claude={j.get('claude','')} | dài {len(j.get('text') or '')} ký tự")
+            print("   ", (j.get("text") or "")[:300].replace("\n", " / "))
+          P
+          python3 do.py
+      - name: Gọi thẳng từng mô hình Gemini (đo thời gian tạo lời giải dài)
+        env:
+          K: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat > g.py <<'P'
+          import json, os, time, urllib.request
+          K = os.environ["K"]
+          SYS = ("Bạn là Trợ lý số Giáo viên, trả lời bằng tiếng Việt. Nhiệm vụ: làm đáp án và hướng dẫn chấm từ đề bài, theo chương trình GDPT 2018. "
+                 "Với từng câu: chép lại đề ngắn gọn, lời giải từng bước, đáp số; bài tự luận thêm gợi ý thang điểm. Không dùng LaTeX, không dùng markdown.")
+          DE = ("Môn: Toán. Lớp: 9.\nCâu 1. Giải hệ phương trình x + y = 5 và 2x − y = 1.\n"
+                "Câu 2. Cho phương trình x² − 2(m + 1)x + m² + 3 = 0. Tìm m để phương trình có hai nghiệm phân biệt.\n"
+                "Câu 3. Cho tam giác ABC vuông tại A, AB = 6 cm, AC = 8 cm. Tính BC và đường cao AH.")
+          for m in ["gemini-flash-lite-latest", "gemini-3.1-flash-lite", "gemini-flash-latest"]:
+            for kieu in ("mặc định", "thinkingBudget 0"):
+              g = {"maxOutputTokens": 8192}
+              if kieu != "mặc định": g["thinkingConfig"] = {"thinkingBudget": 0}
+              body = {"systemInstruction": {"parts": [{"text": SYS}]}, "contents": [{"role": "user", "parts": [{"text": DE}]}], "generationConfig": g}
+              rq = urllib.request.Request(f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent",
+                data=json.dumps(body).encode(), headers={"x-goog-api-key": K, "content-type": "application/json"})
+              t = time.time()
+              try:
+                j = json.load(urllib.request.urlopen(rq, timeout=120))
+                c = j["candidates"][0]
+                txt = "".join(p.get("text", "") for p in c["content"].get("parts", []) if not p.get("thought"))
+                u = j.get("usageMetadata", {})
+                print(f"GM {m} | {kieu} | {time.time()-t:.1f} giây | chữ ra {u.get('candidatesTokenCount')} | suy nghĩ {u.get('thoughtsTokenCount')} | {c.get('finishReason')} | {len(txt)} ký tự")
+              except urllib.error.HTTPError as e:
+                print(f"GM {m} | {kieu} | LỖI {e.code} {e.read()[:160]}")
+              except Exception as e:
+                print(f"GM {m} | {kieu} | LỖI {e}")
+          P
+          python3 g.py

@@ -3,7 +3,7 @@ name: Kiem tra va dong goi
 on:
   push:
     # Chỉ đóng gói lại khi mã app thay đổi (sửa máy chủ không cần đóng gói app)
-    paths-ignore: ["server/**", "cua-hang/**", "tool/anh_cua_hang/**", ".github/workflows/xem_ipad.yml", ".github/workflows/anh_app_store.yml", ".github/workflows/gan_ban_app_store.yml", ".github/workflows/testflight_trang_thai.yml", ".github/workflows/trien_khai_may_chu.yml", ".github/workflows/thu_gemini.yml", ".github/workflows/testflight_noi_bo.yml", "**.md"]
+    paths-ignore: ["server/**", "cua-hang/**", "tool/anh_cua_hang/**", ".github/workflows/xem_ipad.yml", ".github/workflows/anh_app_store.yml", ".github/workflows/gan_ban_app_store.yml", ".github/workflows/testflight_trang_thai.yml", ".github/workflows/trien_khai_may_chu.yml", ".github/workflows/thu_gemini.yml", ".github/workflows/testflight_noi_bo.yml", ".github/workflows/do_giai_de.yml", "**.md"]
   workflow_dispatch:
 
 permissions:
