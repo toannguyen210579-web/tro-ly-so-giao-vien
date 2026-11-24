@@ -17,6 +17,10 @@ on:
       chi_xem:
         description: "Chỉ liệt kê các bộ ảnh hiện có, không tải (co/khong)"
         default: "khong"
+  # Lần đẩy tệp workflow này: chạy với giá trị mặc định (tải bộ ảnh iPad 13 inch cho bản 0.4.0)
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/anh_app_store.yml"]
 
 permissions:
   contents: read
@@ -36,10 +40,10 @@ jobs:
           ASC_KEY_ID: 4J84ST68KM
           ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
           APP_ID: "6838612892"
-          PHIEN_BAN: ${{ github.event.inputs.phien_ban }}
-          LOAI: ${{ github.event.inputs.loai }}
-          THU_MUC: ${{ github.event.inputs.thu_muc }}
-          CHI_XEM: ${{ github.event.inputs.chi_xem }}
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban || '0.4.0' }}
+          LOAI: ${{ github.event.inputs.loai || 'APP_IPAD_PRO_3GEN_129' }}
+          THU_MUC: ${{ github.event.inputs.thu_muc || 'cua-hang/anh-ipad' }}
+          CHI_XEM: ${{ github.event.inputs.chi_xem || 'khong' }}
         shell: python
         run: |
           import glob, hashlib, json, os, sys, time, urllib.error, urllib.parse, urllib.request
