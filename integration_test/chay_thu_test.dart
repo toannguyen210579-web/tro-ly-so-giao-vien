@@ -31,6 +31,8 @@ void main() {
       loi.add(d.exceptionAsString().split('\n').first);
       // ignore: avoid_print
       print('KQ chi_tiet_loi: ${d.exceptionAsString().split('\n').first} | ${d.informationCollector?.call().take(2).join(' / ')}');
+      // ignore: avoid_print
+      print('KQ ngan_xep: ${(d.stack?.toString() ?? '').split('\n').where((x) => x.trim().isNotEmpty).take(10).join(' <- ')}');
     };
     app.main();
     await cho(t, 3000);
@@ -104,7 +106,8 @@ void main() {
     // ignore: avoid_print
     print('KQ doc_to_nut: tim thay ${nut.evaluate().length} nut');
     await t.ensureVisible(nut.first);
-    await t.pumpAndSettle(const Duration(milliseconds: 300));
+    // Không dùng pumpAndSettle: màn có chữ chạy, hoạt cảnh không bao giờ dừng nên phép thử bị treo đến hết giờ
+    await cho(t, 600);
     await t.tap(nut.first, warnIfMissed: true);
     int? batDau, ketThuc;
     for (var i = 0; i < 60; i++) {
