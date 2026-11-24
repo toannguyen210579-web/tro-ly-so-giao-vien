@@ -91,6 +91,8 @@ Mỗi tối nạp 2 văn bản công tác Đảng và 2 văn bản giáo dục (
 - Quy định 208-QĐ/TW ngày 26/7/2026 thi hành Điều lệ Đảng: phần 1 (Chương I, VII, VIII) và phần 2 (Chương III đảng viên, mục 1–4, 6–8) nguyên văn (22/11)
 - (24/11, lấy từ kho VĂN BẢN CĂN CỨ trên Drive) QĐ 208-QĐ/TW phần 3, 4, 5: Chương II, Chương III mục 5 (đảng tịch), Chương V, VI (chuyển chữ từ bản chụp, đã sửa lỗi nhận dạng); Chương IV (Quân đội, Công an) chưa nạp
 - (24/11) Hướng dẫn 02-HD/TW ngày 07/8/2026 của Ban Bí thư thi hành Điều lệ Đảng (3 phần, nguyên văn theo luatvietnam.vn)
+- (24/11, từ kho VĂN BẢN CĂN CỨ) Chỉ thị 07-CT/TW ngày 13/7/2026 học tập, thực hành tư tưởng Hồ Chí Minh; Kế hoạch 09-KH/TW ngày 15/9/2026 của Ban Bí thư thực hiện Chỉ thị 07; Nghị quyết 24-NQ/TW ngày 22/8/2026 tiên phong, gương mẫu, dám nghĩ dám làm (chuyển chữ từ bản chụp, đã sửa lỗi)
+- (24/11) Hướng dẫn 16-HD/BTGTW ngày 27/10/2026 học tập, quán triệt nghị quyết, học bù, đánh giá nhận thức; Quy định 350-QĐ/TW ngày 29/8/2025 đào tạo lý luận chính trị; Quy định 169-QĐ/TW ngày 24/6/2008 phụ cấp cấp uỷ viên
 
 Còn phải làm (theo thứ tự):
 2. (Đã nạp đủ 208 trừ Chương IV; đã nạp HD 02-HD/TW.) Nếu cần: đối chiếu lại phần 3–5 của 208 với nguyên văn luatvietnam.vn ...-441932-d6.html bằng trình duyệt
