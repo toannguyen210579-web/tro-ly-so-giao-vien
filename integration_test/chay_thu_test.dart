@@ -131,5 +131,177 @@ void main() {
     // ignore: avoid_print
     print('KQ doc_to: ${batDau == null ? "KHONG DOC" : "bat dau doc sau $batDau ms${ketThuc == null ? ", van dang doc" : ", doc xong sau $ketThuc ms"}"}; '
         'thong bao: ${baoLoi.isEmpty ? "khong" : baoLoi}; loi: ${loi.isEmpty ? "khong" : loi.toSet().join(" | ")}');
-  }, timeout: const Timeout(Duration(minutes: 25)));
+    Navigator.of(t.element(find.byType(Scaffold).last)).pop();
+    await cho(t, 1000);
+
+    // 5. Các lỗi thầy cô báo ngày 24/11/2026 (bản 0.4.0 (6)): bấm thật từng nút đã sửa
+    Future<void> mo(String ma) async {
+      moTienIch(t.element(find.byType(TrangChu)), dsTienIch.firstWhere((x) => x.ma == ma));
+      await cho(t, 2000);
+    }
+
+    // Về trang chủ: đóng mọi hộp, trang đang mở trên bộ điều hướng gốc
+    Future<void> veTrangChu() async {
+      final nav = t.state<NavigatorState>(find.byType(Navigator).first);
+      for (var i = 0; i < 6 && nav.canPop(); i++) {
+        nav.pop();
+        await cho(t, 700);
+      }
+    }
+
+    Future<bool> doiChu(String chu, {int giay = 20}) async {
+      for (var i = 0; i < giay * 4; i++) {
+        if (find.textContaining(chu).evaluate().isNotEmpty) return true;
+        await cho(t, 250);
+      }
+      return false;
+    }
+
+    Future<void> bamChu(String chu) async {
+      FocusManager.instance.primaryFocus?.unfocus();
+      await cho(t, 500);
+      // Ưu tiên chữ nằm trên nút (tránh bấm nhầm vào lời hướng dẫn có cùng chữ)
+      final nut = find.byWidgetPredicate((w) => w is ButtonStyleButton || w is FloatingActionButton || w is ListTile);
+      var f = find.descendant(of: nut, matching: find.text(chu));
+      if (f.evaluate().isEmpty) f = find.descendant(of: nut, matching: find.textContaining(chu));
+      if (f.evaluate().isEmpty) f = find.text(chu);
+      if (f.evaluate().isEmpty) {
+        try {
+          await t.scrollUntilVisible(f, 300, scrollable: find.byType(Scrollable).first);
+        } catch (_) {}
+      }
+      await t.ensureVisible(f.first);
+      await cho(t, 300);
+      await t.tap(f.first, warnIfMissed: true);
+      await cho(t, 800);
+    }
+
+    String thongBao() =>
+        find.byType(SnackBar).evaluate().map((e) => ((e.widget as SnackBar).content as Text?)?.data ?? '').join(' | ');
+
+    Future<void> buoc(String ten, Future<void> Function() viec) async {
+      final truoc = loi.length;
+      try {
+        await viec();
+      } catch (e) {
+        // ignore: avoid_print
+        print('KQ $ten: LOI PHEP THU ${e.toString().split('\n').first}');
+      }
+      if (loi.length > truoc) {
+        // ignore: avoid_print
+        print('KQ $ten: LOI APP ${loi.sublist(truoc).toSet().join(' | ')}');
+      }
+      await veTrangChu();
+    }
+
+    // Lỗi 4: Tính lương xuất bảng lương ra văn bản (Word và PDF)
+    await buoc('tinh_luong', () async {
+      await mo('luong');
+      for (final kieu in ['Tệp Word', 'Tệp PDF']) {
+        await bamChu('Xuất bảng lương ra văn bản');
+        await bamChu(kieu);
+        final ok = await doiChu('Đã xuất bảng lương');
+        await chup(t, 'sua_luong_${kieu == 'Tệp Word' ? 'word' : 'pdf'}');
+        // ignore: avoid_print
+        print('KQ tinh_luong_xuat ${kieu == 'Tệp Word' ? 'word' : 'pdf'}: ${ok ? "co hop Da xuat" : "KHONG THAY"}; thong bao: ${thongBao()}');
+        if (ok) await bamChu('Xong');
+      }
+    });
+
+    // Lỗi 10: Giơ thẻ, In bộ thẻ có phản hồi; Xuất Excel, Chép bảng bấm được khi chưa có kết quả
+    await buoc('gio_the', () async {
+      await mo('gio_the');
+      final dh = Stopwatch()..start();
+      await bamChu('In bộ thẻ');
+      final ok = await doiChu('Đã tạo bộ', giay: 30);
+      await chup(t, 'sua_gio_the_in');
+      // ignore: avoid_print
+      print('KQ gio_the_in: ${ok ? "co hop Da tao bo the sau ${dh.elapsedMilliseconds} ms" : "KHONG THAY"}; '
+          'nut In ngay: ${find.textContaining('In ngay').evaluate().length}; thong bao: ${thongBao()}');
+      if (ok) await bamChu('Xong');
+      await bamChu('Xuất Excel');
+      // ignore: avoid_print
+      print('KQ gio_the_excel_chua_co_kq: ${thongBao()}');
+      await chup(t, 'sua_gio_the_excel');
+    });
+
+    // Lỗi 5: Lịch nhắc, Thêm việc là trang riêng có nút quay lại
+    await buoc('lich', () async {
+      await mo('lich');
+      await bamChu('Thêm việc');
+      await cho(t, 1000);
+      final coTrang = find.text('Thêm việc có hạn').evaluate().isNotEmpty;
+      final coQuayLai = find.byType(BackButton).evaluate().isNotEmpty;
+      await chup(t, 'sua_lich_them');
+      await t.enterText(find.widgetWithText(TextField, 'Việc cần làm'), 'Nộp sổ điểm học kỳ I');
+      await bamChu('Lưu');
+      final daLuu = await doiChu('Nộp sổ điểm học kỳ I', giay: 5);
+      await chup(t, 'sua_lich_ds');
+      // ignore: avoid_print
+      print('KQ lich_them_viec: trang rieng=$coTrang, nut quay lai=$coQuayLai, luu=$daLuu');
+    });
+
+    // Lỗi 6: Công tác Đảng có biểu tượng kiểu app
+    await buoc('dang', () async {
+      await mo('dang');
+      await chup(t, 'sua_dang');
+      // ignore: avoid_print
+      print('KQ dang_bieu_tuong: ${['Lịch họp chi bộ', 'Tính đảng phí', 'Dịch vụ công của Đảng', 'Sổ tay đảng viên', 'Hỏi công tác Đảng'].where((x) => find.text(x).evaluate().isNotEmpty).length}/5 o');
+    });
+
+    // Lỗi 2: Quét giấy tờ có nút chọn ảnh, tải tệp
+    await buoc('quet', () async {
+      await mo('quet');
+      await chup(t, 'sua_quet');
+      // ignore: avoid_print
+      print('KQ quet_nut: chon anh=${find.text('Chọn ảnh có sẵn').evaluate().length}, tai tep=${find.text('Tải tệp PDF, ảnh').evaluate().length}');
+    });
+
+    // Lỗi 3: Thêm minh chứng có nút tải tệp
+    await buoc('minh_chung', () async {
+      await mo('minh_chung');
+      await bamChu('Thêm minh chứng');
+      await chup(t, 'sua_minh_chung');
+      // ignore: avoid_print
+      print('KQ minh_chung_nut: tai tep=${find.text('Tải tệp PDF').evaluate().length}');
+    });
+
+    // Lỗi 7: Nhắn phụ huynh có nút micro, lời giải thích Nhờ AI
+    await buoc('nhan_ph', () async {
+      await mo('nhan_ph');
+      await chup(t, 'sua_nhan_ph');
+      // ignore: avoid_print
+      print('KQ nhan_ph: nut micro=${find.byIcon(Icons.mic_rounded).evaluate().length}, '
+          'giai thich=${find.textContaining('Thầy cô chỉ cần nói').evaluate().length}');
+    });
+
+    // Lỗi 9: Ô chữ mẫu, nút Chơi lại hiện rõ trên nền tối
+    await buoc('o_chu', () async {
+      await mo('o_chu');
+      await bamChu('Chơi');
+      await bamChu('Mở từ khóa');
+      await chup(t, 'sua_o_chu');
+      // ignore: avoid_print
+      print('KQ o_chu: nut Choi lai=${find.text('Chơi lại').evaluate().length}');
+    });
+
+    // Lỗi 8: Giải đề Toán 9, đo thời gian có kết quả
+    await buoc('giai_de', () async {
+      await mo('tao_de');
+      await t.enterText(find.widgetWithText(TextField, 'Hoặc gõ, dán đề vào đây'),
+          'Câu 1. Giải hệ phương trình x + y = 5 và 2x − y = 1.\nCâu 2. Cho phương trình x² − 2(m + 1)x + m² + 3 = 0. '
+          'Tìm m để phương trình có hai nghiệm phân biệt.\nCâu 3. Cho tam giác ABC vuông tại A, AB = 6 cm, AC = 8 cm. Tính BC và đường cao AH.');
+      final dh = Stopwatch()..start();
+      await bamChu('Giải, soạn đáp án');
+      await cho(t, 3000);
+      await chup(t, 'sua_giai_de_cho');
+      final ok = await doiChu('Kết quả (sửa được)', giay: 150);
+      await chup(t, 'sua_giai_de_xong');
+      // ignore: avoid_print
+      print('KQ giai_de: ${ok ? "co ket qua sau ${dh.elapsedMilliseconds} ms" : "CHUA CO sau ${dh.elapsedMilliseconds} ms"}; thong bao: ${thongBao()}');
+    });
+
+    // ignore: avoid_print
+    print('KQ tong_loi_app: ${loi.isEmpty ? "khong" : loi.toSet().join(" | ")}');
+  }, timeout: const Timeout(Duration(minutes: 40)));
 }
