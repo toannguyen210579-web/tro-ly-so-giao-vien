@@ -97,10 +97,12 @@ jobs:
       - run: bash tool/chuan_bi.sh
       - run: flutter pub get
       - run: dart run flutter_launcher_icons
-      - name: Kiểm tra cấu hình iPhone (chỉ iPhone, mã hóa, câu xin quyền máy ảnh)
+      - name: Kiểm tra cấu hình (iPhone và iPad, xoay 4 chiều trên iPad, mã hóa, câu xin quyền máy ảnh)
         run: |
-          grep -c 'TARGETED_DEVICE_FAMILY = 1;' ios/Runner.xcodeproj/project.pbxproj
-          if grep -q 'TARGETED_DEVICE_FAMILY = "1,2"' ios/Runner.xcodeproj/project.pbxproj; then echo "Còn cấu hình iPad"; exit 1; fi
+          grep -c 'TARGETED_DEVICE_FAMILY = "1,2";' ios/Runner.xcodeproj/project.pbxproj
+          if grep -q 'TARGETED_DEVICE_FAMILY = 1;' ios/Runner.xcodeproj/project.pbxproj; then echo "Còn cấu hình chỉ iPhone"; exit 1; fi
+          /usr/libexec/PlistBuddy -c 'Print :UISupportedInterfaceOrientations~ipad' ios/Runner/Info.plist
+          test "$(/usr/libexec/PlistBuddy -c 'Print :UISupportedInterfaceOrientations~ipad' ios/Runner/Info.plist | grep -c UIInterfaceOrientation)" = 4
           /usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c 'Print :NSCameraUsageDescription' ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' ios/Runner/Info.plist

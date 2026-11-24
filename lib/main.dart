@@ -122,7 +122,35 @@ class TroLyApp extends StatelessWidget {
           labelTextStyle: WidgetStatePropertyAll(TextStyle(fontSize: 12, fontWeight: FontWeight.w800, color: MauApp.chu)),
         ),
       ),
+      // iPad, máy Mac, máy tính bảng Android (chốt 24/11/2026): màn rộng thì giữ nội dung một cột
+      // rộng tối đa 800, đặt giữa, để ô nhập, nút, danh sách không bị kéo giãn hết bề ngang.
+      builder: (context, child) => KhungManRong(child: child!),
       home: const TrangChu(),
+    );
+  }
+}
+
+/// Giới hạn bề ngang nội dung trên màn rộng (iPad, Mac, máy tính bảng). Điện thoại giữ nguyên.
+class KhungManRong extends StatelessWidget {
+  const KhungManRong({super.key, required this.child});
+  final Widget child;
+  static const rongToiDa = 800.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    if (mq.size.width <= rongToiDa + 80) return child;
+    return ColoredBox(
+      color: const Color(0xFFE3E8F0),
+      child: Center(
+        child: SizedBox(
+          width: rongToiDa,
+          child: MediaQuery(
+            data: mq.copyWith(size: Size(rongToiDa, mq.size.height)),
+            child: ClipRect(child: child),
+          ),
+        ),
+      ),
     );
   }
 }

@@ -1,0 +1,54 @@
+name: Xem app tren iPad (anh cua hang)
+# Chụp ảnh app chạy thật trên máy giả lập iPad Pro 13 inch (ảnh 2064×2752, đúng cỡ App Store bắt buộc
+# cho iPad 13 inch). Ảnh đẩy lên nhánh anh-xem-ipad. Thêm 24/11/2026 khi app chạy cả iPad, máy Mac.
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/xem_ipad.yml"]
+permissions:
+  contents: write
+jobs:
+  chup:
+    runs-on: macos-15
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: bash tool/chuan_bi.sh
+      - run: flutter pub get
+      - name: Mở máy giả lập iPad Pro 13 inch
+        run: |
+          xcrun simctl list devices available | grep -i ipad || true
+          UDID=$(xcrun simctl list devices available -j | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)['devices']
+          c = [x for r, l in d.items() if 'iOS' in r for x in l if 'iPad Pro 13-inch' in x['name']]
+          print(c[-1]['udid'])")
+          echo "UDID=$UDID" >> $GITHUB_ENV
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl status_bar "$UDID" override --time "9:41" --batteryState charged --batteryLevel 100 --wifiBars 3 || true
+      - name: Chạy app, đi qua các tiện ích, chụp màn hình
+        run: |
+          flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart -d "$UDID" 2>&1 | tee ket_qua.txt
+          grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80 || true
+          ls -la anh_chay_thu || true
+          for f in anh_chay_thu/xem_*.png; do sips -g pixelWidth -g pixelHeight "$f" | tail -2 | tr '\n' ' '; echo " $f"; done | head -5 || true
+      - name: Đẩy ảnh lên nhánh anh-xem-ipad
+        if: always()
+        run: |
+          mkdir -p /tmp/anh
+          cp anh_chay_thu/xem_*.png /tmp/anh/ 2>/dev/null || true
+          grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt > /tmp/anh/ket_qua.txt 2>/dev/null || true
+          cd /tmp/anh
+          git init -q -b anh-xem-ipad
+          git add .
+          git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Ảnh iPad (${GITHUB_SHA::7})"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-xem-ipad

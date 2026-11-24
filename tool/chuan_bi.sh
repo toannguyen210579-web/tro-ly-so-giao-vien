@@ -28,8 +28,8 @@ if [ -f ios/Podfile ]; then
   sed -i.bak -E "s/^#? *platform :ios.*/platform :ios, '15.5'/" ios/Podfile && rm -f ios/Podfile.bak
 fi
 
-# Bản iPhone (đã chốt 22/11/2026): chỉ chạy trên iPhone, khai không dùng mã hóa đặc biệt
-# (app chỉ dùng HTTPS) để khỏi khai lại mỗi lần tải bản mới lên App Store Connect.
+# Bản iPhone: khai không dùng mã hóa đặc biệt (app chỉ dùng HTTPS) để khỏi khai lại mỗi lần
+# tải bản mới lên App Store Connect.
 if ! grep -q ITSAppUsesNonExemptEncryption "$PLIST"; then
   /usr/bin/env python3 - "$PLIST" <<'PY'
 import sys
@@ -38,11 +38,27 @@ i=s.rfind('</dict>'); s=s[:i]+'\t<key>ITSAppUsesNonExemptEncryption</key>\n\t<fa
 open(p,'w',encoding='utf-8').write(s)
 PY
 fi
-/usr/bin/env python3 - <<'PY'
+# Chạy trên iPhone, iPad và máy Mac chip Apple (chốt 24/11/2026, thay cách "chỉ iPhone" ngày 22/11).
+# flutter create mặc định TARGETED_DEVICE_FAMILY = "1,2"; iPad phải cho xoay đủ 4 chiều
+# (đa nhiệm trên iPad), nếu thiếu thì Apple từ chối bản tải lên.
+/usr/bin/env python3 - "$PLIST" <<'PY'
+import sys, re
 p='ios/Runner.xcodeproj/project.pbxproj'
 s=open(p,encoding='utf-8').read()
-s=s.replace('TARGETED_DEVICE_FAMILY = "1,2";','TARGETED_DEVICE_FAMILY = 1;')
+s=s.replace('TARGETED_DEVICE_FAMILY = 1;','TARGETED_DEVICE_FAMILY = "1,2";')
 open(p,'w',encoding='utf-8').write(s)
+q=sys.argv[1]; t=open(q,encoding='utf-8').read()
+du='''	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+'''
+t=re.sub(r'\t<key>UISupportedInterfaceOrientations~ipad</key>\s*<array>.*?</array>\n', '', t, flags=re.S)
+i=t.rfind('</dict>'); t=t[:i]+du+t[i:]
+open(q,'w',encoding='utf-8').write(t)
 PY
 
 # Android: quyền micro và khai báo bộ nhận giọng, bộ đọc văn bản (bắt buộc từ Android 11).
