@@ -1,0 +1,40 @@
+I/flutter ( 6050): KQ chup 00_trang_chu: on
+I/flutter ( 6050): KQ chup 02_du_15_tien_ich: on
+I/flutter ( 6050): KQ giong_may: san sang=true
+I/flutter ( 6050): KQ chup 10_doc_to_truoc: on
+I/flutter ( 6050): KQ chup 11_doc_to_dang_doc: on
+I/flutter ( 6050): KQ doc_to: dang doc
+I/flutter ( 6050): KQ chup 12_ghi_loi_trong: on
+I/flutter ( 6050): KQ chup 13_ghi_loi_co_chu: on
+I/flutter ( 6050): KQ chup 20_luong_tren: on
+I/flutter ( 6050): KQ chup 21_luong_muc_uu_dai: on
+I/flutter ( 6050): KQ chup 22_luong_ket_qua: on
+I/flutter ( 6050): KQ chup 23_luong_nang_bac: on
+I/flutter ( 6050): KQ chup 24_luong_can_cu: on
+I/flutter ( 6050): KQ chup 30_hop_danh_sach: on
+I/flutter ( 6050): KQ chup 31_hop_sua_tren: on
+I/flutter ( 6050): KQ chup 32_hop_ghi_chep: on
+I/flutter ( 6050): KQ chup 33_hop_hoi_dong_y: on
+I/flutter ( 6050): KQ hop_ai: xong
+I/flutter ( 6050): KQ chup 34_hop_ai_xong: on
+I/flutter ( 6050): KQ chup 35_hop_ai_ghi_chep: on
+I/flutter ( 6050): KQ chup 36_hop_ket_luan: on
+I/flutter ( 6050): KQ chup 40_gio_the_tren: on
+I/flutter ( 6050): KQ gio_the_quet: Đọc được 27 thẻ. Còn thiếu em nào thì chụp thêm, kết quả được cộng dồn.
+I/flutter ( 6050): KQ chup 41_gio_the_doc_xong: on
+I/flutter ( 6050): KQ gio_the_dung: Đúng 17/27 em (63%)
+I/flutter ( 6050): KQ chup 42_gio_the_ket_qua: on
+I/flutter ( 6050): KQ chup 43_gio_the_tung_em: on
+I/flutter ( 6050): KQ chup 50_nhan_ph_tren: on
+I/flutter ( 6050): KQ chup 51_nhan_ph_chon_ten: on
+I/flutter ( 6050): KQ chup 52_nhan_ph_mau: on
+I/flutter ( 6050): KQ nhan_ph_ai: xong
+I/flutter ( 6050): KQ chup 53_nhan_ph_ai: on
+I/flutter ( 6050): KQ chup 54_nhan_ph_tin: on
+I/flutter ( 6050): KQ chup 55_nhan_ph_gui: on
+I/flutter ( 6050): KQ chup 70_bieu_tuong: on
+I/flutter ( 6050): KQ hoi: co tra loi
+I/flutter ( 6050): KQ chup 60_hoi_tro_ly: on
+I/flutter ( 6050): KQ chup 61_hoi_tro_ly_duoi: on
+I/flutter ( 6050): 02:26 +2: All tests passed!
+All tests passed.
