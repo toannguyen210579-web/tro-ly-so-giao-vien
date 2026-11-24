@@ -5,22 +5,31 @@ import worker from "../worker.js";
 
 function giaD1() {
   const c = new Map();
-  return {
+  const flags = new Map();
+  const db = {
+    flags,
     prepare(sql) {
-      return {
-        bind(...a) {
-          return {
-            async first() {
-              if (sql.startsWith("SELECT n")) return c.has(a[0]) ? { n: c.get(a[0]) } : null;
-              if (sql.startsWith("INSERT INTO counters")) { c.set(a[0], (c.get(a[0]) || 0) + a[1]); return { n: c.get(a[0]) }; }
-              return null;
-            },
-            async run() {},
-          };
+      const lenh = (a) => ({
+        async first() {
+          if (sql.startsWith("SELECT n")) return c.has(a[0]) ? { n: c.get(a[0]) } : null;
+          if (sql.startsWith("INSERT INTO counters")) { c.set(a[0], (c.get(a[0]) || 0) + a[1]); return { n: c.get(a[0]) }; }
+          if (sql.startsWith("SELECT v FROM flags")) return flags.has(a[0]) ? { v: flags.get(a[0]) } : null;
+          return null;
         },
-      };
+        async run() {
+          if (sql.startsWith("INSERT INTO flags")) flags.set(a[0], a[1]);
+        },
+        async all() {
+          if (sql.startsWith("SELECT k, v FROM flags")) {
+            return { results: [...flags].filter(([k]) => k.startsWith("tts_het:")).map(([k, v]) => ({ k, v })) };
+          }
+          return { results: [] };
+        },
+      });
+      return { bind: (...a) => lenh(a), ...lenh([]) };
     },
   };
+  return db;
 }
 
 function moiTruong({ gemini = "ok" } = {}) {
@@ -131,18 +140,103 @@ test("Đọc to bằng Gemini: âm thanh thô được đóng thành WAV, hết 
   assert.equal(wav.readUInt32LE(24), 24000);
   assert.equal(wav.readUInt32LE(40), 8);
   assert.equal(wav.length, 52);
-  assert.equal(goi[0].model, "gemini-3.1-flash-tts-preview");
-  assert.equal(goi[1].model, "gemini-3.8-flash-tts");
+  assert.equal(goi[0].model, "gemini-3.8-flash-tts");
+  assert.equal(goi[1].model, "gemini-3.8-flash-lite-tts");
+  assert.equal(r.mo_hinh, "gemini-3.8-flash-lite-tts");
   assert.deepEqual(goi[0].body.generationConfig.responseModalities, ["AUDIO"]);
   assert.equal(goi[0].body.contents[0].parts[0].text, "Kính gửi quý phụ huynh");
 });
 
-test("Đọc to bằng Gemini: mọi mô hình hết lượt thì báo dễ hiểu", async () => {
+// Lời báo 429 thật của Gemini (rút gọn): hết lượt theo ngày hoặc theo phút
+const bao429 = (loai, giay = "37s") =>
+  new Response(JSON.stringify({
+    error: {
+      code: 429, status: "RESOURCE_EXHAUSTED", message: "You exceeded your current quota.",
+      details: [
+        { "@type": "type.googleapis.com/google.rpc.QuotaFailure",
+          violations: [{ quotaMetric: "generativelanguage.googleapis.com/generate_content_free_tier_requests",
+            quotaId: loai === "ngay" ? "GenerateRequestsPerDayPerProjectPerModel-FreeTier" : "GenerateRequestsPerMinutePerProjectPerModel-FreeTier" }] },
+        { "@type": "type.googleapis.com/google.rpc.RetryInfo", retryDelay: giay },
+      ],
+    },
+  }), { status: 429 });
+
+const amThanh = () => new Response(JSON.stringify({
+  candidates: [{ content: { parts: [{ inlineData: { mimeType: "audio/L16;codec=pcm;rate=24000", data: "AQACAA==" } }] } }],
+}), { status: 200 });
+
+test("Đọc to: không dùng gemini-3.1-flash-tts-preview (để dành cho lồng tiếng clip)", async () => {
+  const { env } = moiTruong();
+  const goi = [];
+  env.GEMINI = { fetch: async (_u, o) => { goi.push(JSON.parse(o.body).model); return bao429("ngay"); } };
+  await goiTts(env, { text: "Xin chào" });
+  assert.deepEqual(goi, ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts", "gemini-2.5-flash-preview-tts"]);
+});
+
+test("Đọc to: mọi mô hình hết lượt ngày thì báo giờ dùng lại, lần sau trả lời ngay không gọi Google", async () => {
+  const { env } = moiTruong();
+  let dem = 0;
+  env.GEMINI = { fetch: async () => { dem++; return bao429("ngay"); } };
+  const r = await goiTts(env, { text: "Xin chào" });
+  assert.equal(r.status, 429);
+  const j = await r.json();
+  assert.equal(j.error, "het_luot_chung");
+  assert.match(j.message, /tạm hết lượt miễn phí trong ngày, sau 1[45] giờ/);
+  assert.equal(dem, 3);
+  // Lần gọi sau: không gọi Google nữa
+  const r2 = await goiTts(env, { text: "Câu thứ hai" });
+  assert.equal(r2.status, 429);
+  assert.equal((await r2.json()).error, "het_luot_chung");
+  assert.equal(dem, 3);
+  // Trang kiểm tra máy chủ hiện các mô hình đang nghỉ
+  const h = await (await worker.fetch(new Request("https://x/health"), env, {})).json();
+  assert.equal(h.ok, true);
+  assert.equal(Object.keys(h.tts_nghi).length, 3);
+  assert.match(h.tts_nghi["gemini-3.8-flash-tts"], /^1[45] giờ 0[01] ngày /);
+});
+
+test("Đọc to: một mô hình hết lượt phút thì nghỉ riêng mô hình đó, nghỉ ngắn rồi dùng lại", async () => {
+  const { env } = moiTruong();
+  const goi = [];
+  env.GEMINI = {
+    fetch: async (_u, o) => {
+      const m = JSON.parse(o.body).model;
+      goi.push(m);
+      return m === "gemini-3.8-flash-tts" ? bao429("phut", "20s") : amThanh();
+    },
+  };
+  const r = await (await goiTts(env, { text: "Xin chào" })).json();
+  assert.equal(r.ok, true);
+  assert.equal(r.mo_hinh, "gemini-3.8-flash-lite-tts");
+  const den = Number(env.DB.flags.get("tts_het:gemini-3.8-flash-tts"));
+  assert.ok(den - Date.now() > 15000 && den - Date.now() <= 21000, "nghỉ khoảng 20 giây");
+  // Lần sau bỏ qua mô hình đang nghỉ, gọi thẳng mô hình kế tiếp
+  goi.length = 0;
+  await goiTts(env, { text: "Câu thứ hai" });
+  assert.deepEqual(goi, ["gemini-3.8-flash-lite-tts"]);
+  // Hết giờ nghỉ thì dùng lại mô hình đầu
+  env.DB.flags.set("tts_het:gemini-3.8-flash-tts", String(Date.now() - 1));
+  goi.length = 0;
+  await goiTts(env, { text: "Câu thứ ba" });
+  assert.deepEqual(goi, ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts"]);
+});
+
+test("Đọc to: lời báo 429 không rõ loại thì nghỉ 60 giây, không khóa cả ngày", async () => {
   const { env } = moiTruong();
   env.GEMINI = { fetch: async () => new Response("{}", { status: 429 }) };
   const r = await goiTts(env, { text: "Xin chào" });
   assert.equal(r.status, 429);
-  assert.match((await r.json()).message, /tạm hết lượt miễn phí/);
+  assert.match((await r.json()).message, /tạm hết lượt miễn phí, thầy cô thử lại sau ít phút/);
+  const den = Number(env.DB.flags.get("tts_het:gemini-2.5-flash-preview-tts"));
+  assert.ok(den - Date.now() > 50000 && den - Date.now() <= 61000);
+});
+
+test("Đọc to: lỗi khác (không phải hết lượt) thì không ghi nghỉ", async () => {
+  const { env } = moiTruong();
+  env.GEMINI = { fetch: async () => new Response("{}", { status: 500 }) };
+  const r = await goiTts(env, { text: "Xin chào" });
+  assert.equal(r.status, 502);
+  assert.equal(env.DB.flags.size, 0);
 });
 
 test("Đọc to bằng Google Cloud khi có khóa, đếm ký tự theo ngày", async () => {

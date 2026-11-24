@@ -47,10 +47,13 @@ const ADMOB_KEYS_URL = "https://www.gstatic.com/admob/reward/verifier-keys.json"
 const TTS_MAX_CHARS = 1000;    // ký tự mỗi lần đọc (app chia nhỏ, đoạn đầu ngắn để đọc sớm)
 const TTS_DAY_CHARS = 30000;   // ký tự mỗi máy mỗi ngày (khoảng 15 trang), Google miễn phí 4 triệu ký tự/tháng
 const TTS_VOICE = "vi-VN-Wavenet-A";
-// Gemini đọc thành tiếng: giọng người dùng chọn 19/11 là gemini-3.1-flash-tts-preview, giọng Kore;
-// hết lượt thì chuyển sang mô hình khác (mỗi mô hình có hạn mức miễn phí riêng)
-const TTS_GEMINI_MODELS = ["gemini-3.1-flash-tts-preview", "gemini-3.8-flash-tts", "gemini-2.5-flash-preview-tts", "gemini-3.8-flash-lite-tts"];
+// Gemini đọc thành tiếng, giọng Kore. Gói miễn phí mỗi mô hình chỉ 3 lượt/phút, 10 lượt/ngày, tính chung cả dự án
+// (xem trên AI Studio 24/11/2026); hết lượt mô hình này thì chuyển sang mô hình khác.
+// Không dùng gemini-3.1-flash-tts-preview: để dành 10 lượt/ngày của mô hình này cho lồng tiếng clip
+// Việt Nam Tiêu Điểm (cùng khóa, cùng dự án). Người dùng chốt 24/11/2026.
+const TTS_GEMINI_MODELS = ["gemini-3.8-flash-tts", "gemini-3.8-flash-lite-tts", "gemini-2.5-flash-preview-tts"];
 const TTS_GEMINI_VOICE = "Kore";
+const TTS_NGHI_PHUT_MS = 60 * 1000; // hết lượt theo phút (hoặc không rõ loại) thì nghỉ mô hình đó 60 giây
 const KEEP_MS = 3 * 86400 * 1000; // bộ đếm giữ 3 ngày rồi xóa
 
 const CHUNG =
@@ -202,9 +205,72 @@ function pcmToWavB64(b64, rate = 24000) {
   return btoa(bin);
 }
 
-async function ttsGemini(env, text) {
+// ---- Ghi nhớ mô hình Gemini đọc thành tiếng đã hết lượt ----
+// Lưu trong bảng flags: k = 'tts_het:<mô hình>', v = thời điểm (mili giây) được gọi lại.
+// Nhờ vậy khi đã hết lượt, máy chủ trả lời ngay, không gọi Google vô ích, app chuyển thẳng sang giọng cài sẵn.
+
+// Lượt theo ngày của Gemini đặt lại lúc 0 giờ giờ Thái Bình Dương (15 giờ Việt Nam mùa đông, 14 giờ mùa hè).
+// Ngày đổi giờ mùa hè có thể lệch tối đa 1 giờ: gọi sớm thì Google báo hết lượt và máy chủ ghi nhớ lại, không sao.
+function gioDatLaiGemini(now = Date.now()) {
+  try {
+    const p = Object.fromEntries(
+      new Intl.DateTimeFormat("en-US", {
+        timeZone: "America/Los_Angeles", hourCycle: "h23", hour: "2-digit", minute: "2-digit", second: "2-digit",
+      }).formatToParts(new Date(now)).map((x) => [x.type, x.value])
+    );
+    const daQua = ((Number(p.hour) * 60 + Number(p.minute)) * 60 + Number(p.second)) * 1000 + (now % 1000);
+    return now - daQua + 86400 * 1000 + 60 * 1000; // thêm 1 phút cho chắc
+  } catch {
+    return now + 3600 * 1000;
+  }
+}
+
+// Đọc lời báo 429 của Gemini: hết lượt theo ngày thì nghỉ đến giờ đặt lại; theo phút thì nghỉ theo
+// thời gian Google gợi ý (retryDelay, tối đa 2 phút); không rõ loại thì nghỉ 60 giây.
+function nghiDen(baoLoi, now = Date.now()) {
+  const s = JSON.stringify(baoLoi || {});
+  if (/PerDay|per_day|requests_per_day|per_model_per_day/i.test(s)) return gioDatLaiGemini(now);
+  const giay = parseFloat((s.match(/"retryDelay"\s*:\s*"([\d.]+)s"/) || [])[1] || "");
+  if (giay > 0) return now + Math.min(120, Math.max(5, giay)) * 1000;
+  return now + TTS_NGHI_PHUT_MS;
+}
+
+async function ttsNghi(db) {
+  try {
+    const r = await db.prepare("SELECT k, v FROM flags WHERE k LIKE 'tts_het:%'").all();
+    const out = {};
+    for (const row of (r && r.results) || []) out[String(row.k).slice(8)] = Number(row.v) || 0;
+    return out;
+  } catch {
+    return {};
+  }
+}
+
+async function ghiNghi(db, model, den) {
+  try {
+    await db
+      .prepare("INSERT INTO flags (k, v) VALUES (?1, ?2) ON CONFLICT(k) DO UPDATE SET v = ?2")
+      .bind("tts_het:" + model, String(den))
+      .run();
+  } catch {
+    // ghi không được thì lần sau gọi Google lại, chỉ chậm hơn một chút
+  }
+}
+
+function hetLuotChung(nghi, now = Date.now()) {
+  const som = Math.min(...TTS_GEMINI_MODELS.map((m) => nghi[m] || now));
+  const msg = som - now > 10 * 60 * 1000
+    ? "Giọng đọc qua mạng tạm hết lượt miễn phí trong ngày, sau " + gioVN(new Date(som)).slice(0, 6) + " thầy cô dùng lại được."
+    : "Giọng đọc qua mạng tạm hết lượt miễn phí, thầy cô thử lại sau ít phút.";
+  return { err: "het_luot_chung", msg, status: "nghi" };
+}
+
+async function ttsGemini(env, text, db) {
   let last = { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: "" };
-  for (const model of TTS_GEMINI_MODELS) {
+  const nghi = await ttsNghi(db);
+  const con = TTS_GEMINI_MODELS.filter((m) => !((nghi[m] || 0) > Date.now()));
+  if (!con.length) return hetLuotChung(nghi); // mọi mô hình đang nghỉ: trả lời ngay
+  for (const model of con) {
     let r;
     try {
       r = await env.GEMINI.fetch("https://gemini/", {
@@ -227,18 +293,23 @@ async function ttsGemini(env, text) {
       continue;
     }
     if (!r.ok) {
-      last = r.status === 429
-        ? { err: "het_luot_chung", msg: "Giọng đọc qua mạng tạm hết lượt miễn phí trong ngày, sau 15 giờ thầy cô dùng lại được.", status: model + ":429" }
-        : { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: model + ":" + r.status };
+      if (r.status === 429) {
+        const den = nghiDen(await r.json().catch(() => null));
+        await ghiNghi(db, model, den);
+        nghi[model] = den;
+        last = { ...hetLuotChung(nghi), status: model + ":429:" + (den - Date.now() > 10 * 60 * 1000 ? "ngay" : "phut") };
+      } else {
+        last = { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: model + ":" + r.status };
+      }
       continue; // mỗi mô hình có hạn mức riêng, thử mô hình kế tiếp
     }
     const j = await r.json();
     const p = ((((j.candidates || [])[0] || {}).content || {}).parts || []).find((x) => x.inlineData);
     if (!p) { last = { err: "loi_tts", msg: "Chưa đọc được, thầy cô thử lại.", status: model + ":rong" }; continue; }
     const mime = String(p.inlineData.mimeType || "").toLowerCase();
-    if (mime.includes("wav")) return { audio: p.inlineData.data, mime: "audio/wav", by: "gemini" };
+    if (mime.includes("wav")) return { audio: p.inlineData.data, mime: "audio/wav", by: "gemini", model };
     const rate = parseInt((mime.match(/rate=(\d+)/) || [])[1] || "24000", 10);
-    return { audio: pcmToWavB64(p.inlineData.data, rate), mime: "audio/wav", by: "gemini" };
+    return { audio: pcmToWavB64(p.inlineData.data, rate), mime: "audio/wav", by: "gemini", model };
   }
   return last;
 }
@@ -490,11 +561,17 @@ export default {
     env = { ...env, ANTHROPIC_API_KEY: env.ANTHROPIC_API_KEY || env.ANTHROPIC_API };
     if (request.method === "OPTIONS") return json({ ok: true });
     if (url.pathname === "/health") {
+      // tts_nghi: mô hình đọc thành tiếng đang tạm nghỉ vì hết lượt, kèm giờ Việt Nam được dùng lại
+      const nghi = db ? await ttsNghi(db) : {};
+      const tts_nghi = {};
+      for (const m of TTS_GEMINI_MODELS) if ((nghi[m] || 0) > Date.now()) tts_nghi[m] = gioVN(new Date(nghi[m]));
       return json({
         ok: true,
         ai_enabled: env.AI_ENABLED !== "0",
         has_key: Boolean(env.ANTHROPIC_API_KEY),
         has_db: Boolean(db),
+        tts_mo_hinh: TTS_GEMINI_MODELS,
+        tts_nghi,
       });
     }
     if (PAGES[url.pathname]) return page(url.pathname);
@@ -590,13 +667,13 @@ export default {
       if ((await getN(db, key)) + text.length > TTS_DAY_CHARS) {
         return err("het_luot", "Hôm nay máy này đã nghe đọc nhiều quá, mai dùng tiếp nhé.", 429);
       }
-      const res = env.GOOGLE_TTS_KEY ? await ttsGoogle(env, text, b.rate) : await ttsGemini(env, text);
+      const res = env.GOOGLE_TTS_KEY ? await ttsGoogle(env, text, b.rate) : await ttsGemini(env, text, db);
       if (res.err) {
         console.log(JSON.stringify({ ev: "tts_error", status: res.status }));
         return err(res.err, res.msg, res.err === "het_luot_chung" ? 429 : 502);
       }
       await addN(db, key, text.length);
-      return json({ ok: true, audio: res.audio, mime: res.mime, by: res.by });
+      return json({ ok: true, audio: res.audio, mime: res.mime, by: res.by, ...(res.model ? { mo_hinh: res.model } : {}) });
     }
 
     // Kho văn bản: nạp, xem danh sách, xuất (cần khóa quản trị)
