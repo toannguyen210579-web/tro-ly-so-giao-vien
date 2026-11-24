@@ -1,0 +1,168 @@
+name: Anh App Store (tai len qua API)
+# Tải bộ ảnh màn hình trong kho lên trang phiên bản App Store Connect bằng khóa API (secret ASC_KEY_P8),
+# không cần trình duyệt. Thêm 24/11/2026 để tải ảnh iPad 13 inch khi máy nhà không mở trình duyệt.
+# Chạy lại an toàn: bộ ảnh cùng loại đã có thì xóa ảnh cũ trong bộ đó rồi tải bộ mới, giữ đúng thứ tự tên tệp.
+on:
+  workflow_dispatch:
+    inputs:
+      phien_ban:
+        description: "Số phiên bản trên App Store Connect"
+        default: "0.4.0"
+      loai:
+        description: "Loại màn hình (APP_IPAD_PRO_3GEN_129 = iPad 13 inch; APP_IPHONE_61 = iPhone 6,1/6,3 inch)"
+        default: "APP_IPAD_PRO_3GEN_129"
+      thu_muc:
+        description: "Thư mục ảnh trong kho (tải mọi tệp .png theo thứ tự tên)"
+        default: "cua-hang/anh-ipad"
+      chi_xem:
+        description: "Chỉ liệt kê các bộ ảnh hiện có, không tải (co/khong)"
+        default: "khong"
+
+permissions:
+  contents: read
+
+jobs:
+  tai_anh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cài thư viện ký JWT
+        run: pip install --quiet pyjwt cryptography
+      - name: Tải ảnh lên App Store Connect
+        env:
+          # Key ID, Issuer ID không phải bí mật; khóa riêng .p8 lấy từ secret ASC_KEY_P8 do người dùng tự cất.
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          APP_ID: "6838612892"
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban }}
+          LOAI: ${{ github.event.inputs.loai }}
+          THU_MUC: ${{ github.event.inputs.thu_muc }}
+          CHI_XEM: ${{ github.event.inputs.chi_xem }}
+        shell: python
+        run: |
+          import glob, hashlib, json, os, sys, time, urllib.error, urllib.parse, urllib.request
+          import jwt
+
+          KEY = os.environ["ASC_KEY_P8"]
+          if not KEY.strip():
+              print("::error::Chưa có secret ASC_KEY_P8"); sys.exit(1)
+          KID, ISS, APP = os.environ["ASC_KEY_ID"], os.environ["ASC_ISSUER_ID"], os.environ["APP_ID"]
+          VER, LOAI, THU_MUC = os.environ["PHIEN_BAN"], os.environ["LOAI"], os.environ["THU_MUC"]
+          BASE = "https://api.appstoreconnect.apple.com"
+
+          def bao(msg):
+              print(f"::notice title=Ảnh App Store::{msg}")
+
+          def token():
+              now = int(time.time())
+              return jwt.encode({"iss": ISS, "iat": now, "exp": now + 1100, "aud": "appstoreconnect-v1"},
+                                KEY, algorithm="ES256", headers={"kid": KID, "typ": "JWT"})
+
+          def api(method, path, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request(path if path.startswith("http") else BASE + path, data=data, method=method,
+                                           headers={"Authorization": "Bearer " + token(), "Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=120) as r:
+                      raw = r.read()
+                      return r.status, (json.loads(raw) if raw else {})
+              except urllib.error.HTTPError as e:
+                  raw = e.read()
+                  try:
+                      js = json.loads(raw)
+                  except Exception:
+                      js = {"raw": raw.decode(errors="replace")[:500]}
+                  return e.code, js
+
+          def loi(js):
+              return "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in js.get("errors", [])) or str(js)[:300]
+
+          def can(st, js, viec):
+              if st not in (200, 201, 204):
+                  print(f"::error::{viec}: HTTP {st} {loi(js)}"); sys.exit(1)
+
+          # 1. Phiên bản và bản mô tả tiếng Việt
+          st, js = api("GET", f"/v1/apps/{APP}/appStoreVersions?" + urllib.parse.urlencode(
+              {"filter[versionString]": VER, "filter[platform]": "IOS", "limit": 5}))
+          can(st, js, "Tìm phiên bản")
+          if not js["data"]:
+              print(f"::error::Không thấy phiên bản {VER}"); sys.exit(1)
+          ver = js["data"][0]
+          bao(f"Phiên bản {VER}: {ver['attributes'].get('appStoreState') or ver['attributes'].get('appVersionState')}")
+          st, js = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations?limit=50")
+          can(st, js, "Tìm bản mô tả")
+          locs = js["data"]
+          loc = next((l for l in locs if l["attributes"]["locale"].startswith("vi")), locs[0])
+          bao(f"Ngôn ngữ: {loc['attributes']['locale']}")
+
+          # 2. Các bộ ảnh hiện có
+          st, js = api("GET", f"/v1/appStoreVersionLocalizations/{loc['id']}/appScreenshotSets?include=appScreenshots&limit=50")
+          can(st, js, "Liệt kê bộ ảnh")
+          for s in js["data"]:
+              n = len(s.get("relationships", {}).get("appScreenshots", {}).get("data", []))
+              bao(f"Bộ ảnh {s['attributes']['screenshotDisplayType']}: {n} ảnh")
+          if os.environ.get("CHI_XEM", "khong").lower().startswith("co"):
+              sys.exit(0)
+
+          tep = sorted(glob.glob(os.path.join(THU_MUC, "*.png")))
+          if not tep:
+              print(f"::error::Không có ảnh .png trong {THU_MUC}"); sys.exit(1)
+          bo = next((s for s in js["data"] if s["attributes"]["screenshotDisplayType"] == LOAI), None)
+          if bo is None:
+              st, r = api("POST", "/v1/appScreenshotSets", {"data": {"type": "appScreenshotSets",
+                  "attributes": {"screenshotDisplayType": LOAI},
+                  "relationships": {"appStoreVersionLocalization": {"data": {"type": "appStoreVersionLocalizations", "id": loc["id"]}}}}})
+              can(st, r, f"Tạo bộ ảnh {LOAI}")
+              bo = r["data"]
+              bao(f"Đã tạo bộ ảnh {LOAI}")
+          else:
+              cu = [x["id"] for x in bo.get("relationships", {}).get("appScreenshots", {}).get("data", [])]
+              for i in cu:
+                  st, r = api("DELETE", f"/v1/appScreenshots/{i}")
+                  can(st, r, "Xóa ảnh cũ")
+              if cu:
+                  bao(f"Đã xóa {len(cu)} ảnh cũ trong bộ {LOAI}")
+
+          # 3. Tải từng ảnh: giữ chỗ, đẩy từng phần, báo đã tải kèm mã kiểm MD5
+          moi = []
+          for f in tep:
+              b = open(f, "rb").read()
+              st, r = api("POST", "/v1/appScreenshots", {"data": {"type": "appScreenshots",
+                  "attributes": {"fileName": os.path.basename(f), "fileSize": len(b)},
+                  "relationships": {"appScreenshotSet": {"data": {"type": "appScreenshotSets", "id": bo["id"]}}}}})
+              can(st, r, f"Giữ chỗ {f}")
+              sid = r["data"]["id"]
+              for op in r["data"]["attributes"]["uploadOperations"]:
+                  phan = b[op["offset"]: op["offset"] + op["length"]]
+                  h = {x["name"]: x["value"] for x in op.get("requestHeaders", [])}
+                  req = urllib.request.Request(op["url"], data=phan, method=op["method"], headers=h)
+                  with urllib.request.urlopen(req, timeout=120) as rr:
+                      rr.read()
+              st, r = api("PATCH", f"/v1/appScreenshots/{sid}", {"data": {"type": "appScreenshots", "id": sid,
+                  "attributes": {"uploaded": True, "sourceFileChecksum": hashlib.md5(b).hexdigest()}}})
+              can(st, r, f"Báo đã tải {f}")
+              moi.append(sid)
+              print(f"Đã tải {f} ({len(b)} byte)")
+
+          # 4. Chờ Apple xử lý xong, rồi sắp đúng thứ tự
+          for lan in range(40):
+              xong, hong = 0, []
+              for sid in moi:
+                  st, r = api("GET", f"/v1/appScreenshots/{sid}")
+                  s = (r.get("data", {}).get("attributes", {}).get("assetDeliveryState") or {})
+                  if s.get("state") == "COMPLETE":
+                      xong += 1
+                  elif s.get("state") == "FAILED":
+                      hong.append(f"{sid}: {s.get('errors')}")
+              if hong:
+                  print("::error::Apple báo ảnh lỗi: " + " | ".join(hong)); sys.exit(1)
+              if xong == len(moi):
+                  break
+              time.sleep(10)
+          bao(f"Apple đã xử lý xong {xong}/{len(moi)} ảnh")
+          st, r = api("PATCH", f"/v1/appScreenshotSets/{bo['id']}/relationships/appScreenshots",
+                      {"data": [{"type": "appScreenshots", "id": i} for i in moi]})
+          can(st, r, "Sắp thứ tự ảnh")
+          bao(f"Xong: {len(moi)} ảnh trong bộ {LOAI}, đúng thứ tự tên tệp")
