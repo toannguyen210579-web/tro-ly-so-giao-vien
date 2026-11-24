@@ -3,13 +3,15 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart' show debugPrint;
+import 'package:flutter_tts/flutter_tts.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:sherpa_onnx/sherpa_onnx.dart' as sherpa;
 
 /// Giọng đọc tiếng Việt chạy ngay trên máy (sherpa-onnx, giọng Piper), không cần mạng, không giới hạn.
-/// Phần giọng (khoảng 21 MB) được tải về một lần ở lần đầu cần dùng, rồi lưu trong máy.
+/// Phần giọng (khoảng 21 MB) được tải về một lần (tải sẵn khi mở app nếu máy thiếu giọng tiếng Việt), rồi lưu trong máy.
 class GiongMay {
   // Thử 19/11/2026 trên máy GitHub: nạp 0,9 giây, tạo 0,7 giây cho 7 giây âm thanh.
   static const tenGiong = 'vits-piper-vi_VN-vais1000-medium-int8';
@@ -32,13 +34,56 @@ class GiongMay {
   static Future<bool> sanSang() async => (await _duongMoHinh()) != null;
 
   static Future<void>? _dangTai;
+  static final _ngheTienDo = <void Function(double)>{};
 
-  /// Tải phần giọng về (gọi nhiều lần vẫn chỉ tải một lần). [tienDo] nhận giá trị 0–1.
+  /// Tải phần giọng về (gọi nhiều lần vẫn chỉ tải một lần). [tienDo] nhận giá trị 0–1; nhiều nơi cùng chờ
+  /// (tải sẵn lúc mở app và màn Đọc to) đều nhận được tiến độ.
   static Future<void> taiVe({void Function(double)? tienDo}) {
-    return _dangTai ??= _tai(tienDo).whenComplete(() => _dangTai = null);
+    if (tienDo != null) _ngheTienDo.add(tienDo);
+    final f = _dangTai ??= _tai().whenComplete(() => _dangTai = null);
+    return f.whenComplete(() => _ngheTienDo.remove(tienDo));
   }
 
-  static Future<void> _tai(void Function(double)? tienDo) async {
+  static void _baoTienDo(double x) {
+    for (final f in _ngheTienDo.toList()) {
+      f(x);
+    }
+  }
+
+  static StreamSubscription<List<ConnectivityResult>>? _choWifi;
+
+  /// Tải sẵn giọng cài sẵn ngay khi mở app (chốt 24/11/2026), chỉ với máy thiếu giọng tiếng Việt, để lần đầu
+  /// thầy cô bấm Đọc to là đọc được ngay, không phải chờ tải. Đang dùng wifi (hoặc mạng dây) thì tải ngầm luôn;
+  /// đang dùng dữ liệu di động thì chờ có wifi mới tải. Không hiện gì, lỗi thì lần mở app sau thử lại.
+  static Future<void> taiSanNeuCan() async {
+    if (Platform.environment.containsKey('FLUTTER_TEST')) return; // phép thử trên máy tính: bỏ qua
+    try {
+      await Future<void>.delayed(const Duration(seconds: 4)); // để màn đầu mở xong đã
+      if (await sanSang()) return;
+      var thieuGiong = true;
+      try {
+        thieuGiong = await FlutterTts().isLanguageAvailable('vi-VN') != true;
+      } catch (_) {}
+      if (!thieuGiong) return;
+      bool coWifi(List<ConnectivityResult> r) => r.contains(ConnectivityResult.wifi) || r.contains(ConnectivityResult.ethernet);
+      if (coWifi(await Connectivity().checkConnectivity())) {
+        debugPrint('GiongMay: thieu giong tieng Viet, dang co wifi, tai san');
+        await taiVe();
+        return;
+      }
+      debugPrint('GiongMay: thieu giong tieng Viet, chua co wifi, cho wifi moi tai');
+      _choWifi ??= Connectivity().onConnectivityChanged.listen((r) {
+        if (!coWifi(r)) return;
+        _choWifi?.cancel();
+        _choWifi = null;
+        taiVe().then((_) {}, onError: (_) {});
+      });
+    } catch (e) {
+      debugPrint('GiongMay: tai san loi $e');
+    }
+  }
+
+  static Future<void> _tai() async {
     if (await sanSang()) return;
     final goc = await _thuMuc();
     await goc.create(recursive: true);
@@ -55,7 +100,7 @@ class GiongMay {
       await for (final c in res.stream.timeout(const Duration(seconds: 30))) {
         ghi.add(c);
         da += c.length;
-        tienDo?.call((da / tong).clamp(0, 0.95).toDouble());
+        _baoTienDo((da / tong).clamp(0, 0.95).toDouble());
       }
       await ghi.close();
     } finally {
@@ -80,7 +125,7 @@ class GiongMay {
     });
     await tam.delete();
     debugPrint('GiongMay: giai nen xong');
-    tienDo?.call(1);
+    _baoTienDo(1);
     if (!await sanSang()) throw const FileSystemException('Giải nén giọng đọc lỗi');
   }
 

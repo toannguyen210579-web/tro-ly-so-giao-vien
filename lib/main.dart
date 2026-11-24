@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'screens/trang_chu.dart';
+import 'services/giong_may.dart';
 
 void main() {
   // Phông DejaVu đóng gói trong app để in PDF có dấu: ghi giấy phép vào trang Giấy phép phần mềm.
@@ -10,6 +13,8 @@ void main() {
     yield LicenseEntryWithLineBreaks(['DejaVu Serif (phông chữ PDF)'], await rootBundle.loadString('assets/fonts/LICENSE_DejaVu.txt'));
   });
   runApp(const TroLyApp());
+  // Máy thiếu giọng tiếng Việt: tải sẵn giọng cài sẵn (ưu tiên wifi) để Đọc to dùng được ngay lần đầu.
+  unawaited(GiongMay.taiSanNeuCan());
 }
 
 /// Màu chủ đạo của app, lấy theo biểu tượng bản 5.
