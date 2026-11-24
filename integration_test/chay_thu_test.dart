@@ -105,9 +105,14 @@ void main() {
     final nut = find.widgetWithText(FilledButton, 'Đọc to');
     // ignore: avoid_print
     print('KQ doc_to_nut: tim thay ${nut.evaluate().length} nut');
+    // Bàn phím đang mở sau khi gõ chữ che mất nút (nút bị coi là ngoài màn hình, bấm báo "No element"): đóng bàn phím trước
+    FocusManager.instance.primaryFocus?.unfocus();
+    await cho(t, 1000);
     await t.ensureVisible(nut.first);
     // Không dùng pumpAndSettle: màn có chữ chạy, hoạt cảnh không bao giờ dừng nên phép thử bị treo đến hết giờ
     await cho(t, 600);
+    // ignore: avoid_print
+    print('KQ doc_to_nut_truoc_bam: ${nut.evaluate().length} nut');
     await t.tap(nut.first, warnIfMissed: true);
     int? batDau, ketThuc;
     for (var i = 0; i < 60; i++) {
