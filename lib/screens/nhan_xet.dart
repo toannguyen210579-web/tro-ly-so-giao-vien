@@ -506,6 +506,8 @@ class _ManLopState extends State<_ManLop> {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true, // không đè lên thanh giờ trên đầu máy
+      showDragHandle: true,
       builder: (_) => _SuaHocSinh(hs: h, coDiem: lop.cap == 'tr'),
     );
     await _luu();

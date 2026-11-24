@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/tep_word.dart';
 import 'cau_giup_viec.dart';
+import '../services/chia_se.dart';
 
 /// Ảnh sang Word: chụp hoặc chọn ảnh văn bản, nhận chữ ngay trên máy, sửa rồi xuất tệp Word.
 class AnhSangWord extends StatefulWidget {
@@ -88,7 +88,7 @@ class _AnhSangWordState extends State<AnhSangWord> {
     final ten = 'Van_ban_${tenTep(_tieuDe.text.trim().isEmpty ? 'tu_anh' : _tieuDe.text.trim())}_${dauThoiGian(DateTime.now())}.docx';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(taoDocx(doan, tieuDe: _tieuDe.text));
-    await Share.shareXFiles([XFile(f.path)]);
+    await guiTep([f.path], context: context);
   }
 
   void _bao(String s) {

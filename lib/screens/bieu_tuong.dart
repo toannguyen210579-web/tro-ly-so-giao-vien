@@ -19,6 +19,12 @@ const mauTienIch = <String, (Color, Color)>{
   'cong_cu': (Color(0xFF63F0D8), Color(0xFF0E7A70)),
   'hoi': (Color(0xFF6FD3FF), Color(0xFF2563EB)),
   'dang': (Color(0xFFFF7B6B), Color(0xFFC62828)),
+  // Các mục trong Công tác Đảng (biểu tượng kiểu app, thầy cô yêu cầu 24/11/2026): tông đỏ, vàng
+  'dang_lich': (Color(0xFFFF7A7A), Color(0xFFC62828)),
+  'dang_phi': (Color(0xFFFFD95A), Color(0xFFE08A00)),
+  'dang_dvc': (Color(0xFFFF6A6A), Color(0xFF9F1239)),
+  'dang_so_tay': (Color(0xFFFFB067), Color(0xFFE0570B)),
+  'dang_hoi': (Color(0xFFFF8FA8), Color(0xFFC2185B)),
   'khac': (Color(0xFFA9B6C8), Color(0xFF4B5A70)),
 };
 

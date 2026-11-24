@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:share_plus/share_plus.dart';
+import 'package:speech_to_text/speech_recognition_error.dart';
 import 'package:speech_to_text/speech_recognition_result.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:speech_to_text/speech_to_text.dart';
@@ -15,6 +15,7 @@ import '../services/giong_may.dart';
 import '../services/tro_ly_api.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
+import '../services/chia_se.dart';
 
 /// Tách văn bản dài thành từng đoạn ngắn để bộ đọc của máy không bị cắt chữ.
 List<String> tachCau(String s, {int toiDa = 300}) {
@@ -106,8 +107,24 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     _chuanBi();
   }
 
+  /// iPhone, iPad: bộ đọc mặc định theo nút gạt im lặng, máy đang để im lặng thì đọc mà không ra tiếng
+  /// (lỗi thầy cô báo 24/11/2026). Đặt loa ở chế độ phát (như nghe nhạc, xem video) để luôn nghe được.
+  /// Gọi lại trước mỗi lần đọc vì phần Ghi lời nói dùng micro có thể đổi chế độ loa.
+  Future<void> _datLoaIos() async {
+    if (!Platform.isIOS) return;
+    try {
+      await _tts.setSharedInstance(true);
+      await _tts.setIosAudioCategory(
+        IosTextToSpeechAudioCategory.playback,
+        const [],
+        IosTextToSpeechAudioMode.spokenAudio,
+      );
+    } catch (_) {}
+  }
+
   Future<void> _chuanBi() async {
     try {
+      await _datLoaIos();
       await _tts.awaitSpeakCompletion(true);
       final co = await _tts.isLanguageAvailable('vi-VN');
       await _tts.setLanguage('vi-VN');
@@ -129,6 +146,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
   }
 
   Future<void> _doc() async {
+    FocusManager.instance.primaryFocus?.unfocus(); // hạ bàn phím để thấy nút Dừng, tiến độ đọc
     final ds = tachCau(_chu.text);
     if (ds.isEmpty) {
       _bao('Thầy cô dán hoặc gõ văn bản cần đọc vào ô trên.');
@@ -145,6 +163,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
       return;
     }
     final luot = ++_luotDoc;
+    await _datLoaIos();
     await _tts.setSpeechRate(_tocDo);
     // Máy giả lập hoặc máy thiếu bộ đọc: lệnh đọc không phát tiếng và cũng không báo xong.
     // Sau 4 giây chưa thấy bắt đầu đọc thì app tự chuyển sang đọc qua mạng, thầy cô không phải làm gì.
@@ -304,6 +323,7 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
     super.build(context);
     return ListView(
       padding: const EdgeInsets.all(16),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       children: [
         if (_canhBao != null)
           Container(
@@ -312,6 +332,15 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
             decoration: BoxDecoration(color: const Color(0xFFFFF4D6), borderRadius: BorderRadius.circular(10)),
             child: Text(_canhBao!, style: const TextStyle(fontSize: 13)),
           ),
+        // Nút Đọc to đặt trên ô chữ: bàn phím iPhone mở lên vẫn thấy nút (lỗi thầy cô báo 24/11/2026)
+        _dangDoc
+            ? FilledButton.icon(
+                onPressed: _dung,
+                icon: const Icon(Icons.stop),
+                label: Text('Dừng (đoạn $_doanDangDoc/$_tongDoan)'),
+              )
+            : FilledButton.icon(onPressed: _doc, icon: const Icon(Icons.play_arrow), label: const Text('Đọc to')),
+        const SizedBox(height: 12),
         TextField(
           controller: _chu,
           minLines: 8,
@@ -346,17 +375,10 @@ class _DocToState extends State<_DocTo> with AutomaticKeepAliveClientMixin {
             ),
           ],
         ),
-        const SizedBox(height: 4),
-        _dangDoc
-            ? FilledButton.icon(
-                onPressed: _dung,
-                icon: const Icon(Icons.stop),
-                label: Text('Dừng (đoạn $_doanDangDoc/$_tongDoan)'),
-              )
-            : FilledButton.icon(onPressed: _doc, icon: const Icon(Icons.play_arrow), label: const Text('Đọc to')),
         const SizedBox(height: 10),
         const Text(
-          'Dùng giọng đọc có sẵn của điện thoại, đọc được cả khi không có mạng. '
+          'Dán hoặc gõ chữ vào ô trên rồi bấm Đọc to. '
+          'Dùng giọng đọc có sẵn của điện thoại, đọc được cả khi không có mạng và khi máy đang để chế độ im lặng. '
           'Máy chưa có giọng tiếng Việt thì app tự dùng giọng đọc cài sẵn (tải về một lần, sau đó không cần mạng).',
           style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
         ),
@@ -391,14 +413,16 @@ class _GhiLoiNoiState extends State<_GhiLoiNoi> with AutomaticKeepAliveClientMix
     _chuanBi();
   }
 
+  void _loiNghe(SpeechRecognitionError e) {
+    if (!mounted) return;
+    if (e.errorMsg.contains('permission')) {
+      setState(() => _canhBao = 'App chưa được dùng micro. Thầy cô cấp quyền micro trong Cài đặt.');
+    }
+  }
+
   Future<void> _chuanBi() async {
     try {
-      final ok = await _stt.initialize(onStatus: _trangThai, onError: (e) {
-        if (!mounted) return;
-        if (e.errorMsg.contains('permission')) {
-          setState(() => _canhBao = 'App chưa được dùng micro. Thầy cô cấp quyền micro trong Cài đặt.');
-        }
-      });
+      final ok = await _stt.initialize(onStatus: _trangThai, onError: _loiNghe);
       if (!ok) {
         if (mounted) setState(() => _canhBao = 'Máy này chưa nhận giọng nói được (thiếu micro hoặc bộ nhận giọng).');
         return;
@@ -444,6 +468,9 @@ class _GhiLoiNoiState extends State<_GhiLoiNoi> with AutomaticKeepAliveClientMix
   }
 
   Future<void> _nghe() async {
+    // Bộ nhận giọng dùng chung cả app (nút micro ở Nhắn phụ huynh…): gắn lại bộ nghe của màn này trước khi nghe
+    _stt.statusListener = _trangThai;
+    _stt.errorListener = _loiNghe;
     await _stt.listen(
       onResult: _ketQua,
       localeId: _maNgonNgu,
@@ -557,7 +584,7 @@ class _GhiLoiNoiState extends State<_GhiLoiNoi> with AutomaticKeepAliveClientMix
                     if (_chu.text.trim().isEmpty) {
                       _bao('Chưa có chữ nào để gửi.');
                     } else {
-                      Share.share(_chu.text);
+                      guiChu(_chu.text, context: context);
                     }
                   },
                   icon: const Icon(Icons.send),

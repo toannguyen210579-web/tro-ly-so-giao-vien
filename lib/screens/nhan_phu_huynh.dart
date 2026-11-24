@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../main.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
 import 'nhan_xet.dart' show docLop;
+import 'nut_noi.dart';
+import '../services/chia_se.dart';
 
 class _Mau {
   final String ten;
@@ -47,6 +48,7 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
   final _yMuon = TextEditingController();
   bool _dangChoAI = false;
   List<String> _dsTen = [];
+  final _oTin = GlobalKey();
 
   @override
   void initState() {
@@ -90,9 +92,10 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
 
   /// Gửi lên AI loại tin và ý thầy cô muốn nói, không gửi tên học sinh.
   Future<void> _nhoAI() async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final y = _yMuon.text.trim();
     if (y.isEmpty) {
-      _bao('Thầy cô gõ vài chữ về việc muốn báo, ví dụ "em hay quên làm bài tập về nhà".');
+      _bao('Thầy cô bấm micro nói, hoặc gõ ý chính vào ô, ví dụ: em hay quên làm bài tập về nhà.');
       return;
     }
     setState(() => _dangChoAI = true);
@@ -105,7 +108,12 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
     setState(() => _dangChoAI = false);
     if (kq.traLoi != null) {
       _tin.text = boDauMarkdown(kq.traLoi!);
-      _bao('AI đã soạn xong. Thầy cô đọc lại và sửa trước khi gửi.');
+      _bao('AI đã viết xong tin nhắn vào ô Tin nhắn bên dưới. Thầy cô đọc lại, sửa nếu cần rồi bấm Gửi.');
+      // Cuộn xuống ô Tin nhắn để thầy cô thấy ngay tin AI vừa viết
+      final o = _oTin.currentContext;
+      if (o != null && o.mounted) {
+        Scrollable.ensureVisible(o, duration: const Duration(milliseconds: 400), alignment: 0.1);
+      }
     } else {
       _bao(kq.loi ?? 'Chưa soạn được, thầy cô thử lại.');
     }
@@ -145,27 +153,61 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
             ],
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _yMuon,
-            decoration: const InputDecoration(
-              labelText: 'Ý thầy cô muốn nói (để AI soạn)',
-              hintText: 'Ví dụ: em hay quên làm bài tập về nhà tuần này',
-              border: OutlineInputBorder(),
+          // Nhờ AI soạn tin: nói rõ công dụng, có nút micro để nói thay vì gõ (thầy cô báo 24/11/2026 chưa rõ
+          // nút này để làm gì, chữ ví dụ trong ô tưởng là chữ có sẵn)
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFE8F1FE),
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: const Color(0xFFB9CCEF)),
             ),
-          ),
-          const SizedBox(height: 8),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: FilledButton.icon(
-              onPressed: _dangChoAI ? null : _nhoAI,
-              icon: _dangChoAI
-                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.auto_awesome, size: 18),
-              label: const Text('Nhờ AI soạn tin'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('Nhờ AI soạn tin theo ý thầy cô', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15)),
+                const SizedBox(height: 4),
+                const Text(
+                  'Thầy cô chỉ cần nói (bấm micro) hoặc gõ ý chính. AI viết thành tin nhắn lịch sự, đầy đủ gửi phụ huynh, '
+                  'điền sẵn vào ô Tin nhắn bên dưới. Tên học sinh không gửi cho AI.',
+                  style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu, height: 1.35),
+                ),
+                const SizedBox(height: 10),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _yMuon,
+                        minLines: 1,
+                        maxLines: 4,
+                        decoration: const InputDecoration(
+                          labelText: 'Ý chính muốn báo',
+                          hintText: 'Ví dụ: em hay quên làm bài tập về nhà',
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    NutNoi(dich: _yMuon),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                FilledButton.icon(
+                  onPressed: _dangChoAI ? null : _nhoAI,
+                  icon: _dangChoAI
+                      ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.auto_awesome, size: 18),
+                  label: Text(_dangChoAI ? 'AI đang viết tin…' : 'Nhờ AI viết thành tin nhắn'),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
           TextField(
+            key: _oTin,
             controller: _tin,
             minLines: 6,
             maxLines: 14,
@@ -228,7 +270,7 @@ class _NhanPhuHuynhState extends State<NhanPhuHuynh> {
               const SizedBox(width: 10),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => Share.share(_tinHoanChinh()),
+                  onPressed: () => guiChu(_tinHoanChinh(), context: context),
                   icon: const Icon(Icons.send),
                   label: const Text('Gửi qua Zalo…'),
                 ),

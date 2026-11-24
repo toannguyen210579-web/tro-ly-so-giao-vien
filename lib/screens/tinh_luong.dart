@@ -1,12 +1,111 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/tinh_luong.dart';
 import '../main.dart';
+import '../services/chia_se.dart';
 import '../services/tep_pdf.dart';
+import '../services/tep_word.dart' show taoDocxBang;
 import 'cau_giup_viec.dart';
 import 'lich_nhac_han.dart';
+
+/// Nội dung bảng lương để xuất tệp: thông tin chung, các khoản, ghi chú. Chỉ các khoản, không kèm căn cứ
+/// (chốt 18/11/2026; màn hình vẫn giữ căn cứ).
+class BangLuong {
+  final List<String> thongTin;
+  final List<(String, int)> khoan;
+  final int tong;
+  final int baoHiem;
+  final int thucNhan;
+  final String ghiChu;
+  const BangLuong({
+    required this.thongTin,
+    required this.khoan,
+    required this.tong,
+    required this.baoHiem,
+    required this.thucNhan,
+    required this.ghiChu,
+  });
+
+  /// Bảng: dòng tiêu đề cột, các khoản, tổng, trừ bảo hiểm, thực nhận.
+  List<List<String>> get bang => [
+        ['STT', 'Khoản', 'Số tiền (đồng)'],
+        for (var i = 0; i < khoan.length; i++) ['${i + 1}', khoan[i].$1, dinhDangTien(khoan[i].$2)],
+        ['', 'Tổng thu nhập', dinhDangTien(tong)],
+        ['', 'Trừ BHXH, BHYT, BHTN (10,5%)', '- ${dinhDangTien(baoHiem)}'],
+        ['', 'Thực nhận (chưa tính thuế TNCN)', dinhDangTien(thucNhan)],
+      ];
+
+  Set<int> get dongDam => {khoan.length + 1, khoan.length + 3};
+
+  static const tieuDe = 'BẢNG LƯƠNG THÁNG (THAM KHẢO)';
+
+  String get phuDe => 'Lập ngày ${ngayVN(DateTime.now())} bằng app Trợ lý số GV, lương cơ sở ${dinhDangTien(luongCoSo)} đồng';
+
+  static const luuY = 'Số liệu để tham khảo; số thực nhận tại trường còn tùy các phụ cấp, khoản trừ riêng và quyết định xếp lương.';
+
+  List<int> word() => taoDocxBang(
+        tieuDe: tieuDe,
+        phuDe: phuDe,
+        dongDau: thongTin,
+        bang: bang,
+        doRong: const [90, 580, 330],
+        canPhai: const {2},
+        dongDam: dongDam,
+        dongCuoi: [ghiChu, luuY],
+      );
+
+  Future<List<int>> pdf() async {
+    final doc = pw.Document(theme: await PhongPdf.theme());
+    final b = bang;
+    final dam = dongDam;
+    doc.addPage(pw.Page(
+      pageFormat: PdfPageFormat.a4,
+      margin: const pw.EdgeInsets.fromLTRB(56, 42, 42, 42),
+      build: (_) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Center(child: pw.Text(tieuDe, style: pw.TextStyle(fontSize: 15, fontWeight: pw.FontWeight.bold))),
+          pw.SizedBox(height: 3),
+          pw.Center(child: pw.Text(phuDe, style: pw.TextStyle(fontSize: 10.5, fontStyle: pw.FontStyle.italic))),
+          pw.SizedBox(height: 12),
+          for (final t in thongTin) pw.Padding(padding: const pw.EdgeInsets.only(bottom: 3), child: pw.Text(t, style: const pw.TextStyle(fontSize: 11.5))),
+          pw.SizedBox(height: 8),
+          pw.Table(
+            border: pw.TableBorder.all(width: 0.6),
+            columnWidths: const {0: pw.FlexColumnWidth(0.9), 1: pw.FlexColumnWidth(5.8), 2: pw.FlexColumnWidth(3.3)},
+            children: [
+              for (var i = 0; i < b.length; i++)
+                pw.TableRow(
+                  decoration: i == 0 ? const pw.BoxDecoration(color: PdfColor.fromInt(0xFFE3ECF8)) : null,
+                  children: [
+                    for (var j = 0; j < 3; j++)
+                      pw.Padding(
+                        padding: const pw.EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                        child: pw.Align(
+                          alignment: i == 0 ? pw.Alignment.center : (j == 2 ? pw.Alignment.centerRight : pw.Alignment.centerLeft),
+                          child: pw.Text(b[i][j],
+                              style: pw.TextStyle(fontSize: 11.5, fontWeight: i == 0 || dam.contains(i) ? pw.FontWeight.bold : null)),
+                        ),
+                      ),
+                  ],
+                ),
+            ],
+          ),
+          pw.SizedBox(height: 10),
+          pw.Text(ghiChu, style: pw.TextStyle(fontSize: 10.5, fontStyle: pw.FontStyle.italic)),
+          pw.SizedBox(height: 3),
+          pw.Text(luuY, style: pw.TextStyle(fontSize: 10.5, fontStyle: pw.FontStyle.italic)),
+        ],
+      ),
+    ));
+    return doc.save();
+  }
+}
 
 const _mucUuDai = <(String, int?)>[
   ('Theo cấp dạy (mầm non, tiểu học 45%; THCS, THPT 40%)', null),
@@ -35,6 +134,52 @@ class _TinhLuongState extends State<TinhLuong> {
   final _chucVu = TextEditingController(text: '0');
   final _baoLuu = TextEditingController(text: '0');
   final _vuotKhung = TextEditingController(text: '0');
+  bool _dangXuat = false;
+
+  /// Hỏi kiểu tệp (Word để sửa, PDF để in, gửi), lưu vào máy rồi báo chỗ lưu kèm nút gửi.
+  Future<void> _xuat(BangLuong b) async {
+    final kieu = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (c) => SafeArea(
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          const Padding(
+            padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+            child: Text('Xuất bảng lương', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900)),
+          ),
+          ListTile(
+            leading: const Icon(Icons.description_outlined, color: Color(0xFF2353D6)),
+            title: const Text('Tệp Word'),
+            subtitle: const Text('Sửa thêm được, in hoặc gửi kèm hồ sơ'),
+            onTap: () => Navigator.pop(c, 'word'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.picture_as_pdf_outlined, color: Color(0xFFA3241C)),
+            title: const Text('Tệp PDF'),
+            subtitle: const Text('Xem, in, gửi Zalo giữ nguyên trình bày'),
+            onTap: () => Navigator.pop(c, 'pdf'),
+          ),
+          const SizedBox(height: 8),
+        ]),
+      ),
+    );
+    if (kieu == null || !mounted) return;
+    setState(() => _dangXuat = true);
+    try {
+      final duoi = kieu == 'word' ? 'docx' : 'pdf';
+      final f = File('${(await thuMucApp('xuat')).path}/Bang_luong_${dauThoiGian(DateTime.now())}.$duoi');
+      await f.writeAsBytes(kieu == 'word' ? b.word() : await b.pdf(), flush: true);
+      if (!mounted) return;
+      setState(() => _dangXuat = false);
+      await baoDaLuuTep(context, f, tieuDe: 'Đã xuất bảng lương');
+    } catch (_) {
+      if (mounted) {
+        setState(() => _dangXuat = false);
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa xuất được bảng lương, thầy cô thử lại.')));
+      }
+    }
+  }
 
   @override
   void initState() {
@@ -325,18 +470,36 @@ class _TinhLuongState extends State<TinhLuong> {
               ),
             ),
           const SizedBox(height: 12),
-          OutlinedButton.icon(
-            onPressed: () {
-              Clipboard.setData(ClipboardData(
-                text: 'Lương tháng (tính tham khảo theo app Trợ lý số GV, cập nhật $ngayCapNhatLuong)\n'
-                    'Hệ số ${heSo.toStringAsFixed(2)}, ưu đãi $ud%, thâm niên $tn%\n'
-                    'Tổng thu nhập: ${dinhDangTien(kq.tongThuNhap)} đ\nTrừ bảo hiểm: ${dinhDangTien(kq.baoHiem)} đ\n'
-                    'Thực nhận: ${dinhDangTien(kq.thucNhan)} đ',
-              ));
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Đã chép kết quả.')));
-            },
-            icon: const Icon(Icons.copy),
-            label: const Text('Chép kết quả'),
+          // Thay nút Chép kết quả (thầy cô thấy không rõ chép để làm gì, 24/11/2026): xuất ra văn bản
+          FilledButton.icon(
+            onPressed: _dangXuat
+                ? null
+                : () => _xuat(BangLuong(
+                      thongTin: [
+                        'Giáo viên $_cap, $_hang, bậc $_bac, hệ số ${heSo.toStringAsFixed(2).replaceAll('.', ',')}.',
+                        'Bắt đầu dạy (có đóng BHXH): ${ngayVN(_vaoNghe)}, $soNam năm. Hưởng bậc hiện tại từ ${ngayVN(_xepBac)}.',
+                        'Phụ cấp ưu đãi theo nghề $ud%; phụ cấp thâm niên nhà giáo $tn%.',
+                      ],
+                      khoan: [
+                        ('Lương theo hệ số', kq.luongHeSo),
+                        if (kq.phuCapChucVu > 0) ('Phụ cấp chức vụ', kq.phuCapChucVu),
+                        if (kq.chenhLechBaoLuu > 0) ('Chênh lệch bảo lưu', kq.chenhLechBaoLuu),
+                        if (kq.thamNienVuotKhung > 0) ('Thâm niên vượt khung', kq.thamNienVuotKhung),
+                        ('Phụ cấp ưu đãi $ud%', kq.uuDai),
+                        (tn > 0 ? 'Phụ cấp thâm niên $tn%' : 'Phụ cấp thâm niên (chưa đủ 5 năm)', kq.thamNien),
+                        if (kq.khuVuc > 0) ('Phụ cấp khu vực', kq.khuVuc),
+                      ],
+                      tong: kq.tongThuNhap,
+                      baoHiem: kq.baoHiem,
+                      thucNhan: kq.thucNhan,
+                      ghiChu: bacCuoi
+                          ? 'Đang ở bậc cuối của hạng; đủ 3 năm ở bậc cuối (từ ${ngayVN(nangBac)}) được xét thâm niên vượt khung 5%.'
+                          : 'Nâng bậc kế tiếp (bậc ${_bac + 1}, hệ số ${ngach.heSo(_bac + 1).toStringAsFixed(2).replaceAll('.', ',')}) dự kiến từ ${ngayVN(nangBac)}.',
+                    )),
+            icon: _dangXuat
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.description_outlined),
+            label: const Text('Xuất bảng lương ra văn bản'),
           ),
           const SizedBox(height: 16),
           Text('Căn cứ (cập nhật $ngayCapNhatLuong)', style: const TextStyle(fontWeight: FontWeight.w800)),

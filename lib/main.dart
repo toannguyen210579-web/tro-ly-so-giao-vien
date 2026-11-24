@@ -129,7 +129,13 @@ class TroLyApp extends StatelessWidget {
       ),
       // iPad, máy Mac, máy tính bảng Android (chốt 24/11/2026): màn rộng thì giữ nội dung một cột
       // rộng tối đa 800, đặt giữa, để ô nhập, nút, danh sách không bị kéo giãn hết bề ngang.
-      builder: (context, child) => KhungManRong(child: child!),
+      // Chạm ra ngoài ô chữ thì hạ bàn phím: bàn phím iPhone không có nút ẩn, che mất nút bên dưới
+      // (lỗi Đọc to thầy cô báo 24/11/2026). Nút, ô chữ nằm trong vẫn nhận chạm như thường.
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: KhungManRong(child: child!),
+      ),
       home: const TrangChu(),
     );
   }

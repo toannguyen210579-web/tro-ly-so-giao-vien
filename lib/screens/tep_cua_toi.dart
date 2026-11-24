@@ -1,10 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
 import '../services/tep_pdf.dart';
+import '../services/chia_se.dart';
 
 /// Các thư mục app lưu tệp đã tạo, kèm tên hiển thị.
 const _thuMucTep = {
@@ -104,7 +104,7 @@ class _TepCuaToiState extends State<TepCuaToi> {
                         leading: Icon(_bieuTuong(t.ten), color: MauApp.xanhDam),
                         title: Text(t.ten, maxLines: 2, overflow: TextOverflow.ellipsis),
                         subtitle: Text('${t.nhom} · ${ngayVN(t.sua)}'),
-                        onTap: () => Share.shareXFiles([XFile(t.tep.path)]),
+                        onTap: () => guiTep([t.tep.path], context: context),
                         trailing: IconButton(
                           tooltip: 'Xóa',
                           icon: const Icon(Icons.delete_outline),

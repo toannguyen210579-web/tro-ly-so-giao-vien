@@ -335,8 +335,14 @@ class _ChoiOChuState extends State<_ChoiOChu> {
               icon: const Icon(Icons.key),
               label: const Text('Mở từ khóa'),
             ),
+            // Nền tối: nút viền trong suốt, chữ trắng. Kiểu chung của app tô nền trắng cho nút viền nên trước đây
+            // chữ trắng trên nền trắng thành một nút trắng trơn (lỗi thầy cô báo 24/11/2026).
             OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.white.withValues(alpha: 0.12),
+                side: const BorderSide(color: Colors.white70, width: 1.4),
+              ),
               onPressed: () => setState(() {
                 for (var i = 0; i < _mo.length; i++) {
                   _mo[i] = false;

@@ -6,10 +6,10 @@ import 'package:google_mlkit_selfie_segmentation/google_mlkit_selfie_segmentatio
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../main.dart';
 import 'cau_giup_viec.dart';
+import '../services/chia_se.dart';
 
 /// Ảnh thẻ: tách nền ngay trên máy (ML Kit), thay nền xanh hoặc trắng,
 /// cắt cỡ 3x4 hoặc 4x6, xếp tờ in 10x15 cm. Không gửi ảnh đi đâu.
@@ -106,7 +106,7 @@ class _AnhTheState extends State<AnhThe> {
     final s = DateTime.now().millisecondsSinceEpoch;
     final f1 = File('${d.path}/AnhThe_${_co}_$s.jpg')..writeAsBytesSync(a);
     final f2 = File('${d.path}/ToIn_10x15_${_co}_$s.jpg')..writeAsBytesSync(t);
-    await Share.shareXFiles([XFile(f1.path), XFile(f2.path)]);
+    await guiTep([f1.path, f2.path], context: context);
   }
 
   @override

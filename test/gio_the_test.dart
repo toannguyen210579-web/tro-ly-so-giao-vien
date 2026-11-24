@@ -4,7 +4,11 @@ import 'package:tro_ly_so_giao_vien/services/tep_word.dart';
 import 'package:archive/archive.dart';
 import 'dart:convert';
 import 'dart:math';
+import 'dart:io';
 import 'dart:typed_data';
+
+import 'package:pdf/widgets.dart' as pw;
+import 'package:tro_ly_so_giao_vien/services/the_gio_pdf.dart';
 
 void main() {
   test('mã thẻ', () {
@@ -97,5 +101,47 @@ void main() {
     final xml = utf8.decode(z.findFile('word/document.xml')!.content as List<int>);
     expect(xml.contains('Đoạn hai'), isTrue);
     expect(xml.contains('Thử &lt;&amp;&gt;'), isTrue);
+  });
+
+  // Lỗi 24/11/2026: bấm In bộ thẻ không thấy gì. Tạo thử bộ thẻ lớp 40 em có tên tiếng Việt, đo thời gian.
+  test('tạo bộ thẻ PDF cả lớp', () async {
+    final f = pw.Font.ttf(File('assets/fonts/DejaVuSerif.ttf').readAsBytesSync().buffer.asByteData());
+    final fb = pw.Font.ttf(File('assets/fonts/DejaVuSerif-Bold.ttf').readAsBytesSync().buffer.asByteData());
+    final ten = [for (var i = 1; i <= 40; i++) 'Nguyễn Thị Hồng Ánh $i'];
+    final dh = Stopwatch()..start();
+    final pdf = await taoPdfBoThe(40, ten, theme: pw.ThemeData.withFont(base: f, bold: fb));
+    // ignore: avoid_print
+    print('KQ bo_the: 40 thẻ, ${pdf.length} byte, ${dh.elapsedMilliseconds} ms');
+    expect(String.fromCharCodes(pdf.take(5)), '%PDF-');
+    expect(pdf.length, greaterThan(10000));
+    Directory('build').createSync(recursive: true);
+    File('build/thu_bo_the.pdf').writeAsBytesSync(pdf);
+    // lớp lẻ: trang cuối một thẻ
+    final le = await taoPdfBoThe(5, const [], theme: pw.ThemeData.withFont(base: f, bold: fb));
+    expect(String.fromCharCodes(le.take(5)), '%PDF-');
+  });
+
+  test('tệp Word có bảng (bảng lương)', () {
+    final b = taoDocxBang(
+      tieuDe: 'BẢNG LƯƠNG THÁNG (THAM KHẢO)',
+      phuDe: 'Lập ngày 24/11/2026',
+      dongDau: ['Giáo viên THCS, Hạng III, bậc 4, hệ số 3,33.'],
+      bang: [
+        ['STT', 'Khoản', 'Số tiền (đồng)'],
+        ['1', 'Lương theo hệ số', '8.424.900'],
+        ['', 'Thực nhận <&>', '9.000.000'],
+      ],
+      doRong: const [90, 580, 330],
+      canPhai: const {2},
+      dongDam: const {2},
+      dongCuoi: ['Nâng bậc kế tiếp dự kiến từ 01/09/2027.'],
+    );
+    final z = ZipDecoder().decodeBytes(b);
+    final xml = utf8.decode(z.findFile('word/document.xml')!.content as List<int>);
+    expect(xml.contains('<w:tbl>'), isTrue);
+    expect('<w:tr>'.allMatches(xml).length, 3);
+    expect(xml.contains('Thực nhận &lt;&amp;&gt;'), isTrue);
+    Directory('build').createSync(recursive: true);
+    File('build/thu_bang_luong.docx').writeAsBytesSync(b);
   });
 }

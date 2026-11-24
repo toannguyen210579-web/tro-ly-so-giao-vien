@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/luu_tru.dart';
@@ -14,6 +13,7 @@ import '../services/tep_pdf.dart';
 import '../services/tro_ly_api.dart';
 import 'doc_to_ghi_loi.dart';
 import 'cau_giup_viec.dart';
+import '../services/chia_se.dart';
 
 const dsLoaiHop = [
   'Họp tổ chuyên môn',
@@ -453,7 +453,7 @@ class _SuaBienBanState extends State<_SuaBienBan> {
     final ten = 'Bien_ban_${tenTep(bb.veViec.isEmpty ? bb.loai : bb.veViec)}_${dauThoiGian(d)}.pdf';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(await doc.save());
-    await Share.shareXFiles([XFile(f.path)]);
+    await guiTep([f.path], context: context);
   }
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));

@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 
 import '../data/luu_tru.dart';
 import '../data/minh_chung.dart';
@@ -13,6 +12,8 @@ import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/tep_xlsx.dart';
 import 'cau_giup_viec.dart';
+import '../services/anh_trang.dart';
+import '../services/chia_se.dart';
 
 const _khoa = 'so_minh_chung';
 
@@ -204,11 +205,11 @@ class _SoMinhChungState extends State<SoMinhChung> {
       if (kieu == 'pdf') {
         final f = File('$goc/So_minh_chung_$dau.pdf');
         await f.writeAsBytes(await _taoPdf(ds));
-        await Share.shareXFiles([XFile(f.path)]);
+        await guiTep([f.path], context: context);
       } else if (kieu == 'excel') {
         final f = File('$goc/Danh_muc_minh_chung_$dau.xlsx');
         await f.writeAsBytes(excel);
-        await Share.shareXFiles([XFile(f.path)]);
+        await guiTep([f.path], context: context);
       } else {
         final thu = Directory('$goc/Minh_chung_$dau');
         await thu.create(recursive: true);
@@ -230,10 +231,10 @@ class _SoMinhChungState extends State<SoMinhChung> {
           final List<int>? z = ZipEncoder().encode(a);
           final fz = File('$goc/Minh_chung_$dau.zip');
           await fz.writeAsBytes(z ?? <int>[]);
-          await Share.shareXFiles([XFile(fz.path)]);
+          await guiTep([fz.path], context: context);
         } else {
           _bao('Đã tạo ${ds.length} tệp PDF và danh mục. Thầy cô chọn Lưu vào Tệp hoặc Drive để tải lên hệ thống từng tệp.');
-          await Share.shareXFiles([for (final f in tep) XFile(f.path)]);
+          await guiTep([for (final f in tep) f.path], context: context);
         }
       }
     } catch (e) {
@@ -273,7 +274,7 @@ class _SoMinhChungState extends State<SoMinhChung> {
         children: [
           const CauGiupViec('minh_chung'),
           const Text(
-            'Chụp giấy khen, ảnh hoạt động, giấy chứng nhận… và xếp theo nhóm. '
+            'Chụp hoặc tải lên (ảnh, tệp PDF có sẵn) giấy khen, ảnh hoạt động, giấy chứng nhận… và xếp theo nhóm. '
             'Khi cần nộp hồ sơ thi đua, đánh giá chuẩn hay kiểm định, bấm Xuất để nộp hồ sơ: '
             'app tạo mỗi minh chứng một tệp PDF kèm danh mục Excel để tải lên hệ thống, hoặc một tệp PDF gộp để in.',
             style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
@@ -358,6 +359,7 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
   late DateTime _ngay;
   late List<String> _anh;
   final _anhMoi = <String>[];
+  bool _dangLay = false;
 
   @override
   void initState() {
@@ -398,6 +400,29 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
       }
     } catch (_) {
       _bao('Chưa lấy được ảnh. Thầy cô cho app quyền dùng máy ảnh, ảnh trong Cài đặt.');
+    }
+  }
+
+  /// Tệp có sẵn (giấy khen, quyết định đã scan thành PDF, ảnh trong ứng dụng Tệp, Zalo, Drive):
+  /// mỗi trang PDF thành một ảnh của minh chứng, để xuất ra vẫn đủ trang, đặt tên đúng thứ tự.
+  Future<void> _taiTep() async {
+    setState(() => _dangLay = true);
+    try {
+      final kq = await chonTrangTuTep();
+      if (kq == null) return;
+      for (final duong in kq.trang) {
+        final duoi = duong.contains('.') ? duong.substring(duong.lastIndexOf('.')) : '.jpg';
+        final ten = 'mc_${DateTime.now().microsecondsSinceEpoch}$duoi';
+        await File(duong).copy('${widget.thuMuc}/$ten');
+        _anhMoi.add(ten);
+        if (mounted) setState(() => _anh.add(ten));
+      }
+      if (kq.loiNhan != null) _bao(kq.loiNhan!);
+      if (kq.trang.isNotEmpty) _bao('Đã thêm ${kq.trang.length} trang. Bấm Lưu để giữ minh chứng.');
+    } catch (_) {
+      _bao('Chưa mở được tệp, thầy cô thử lại.');
+    } finally {
+      if (mounted) setState(() => _dangLay = false);
     }
   }
 
@@ -531,21 +556,46 @@ class _SuaMinhChungState extends State<_SuaMinhChung> {
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _themAnh(ImageSource.camera),
+                    onPressed: _dangLay ? null : () => _themAnh(ImageSource.camera),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 6)),
                     icon: const Icon(Icons.photo_camera_outlined),
-                    label: const Text('Chụp ảnh'),
+                    label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Chụp ảnh')),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _themAnh(ImageSource.gallery),
+                    onPressed: _dangLay ? null : () => _themAnh(ImageSource.gallery),
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 6)),
                     icon: const Icon(Icons.photo_library_outlined),
-                    label: const Text('Chọn ảnh'),
+                    label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Chọn ảnh')),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: _dangLay ? null : _taiTep,
+                    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 6)),
+                    icon: const Icon(Icons.upload_file),
+                    label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Tải tệp PDF')),
                   ),
                 ),
               ],
             ),
+            const SizedBox(height: 4),
+            const Text(
+              'Tải tệp: chọn tệp PDF hoặc ảnh có sẵn trong máy (ứng dụng Tệp, Zalo, Drive). Mỗi trang PDF thành một ảnh của minh chứng.',
+              style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
+            ),
+            if (_dangLay)
+              const Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Row(children: [
+                  SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                  SizedBox(width: 10),
+                  Text('Đang lấy trang…'),
+                ]),
+              ),
             const SizedBox(height: 10),
             Wrap(
               spacing: 8,

@@ -38,6 +38,20 @@ jobs:
           for r in ws.iter_rows(values_only=True): print(r)
           assert ws.max_row == 3 and ws.cell(3, 6).value == 'Số 88/GCN-SGDĐT, Sở GD&ĐT'
           "
+      - name: Mở thử tệp Word bảng lương và bộ thẻ Giơ thẻ bằng thư viện khác
+        run: |
+          pip install --quiet python-docx pypdf
+          python3 -c "
+          import docx, pypdf
+          d = docx.Document('build/thu_bang_luong.docx')
+          t = d.tables[0]
+          print('Bảng lương: số dòng', len(t.rows), '|', [c.text for c in t.rows[2].cells])
+          print('Đoạn:', [p.text for p in d.paragraphs if p.text])
+          assert len(t.rows) == 3 and t.rows[2].cells[2].text == '9.000.000'
+          r = pypdf.PdfReader('build/thu_bo_the.pdf')
+          print('Bộ thẻ: số trang', len(r.pages), '| cỡ trang', r.pages[0].mediabox)
+          assert len(r.pages) == 20
+          "
       - name: Đẩy tệp Word văn bản Đảng mẫu lên nhánh tep-thu (để xem lại)
         if: always()
         run: |
@@ -105,6 +119,8 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :UISupportedInterfaceOrientations~ipad' ios/Runner/Info.plist | grep -c UIInterfaceOrientation)" = 4
           /usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c 'Print :NSCameraUsageDescription' ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :UIFileSharingEnabled' ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :LSSupportsOpeningDocumentsInPlace' ios/Runner/Info.plist
           /usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' ios/Runner/Info.plist
       # Đóng gói bản lưu trữ (xcarchive) chưa ký; bước sau ký bằng chứng chỉ do Apple quản lý
       - run: flutter build ipa --release --no-codesign

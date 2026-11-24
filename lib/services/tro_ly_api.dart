@@ -104,7 +104,8 @@ class TroLyApi {
           if (riengTu) 'private': true,
           if (lichSu.isNotEmpty) 'history': [for (final (q, a) in lichSu.skip(lichSu.length > 4 ? lichSu.length - 4 : 0)) {'q': q, 'a': a}],
         },
-        giay: anh.isEmpty && pdf.isEmpty ? 60 : 120,
+        // Giải đề, ra đề tương tự viết lời giải dài: chờ lâu hơn để không báo lỗi khi máy chủ đang đổi sang AI dự phòng
+        giay: (loai == 'giai_de' || loai == 'de_tuong_tu') ? 150 : (anh.isEmpty && pdf.isEmpty ? 60 : 120),
       );
       Map<String, dynamic> j;
       try {

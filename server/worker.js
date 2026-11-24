@@ -504,11 +504,17 @@ async function callClaude(env, mode, content, hist = [], trich = "") {
   return { text, by: "claude", usage: data.usage || {} };
 }
 
+// Giải đề, ra đề tương tự: lời giải dài, cho Gemini viết lâu hơn (máy chủ phụ cắt ở 15 giây nếu không ghi).
+const CHE_DO_DAI = ["giaide", "detuongtu"];
+const GEMINI_CHO_DAI_MS = 35000;
+
 async function callGemini(env, mode, input, imgs, hist = []) {
   let last = null;
   for (const model of GEMINI_MODELS) {
     last = await callGeminiOnce(env, mode, input, imgs, model, hist);
     if (!last.err || !/^(429|503|504)/.test(String(last.status))) return last;
+    // Bài dài đã chờ hết giờ: không chờ thêm mô hình thứ hai, chuyển ngay sang các AI miễn phí chạy song song
+    if (CHE_DO_DAI.includes(mode) && /^504/.test(String(last.status))) return last;
   }
   return last;
 }
@@ -525,6 +531,7 @@ async function callGeminiOnce(env, mode, input, imgs, model, hist = []) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         model,
+        ...(CHE_DO_DAI.includes(mode) ? { timeout: GEMINI_CHO_DAI_MS } : {}),
         body: {
           systemInstruction: { parts: [{ text: sysOf(mode) }] },
           contents: [

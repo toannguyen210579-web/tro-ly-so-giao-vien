@@ -210,3 +210,29 @@ test("Gemma quá tải cả hai mô hình thì Claude trả lời", async () => 
   assert.equal(r.by, "claude");
   assert.deepEqual(ghi.gemini.filter((b) => b.model.startsWith("gemma")).map((b) => b.model), ["gemma-4-26b-a4b-it", "gemma-4-31b-it"]);
 });
+
+test("AI miễn phí chạy song song: dịch vụ trả lời trước được dùng, không chờ dịch vụ chậm", async () => {
+  const { env } = moiTruong({ gemini: 503, khoa: ["GROQ_API_KEY", "CEREBRAS_API_KEY"] });
+  env.GEMINI.fetch = async (_u, o) => {
+    const b = JSON.parse(o.body);
+    if (!b.url) return new Response("{}", { status: 503 });
+    if (b.url.includes("groq")) {
+      await new Promise((r) => setTimeout(r, 400));
+      return new Response(JSON.stringify({ choices: [{ message: { content: "Groq chậm" } }] }), { status: 200 });
+    }
+    return new Response(JSON.stringify({ choices: [{ message: { content: "Cerebras nhanh" } }] }), { status: 200 });
+  };
+  const t = Date.now();
+  const r = await goi(env, { mode: "giaide", input: "Môn: Toán. Lớp: 9. Giải hệ x + y = 5, 2x - y = 1" });
+  assert.equal(r.by, "cerebras");
+  assert.ok(Date.now() - t < 300, "phải trả lời trước khi Groq xong");
+});
+
+test("Giải đề: Gemini được chờ lâu hơn, hết giờ thì không thử mô hình Gemini thứ hai", async () => {
+  const { env, ghi } = moiTruong({ gemini: 504 });
+  env.AI = { run: async () => ({ response: "Workers AI giải" }) };
+  const r = await goi(env, { mode: "giaide", input: "Môn: Toán. Lớp: 9. Rút gọn A" });
+  assert.equal(r.by, "workersai");
+  assert.equal(ghi.gemini.length, 1);
+  assert.equal(ghi.gemini[0].timeout, 35000);
+});

@@ -57,10 +57,10 @@ class _LichNhacHanState extends State<LichNhacHan> {
   }
 
   Future<void> _sua(ViecHan? goc, {String? ten, DateTime? han}) async {
-    final kq = await showModalBottomSheet<ViecHan>(
-      context: context,
-      isScrollControlled: true,
-      builder: (_) => _HopViec(goc: goc, ten: ten, han: han),
+    // Trang riêng có nút quay lại (trước đây là hộp trượt lên, đè thanh giờ trên đầu máy, không có nút quay lại;
+    // thầy cô báo 24/11/2026)
+    final kq = await Navigator.of(context).push<ViecHan>(
+      MaterialPageRoute(builder: (_) => _HopViec(goc: goc, ten: ten, han: han)),
     );
     if (kq == null) return;
     final i = _ds!.indexWhere((e) => e.id == kq.id);
@@ -178,22 +178,38 @@ class _HopViecState extends State<_HopViec> {
     setState(() => _han = DateTime(d.year, d.month, d.day, g?.hour ?? _han.hour, g?.minute ?? _han.minute));
   }
 
+  void _luu() {
+    if (_ten.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Thầy cô ghi việc cần làm, hoặc chạm một gợi ý bên dưới ô.')));
+      return;
+    }
+    Navigator.of(context).pop(ViecHan(
+      id: widget.goc?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
+      ten: _ten.text.trim(),
+      han: _han,
+      nhacTruoc: _nhac,
+      ghiChu: _ghiChu.text.trim(),
+      xong: widget.goc?.xong ?? false,
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Cuộn được: màn hình nhỏ hoặc bàn phím mở thì nút Lưu không bị che
-    return SingleChildScrollView(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(context).viewInsets.bottom + 16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.goc == null ? 'Thêm việc có hạn' : 'Sửa việc'),
+        actions: [TextButton(onPressed: _luu, child: const Text('Lưu'))],
+      ),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         children: [
-          Text(widget.goc == null ? 'Thêm việc có hạn' : 'Sửa việc', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          const SizedBox(height: 12),
           TextField(controller: _ten, autofocus: widget.goc == null && widget.ten == null, decoration: const InputDecoration(labelText: 'Việc cần làm', border: OutlineInputBorder())),
           if (widget.goc == null) ...[
             const SizedBox(height: 8),
             Wrap(spacing: 6, runSpacing: 6, children: [
-              for (final g in _goiY) ActionChip(label: Text(g, style: const TextStyle(fontSize: 12.5)), onPressed: () => _ten.text = g),
+              for (final g in _goiY) ActionChip(label: Text(g, style: const TextStyle(fontSize: 12.5)), onPressed: () => setState(() => _ten.text = g)),
             ]),
           ],
           const SizedBox(height: 12),
@@ -217,21 +233,7 @@ class _HopViecState extends State<_HopViec> {
           const SizedBox(height: 16),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () {
-                if (_ten.text.trim().isEmpty) return;
-                Navigator.of(context).pop(ViecHan(
-                  id: widget.goc?.id ?? DateTime.now().microsecondsSinceEpoch.toString(),
-                  ten: _ten.text.trim(),
-                  han: _han,
-                  nhacTruoc: _nhac,
-                  ghiChu: _ghiChu.text.trim(),
-                  xong: widget.goc?.xong ?? false,
-                ));
-              },
-              icon: const Icon(Icons.check),
-              label: const Text('Lưu'),
-            ),
+            child: FilledButton.icon(onPressed: _luu, icon: const Icon(Icons.check), label: const Text('Lưu')),
           ),
         ],
       ),

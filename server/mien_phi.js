@@ -240,14 +240,22 @@ async function goiMot(env, d, model, messages, maxOut) {
   return text ? { text, usage: (r.json || {}).usage } : { status: "rong" };
 }
 
-/** Thử lần lượt các AI miễn phí (ngẫu nhiên để chia tải). Trả về { text, by } hoặc { err, status }. */
-export async function vietMienPhi(env, system, input, hist, maxOut) {
+/**
+ * Các AI miễn phí viết câu trả lời. Chạy song song tối đa [cungLuc] dịch vụ nhanh (xếp ngẫu nhiên để chia tải),
+ * lấy câu trả lời đến trước; dịch vụ nào hỏng thì gọi ngay dịch vụ kế tiếp. Các dịch vụ nhanh đều hỏng mới thử Gemma
+ * (chậm). Trả về { text, by } hoặc { err, status }.
+ * Trước 24/11/2026 thử lần lượt từng dịch vụ: Gemini quá tải thì Giải đề Toán 9 chờ 44 giây (đo thật), thầy cô báo chậm.
+ */
+export async function vietMienPhi(env, system, input, hist, maxOut, cungLuc = 3) {
   const co = AI_MIEN_PHI.filter((d) => (d.gemma ? env.GEMINI : d.ai ? env.AI : env[d.khoa]) && !dangNghi(d.ten));
-  // Dịch vụ nhanh xếp ngẫu nhiên để chia tải; dịch vụ chậm (Gemma) luôn để sau cùng
-  const ds = [...tronNgauNhien(co.filter((d) => !d.cuoi)), ...co.filter((d) => d.cuoi)];
+  const nhanh = tronNgauNhien(co.filter((d) => !d.cuoi));
+  const cham = co.filter((d) => d.cuoi);
   const messages = tinNhan(system, input, hist);
   let cuoi = "khong_co";
-  for (const d of ds) {
+
+  // Thử một dịch vụ: các tên mô hình lần lượt; hỏng thì cho dịch vụ đó nghỉ một lúc
+  async function thuDichVu(d) {
+    let st = d.ten + ":loi";
     for (const model of d.mo) {
       let r;
       try {
@@ -256,12 +264,43 @@ export async function vietMienPhi(env, system, input, hist, maxOut) {
         r = { status: "loi" };
       }
       if (r.text) return { text: r.text, by: d.ten, usage: { input_tokens: r.usage?.prompt_tokens, output_tokens: r.usage?.completion_tokens } };
-      cuoi = d.ten + ":" + r.status;
+      st = d.ten + ":" + r.status;
       if (r.status === 404 || r.status === 400) continue; // tên mô hình không còn: thử tên kế
       if (d.gemma && (r.status === 503 || r.status === 504)) continue; // mô hình này đang quá tải: thử mô hình kia
       break;
     }
-    choNghi(d.ten, /:(429|402)$/.test(cuoi) ? 30 * 60 : /:401$/.test(cuoi) ? 6 * 3600 : 60);
+    cuoi = st;
+    choNghi(d.ten, /:(429|402)$/.test(st) ? 30 * 60 : /:401$/.test(st) ? 6 * 3600 : 60);
+    return null;
+  }
+
+  const kq = await new Promise((xong) => {
+    let i = 0;
+    let dangChay = 0;
+    let daXong = false;
+    const ket = (r) => {
+      if (daXong) return;
+      daXong = true;
+      xong(r);
+    };
+    const chay = () => {
+      while (!daXong && dangChay < Math.max(1, cungLuc) && i < nhanh.length) {
+        const d = nhanh[i++];
+        dangChay++;
+        thuDichVu(d).then((r) => {
+          dangChay--;
+          if (r) return ket(r);
+          chay();
+        });
+      }
+      if (i >= nhanh.length && dangChay === 0) ket(null);
+    };
+    chay();
+  });
+  if (kq) return kq;
+  for (const d of cham) {
+    const r = await thuDichVu(d);
+    if (r) return r;
   }
   return { err: "loi_ai", status: cuoi };
 }

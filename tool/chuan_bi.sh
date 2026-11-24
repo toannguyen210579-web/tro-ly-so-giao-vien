@@ -13,7 +13,7 @@ p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 them='''	<key>NSCameraUsageDescription</key>
 	<string>Dùng máy ảnh để quét giấy tờ, chụp ảnh thẻ, chụp đề, chụp văn bản sang Word, chụp minh chứng và quét thẻ Giơ thẻ.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Chọn ảnh có sẵn để làm ảnh thẻ.</string>
+	<string>Chọn ảnh có sẵn để quét thành PDF, làm ảnh thẻ, lưu minh chứng, gửi đề cần giải và đọc thẻ Giơ thẻ.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Dùng micro để chuyển lời nói thành chữ.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
@@ -26,6 +26,17 @@ fi
 
 if [ -f ios/Podfile ]; then
   sed -i.bak -E "s/^#? *platform :ios.*/platform :ios, '15.5'/" ios/Podfile && rm -f ios/Podfile.bak
+fi
+
+# Tệp app lưu (PDF quét, bảng lương, bộ thẻ, minh chứng xuất…) hiện trong ứng dụng Tệp của iPhone, iPad:
+# Trên iPhone › Trợ lý số GV (thầy cô báo 24/11/2026 chưa có chỗ lưu tệp).
+if ! grep -q UIFileSharingEnabled "$PLIST"; then
+  /usr/bin/env python3 - "$PLIST" <<'PY'
+import sys
+p=sys.argv[1]; s=open(p,encoding='utf-8').read()
+i=s.rfind('</dict>'); s=s[:i]+'\t<key>UIFileSharingEnabled</key>\n\t<true/>\n\t<key>LSSupportsOpeningDocumentsInPlace</key>\n\t<true/>\n'+s[i:]
+open(p,'w',encoding='utf-8').write(s)
+PY
 fi
 
 # Bản iPhone: khai không dùng mã hóa đặc biệt (app chỉ dùng HTTPS) để khỏi khai lại mỗi lần

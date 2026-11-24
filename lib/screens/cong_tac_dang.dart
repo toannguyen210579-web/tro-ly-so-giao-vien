@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -10,8 +9,11 @@ import '../data/lich.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/van_ban_dang.dart';
+import 'bieu_tuong.dart';
 import 'cau_giup_viec.dart';
+import 'chu_chay.dart';
 import 'dieu_huong.dart';
+import '../services/chia_se.dart';
 
 const _khoaChiBo = 'dang_chi_bo';
 const _khoaNhap = 'dang_sinh_hoat_nhap';
@@ -67,6 +69,8 @@ class _CongTacDangState extends State<CongTacDang> {
     final ok = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true, // không đè lên thanh giờ trên đầu máy
+      showDragHandle: true,
       builder: (c) => Padding(
         padding: EdgeInsets.fromLTRB(16, 16, 16, MediaQuery.of(c).viewInsets.bottom + 16),
         child: SingleChildScrollView(
@@ -116,6 +120,41 @@ class _CongTacDangState extends State<CongTacDang> {
     }
   }
 
+  Future<void> _moDichVuCong() async {
+    final ok = await launchUrl(Uri.parse(congDichVuDang), mode: LaunchMode.externalApplication);
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('Không mở được, thầy cô vào dichvucong.dcs.vn bằng trình duyệt.')));
+    }
+  }
+
+  /// Một ô kiểu biểu tượng app: khối màu chuyển, tên, dòng chữ chạy nói công dụng.
+  Widget _oApp(String ma, IconData icon, String ten, String moTa, VoidCallback bam) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: bam,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+        child: Column(
+          children: [
+            BieuTuongNoi(ma: ma, icon: icon, size: 60),
+            const SizedBox(height: 8),
+            SizedBox(
+              height: 34,
+              child: Text(ten,
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.25)),
+            ),
+            const SizedBox(height: 2),
+            ChuChay(moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cb = _cb;
@@ -147,60 +186,26 @@ class _CongTacDangState extends State<CongTacDang> {
           ),
           const SizedBox(height: 8),
           ],
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.alarm_rounded),
-              title: const Text('Lịch nhắc họp chi bộ'),
-              subtitle: const Text('Đặt ngày họp hằng tháng, điện thoại nhắc trước một ngày'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManLichHopChiBo())),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.savings_rounded),
-              title: const Text('Tính đảng phí'),
-              subtitle: const Text('Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, nút nộp trực tuyến'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi())),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.how_to_reg_rounded, color: Color(0xFFC62828)),
-              title: const Text('Dịch vụ công của Đảng'),
-              subtitle: const Text('Thu nộp đảng phí, chuyển sinh hoạt đảng chính thức, tạm thời (đăng nhập bằng VNeID)'),
-              trailing: const Icon(Icons.open_in_new_rounded),
-              onTap: () async {
-                final ok = await launchUrl(Uri.parse(congDichVuDang), mode: LaunchMode.externalApplication);
-                if (!ok && context.mounted) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(const SnackBar(content: Text('Không mở được, thầy cô vào dichvucong.dcs.vn bằng trình duyệt.')));
-                }
-              },
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.menu_book_rounded, color: Color(0xFFC62828)),
-              title: const Text('Sổ tay đảng viên iCPV - Book'),
-              subtitle: const Text('Mở ứng dụng chính thức để đọc tài liệu, theo dõi sinh hoạt chi bộ (đăng nhập bằng tài khoản đảng viên hoặc VNeID)'),
-              trailing: const Icon(Icons.open_in_new_rounded),
-              onTap: _moIcpv,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.question_answer_rounded),
-              title: const Text('Hỏi về công tác Đảng'),
-              subtitle: const Text('Điều lệ Đảng, sinh hoạt chi bộ, thủ tục đảng viên; có dẫn nguồn văn bản'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => moHoiTroLy(context),
-            ),
+          // Mỗi việc một biểu tượng kiểu app trên điện thoại (thầy cô yêu cầu 24/11/2026), chữ chạy nói công dụng
+          GridView(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            // Chiều cao ô cố định: máy màn hẹp không bị tràn chữ
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 142, mainAxisSpacing: 6),
+            children: [
+              _oApp('dang_lich', Icons.event_available_rounded, 'Lịch họp chi bộ',
+                  'Đặt ngày họp hằng tháng, điện thoại nhắc trước một ngày',
+                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManLichHopChiBo()))),
+              _oApp('dang_phi', Icons.savings_rounded, 'Tính đảng phí',
+                  'Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, nút nộp trực tuyến',
+                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi()))),
+              _oApp('dang_dvc', Icons.account_balance_rounded, 'Dịch vụ công của Đảng',
+                  'Thu nộp đảng phí, chuyển sinh hoạt đảng (đăng nhập bằng VNeID)', _moDichVuCong),
+              _oApp('dang_so_tay', Icons.menu_book_rounded, 'Sổ tay đảng viên',
+                  'Mở ứng dụng iCPV - Book để đọc tài liệu, theo dõi sinh hoạt chi bộ', _moIcpv),
+              _oApp('dang_hoi', Icons.forum_rounded, 'Hỏi công tác Đảng',
+                  'Điều lệ Đảng, sinh hoạt chi bộ, thủ tục đảng viên; có dẫn nguồn văn bản', () => moHoiTroLy(context)),
+            ],
           ),
           const SizedBox(height: 16),
           const Text(
@@ -306,7 +311,7 @@ class _SoanSinhHoatChiBoState extends State<SoanSinhHoatChiBo> {
     final ten = '${bienBan ? 'Bien_ban' : 'Nghi_quyet'}_chi_bo_thang_${sh.ngay.month}_${sh.ngay.year}_${dauThoiGian(DateTime.now())}.docx';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(taoDocxDang(vb));
-    await Share.shareXFiles([XFile(f.path)]);
+    await guiTep([f.path], context: context);
   }
 
   void _bao(String s) {

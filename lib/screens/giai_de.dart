@@ -1,10 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/cham_diem.dart';
@@ -15,6 +15,7 @@ import '../services/tep_pdf.dart';
 import '../services/tep_word.dart' show taoDocx;
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
+import '../services/chia_se.dart';
 
 const _dsMon = ['Toán', 'Ngữ văn', 'Tiếng Anh', 'KHTN', 'Vật lí', 'Hóa học', 'Sinh học', 'Lịch sử và Địa lí', 'Tin học', 'GDCD', 'Khác'];
 
@@ -35,6 +36,8 @@ class _GiaiDeState extends State<GiaiDe> {
   String _mon = _dsMon.first;
   String _lop = '';
   bool _dangCho = false;
+  int _giayCho = 0; // số giây đã chờ AI, hiện cho thầy cô biết app vẫn đang làm
+  Timer? _demGio;
   String _loaiVuaLam = '';
   final _oLop = TextEditingController();
 
@@ -71,11 +74,12 @@ class _GiaiDeState extends State<GiaiDe> {
     final ten = '${loai}_${tenTep('$_mon${_lop.isEmpty ? '' : ' lop $_lop'}')}_${dauThoiGian(DateTime.now())}.docx';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(taoDocx(doan));
-    await Share.shareXFiles([XFile(f.path)]);
+    await guiTep([f.path], context: context);
   }
 
   @override
   void dispose() {
+    _demGio?.cancel();
     _deChu.dispose();
     _oLop.dispose();
     _yeuCau.dispose();
@@ -136,7 +140,15 @@ class _GiaiDeState extends State<GiaiDe> {
       _bao('Máy chủ AI chưa được nối nên tiện ích này chưa chạy được.');
       return;
     }
-    setState(() => _dangCho = true);
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() {
+      _dangCho = true;
+      _giayCho = 0;
+    });
+    _demGio?.cancel();
+    _demGio = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() => _giayCho++);
+    });
     _ghiNho();
     final anh = <String>[];
     for (final a in _anh) {
@@ -149,6 +161,7 @@ class _GiaiDeState extends State<GiaiDe> {
     if (_deChu.text.trim().isNotEmpty) b.write('\nĐề (giáo viên gõ):\n${_deChu.text.trim()}');
     if (_yeuCau.text.trim().isNotEmpty) b.write('\nYêu cầu thêm của giáo viên: ${_yeuCau.text.trim()}');
     final kq = await TroLyApi.hoi(b.toString(), loai: loai, anh: anh, pdf: pdf);
+    _demGio?.cancel();
     if (!mounted) return;
     setState(() => _dangCho = false);
     if (kq.traLoi == null) {
@@ -341,7 +354,21 @@ class _GiaiDeState extends State<GiaiDe> {
           ),
           const SizedBox(height: 12),
           if (_dangCho)
-            const Center(child: Padding(padding: EdgeInsets.all(12), child: CircularProgressIndicator()))
+            Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(color: const Color(0xFFE8F1FE), borderRadius: BorderRadius.circular(14)),
+              child: Row(children: [
+                const SizedBox(width: 26, height: 26, child: CircularProgressIndicator(strokeWidth: 3)),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Text(
+                    'AI đang giải từng bước, soạn đáp án… $_giayCho giây\n'
+                    'Đề ngắn thường xong trong vài giây; đề nhiều câu, có ảnh có thể mất 20–40 giây.',
+                    style: const TextStyle(fontSize: 13, height: 1.35),
+                  ),
+                ),
+              ]),
+            )
           else
             Row(
               children: [
@@ -393,7 +420,7 @@ class _GiaiDeState extends State<GiaiDe> {
                   label: const Text('Chép'),
                 ),
                 OutlinedButton.icon(onPressed: _xuatWord, icon: const Icon(Icons.description_outlined), label: const Text('Lưu Word')),
-                OutlinedButton.icon(onPressed: () => Share.share(_ketQua.text), icon: const Icon(Icons.send), label: const Text('Gửi đi')),
+                OutlinedButton.icon(onPressed: () => guiChu(_ketQua.text, context: context), icon: const Icon(Icons.send), label: const Text('Gửi đi')),
                 if (layDapAnTuLoiGiai(_ketQua.text) != null)
                   FilledButton.tonalIcon(
                     onPressed: _sangChamTracNghiem,

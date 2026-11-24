@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/luu_tru.dart';
@@ -11,6 +10,7 @@ import '../main.dart';
 import '../services/tep_pdf.dart';
 import 'cau_giup_viec.dart';
 import 'nhan_xet.dart';
+import '../services/chia_se.dart';
 
 /// Chia danh sách thành [soNhom] nhóm đều nhau (đã xáo trộn).
 List<List<String>> chiaNhom(List<String> ten, int soNhom, Random r) {
@@ -256,7 +256,7 @@ class _ChiaNhomState extends State<_ChiaNhom> {
               ),
             ),
           OutlinedButton.icon(
-            onPressed: () => Share.share(_vanBan()),
+            onPressed: () => guiChu(_vanBan(), context: context),
             icon: const Icon(Icons.send),
             label: const Text('Gửi danh sách nhóm'),
           ),
@@ -346,7 +346,7 @@ class _DiemDanhState extends State<_DiemDanh> {
           const SizedBox(width: 8),
           Expanded(
             child: FilledButton.icon(
-              onPressed: () => Share.share(_baoCao()),
+              onPressed: () => guiChu(_baoCao(), context: context),
               icon: const Icon(Icons.send),
               label: const Text('Gửi'),
             ),

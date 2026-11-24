@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart' show compute;
@@ -10,16 +9,17 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 import 'package:image/image.dart' as img;
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
+import 'package:printing/printing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/gio_the.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
+import '../services/tep_xlsx.dart';
+import '../services/the_gio_pdf.dart';
 import 'cau_giup_viec.dart';
 import 'nhan_xet.dart';
+import '../services/chia_se.dart';
 
 const _mauDapAn = {
   'A': Color(0xFFD7261E),
@@ -221,65 +221,61 @@ class _GioTheState extends State<GioThe> {
   }
 
   // ---------------------------------------------------------------- in thẻ
+  bool _dangIn = false;
+
+  /// Tạo bộ thẻ PDF, lưu vào máy, rồi cho chọn In ngay (máy in qua wifi) hoặc gửi tệp đi in ở nơi khác.
+  /// Trước 24/11/2026 bấm nút không thấy gì: tạo tệp mất vài giây không có báo, bảng gửi lỗi im lặng trên iPhone.
   Future<void> _inThe() async {
     final n = _soThe;
     if (n < 1) {
       _bao('Lớp chưa có học sinh.');
       return;
     }
-    final theme = await PhongPdf.theme();
-    final doc = pw.Document(theme: theme);
-    pw.Widget chu(String c, double goc) => pw.Transform.rotate(
-          angle: goc,
-          child: pw.Text(c, style: pw.TextStyle(fontSize: 34, fontWeight: pw.FontWeight.bold)),
-        );
-    pw.Widget the(int so) => pw.Container(
-          padding: const pw.EdgeInsets.all(10),
-          child: pw.Column(children: [
-            chu('A', 0),
-            pw.Expanded(
-              child: pw.Row(children: [
-                chu('D', pi / 2),
-                pw.Expanded(
-                  child: pw.Center(
-                    child: pw.BarcodeWidget(
-                      barcode: pw.Barcode.qrCode(),
-                      data: maThe(so),
-                      width: 95 * PdfPageFormat.mm,
-                      height: 95 * PdfPageFormat.mm,
-                      drawText: false,
-                    ),
-                  ),
-                ),
-                chu('B', -pi / 2),
-              ]),
-            ),
-            chu('C', pi),
-            pw.SizedBox(height: 4),
-            pw.Text('Số $so${so <= _ten.length ? ' · ${_ten[so - 1]}' : ''}', style: const pw.TextStyle(fontSize: 10)),
-          ]),
-        );
-    for (var i = 1; i <= n; i += 2) {
-      doc.addPage(pw.Page(
-        pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(12 * PdfPageFormat.mm),
-        build: (_) => pw.Column(children: [
-          pw.Expanded(child: the(i)),
-          pw.Divider(borderStyle: pw.BorderStyle.dashed),
-          pw.Expanded(child: i + 1 <= n ? the(i + 1) : pw.SizedBox()),
-        ]),
-      ));
+    setState(() => _dangIn = true);
+    _bao('Đang tạo bộ $n thẻ, thầy cô chờ vài giây…');
+    final File f;
+    final Uint8List pdf;
+    try {
+      pdf = await taoPdfBoThe(n, _ten, theme: await PhongPdf.theme());
+      final tenLop = _chonLop < 0 ? 'so_1_$n' : tenTep(_ds![_chonLop].ten);
+      f = File('${(await thuMucApp('xuat')).path}/The_gio_${tenLop}_${dauThoiGian(DateTime.now())}.pdf');
+      await f.writeAsBytes(pdf, flush: true);
+    } catch (_) {
+      if (mounted) setState(() => _dangIn = false);
+      _bao('Chưa tạo được bộ thẻ, thầy cô thử lại.');
+      return;
     }
-    final tenLop = _chonLop < 0 ? 'so_1_$n' : tenTep(_ds![_chonLop].ten);
-    final f = File('${(await thuMucApp('xuat')).path}/The_gio_${tenLop}_${dauThoiGian(DateTime.now())}.pdf');
-    await f.writeAsBytes(await doc.save());
-    await Share.shareXFiles([XFile(f.path)], text: 'Bộ thẻ giơ đáp án');
+    if (!mounted) return;
+    setState(() => _dangIn = false);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    await baoDaLuuTep(
+      context,
+      f,
+      tieuDe: 'Đã tạo bộ $n thẻ (${(n + 1) ~/ 2} trang A4)',
+      nutThem: [
+        FilledButton.tonalIcon(
+          onPressed: () async {
+            try {
+              await Printing.layoutPdf(onLayout: (_) async => pdf, name: f.uri.pathSegments.last);
+            } catch (_) {
+              _bao('Máy chưa mở được bảng in. Thầy cô bấm Gửi để in ở máy tính.');
+            }
+          },
+          icon: const Icon(Icons.print_outlined),
+          label: const Text('In ngay (máy in nối wifi)'),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
   }
 
   // ---------------------------------------------------------------- xuất
-  String _bangKetQua() {
+  /// Bảng kết quả: mỗi em một dòng, mỗi câu một cột, cột cuối số câu đúng; dòng cuối là đáp án đúng.
+  List<List<String>> _bangKetQua() {
     final ds = [..._daLam, if (_cau.traLoi.isNotEmpty) _cau];
-    final b = StringBuffer('STT,Họ và tên,${ds.map((c) => c.tieuDe).join(',')},Số câu đúng\n');
+    final bang = <List<String>>[
+      ['STT', 'Họ và tên', for (final c in ds) c.tieuDe, 'Số câu đúng'],
+    ];
     for (var so = 1; so <= _soThe; so++) {
       var dung = 0;
       final o = <String>[];
@@ -288,16 +284,42 @@ class _GioTheState extends State<GioThe> {
         if (c.dapAnDung != null && t == c.dapAnDung) dung++;
         o.add(t);
       }
-      b.writeln('$so,"${_tenEm(so).replaceAll('"', "'")}",${o.join(',')},$dung');
+      bang.add(['$so', _tenEm(so), ...o, '$dung']);
     }
-    b.writeln('Đáp án đúng,,${ds.map((c) => c.dapAnDung ?? '').join(',')},');
-    return b.toString();
+    bang.add(['', 'Đáp án đúng', for (final c in ds) c.dapAnDung ?? '', '']);
+    return bang;
   }
 
+  bool get _coKetQua => _daLam.isNotEmpty || _cau.traLoi.isNotEmpty;
+
+  void _baoChuaCoKetQua() => _bao('Chưa có kết quả để xuất. Thầy cô bấm Chụp cả lớp khi các em giơ thẻ, '
+      'app đọc đáp án từng em rồi mới có bảng kết quả.');
+
+  /// Xuất tệp Excel thật (.xlsx), mở được bằng Excel, Google Trang tính, WPS.
   Future<void> _xuatExcel() async {
-    final f = File('${(await thuMucApp('xuat')).path}/Gio_the_${tenTep(_chonLop < 0 ? 'so' : _ds![_chonLop].ten)}_${dauThoiGian(DateTime.now())}.csv');
-    await f.writeAsString('﻿${_bangKetQua()}');
-    await Share.shareXFiles([XFile(f.path)]);
+    if (!_coKetQua) {
+      _baoChuaCoKetQua();
+      return;
+    }
+    try {
+      final bang = _bangKetQua();
+      final f = File('${(await thuMucApp('xuat')).path}/Gio_the_${tenTep(_chonLop < 0 ? 'so' : _ds![_chonLop].ten)}_${dauThoiGian(DateTime.now())}.xlsx');
+      await f.writeAsBytes(taoXlsx(bang, tenTrang: 'Giơ thẻ', doRong: [6, 26, for (var i = 2; i < bang.first.length - 1; i++) 10, 12]), flush: true);
+      if (!mounted) return;
+      await baoDaLuuTep(context, f, tieuDe: 'Đã xuất bảng kết quả Excel');
+    } catch (_) {
+      _bao('Chưa xuất được tệp Excel, thầy cô thử lại.');
+    }
+  }
+
+  /// Chép bảng (các cột cách nhau bằng phím Tab) để dán thẳng vào Excel, Google Trang tính.
+  Future<void> _chepBang() async {
+    if (!_coKetQua) {
+      _baoChuaCoKetQua();
+      return;
+    }
+    await Clipboard.setData(ClipboardData(text: _bangKetQua().map((d) => d.join('\t')).join('\n')));
+    _bao('Đã chép bảng kết quả. Mở Excel, bấm vào ô A1 rồi dán.');
   }
 
   Future<void> _xoaLichSu() async {
@@ -380,9 +402,11 @@ class _GioTheState extends State<GioThe> {
             ]),
           const SizedBox(height: 8),
           OutlinedButton.icon(
-            onPressed: _inThe,
-            icon: const Icon(Icons.print_outlined),
-            label: Text('In bộ thẻ ($_soThe thẻ, 2 thẻ một trang A4)'),
+            onPressed: _dangIn ? null : _inThe,
+            icon: _dangIn
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(Icons.print_outlined),
+            label: Text(_dangIn ? 'Đang tạo bộ thẻ…' : 'In bộ thẻ ($_soThe thẻ, 2 thẻ một trang A4)'),
           ),
           const SizedBox(height: 4),
           const Text(
@@ -506,10 +530,11 @@ class _GioTheState extends State<GioThe> {
               ),
             ),
           const SizedBox(height: 8),
+          // Hai nút luôn bấm được (trước đây mờ đi khi chưa có kết quả, thầy cô tưởng bị ẩn): chưa có kết quả thì app nói rõ
           Row(children: [
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: (_daLam.isEmpty && _cau.traLoi.isEmpty) ? null : _xuatExcel,
+                onPressed: _xuatExcel,
                 icon: const Icon(Icons.table_view_outlined),
                 label: const Text('Xuất Excel'),
               ),
@@ -517,17 +542,20 @@ class _GioTheState extends State<GioThe> {
             const SizedBox(width: 8),
             Expanded(
               child: OutlinedButton.icon(
-                onPressed: (_daLam.isEmpty && _cau.traLoi.isEmpty)
-                    ? null
-                    : () async {
-                        await Clipboard.setData(ClipboardData(text: _bangKetQua()));
-                        _bao('Đã chép bảng kết quả.');
-                      },
+                onPressed: _chepBang,
                 icon: const Icon(Icons.copy),
                 label: const Text('Chép bảng'),
               ),
             ),
           ]),
+          if (!_coKetQua)
+            const Padding(
+              padding: EdgeInsets.only(top: 6),
+              child: Text(
+                'Bảng kết quả có sau khi thầy cô chụp cả lớp giơ thẻ: mỗi em một dòng, mỗi câu một cột, có số câu đúng.',
+                style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
+              ),
+            ),
         ],
       ),
     );

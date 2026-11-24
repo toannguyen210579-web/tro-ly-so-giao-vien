@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../data/cham_diem.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import 'cau_giup_viec.dart';
+import '../services/chia_se.dart';
 
 const _khoa = khoaChamTracNghiem;
 
@@ -260,7 +260,7 @@ class _ManDeState extends State<_ManDe> {
     }
     final f = File('${(await thuMucApp('xuat')).path}/Diem_${tenTep(de.ten)}_${dauThoiGian(DateTime.now())}.csv');
     await f.writeAsString(b.toString());
-    await Share.shareXFiles([XFile(f.path)]);
+    await guiTep([f.path], context: context);
   }
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));

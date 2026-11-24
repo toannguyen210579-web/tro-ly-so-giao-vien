@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 
 import '../data/tin_kenh.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
+import '../services/chia_se.dart';
 
 const tenKenh = 'Việt Nam Tiêu Điểm';
 
@@ -34,7 +34,7 @@ Future<void> moFacebook(BuildContext context, TinKenh t) async {
 void chiaSeTin(TinKenh t) {
   final lk = t.laTinBao ? t.link : t.linkFacebook;
   final link = lk == null ? '' : '\n$lk';
-  Share.share('${t.tit}\n${t.tomTat}$link\n(Theo ${t.nguon ?? tenKenh})');
+  guiChu('${t.tit}\n${t.tomTat}$link\n(Theo ${t.nguon ?? tenKenh})');
 }
 
 /// Mở bài gốc trên trang báo
@@ -421,7 +421,11 @@ class _MotClipState extends State<_MotClip> {
                   children: [
                     OutlinedButton.icon(
                       onPressed: () => chiaSeTin(t),
-                      style: OutlinedButton.styleFrom(foregroundColor: Colors.white, side: const BorderSide(color: Colors.white54)),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white.withValues(alpha: 0.12),
+                        side: const BorderSide(color: Colors.white54),
+                      ),
                       icon: const Icon(Icons.share_outlined, size: 18),
                       label: const Text('Chia sẻ'),
                     ),

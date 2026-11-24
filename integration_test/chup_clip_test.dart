@@ -311,10 +311,10 @@ void main() {
       await chup(t, '52_nhan_ph_mau');
       await t.tap(find.text('Khen ngợi'));
       await cho(t, 800);
-      await t.enterText(find.widgetWithText(TextField, 'Ý thầy cô muốn nói (để AI soạn)'), 'tuần này em tiến bộ môn Toán, hăng hái phát biểu');
+      await t.enterText(find.widgetWithText(TextField, 'Ý chính muốn báo'), 'tuần này em tiến bộ môn Toán, hăng hái phát biểu');
       FocusManager.instance.primaryFocus?.unfocus();
-      await t.tap(find.text('Nhờ AI soạn tin'));
-      final xong = await choChu(t, 'AI đã soạn xong', giay: 90);
+      await t.tap(find.text('Nhờ AI viết thành tin nhắn'));
+      final xong = await choChu(t, 'AI đã viết xong', giay: 90);
       kq('nhan_ph_ai: ${xong ? "xong" : "CHUA XONG"}');
       await chup(t, '53_nhan_ph_ai', giuThongBao: true);
       await cuonDen(t, find.text('Tin nhắn (sửa trực tiếp được)'), viTri: 0.05);
