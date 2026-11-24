@@ -1,0 +1,121 @@
+name: Gan ban vao trang phien ban App Store
+# Gắn một bản đã tải lên (đã xử lý xong) vào trang phiên bản trên App Store Connect bằng khóa API, rồi liệt kê
+# những gì trang phiên bản đã có. KHÔNG gửi duyệt: gửi duyệt chỉ làm khi người dùng bảo. Thêm 24/11/2026.
+on:
+  workflow_dispatch:
+    inputs:
+      phien_ban:
+        description: "Số phiên bản"
+        default: "0.4.0"
+      so_build:
+        description: "Số build cần gắn"
+        default: "6"
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/gan_ban_app_store.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  gan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Cài thư viện ký JWT
+        run: pip install --quiet pyjwt cryptography
+      - name: Gắn bản và kiểm tra trang phiên bản
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          APP_ID: "6838612892"
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban || '0.4.0' }}
+          SO_BUILD: ${{ github.event.inputs.so_build || '6' }}
+        shell: python
+        run: |
+          import json, os, sys, time, urllib.error, urllib.parse, urllib.request
+          import jwt
+
+          KEY = os.environ["ASC_KEY_P8"]
+          if not KEY.strip():
+              print("::error::Chưa có secret ASC_KEY_P8"); sys.exit(1)
+          KID, ISS, APP = os.environ["ASC_KEY_ID"], os.environ["ASC_ISSUER_ID"], os.environ["APP_ID"]
+          VER, BUILD = os.environ["PHIEN_BAN"], os.environ["SO_BUILD"]
+          BASE = "https://api.appstoreconnect.apple.com"
+
+          def bao(msg):
+              print(f"::notice title=Trang phiên bản::{msg}")
+
+          def token():
+              now = int(time.time())
+              return jwt.encode({"iss": ISS, "iat": now, "exp": now + 1100, "aud": "appstoreconnect-v1"},
+                                KEY, algorithm="ES256", headers={"kid": KID, "typ": "JWT"})
+
+          def api(method, path, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request(BASE + path, data=data, method=method,
+                                           headers={"Authorization": "Bearer " + token(), "Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      raw = r.read()
+                      return r.status, (json.loads(raw) if raw else {})
+              except urllib.error.HTTPError as e:
+                  raw = e.read()
+                  try:
+                      js = json.loads(raw)
+                  except Exception:
+                      js = {"raw": raw.decode(errors="replace")[:500]}
+                  return e.code, js
+
+          def loi(js):
+              return "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in js.get("errors", [])) or str(js)[:300]
+
+          def can(st, js, viec):
+              if st not in (200, 201, 204):
+                  print(f"::error::{viec}: HTTP {st} {loi(js)}"); sys.exit(1)
+
+          st, js = api("GET", f"/v1/apps/{APP}/appStoreVersions?" + urllib.parse.urlencode(
+              {"filter[versionString]": VER, "filter[platform]": "IOS", "include": "build", "limit": 5}))
+          can(st, js, "Tìm phiên bản")
+          if not js["data"]:
+              print(f"::error::Không thấy phiên bản {VER}"); sys.exit(1)
+          ver = js["data"][0]
+          bao(f"Phiên bản {VER}: {ver['attributes'].get('appVersionState') or ver['attributes'].get('appStoreState')}")
+
+          # Tìm bản VER (BUILD) đã xử lý xong
+          st, js = api("GET", "/v1/builds?" + urllib.parse.urlencode(
+              {"filter[app]": APP, "filter[version]": BUILD, "filter[preReleaseVersion.version]": VER,
+               "fields[builds]": "version,processingState,expired,usesNonExemptEncryption", "limit": 5}))
+          can(st, js, "Tìm bản")
+          if not js["data"]:
+              print(f"::error::Chưa thấy bản {VER} ({BUILD}) trên App Store Connect"); sys.exit(1)
+          b = js["data"][0]
+          if b["attributes"].get("processingState") != "VALID":
+              print(f"::error::Bản {VER} ({BUILD}) chưa xử lý xong: {b['attributes'].get('processingState')}"); sys.exit(1)
+
+          st, r = api("PATCH", f"/v1/appStoreVersions/{ver['id']}/relationships/build",
+                      {"data": {"type": "builds", "id": b["id"]}})
+          can(st, r, "Gắn bản")
+          st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/build?fields[builds]=version")
+          can(st, r, "Đọc lại bản đã gắn")
+          bao(f"Đã gắn bản {VER} ({r['data']['attributes']['version']}) vào trang phiên bản")
+
+          # Liệt kê những gì trang phiên bản đã có
+          st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations?limit=50")
+          can(st, r, "Bản mô tả")
+          for l in r["data"]:
+              a = l["attributes"]
+              bao(f"Ngôn ngữ {a['locale']}: mô tả {len(a.get('description') or '')} ký tự, từ khóa {len(a.get('keywords') or '')}, "
+                  f"quảng bá {len(a.get('promotionalText') or '')}, URL hỗ trợ {'có' if a.get('supportUrl') else 'THIẾU'}")
+              st2, r2 = api("GET", f"/v1/appStoreVersionLocalizations/{l['id']}/appScreenshotSets?include=appScreenshots&limit=50")
+              for s in r2.get("data", []):
+                  n = len(s.get("relationships", {}).get("appScreenshots", {}).get("data", []))
+                  bao(f"  Bộ ảnh {s['attributes']['screenshotDisplayType']}: {n} ảnh")
+          st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreReviewDetail")
+          if st == 200 and r.get("data"):
+              a = r["data"]["attributes"]
+              bao(f"Thông tin người duyệt: liên hệ {'có' if a.get('contactEmail') else 'THIẾU'}, "
+                  f"cần đăng nhập {'có' if a.get('demoAccountRequired') else 'không'}, ghi chú {len(a.get('notes') or '')} ký tự")
+          bao(f"Bản quyền: {ver['attributes'].get('copyright') or 'THIẾU'}; phát hành: {ver['attributes'].get('releaseType')}")
+          bao("Chưa gửi duyệt (chỉ gửi khi người dùng bảo).")
