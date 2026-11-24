@@ -302,7 +302,13 @@ void main() {
       await bamChu('Giải, soạn đáp án');
       await cho(t, 3000);
       await chup(t, 'sua_giai_de_cho');
-      final ok = await doiChu('Kết quả (sửa được)', giay: 150);
+      // Xong khi nút Giải hiện lại (hết chờ); ô kết quả nằm dưới màn hình nên không tìm theo chữ của ô
+      var ok = false;
+      for (var i = 0; i < 640 && !ok; i++) {
+        await cho(t, 250);
+        ok = find.text('Giải, soạn đáp án').evaluate().isNotEmpty;
+      }
+      ok = ok && find.textContaining('Bản do AI làm').evaluate().isNotEmpty;
       await chup(t, 'sua_giai_de_xong');
       // ignore: avoid_print
       print('KQ giai_de: ${ok ? "co ket qua sau ${dh.elapsedMilliseconds} ms" : "CHUA CO sau ${dh.elapsedMilliseconds} ms"}; thong bao: ${thongBao()}');

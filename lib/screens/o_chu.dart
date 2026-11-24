@@ -326,6 +326,11 @@ class _ChoiOChuState extends State<_ChoiOChu> {
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [
             FilledButton.icon(
+              // Chưa chọn hàng thì nút mờ nhưng vẫn đọc được chữ trên nền tối
+              style: FilledButton.styleFrom(
+                disabledBackgroundColor: Colors.white.withValues(alpha: 0.10),
+                disabledForegroundColor: Colors.white60,
+              ),
               onPressed: c == null ? null : () => setState(() => _mo[c] = true),
               icon: const Icon(Icons.visibility),
               label: const Text('Mở đáp án hàng này'),
