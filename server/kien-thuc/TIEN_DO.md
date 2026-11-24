@@ -89,9 +89,11 @@ Mỗi tối nạp 2 văn bản công tác Đảng và 2 văn bản giáo dục (
 - Quy định 207-QĐ/TW ngày 26/7/2026 về những điều đảng viên không được làm (19 điều, nguyên văn; thay QĐ 37-QĐ/TW) (22/11)
 - Quy định 01-QĐ/TW ngày 03/02/2026 về chế độ đảng phí (nguyên văn 8 điều; hiệu lực 01/02/2026, thay QĐ 342-QĐ/TW) (22/11)
 - Quy định 208-QĐ/TW ngày 26/7/2026 thi hành Điều lệ Đảng: phần 1 (Chương I, VII, VIII) và phần 2 (Chương III đảng viên, mục 1–4, 6–8) nguyên văn (22/11)
+- (24/11, lấy từ kho VĂN BẢN CĂN CỨ trên Drive) QĐ 208-QĐ/TW phần 3, 4, 5: Chương II, Chương III mục 5 (đảng tịch), Chương V, VI (chuyển chữ từ bản chụp, đã sửa lỗi nhận dạng); Chương IV (Quân đội, Công an) chưa nạp
+- (24/11) Hướng dẫn 02-HD/TW ngày 07/8/2026 của Ban Bí thư thi hành Điều lệ Đảng (3 phần, nguyên văn theo luatvietnam.vn)
 
 Còn phải làm (theo thứ tự):
-2. QĐ 208-QĐ/TW: còn Chương II (nguyên tắc tổ chức, đại hội, bầu cử, chi bộ), IV, V (kiểm tra, khen thưởng), VI, và Chương III mục 5 (đảng tịch). Nguyên văn ở luatvietnam.vn ...-441932-d6.html (mở bằng trình duyệt, ~91.000 ký tự). Kèm Hướng dẫn 02-HD/TW 2026 thi hành Điều lệ Đảng (luatvietnam.vn ...-444353-d6.html)
+2. (Đã nạp đủ 208 trừ Chương IV; đã nạp HD 02-HD/TW.) Nếu cần: đối chiếu lại phần 3–5 của 208 với nguyên văn luatvietnam.vn ...-441932-d6.html bằng trình duyệt
 3. Quy định 212-QĐ/TW ngày 17/8/2026 của Bộ Chính trị về kỷ luật tổ chức đảng, đảng viên vi phạm (đối chiếu ngày ký, văn bản thay thế QĐ 69-QĐ/TW và QĐ 264-QĐ/TW)
 4. Hướng dẫn 42-HD/BTCTW (2025) về đổi mới, nâng cao chất lượng sinh hoạt chi bộ (thực hiện Chỉ thị 50-CT/TW); kiểm tra còn hiệu lực; Hướng dẫn sinh hoạt tổ đảng
 5. Quy định 366-QĐ/TW (2025) về kiểm điểm, đánh giá, xếp loại chất lượng tập thể, cá nhân; Hướng dẫn kiểm điểm năm 2026 của Ban Tổ chức Trung ương
