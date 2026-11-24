@@ -93,6 +93,8 @@ Mỗi tối nạp 2 văn bản công tác Đảng và 2 văn bản giáo dục (
 - (24/11) Hướng dẫn 02-HD/TW ngày 07/8/2026 của Ban Bí thư thi hành Điều lệ Đảng (3 phần, nguyên văn theo luatvietnam.vn)
 - (24/11, từ kho VĂN BẢN CĂN CỨ) Chỉ thị 07-CT/TW ngày 13/7/2026 học tập, thực hành tư tưởng Hồ Chí Minh; Kế hoạch 09-KH/TW ngày 15/9/2026 của Ban Bí thư thực hiện Chỉ thị 07; Nghị quyết 24-NQ/TW ngày 22/8/2026 tiên phong, gương mẫu, dám nghĩ dám làm (chuyển chữ từ bản chụp, đã sửa lỗi)
 - (24/11) Hướng dẫn 16-HD/BTGTW ngày 27/10/2026 học tập, quán triệt nghị quyết, học bù, đánh giá nhận thức; Quy định 350-QĐ/TW ngày 29/8/2025 đào tạo lý luận chính trị; Quy định 169-QĐ/TW ngày 24/6/2008 phụ cấp cấp uỷ viên
+- (24/11) Hướng dẫn 05-HD/VPTW ngày 27/5/2026 thể thức văn bản của Đảng (2 phần); Quy định 211-QĐ/TW ngày 07/8/2026 quản lý hồ sơ cán bộ (2 phần, chưa chép các mẫu); Nghị quyết 23, 25 (2 phần), 26, 27-NQ/TW năm 2026 của Bộ Chính trị (chuyển chữ từ bản chụp; NQ 27 chưa chép Phụ lục 01)
+- Đã xét và KHÔNG nạp (văn bản nội bộ, văn bản của Tỉnh uỷ, văn bản đến, công văn hành chính): các QĐ/CTr/KH/CV/BC của Tỉnh uỷ Đắk Lắk, Ban Tổ chức Tỉnh uỷ, đảng uỷ cấp dưới; thông báo kết luận 157, 164, 165, 166-TB/VPTW; công văn 2065, 2797-CV/BTCTW, 417-CV/UBKTTW, 568, 657, 1225-CV/BTGTW, CV 2604 Học viện CTQG; Hướng dẫn 05-HD/BTCTW 2026 (lương diện BCT, BBT quản lý); kế hoạch tổ chức hội nghị 15, 17, 43-KH/BTGTW; QĐ 360-QĐ/TW (đã bị thay bởi QĐ 222-QĐ/TW); hồ sơ di tích
 
 Còn phải làm (theo thứ tự):
 2. (Đã nạp đủ 208 trừ Chương IV; đã nạp HD 02-HD/TW.) Nếu cần: đối chiếu lại phần 3–5 của 208 với nguyên văn luatvietnam.vn ...-441932-d6.html bằng trình duyệt
