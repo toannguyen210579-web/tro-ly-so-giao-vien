@@ -108,8 +108,11 @@ jobs:
           can(st, r, "Bản mô tả")
           if os.environ.get("MO_TA") == "co":
               hs = open("cua-hang/HO_SO_CUA_HANG.md", encoding="utf-8").read()
-              mo_ta = hs[hs.index("## 3."):hs.index("## 4.")].split("\n", 2)[2].strip()
-              tu_khoa = hs[hs.index("## 4."):hs.index("## 5.")].split("\n", 2)[2].strip().splitlines()[0].strip()
+              # Mô tả: khối ``` đầu tiên sau "### Mô tả đầy đủ"; từ khóa: dòng đầu sau "### Từ khóa App Store"
+              k = hs.index("\n### Mô tả đầy đủ")
+              a = hs.index("```", k) + 3
+              mo_ta = hs[a:hs.index("```", a)].strip()
+              tu_khoa = hs[hs.index("\n### Từ khóa App Store") + 1:].split("\n", 2)[1].strip()
               if len(mo_ta) > 4000 or len(tu_khoa) > 100:
                   print(f"::error::Mô tả {len(mo_ta)} ký tự (tối đa 4000), từ khóa {len(tu_khoa)} (tối đa 100)"); sys.exit(1)
               for l in r["data"]:
