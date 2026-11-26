@@ -8,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:tro_ly_so_giao_vien/data/tien_ich.dart';
 import 'package:tro_ly_so_giao_vien/main.dart' as app;
 import 'package:tro_ly_so_giao_vien/screens/dieu_huong.dart';
-import 'package:tro_ly_so_giao_vien/screens/tin_kenh.dart';
 import 'package:tro_ly_so_giao_vien/screens/trang_chu.dart';
 import 'package:tro_ly_so_giao_vien/services/giong_may.dart';
 
@@ -49,13 +48,9 @@ void main() {
     // thì máy giả lập mất kết nối (26/11/2026, 4 lần); mở ngay khi khởi động thì bình thường (integration_test/tin_tuc_test.dart)
     try {
       // ignore: avoid_print
-      print('KQ thanh_duoi_bam_tin: ${find.text('Tin tức').evaluate().length} cho');
-      await t.tap(find.text('Tin tức').last);
-      await cho(t, 2500);
-      final nutFb = find.textContaining('Xem trên Facebook').evaluate().length;
+      // Màn Tin tức không mở ở đây: trên máy giả lập (vẽ bằng phần mềm) khung đầu của Tin tức mất 2–6 giây, chạy kèm
+      // việc khác thì máy giả lập sập (26/11/2026, 5 lần). Tin tức thử riêng ở tin_tuc_test.dart và xem_app_test.dart.
       final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
-      final coTin = find.byType(ManTin).evaluate().length;
-      await chup(t, 'moi_tin_tuc');
       await t.tap(find.text('Tài khoản').last);
       await cho(t, 2500);
       final pb = find.textContaining('0.4.0').evaluate().length;
@@ -64,7 +59,7 @@ void main() {
       await cho(t, 2000);
       final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
       // ignore: avoid_print
-      print('KQ thanh_duoi: man tin=$coTin, tin co thanh duoi=$coThanh, nut Facebook=$nutFb, so phien ban hien=$pb, ve trang chu=$veTc');
+      print('KQ thanh_duoi: trang chu co thanh duoi=$coThanh, so phien ban hien=$pb, ve trang chu=$veTc');
     } catch (e) {
       // ignore: avoid_print
       print('KQ thanh_duoi: LOI PHEP THU ${e.toString().split('\n').first}');
@@ -385,6 +380,15 @@ void main() {
 
       await nhap('Về việc', 'đánh giá hoạt động chuyên môn tháng 11');
       await nhap('Ghi chép', 'Cô Lan: tổ đã dạy đủ chương trình.\nThầy Hùng: cần thêm tiết phụ đạo cho lớp 9.');
+      // Hai nút lấy ghi chép nằm ngay dưới ô Ghi chép: đếm lại khi đã cuộn tới
+      FocusManager.instance.primaryFocus?.unfocus();
+      await cho(t, 800);
+      try {
+        await t.scrollUntilVisible(find.text('Lấy từ tệp: ảnh, PDF, Word'), 200, scrollable: find.byType(Scrollable).first);
+      } catch (_) {}
+      // ignore: avoid_print
+      print('KQ bien_ban_nut_duoi_o_ghi_chep: chup=${find.text('Chụp ảnh ghi chép').evaluate().length}, lay tu tep=${find.text('Lấy từ tệp: ảnh, PDF, Word').evaluate().length}');
+      await chup(t, 'moi_bien_ban_nut');
       await bamChu('Lưu biên bản');
       final ok = await doiChu('Đã lưu biên bản', giay: 20);
       final moXem = find.text('Mở xem').evaluate().length;
