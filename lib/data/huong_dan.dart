@@ -322,6 +322,33 @@ const huongDan = <String, List<MucHuongDan>>{
       'AI có thể nhầm. Thầy cô đọc lại bản dịch trước khi dùng; bấm "Báo cáo" khi thấy dịch sai.',
     ]),
   ],
+  'danh_gia': [
+    MucHuongDan('Căn cứ', [
+      'Làm theo Nghị định số 233/2026/NĐ-CP (hiệu lực 01/7/2026, thay Nghị định 90/2020): tiêu chí chung tối đa 30 điểm, kết quả thực hiện nhiệm vụ tối đa 70 điểm (số lượng, chất lượng, tiến độ).',
+      'Mức xếp loại: Hoàn thành xuất sắc từ 90 điểm; Hoàn thành tốt từ 70 đến dưới 90; Hoàn thành từ 50 đến dưới 70; dưới 50 là Không hoàn thành.',
+      'Điểm từng phần do quy chế đánh giá của trường quy định. Vào thẻ "Quy chế" sửa cho khớp quy chế trường mình trước khi chấm.',
+    ]),
+    MucHuongDan('Chấm điểm từng tháng', [
+      'Ở thẻ "Các kỳ", bấm vào tháng (hoặc quý) cần chấm.',
+      'Phần A: app để sẵn điểm tối đa từng nhóm tiêu chí chung, bấm dấu trừ ở nhóm còn chưa đạt.',
+      'Phần B: bấm "Thêm việc" hoặc "Lấy việc từ Lịch nhắc hạn" để có danh sách việc được giao trong kỳ. Mỗi việc chọn khối lượng, chất lượng, tiến độ; app tự tính điểm.',
+      'Trường đã chấm, xác nhận điểm tháng thì ghi vào ô "Điểm trường xác nhận"; app dùng điểm này để tính năm.',
+      'Bấm "Lưu kỳ này".',
+    ]),
+    MucHuongDan('Cuối năm làm phiếu', [
+      'Thẻ "Các kỳ" luôn hiện điểm bình quân, mức dự kiến và số điểm các kỳ còn lại cần đạt.',
+      'Sang thẻ "Phiếu năm": ghi cơ quan cấp trên (UBND xã, phường với trường mầm non, tiểu học, THCS; Sở GD&ĐT với trường THPT), tên trường, họ tên, chức danh.',
+      'Bấm "Nhờ AI viết nháp" để AI viết Ưu điểm, Hạn chế từ các việc đã chấm (không gửi họ tên lên AI). Đọc lại, sửa cho đúng.',
+      'Đánh dấu các trường hợp riêng nếu có (chưa đủ 06 tháng làm việc, bị kỷ luật, bị kết luận suy thoái).',
+      'Bấm "Lưu phiếu (Word và PDF)": app tạo phiếu đúng mẫu Phụ lục II, hộp "Đã lưu" có Mở xem, Lưu vào máy, Gửi.',
+    ]),
+    MucHuongDan('Lưu ý', [
+      'Mức xếp loại chính thức do Hiệu trưởng (hoặc cấp có thẩm quyền) quyết định sau họp nhận xét.',
+      'Số người Hoàn thành xuất sắc không quá 20% số người Hoàn thành tốt của trường (25% nếu trường được công nhận Hoàn thành xuất sắc).',
+      'Trường chưa ban hành quy chế theo Nghị định 233/2026 thì cuối năm 2026 vẫn đánh giá theo quy chế cũ (Điều 20).',
+    ]),
+    _riengTu,
+  ],
   'hoi': [
     // Mở bằng nút ? ở góc trên màn Hỏi Trợ lý (chốt 24/11/2026). Chỉ nêu ưu thế có thật, không ghi "vượt trội", "tốt nhất".
     MucHuongDan('Điểm mạnh của Trợ lý', [

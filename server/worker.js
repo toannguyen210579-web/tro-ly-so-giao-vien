@@ -25,8 +25,8 @@ const MODEL = "claude-haiku-5-5";
 const MAX_INPUT = 2000;      // ký tự tối đa mỗi lần gửi
 const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
 // Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
-const MAX_IN = { bienban: 12000, detuongtu: 4000, dich: 6000 };
-const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000 };
+const MAX_IN = { bienban: 12000, detuongtu: 4000, dich: 6000, danhgia: 4000 };
+const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000, danhgia: 1200 };
 // chế độ được gửi ảnh (tối đa 4 ảnh), tệp PDF. chep_chu: Biên bản lấy ghi chép từ ảnh, PDF; dich: Dịch tài liệu (26/11/2026)
 const IMG_MODES = ["giaide", "detuongtu", "hoi", "chep_chu", "dich"];
 // Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
@@ -39,8 +39,8 @@ const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
 const LIMITS = {
   // dich: mỗi lượt là một trang (app chia chữ thành đoạn khoảng 2.500 ký tự, mỗi ảnh hoặc trang PDF là một lượt)
-  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20 },
-  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100 },
+  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20, danhgia: 20 },
+  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100, danhgia: 50 },
 };
 const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (cả trường dùng chung wifi)
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
@@ -130,6 +130,15 @@ const SYSTEM = {
     "Với ảnh, tệp PDF: yêu cầu song ngữ thì trả về hai phần, dòng 'NGUYÊN VĂN:' rồi chép đúng chữ trong ảnh, dòng 'BẢN DỊCH:' rồi bản dịch; " +
     "không song ngữ thì chỉ trả về bản dịch. Chữ không đọc rõ ghi [không rõ]. " +
     "Không dùng markdown (không dùng **, #), không giải thích, chỉ trả về nội dung.",
+  // Đánh giá, xếp loại (26/11/2026): viết nháp mục Ưu điểm, Hạn chế của Phiếu xếp loại chất lượng viên chức (Phụ lục II NĐ 233/2026)
+  danhgia:
+    CHUNG +
+    " Nhiệm vụ: viết nháp hai mục 'Ưu điểm' và 'Hạn chế' trong Phiếu xếp loại chất lượng viên chức theo mẫu Phụ lục II Nghị định số 233/2026/NĐ-CP, " +
+    "dựa đúng vào danh sách việc được giao và mức hoàn thành giáo viên gửi kèm (khối lượng, chất lượng, tiến độ, điểm từng kỳ, ghi chú). " +
+    "Viết ở ngôi thứ nhất kiểu văn bản tự đánh giá (không xưng tôi, viết thẳng việc), câu ngắn, cụ thể, nêu tên việc thật trong danh sách; " +
+    "không bịa thành tích, số liệu, danh hiệu không có trong danh sách. Ưu điểm 3 đến 5 ý, Hạn chế 1 đến 3 ý; " +
+    "việc trễ hạn, chưa đạt, làm chưa đủ thì đưa vào Hạn chế kèm hướng khắc phục ngắn; không có việc nào chưa tốt thì nêu hạn chế chung, nhẹ, có thật với nghề giáo. " +
+    "Trả về đúng dạng: dòng 'ƯU ĐIỂM:' rồi mỗi ý một dòng bắt đầu bằng '- '; dòng 'HẠN CHẾ:' rồi mỗi ý một dòng bắt đầu bằng '- '. Không dùng markdown, không thêm lời giải thích.",
 };
 
 // Câu mặc định gửi kèm ảnh, tệp khi thầy cô không gõ gì

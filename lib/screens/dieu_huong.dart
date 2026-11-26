@@ -6,6 +6,7 @@ import 'anh_the.dart';
 import 'cham_trac_nghiem.dart';
 import 'cong_cu_tren_lop.dart';
 import 'cong_tac_dang.dart';
+import 'danh_gia_xep_loai.dart';
 import 'dich_tai_lieu.dart';
 import 'doc_to_ghi_loi.dart';
 import 'giai_de.dart';
@@ -60,6 +61,8 @@ void moTienIch(BuildContext context, TienIch t) {
       man = const CongTacDang();
     case 'dich':
       man = const DichTaiLieu();
+    case 'danh_gia':
+      man = const DanhGiaXepLoai();
     default:
       man = SapCo(tienIch: t);
   }

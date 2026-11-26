@@ -425,3 +425,15 @@ test("Dịch tài liệu: mỗi máy 20 trang mỗi ngày", async () => {
   assert.equal(r.error, "het_luot");
   assert.equal(r.message, "Hôm nay thầy cô đã dùng hết 20 lượt, mai dùng tiếp nhé.");
 });
+
+test("Đánh giá, xếp loại: viết nháp Ưu điểm, Hạn chế luôn đi Claude, nhận nội dung dài đến 4.000 ký tự", async () => {
+  const { env, ghi } = moiTruong();
+  const viec = "- Dạy đủ số tiết: khối lượng Đủ, chất lượng Tốt, tiến độ Đúng hạn.\n".repeat(40);
+  const r = await goi(env, { mode: "danhgia", input: "Chức danh: Giáo viên.\nTháng 9/2026: 88 điểm.\n" + viec });
+  assert.equal(r.ok, true);
+  assert.equal(ghi.gemini.length, 0);
+  assert.equal(ghi.claude.length, 1);
+  assert.match(ghi.claude[0].system, /Phụ lục II Nghị định số 233\/2026\/NĐ-CP/);
+  assert.match(ghi.claude[0].system, /ƯU ĐIỂM:/);
+  assert.doesNotMatch(ghi.claude[0].system, /KIẾN THỨC NỀN/);
+});
