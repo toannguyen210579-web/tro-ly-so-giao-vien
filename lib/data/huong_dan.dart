@@ -241,6 +241,13 @@ const huongDan = <String, List<MucHuongDan>>{
     ]),
   ],
   'o_chu': [
+    MucHuongDan('Ô chữ mỗi ngày', [
+      'Thẻ cam "Ô chữ hôm nay" ở đầu màn: mỗi ngày một ô chữ mới theo chủ đề, bấm "Giải ngay".',
+      'Chạm số thứ tự của hàng để xem câu hỏi, gõ đáp án (có dấu hay không dấu, viết số hay viết chữ đều được), bấm "Trả lời".',
+      'Bí quá thì bấm "Xem đáp án" hàng đó. Đoán ra từ khóa hàng dọc sớm thì bấm "Đoán từ khóa hàng dọc" là xong luôn.',
+      'Xong thì bấm "Chia sẻ kết quả" (không lộ đáp án) hoặc "Lưu để chiếu lên lớp" để dùng ô chữ đó trên lớp.',
+      'Giải liền nhiều ngày sẽ có chuỗi ngày 🔥. Thoát ra giữa chừng, vào lại vẫn giải tiếp được.',
+    ]),
     MucHuongDan('Tạo ô chữ', [
       'Bấm "Ô chữ mới", ghi tên ô chữ và từ khóa hàng dọc.',
       'Mỗi hàng ngang: câu hỏi và đáp án; đáp án mỗi hàng nên chứa một chữ của từ khóa để app xếp thành hàng dọc. Bấm "Thêm hàng ngang" để thêm.',
@@ -285,6 +292,12 @@ const huongDan = <String, List<MucHuongDan>>{
     ]),
     MucHuongDan('Đồng hồ', [
       'Thẻ "Đồng hồ": chọn số phút, bấm chạy. Hết giờ điện thoại báo. "Đặt lại" để chạy lại.',
+    ]),
+    MucHuongDan('Thử thách cả lớp', [
+      'Thẻ "Thử thách": có sẵn bộ câu hỏi mẫu để chơi thử. "Bộ câu hỏi mới" để dán câu hỏi từ Word, Zalo; "Nhờ AI soạn" để AI soạn theo chủ đề, thầy cô đọc lại rồi lưu.',
+      'Chọn thời gian mỗi câu, bấm "Chơi", chiếu điện thoại lên màn hình lớp. Bấm "Bắt đầu tính giờ", học sinh ghi đáp án lên bảng con.',
+      'Hết giờ bấm "Xem đáp án", chạm tên các em trả lời sai để loại, rồi "Câu tiếp theo". Cả lớp cùng sai thì app không loại ai.',
+      'Nút "Cứu trợ" cho các em đã bị loại vào chơi lại. Kết thúc bấm "Gửi kết quả" để gửi nhóm Zalo lớp.',
     ]),
   ],
   'dich': [
