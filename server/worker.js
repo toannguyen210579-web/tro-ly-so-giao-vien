@@ -25,9 +25,10 @@ const MODEL = "claude-haiku-5-5";
 const MAX_INPUT = 2000;      // ký tự tối đa mỗi lần gửi
 const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
 // Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
-const MAX_IN = { bienban: 12000, detuongtu: 4000 };
-const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000 };
-const IMG_MODES = ["giaide", "detuongtu", "hoi"]; // chế độ được gửi ảnh, tối đa 4 ảnh
+const MAX_IN = { bienban: 12000, detuongtu: 4000, dich: 6000 };
+const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000 };
+// chế độ được gửi ảnh (tối đa 4 ảnh), tệp PDF. chep_chu: Biên bản lấy ghi chép từ ảnh, PDF; dich: Dịch tài liệu (26/11/2026)
+const IMG_MODES = ["giaide", "detuongtu", "hoi", "chep_chu", "dich"];
 // Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
 // Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
 const GEMINI_MODES = ["hoi", "giaide", "detuongtu"];
@@ -37,8 +38,9 @@ const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
 // Lượt mỗi máy mỗi ngày. Bản thử nghiệm để nhiều lượt.
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
 const LIMITS = {
-  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20 },
-  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100 },
+  // dich: mỗi lượt là một trang (app chia chữ thành đoạn khoảng 2.500 ký tự, mỗi ảnh hoặc trang PDF là một lượt)
+  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20 },
+  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100 },
 };
 const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (cả trường dùng chung wifi)
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
@@ -109,6 +111,32 @@ const SYSTEM = {
     "ngôi thứ ba, đúng ý từng người phát biểu, không thêm ý, số liệu, tên người không có trong ghi chép. " +
     "Trả về đúng hai phần: dòng 'NỘI DUNG:' rồi các đoạn diễn biến; dòng 'KẾT LUẬN:' rồi kết luận, phân công, thời hạn " +
     "(không có kết luận thì tóm tắt việc đã thống nhất). Không dùng markdown.",
+  // Biên bản: chép chữ từ ảnh chụp sổ ghi chép, tệp PDF (thầy cô đồng ý gửi trong app trước khi gửi). Luôn đi Claude.
+  chep_chu:
+    "Bạn chép lại chữ trong ảnh, tệp PDF cho giáo viên Việt Nam (ghi chép cuộc họp, biên bản viết tay hoặc in). " +
+    "Chép đúng nguyên văn, đủ, theo thứ tự đọc; mỗi ý, mỗi dòng ghi chép thành một dòng; giữ tên người, số liệu, giờ. " +
+    "Không thêm, không bớt, không tóm tắt, không sửa ý, không sửa lỗi chính tả của người viết trừ khi chữ viết tay khó đọc. " +
+    "Chữ không đọc rõ ghi [không rõ]. Ảnh không có chữ thì trả về đúng câu: Không thấy chữ trong ảnh. " +
+    "Không dùng markdown, không giải thích, chỉ trả về phần chữ.",
+  // Dịch tài liệu: dòng đầu của yêu cầu do app ghi (ngôn ngữ đích, kiểu dịch, song ngữ). Luôn đi Claude.
+  dich:
+    "Bạn dịch tài liệu cho giáo viên Việt Nam. Dòng đầu của yêu cầu cho biết ngôn ngữ đích, kiểu dịch, có song ngữ hay không; " +
+    "phần sau dòng '---' (hoặc ảnh, tệp kèm theo) là nội dung cần dịch. " +
+    "Dịch đầy đủ, đúng nghĩa, không bỏ sót, không tóm tắt, không thêm lời bình; giữ nguyên số liệu, tên riêng, công thức, số hiệu văn bản. " +
+    "Thuật ngữ giáo dục dịch theo cách dùng phổ biến của ngành giáo dục Việt Nam (ví dụ Ministry of Education and Training là Bộ Giáo dục và Đào tạo). " +
+    "Kiểu Sát nghĩa: bám câu chữ gốc, văn phong trang trọng. Kiểu Dễ hiểu: câu ngắn, từ ngữ đơn giản để học sinh đọc, vẫn đủ ý. " +
+    "Giữ bố cục: mỗi đoạn gốc thành đúng một đoạn dịch, các đoạn cách nhau bằng một dòng trống, giữ thứ tự, đánh số, gạch đầu dòng. " +
+    "Nội dung đã ở đúng ngôn ngữ đích thì chép lại nguyên văn. " +
+    "Với ảnh, tệp PDF: yêu cầu song ngữ thì trả về hai phần, dòng 'NGUYÊN VĂN:' rồi chép đúng chữ trong ảnh, dòng 'BẢN DỊCH:' rồi bản dịch; " +
+    "không song ngữ thì chỉ trả về bản dịch. Chữ không đọc rõ ghi [không rõ]. " +
+    "Không dùng markdown (không dùng **, #), không giải thích, chỉ trả về nội dung.",
+};
+
+// Câu mặc định gửi kèm ảnh, tệp khi thầy cô không gõ gì
+const CAU_MAC_DINH = {
+  hoi: "Giải thích nội dung trong tệp.",
+  chep_chu: "Chép lại chữ trong ảnh, tệp.",
+  dich: "Dịch sang: Tiếng Việt. Kiểu: Sát nghĩa. Song ngữ: không.",
 };
 
 // Hướng dẫn hệ thống kèm ngày giờ Việt Nam để AI trả lời đúng câu hỏi về ngày tháng
@@ -784,7 +812,7 @@ export default {
     const content = imgs.length || pdfs.length
       ? [...pdfs.map((a) => ({ type: "document", source: { type: "base64", media_type: "application/pdf", data: a } })),
         ...imgs.map((a) => ({ type: "image", source: { type: "base64", media_type: loaiAnh(a), data: a } })),
-        { type: "text", text: input || (mode === "hoi" ? "Giải thích nội dung trong tệp." : "Giải đề trong tệp.") }]
+        { type: "text", text: input || CAU_MAC_DINH[mode] || "Giải đề trong tệp." }]
       : input;
     if (await getFlag(db, "block:" + device)) {
       return err("bi_chan", "Máy này đã bị tạm dừng dùng AI. Thầy cô liên hệ hỗ trợ trong app.", 403);

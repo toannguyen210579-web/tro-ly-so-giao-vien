@@ -389,3 +389,39 @@ test("Hết lượt: không mời xem quảng cáo khi app chưa có quảng cá
   assert.equal(r.message, "Hôm nay thầy cô đã dùng hết 10 lượt, mai dùng tiếp nhé.");
   assert.doesNotMatch(r.message, /quảng cáo/);
 });
+
+test("Biên bản chép chữ từ ảnh, PDF: đi Claude, đúng hướng dẫn chép nguyên văn", async () => {
+  const { env, ghi } = moiTruong();
+  const r = await goi(env, { mode: "chep_chu", input: "", images: [ANH.jpeg] });
+  assert.equal(r.ok, true);
+  assert.equal(ghi.gemini.length, 0);
+  assert.match(ghi.claude[0].system, /chép lại chữ trong ảnh/i);
+  const ndung = ghi.claude[0].messages.at(-1).content;
+  assert.equal(ndung.find((c) => c.type === "text").text, "Chép lại chữ trong ảnh, tệp.");
+  const b = moiTruong();
+  const r2 = await goi(b.env, { mode: "chep_chu", input: "", pdfs: ["JVBERi0xLjQK"] });
+  assert.equal(r2.ok, true);
+  assert.equal(b.ghi.claude[0].messages.at(-1).content[0].type, "document");
+});
+
+test("Dịch tài liệu: chữ và ảnh đều đi Claude (không qua AI miễn phí), không ép trả lời tiếng Việt", async () => {
+  const { env, ghi } = moiTruong();
+  const r = await goi(env, { mode: "dich", input: "Dịch sang: Tiếng Anh. Kiểu: Sát nghĩa. Song ngữ: không.\n---\nXin chào thầy cô." });
+  assert.equal(r.ok, true);
+  assert.equal(ghi.gemini.length, 0);
+  assert.equal(ghi.claude.length, 1);
+  assert.match(ghi.claude[0].system, /^Bạn dịch tài liệu/);
+  assert.doesNotMatch(ghi.claude[0].system, /trả lời bằng tiếng Việt/);
+  const b = moiTruong();
+  const r2 = await goi(b.env, { mode: "dich", input: "Dịch sang: Tiếng Việt. Kiểu: Dễ hiểu. Song ngữ: có.", images: [ANH.png] });
+  assert.equal(r2.ok, true);
+  assert.equal(b.ghi.claude[0].messages.at(-1).content.find((c) => c.type === "image").source.media_type, "image/png");
+});
+
+test("Dịch tài liệu: mỗi máy 20 trang mỗi ngày", async () => {
+  const { env } = moiTruong();
+  await env.DB.prepare("INSERT INTO counters").bind("d:" + new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10) + ":dich:kiemthu123", 20).first();
+  const r = await goi(env, { mode: "dich", input: "Dịch sang: Tiếng Anh. Kiểu: Sát nghĩa. Song ngữ: không.\n---\nChào." });
+  assert.equal(r.error, "het_luot");
+  assert.equal(r.message, "Hôm nay thầy cô đã dùng hết 20 lượt, mai dùng tiếp nhé.");
+});
