@@ -95,13 +95,15 @@ void main() {
 
   testWidgets('Màn Tạo bài trình chiếu: chưa có giáo án thì nhắc; có bài thì xem từng trang, sửa trang', (t) async {
     SharedPreferences.setMockInitialValues({});
-    t.view.physicalSize = const Size(1080, 2400);
+    // màn cao để cả khung nhập giáo án và nút Tạo cùng dựng (danh sách dựng dần khi cuộn)
+    t.view.physicalSize = const Size(1080, 5200);
     t.view.devicePixelRatio = 2.6;
     addTearDown(t.view.reset);
     await t.pumpWidget(const MaterialApp(home: TaoTrinhChieu()));
     await t.pumpAndSettle();
     expect(find.text('Tệp giáo án (Word, PDF)'), findsOneWidget);
     expect(find.text('THCS'), findsOneWidget);
+    await t.ensureVisible(find.byKey(const Key('tc_tao')));
     await t.tap(find.byKey(const Key('tc_tao')));
     await t.pump();
     expect(find.text('Thầy cô chọn tệp giáo án, chụp giáo án hoặc dán nội dung giáo án.'), findsOneWidget);
