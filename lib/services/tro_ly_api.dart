@@ -27,6 +27,7 @@ const _cheDo = {
   'bien_ban': 'bienban',
   'chep_chu': 'chep_chu', // Biên bản: chép chữ từ ảnh, trang PDF
   'dich': 'dich', // Dịch tài liệu: mỗi lần một trang
+  'danh_gia': 'danhgia', // Đánh giá, xếp loại: viết nháp Ưu điểm, Hạn chế cho phiếu năm
 };
 
 class KetQuaTroLy {

@@ -10,6 +10,7 @@ const mauTienIch = <String, (Color, Color)>{
   'sang_word': (Color(0xFF6CB2FF), Color(0xFF2353D6)),
   'lich': (Color(0xFFFF7A7A), Color(0xFFD42539)),
   'luong': (Color(0xFFFFD95A), Color(0xFFF08C00)),
+  'danh_gia': (Color(0xFF7EE0C0), Color(0xFF13806A)),
   'nhan_xet': (Color(0xFF5BE38A), Color(0xFF15973F)),
   'cham_tn': (Color(0xFF34DCF0), Color(0xFF0A8AAE)),
   'nhan_ph': (Color(0xFF4CC4FF), Color(0xFF0B63A8)),
