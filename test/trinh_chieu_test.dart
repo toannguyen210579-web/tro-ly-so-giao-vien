@@ -134,4 +134,21 @@ void main() {
     await t.scrollUntilVisible(find.byKey(const Key('tc_luu')), 300, scrollable: find.byType(Scrollable).first);
     expect(find.text('Lưu bài trình chiếu (PowerPoint, PDF)'), findsOneWidget);
   });
+
+  // Máy giả lập 320 x 640 điểm (máy màn nhỏ nhất app hỗ trợ): không có chỗ nào tràn chữ, tràn nút
+  testWidgets('Màn Tạo bài trình chiếu trên máy màn nhỏ 320 điểm không tràn', (t) async {
+    SharedPreferences.setMockInitialValues({});
+    t.view.physicalSize = const Size(960, 1920);
+    t.view.devicePixelRatio = 3;
+    addTearDown(t.view.reset);
+    await t.pumpWidget(MaterialApp(home: TaoTrinhChieu(baiThu: BaiChieu.tuTraLoi(_mau))));
+    await t.pumpAndSettle();
+    final sc = find.byType(Scrollable).first;
+    for (var i = 0; i < 40 && find.byKey(const Key('tc_luu')).evaluate().isEmpty; i++) {
+      await t.drag(sc, const Offset(0, -300));
+      await t.pumpAndSettle();
+    }
+    expect(find.byKey(const Key('tc_luu')), findsOneWidget);
+    expect(t.takeException(), isNull);
+  });
 }

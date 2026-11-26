@@ -43,4 +43,23 @@ void main() {
     expect(find.text('Xem trên Facebook'), findsOneWidget);
     expect(find.byIcon(Icons.play_arrow), findsOneWidget);
   });
+
+  // Máy giả lập 320 điểm báo tràn 24 điểm ở hàng nút của thẻ tin (26/11/2026)
+  testWidgets('Thẻ tin trên máy màn nhỏ 320 điểm: hàng nút không tràn', (t) async {
+    t.view.physicalSize = const Size(960, 1920);
+    t.view.devicePixelRatio = 3;
+    addTearDown(t.view.reset);
+    for (final tin in [
+      TinKenh(id: 'c', ngay: DateTime(2026, 11, 17), tit: 'Clip', tomTat: 'Tóm tắt', anhBia: '', linkFacebook: null),
+      TinKenh(id: 'a', ngay: DateTime(2026, 11, 21), tit: 'Tin', tomTat: 'Tóm tắt', anhBia: '', nguon: 'Báo Chính phủ', link: 'https://baochinhphu.vn/bai'),
+    ]) {
+      await t.pumpWidget(MaterialApp(
+          home: Scaffold(
+              body: SingleChildScrollView(
+                  padding: const EdgeInsets.all(12), child: TheTin(tin: tin, thich: false, boThich: () {})))));
+      await t.pump();
+      expect(t.takeException(), isNull);
+    }
+    expect(find.text('Đọc bài gốc'), findsOneWidget);
+  });
 }

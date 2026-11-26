@@ -83,12 +83,16 @@ class BieuTuongNoi extends StatelessWidget {
             ),
           ),
           Center(
-            child: Icon(
-              icon,
-              size: size * 0.54,
-              color: Colors.white,
-              shadows: [Shadow(color: dam.withOpacity(0.8), blurRadius: size * 0.08, offset: Offset(0, size * 0.04))],
-            ),
+            child: ma == 'trinh_chieu'
+                // Biểu tượng riêng (chốt 25/11/2026): bảng trình chiếu có chân, trên bảng có biểu đồ nhỏ;
+                // không dùng, không làm giống biểu tượng PowerPoint
+                ? CustomPaint(size: Size.square(size * 0.58), painter: BangTrinhChieu(dam))
+                : Icon(
+                    icon,
+                    size: size * 0.54,
+                    color: Colors.white,
+                    shadows: [Shadow(color: dam.withOpacity(0.8), blurRadius: size * 0.08, offset: Offset(0, size * 0.04))],
+                  ),
           ),
         ],
       ),
@@ -198,4 +202,45 @@ double chieuCaoOTienIch(BuildContext context, {double size = 50, bool coChuThich
   final ten = tl.scale(12.5) * 1.2 * 2;
   final chuThich = coChuThich ? 2 + tl.scale(11.5) * 1.2 * 2 : 0.0;
   return 6 + size + (moRaNgoai ? 4 : 0) + 8 + ten + chuThich + 10;
+}
+
+/// Hình bảng trình chiếu có chân, trên bảng có biểu đồ cột nhỏ (biểu tượng tiện ích Tạo bài trình chiếu).
+class BangTrinhChieu extends CustomPainter {
+  final Color bong;
+  const BangTrinhChieu(this.bong);
+
+  void _ve(Canvas c, Size s, Paint net, Paint dac) {
+    final w = s.width, h = s.height;
+    // mặt bảng
+    c.drawRRect(RRect.fromLTRBR(w * 0.08, h * 0.1, w * 0.92, h * 0.64, Radius.circular(w * 0.07)), net);
+    // chân bảng
+    c.drawLine(Offset(w * 0.42, h * 0.66), Offset(w * 0.26, h * 0.94), net);
+    c.drawLine(Offset(w * 0.58, h * 0.66), Offset(w * 0.74, h * 0.94), net);
+    c.drawLine(Offset(w * 0.5, h * 0.02), Offset(w * 0.5, h * 0.1), net);
+    // biểu đồ cột tăng dần
+    final day = h * 0.53;
+    for (final (x, cao) in [(0.24, 0.12), (0.42, 0.2), (0.6, 0.29)]) {
+      c.drawRRect(RRect.fromLTRBR(w * x, day - h * cao, w * (x + 0.12), day, Radius.circular(w * 0.02)), dac);
+    }
+  }
+
+  @override
+  void paint(Canvas c, Size s) {
+    Paint net(Color m) => Paint()
+      ..color = m
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s.width * 0.075
+      ..strokeCap = StrokeCap.round;
+    Paint dac(Color m) => Paint()..color = m;
+    // bóng đổ nhẹ phía dưới như các biểu tượng khác
+    c.save();
+    c.translate(0, s.height * 0.06);
+    final mo = MaskFilter.blur(BlurStyle.normal, s.width * 0.06);
+    _ve(c, s, net(bong.withOpacity(0.7))..maskFilter = mo, dac(bong.withOpacity(0.7))..maskFilter = mo);
+    c.restore();
+    _ve(c, s, net(Colors.white), dac(Colors.white));
+  }
+
+  @override
+  bool shouldRepaint(BangTrinhChieu cu) => cu.bong != bong;
 }

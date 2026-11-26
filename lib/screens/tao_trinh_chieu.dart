@@ -391,7 +391,8 @@ class _TaoTrinhChieuState extends State<TaoTrinhChieu> {
           ),
           _tieuMuc('Số trang chiếu (khoảng)'),
           SegmentedButton<int>(
-            segments: [for (final n in soTrangTrinhChieu) ButtonSegment(value: n, label: Text('$n trang'))],
+            showSelectedIcon: false,
+            segments: [for (final n in soTrangTrinhChieu) ButtonSegment(value: n, label: Text('$n'))],
             selected: {_soTrang},
             onSelectionChanged: _dangTao ? null : (s) => setState(() => _soTrang = s.first),
           ),

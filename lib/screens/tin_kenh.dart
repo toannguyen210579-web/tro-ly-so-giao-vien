@@ -276,20 +276,27 @@ class _TheTinState extends State<TheTin> {
                       color: widget.thich ? const Color(0xFFD7261E) : null),
                 ),
                 IconButton(tooltip: 'Chia sẻ', onPressed: () => chiaSeTin(t), icon: const Icon(Icons.share_outlined)),
-                const Spacer(),
-                if (t.laTinBao)
-                  FilledButton.icon(
-                    onPressed: t.link == null ? null : () => moBaiGoc(context, t),
-                    icon: const Icon(Icons.open_in_new, size: 18),
-                    label: const Text('Đọc bài gốc'),
-                  )
-                else
-                  FilledButton.icon(
-                    onPressed: () => moFacebook(context, t),
-                    style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),
-                    icon: const Icon(Icons.play_circle_outline, size: 18),
-                    label: const Text('Xem trên Facebook'),
+                // Máy màn hẹp (320 điểm): nút tự thu nhỏ chút ít, không tràn ra ngoài thẻ (máy giả lập báo tràn 24 điểm, 26/11/2026)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: t.laTinBao
+                          ? FilledButton.icon(
+                              onPressed: t.link == null ? null : () => moBaiGoc(context, t),
+                              icon: const Icon(Icons.open_in_new, size: 18),
+                              label: const Text('Đọc bài gốc'),
+                            )
+                          : FilledButton.icon(
+                              onPressed: () => moFacebook(context, t),
+                              style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),
+                              icon: const Icon(Icons.play_circle_outline, size: 18),
+                              label: const Text('Xem trên Facebook'),
+                            ),
+                    ),
                   ),
+                ),
               ],
             ),
           ],
