@@ -52,10 +52,32 @@ jobs:
           print('Bộ thẻ: số trang', len(r.pages), '| cỡ trang', r.pages[0].mediabox)
           assert len(r.pages) == 20
           "
-      - name: Đẩy tệp Word văn bản Đảng mẫu lên nhánh tep-thu (để xem lại)
+      - name: Mở thử tệp PowerPoint, PDF bài trình chiếu bằng thư viện khác
+        run: |
+          pip install --quiet python-pptx pypdf
+          python3 -c "
+          import pptx, pypdf
+          for ten in ['build/thu_trinh_chieu.pptx', 'build/thu_trinh_chieu_mau_tim.pptx']:
+              p = pptx.Presentation(ten)
+              print(ten, '| số trang', len(p.slides), '| khổ', p.slide_width, p.slide_height)
+              assert len(p.slides) == 6 and (p.slide_width, p.slide_height) == (12192000, 6858000)
+              for i, s in enumerate(p.slides, 1):
+                  chu = [sh.text_frame.text for sh in s.shapes if sh.has_text_frame and sh.text_frame.text]
+                  print(i, chu, '| ghi chú:', s.notes_slide.notes_text_frame.text if s.has_notes_slide else None)
+          p = pptx.Presentation('build/thu_trinh_chieu.pptx')
+          assert 'Đáp án: C1' in p.slides[4].notes_slide.notes_text_frame.text
+          assert any('Khái niệm phân số <a & b>' in sh.text_frame.text for sh in p.slides[3].shapes if sh.has_text_frame)
+          r = pypdf.PdfReader('build/thu_trinh_chieu.pdf')
+          print('PDF: số trang', len(r.pages), '| cỡ trang', r.pages[0].mediabox)
+          assert len(r.pages) == 7 and float(r.pages[0].mediabox.width) == 960 and float(r.pages[0].mediabox.height) == 540
+          t4 = r.pages[3].extract_text()
+          print('Chữ trang 4 của PDF:', t4)
+          assert 'a/b' in t4
+          "
+      - name: Đẩy tệp Word văn bản Đảng, bài trình chiếu mẫu lên nhánh tep-thu (để xem lại)
         if: always()
         run: |
-          mkdir -p /tmp/tep && cp build/thu_*_chi_bo.docx /tmp/tep/ 2>/dev/null || true
+          mkdir -p /tmp/tep && cp build/thu_*_chi_bo.docx build/thu_trinh_chieu* /tmp/tep/ 2>/dev/null || true
           cd /tmp/tep && ls && git init -q -b tep-thu && git add . \
             && git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Tệp thử (${GITHUB_SHA::7})" \
             && git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" tep-thu || true

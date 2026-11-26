@@ -21,5 +21,7 @@ void main() {
     expect(timTheoCau('quét giấy tờ')?.ma, 'quet');
     expect(timTheoCau('lương cơ sở là bao nhiêu'), isNotNull);
     expect(timTheoCau('thời tiết hôm nay'), isNull);
+    expect(timTheoCau('chuyển giáo án word thành bài trình chiếu')?.ma, 'trinh_chieu');
+    expect(timTheoCau('làm slide bài giảng')?.ma, 'trinh_chieu');
   });
 }

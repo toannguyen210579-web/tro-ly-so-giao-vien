@@ -25,10 +25,12 @@ const MODEL = "claude-haiku-5-5";
 const MAX_INPUT = 2000;      // ký tự tối đa mỗi lần gửi
 const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
 // Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
-const MAX_IN = { bienban: 12000, detuongtu: 4000, dich: 6000, danhgia: 4000 };
-const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000, danhgia: 1200 };
-// chế độ được gửi ảnh (tối đa 4 ảnh), tệp PDF. chep_chu: Biên bản lấy ghi chép từ ảnh, PDF; dich: Dịch tài liệu (26/11/2026)
-const IMG_MODES = ["giaide", "detuongtu", "hoi", "chep_chu", "dich"];
+// trinhchieu: giáo án dài (cả tệp Word) gửi một lần để AI dựng đủ các hoạt động
+const MAX_IN = { bienban: 12000, detuongtu: 4000, dich: 6000, danhgia: 4000, trinhchieu: 30000 };
+const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000, danhgia: 1200, trinhchieu: 7000 };
+// chế độ được gửi ảnh (tối đa 4 ảnh), tệp PDF. chep_chu: Biên bản lấy ghi chép từ ảnh, PDF; dich: Dịch tài liệu (26/11/2026);
+// trinhchieu: Tạo bài trình chiếu từ giáo án chụp ảnh hoặc tệp PDF (26/11/2026)
+const IMG_MODES = ["giaide", "detuongtu", "hoi", "chep_chu", "dich", "trinhchieu"];
 // Chế độ chạy bằng Gemini (gói miễn phí) khi câu hỏi không có thông tin cá nhân; lỗi hoặc hết hạn mức thì dùng Claude.
 // Nhận xét học sinh, tin nhắn phụ huynh, biên bản họp luôn dùng Claude.
 const GEMINI_MODES = ["hoi", "giaide", "detuongtu"];
@@ -39,8 +41,9 @@ const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
 // Dự kiến khi phát hành: miễn phí hoi 10, nhanxet 20, tinnhan 10; Pro có trần 100 mỗi loại.
 const LIMITS = {
   // dich: mỗi lượt là một trang (app chia chữ thành đoạn khoảng 2.500 ký tự, mỗi ảnh hoặc trang PDF là một lượt)
-  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20, danhgia: 20 },
-  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100, danhgia: 50 },
+  // trinhchieu: mỗi lượt là cả một bài trình chiếu (câu trả lời dài)
+  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20, danhgia: 20, trinhchieu: 5 },
+  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100, danhgia: 50, trinhchieu: 30 },
 };
 const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (cả trường dùng chung wifi)
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
@@ -89,7 +92,8 @@ const GIOI_THIEU_APP =
   "Nhóm Chuyên môn: Nhận xét học sinh (theo Thông tư 22, 27 sửa đổi bởi Thông tư 89/2026, cả lớp, điểm trung bình môn, xuất Excel); " +
   "Chấm trắc nghiệm (đáp án nhiều mã đề, app chấm, thống kê câu sai); Nhắn phụ huynh (tin mẫu, AI soạn, gửi Zalo); " +
   "Giơ thẻ (in thẻ cho cả lớp, chụp một tấm biết em nào chọn đáp án nào); " +
-  "Giải đề, soạn đáp án (chụp đề, lời giải từng bước, thang điểm, đề tương tự); Ô chữ (ô chữ mỗi ngày, tự tạo ô chữ ôn bài); " +
+  "Giải đề, soạn đáp án (chụp đề, lời giải từng bước, thang điểm, đề tương tự); " +
+  "Tạo bài trình chiếu (chọn tệp giáo án Word, PDF hoặc chụp giáo án, app dựng bài trình chiếu theo các hoạt động của giáo án, ra tệp PowerPoint, PDF); Ô chữ (ô chữ mỗi ngày, tự tạo ô chữ ôn bài); " +
   "Dịch tài liệu (dán chữ, chụp trang sách, tệp PDF, Word; song ngữ; ra Word, PDF); Công cụ trên lớp (điểm danh, gọi tên, chia nhóm, đồng hồ, thử thách cả lớp). " +
   "Việc thầy cô hỏi làm được bằng một tiện ích trên thì trả lời ngắn rồi chỉ đúng tên tiện ích và nhóm để mở " +
   "(ví dụ: Thầy cô mở tiện ích Chấm trắc nghiệm ở nhóm Chuyên môn trên Trang chủ). " +
@@ -166,6 +170,32 @@ const SYSTEM = {
     "không bịa thành tích, số liệu, danh hiệu không có trong danh sách. Ưu điểm 3 đến 5 ý, Hạn chế 1 đến 3 ý; " +
     "việc trễ hạn, chưa đạt, làm chưa đủ thì đưa vào Hạn chế kèm hướng khắc phục ngắn; không có việc nào chưa tốt thì nêu hạn chế chung, nhẹ, có thật với nghề giáo. " +
     "Trả về đúng dạng: dòng 'ƯU ĐIỂM:' rồi mỗi ý một dòng bắt đầu bằng '- '; dòng 'HẠN CHẾ:' rồi mỗi ý một dòng bắt đầu bằng '- '. Không dùng markdown, không thêm lời giải thích.",
+  // Tạo bài trình chiếu (26/11/2026): đọc giáo án (kế hoạch bài dạy), dựng dàn trang chiếu theo đúng các hoạt động của giáo án;
+  // app tự dựng tệp PowerPoint, PDF từ JSON trả về (lib/data/trinh_chieu.dart đọc JSON này)
+  trinhchieu:
+    "Bạn giúp giáo viên Việt Nam làm bài trình chiếu (trang chiếu cho học sinh xem trên lớp) từ giáo án (kế hoạch bài dạy). " +
+    "Dòng đầu của yêu cầu cho biết cấp học và số trang chiếu mong muốn; phần sau dòng '---' (hoặc ảnh, tệp kèm theo) là giáo án. " +
+    "Dựng các trang theo đúng trình tự hoạt động của giáo án và khung kế hoạch bài dạy của cấp học: " +
+    "THCS, THPT theo Phụ lục IV Công văn 5512/BGDĐT-GDTrH: Hoạt động 1 Mở đầu (xác định vấn đề), Hoạt động 2 Hình thành kiến thức mới " +
+    "(giáo án chia nhiều mục thì mỗi mục một hoặc vài trang), Hoạt động 3 Luyện tập, Hoạt động 4 Vận dụng; " +
+    "Tiểu học theo Công văn 2345/BGDĐT-GDTH: Khởi động (mở đầu), Khám phá (hình thành kiến thức mới), Luyện tập, thực hành, Vận dụng, trải nghiệm; " +
+    "Mầm non: Gây hứng thú, Hoạt động chính, Kết thúc, chữ thật ít, câu thật ngắn. " +
+    "Giáo án ghi tên hoạt động khác thì dùng đúng tên trong giáo án. " +
+    "Nội dung lấy từ giáo án: câu hỏi, nhiệm vụ, kiến thức, ví dụ, bài tập thầy cô đã soạn; giữ đúng số liệu, công thức, tên riêng; " +
+    "không thêm kiến thức ngoài giáo án. Giáo án chỉ có tên bài, chưa có nội dung thì dựng khung cơ bản theo các hoạt động trên " +
+    "và ghi ở ghi_chu trang bìa: 'Nội dung do AI gợi ý từ tên bài, thầy cô đối chiếu sách giáo khoa.' " +
+    "Trang đầu là bìa (loai bia): tieu_de là tên bài, y gồm môn, lớp (và tên giáo viên nếu giáo án có ghi). " +
+    "Trang thứ hai là mục tiêu (loai muc_tieu) viết cho học sinh đọc, tieu_de 'Học xong bài này, em sẽ' (Mầm non, Tiểu học viết đơn giản hơn); " +
+    "trang cuối là tổng kết, dặn dò (loai tong_ket) nếu giáo án có. " +
+    "Trang có câu hỏi, bài tập (loai cau_hoi): ghi đề lên trang, đáp án, gợi ý chấm ghi vào ghi_chu, không ghi đáp án lên trang. " +
+    "Trên trang chỉ ghi chữ học sinh cần đọc: tieu_de ngắn (dưới 60 ký tự), y tối đa 6 ý, mỗi ý dưới 90 ký tự. " +
+    "Việc của giáo viên (chia nhóm, thời gian, cách tổ chức, đáp án, lưu ý) ghi vào ghi_chu, mỗi ý một dòng. " +
+    "hoat_dong là nhãn nhỏ trên tiêu đề, ví dụ 'Hoạt động 1 · Mở đầu'; trang bìa để trống. " +
+    "Giáo án có hoạt động năng lực số (dùng thiết bị số, phần mềm) thì giữ hoạt động đó. " +
+    "Số trang gần đúng số mong muốn (hơn kém 2 trang), kể cả bìa. Công thức viết bằng chữ thường (a/b, x², √2), không dùng LaTeX, không dùng markdown. " +
+    "Chỉ trả về đúng một đối tượng JSON, không thêm chữ nào khác, dạng: " +
+    '{"tieu_de":"tên bài","mon":"môn","lop":"lớp","trang":[{"loai":"bia|muc_tieu|hoat_dong|cau_hoi|tong_ket","hoat_dong":"nhãn hoạt động",' +
+    '"tieu_de":"tiêu đề trang","y":["ý 1","ý 2"],"ghi_chu":"lời dặn cho giáo viên"}]}',
 };
 
 // Câu mặc định gửi kèm ảnh, tệp khi thầy cô không gõ gì
@@ -173,6 +203,7 @@ const CAU_MAC_DINH = {
   hoi: "Giải thích nội dung trong tệp.",
   chep_chu: "Chép lại chữ trong ảnh, tệp.",
   dich: "Dịch sang: Tiếng Việt. Kiểu: Sát nghĩa. Song ngữ: không.",
+  trinhchieu: "Cấp học: THCS. Số trang chiếu: khoảng 12.",
 };
 
 // Hướng dẫn hệ thống kèm ngày giờ Việt Nam để AI trả lời đúng câu hỏi về ngày tháng

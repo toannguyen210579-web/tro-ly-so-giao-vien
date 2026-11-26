@@ -448,3 +448,36 @@ test("Đánh giá, xếp loại: viết nháp Ưu điểm, Hạn chế luôn đi
   assert.match(ghi.claude[0].system, /ƯU ĐIỂM:/);
   assert.doesNotMatch(ghi.claude[0].system, /KIẾN THỨC NỀN/);
 });
+
+test("Tạo bài trình chiếu: giáo án dài, ảnh, PDF đều đi Claude, trả JSON theo khung giáo án từng cấp, 5 lượt mỗi ngày", async () => {
+  const { env, ghi } = moiTruong();
+  const giaoAn = "Hoạt động 1. Mở đầu: chia bánh cho các bạn.\n".repeat(400); // khoảng 18.000 ký tự
+  const r = await goi(env, { mode: "trinhchieu", input: "Cấp học: THCS. Số trang chiếu: khoảng 12.\n---\n" + giaoAn });
+  assert.equal(r.ok, true);
+  assert.equal(r.remaining, 4);
+  assert.equal(ghi.gemini.length, 0);
+  assert.equal(ghi.claude.length, 1);
+  const sys = ghi.claude[0].system;
+  assert.match(sys, /Công văn 5512\/BGDĐT-GDTrH/);
+  assert.match(sys, /Công văn 2345\/BGDĐT-GDTH/);
+  assert.match(sys, /Mầm non/);
+  assert.match(sys, /"trang":\[\{"loai":"bia\|muc_tieu\|hoat_dong\|cau_hoi\|tong_ket"/);
+  assert.match(sys, /không ghi đáp án lên trang/);
+  assert.doesNotMatch(sys, /KIẾN THỨC NỀN/);
+  assert.equal(ghi.claude[0].max_tokens, 7000);
+  // giáo án chụp ảnh, tệp PDF
+  const b = moiTruong();
+  const r2 = await goi(b.env, { mode: "trinhchieu", input: "Cấp học: Tiểu học. Số trang chiếu: khoảng 8.", images: [ANH.jpeg] });
+  assert.equal(r2.ok, true);
+  const c = moiTruong();
+  const r3 = await goi(c.env, { mode: "trinhchieu", input: "", pdfs: ["JVBERi0xLjQK"] });
+  assert.equal(r3.ok, true);
+  const nd = c.ghi.claude[0].messages.at(-1).content;
+  assert.equal(nd[0].type, "document");
+  assert.equal(nd.at(-1).text, "Cấp học: THCS. Số trang chiếu: khoảng 12.");
+  // quá 30.000 ký tự thì báo
+  const d = moiTruong();
+  const r4 = await goi(d.env, { mode: "trinhchieu", input: "x".repeat(30001) });
+  assert.equal(r4.error, "qua_dai");
+  assert.equal(d.ghi.claude.length, 0);
+});

@@ -21,6 +21,7 @@ import 'quet_pdf.dart';
 import 'sap_co.dart';
 import 'thanh_duoi.dart';
 import 'so_minh_chung.dart';
+import 'tao_trinh_chieu.dart';
 import 'tinh_luong.dart';
 import 'xem_them.dart';
 
@@ -62,6 +63,8 @@ void moTienIch(BuildContext context, TienIch t) {
       man = const CongTacDang();
     case 'dich':
       man = const DichTaiLieu();
+    case 'trinh_chieu':
+      man = const TaoTrinhChieu();
     case 'danh_gia':
       man = const DanhGiaXepLoai();
     default:

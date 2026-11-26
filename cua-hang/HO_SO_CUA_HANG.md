@@ -1,4 +1,4 @@
-# Hồ sơ đưa app lên Google Play và App Store (bản 0.4.0, soạn 22/11/2026, sửa mục ảnh 24/11/2026, thêm Dịch tài liệu, Biên bản chụp ảnh 26/11/2026)
+# Hồ sơ đưa app lên Google Play và App Store (bản 0.4.0, soạn 22/11/2026, sửa mục ảnh 24/11/2026, thêm Dịch tài liệu, Biên bản chụp ảnh, Tạo bài trình chiếu 26/11/2026)
 
 Bản trong kho mã của tài liệu Project `claude/ho-so-len-kho-ung-dung.md` (chép vào ngày 26/11/2026, thay bản 0.3.0 cũ). Workflow `gan_ban_app_store.yml` (ô mo_ta = co) lấy mô tả đầy đủ và từ khóa App Store ở mục A của tệp này, nên giữ nguyên tiêu đề "### Mô tả đầy đủ" (mô tả nằm trong khối ```) và "### Từ khóa App Store" (từ khóa ở dòng đầu sau tiêu đề).
 
@@ -36,12 +36,12 @@ Bớt sổ sách, thêm giờ dạy học
 Bớt sổ sách, thêm giờ cho học trò. Chấm trắc nghiệm, nhận xét theo Thông tư 22, 27, quét PDF, biên bản họp, tính lương, nhắc họp chi bộ: mỗi việc một chạm.
 
 ### Từ khóa App Store
-nhận xét,trắc nghiệm,chấm bài,biên bản,quét pdf,ảnh thẻ,minh chứng,thông tư 22,lương,đảng phí,chi bộ
+nhận xét,trắc nghiệm,chấm bài,biên bản,quét pdf,ảnh thẻ,minh chứng,trình chiếu,lương,đảng phí,chi bộ
 
 (100/100 ký tự; bỏ chữ "giáo viên" vì đã có trong tên.)
 
 ### Mô tả đầy đủ
-Dùng chung hai kho, tối đa 4.000 ký tự. So với bản 0.3.0: thêm dòng Công tác Đảng, mục Tin tức, đoạn LƯU Ý (22/11/2026); thêm Dịch tài liệu, Đánh giá xếp loại, Biên bản chụp ảnh ghi chép và ra Word, PDF, lưu tệp tại chỗ (26/11/2026). Đoạn LƯU Ý là bắt buộc theo chính sách "Tuyên bố gây hiểu lầm" của Google Play: app có thông tin về chế độ, văn bản nhà nước thì mô tả phải nói rõ app không thuộc cơ quan nhà nước và dẫn nguồn chính thức.
+Dùng chung hai kho, tối đa 4.000 ký tự. So với bản 0.3.0: thêm dòng Công tác Đảng, mục Tin tức, đoạn LƯU Ý (22/11/2026); thêm Dịch tài liệu, Đánh giá xếp loại, Biên bản chụp ảnh ghi chép và ra Word, PDF, lưu tệp tại chỗ, Tạo bài trình chiếu (26/11/2026; từ khóa "thông tư 22" đổi thành "trình chiếu" vì đủ 100 ký tự). Đoạn LƯU Ý là bắt buộc theo chính sách "Tuyên bố gây hiểu lầm" của Google Play: app có thông tin về chế độ, văn bản nhà nước thì mô tả phải nói rõ app không thuộc cơ quan nhà nước và dẫn nguồn chính thức.
 
 ```
 Bớt sổ sách, thêm giờ cho học trò. Thầy cô lo dạy, việc vặt để Trợ lý lo.
@@ -64,6 +64,7 @@ VIỆC CHUYÊN MÔN
 • Nhận xét học sinh: theo Thông tư 27/2020 (tiểu học), Thông tư 22/2021 (THCS, THPT), sửa đổi bởi Thông tư 89/2026; có mức Miễn, học sinh khuyết tật; tính điểm trung bình môn; chép hoặc lưu tệp Excel cả lớp.
 • Chấm trắc nghiệm: nhập đáp án nhiều mã đề, gõ nhanh hoặc chạm chọn bài làm, app chấm ngay, thống kê câu nhiều em sai.
 • Giải đề, soạn đáp án: chụp đề, AI làm lời giải từng bước, đáp án, thang điểm, ra đề tương tự.
+• Tạo bài trình chiếu: chọn tệp giáo án Word, PDF hoặc chụp giáo án, AI dựng bài trình chiếu theo đúng các hoạt động của bài, đáp án và lời dặn nằm ở ghi chú giáo viên; xem, sửa từng trang rồi lưu tệp PowerPoint, PDF.
 • Dịch tài liệu: dán chữ, chụp trang sách, chọn tệp PDF, Word để dịch sang tiếng Việt, tiếng Anh, tiếng Trung, tiếng Nhật, tiếng Hàn, tiếng Pháp; chọn dịch sát nghĩa hoặc dễ hiểu, có bản song ngữ, ra tệp Word, PDF.
 • Nhắn phụ huynh: tin mẫu lịch sự, AI soạn theo ý thầy cô, gửi qua Zalo.
 • Ô chữ: tạo ô chữ ôn bài, chiếu lên lớp.
@@ -123,8 +124,8 @@ Mỗi tiện ích có nút "Hướng dẫn sử dụng" ghi từng bước.
 | Loại dữ liệu | Bắt buộc / tùy chọn | Mục đích | Xử lý tạm thời |
 | --- | --- | --- | --- |
 | Mã thiết bị hoặc mã khác (mã máy ngẫu nhiên app tự tạo; kèm địa chỉ IP dùng giới hạn lượt) | Bắt buộc khi dùng AI | Chức năng ứng dụng; Chống gian lận, bảo mật và tuân thủ | Không (bộ đếm tự xóa sau 3 ngày) |
-| Nội dung khác do người dùng tạo (câu hỏi, ghi chép họp, ý nhắn phụ huynh, văn bản nhờ đọc thành tiếng, chữ cần dịch, nội dung tự đánh giá nhờ AI viết nháp gửi lên máy chủ) | Tùy chọn | Chức năng ứng dụng | Có, trừ nội dung thầy cô bấm Báo cáo (lưu tối đa 90 ngày) |
-| Ảnh (ảnh đề khi Giải đề, ảnh khi hỏi Trợ lý, ảnh trang ghi chép ở Biên bản, ảnh trang cần dịch) | Tùy chọn | Chức năng ứng dụng | Có |
+| Nội dung khác do người dùng tạo (câu hỏi, ghi chép họp, ý nhắn phụ huynh, văn bản nhờ đọc thành tiếng, chữ cần dịch, nội dung tự đánh giá nhờ AI viết nháp, giáo án để tạo bài trình chiếu gửi lên máy chủ) | Tùy chọn | Chức năng ứng dụng | Có, trừ nội dung thầy cô bấm Báo cáo (lưu tối đa 90 ngày) |
+| Ảnh (ảnh đề khi Giải đề, ảnh khi hỏi Trợ lý, ảnh trang ghi chép ở Biên bản, ảnh trang cần dịch, ảnh giáo án khi tạo bài trình chiếu) | Tùy chọn | Chức năng ứng dụng | Có |
 
 Không khai: vị trí, danh bạ, tin nhắn, tài chính, sức khỏe, âm thanh (lời nói đổi thành chữ bằng bộ nhận giọng của điện thoại, app không gửi âm thanh lên máy chủ).
 
@@ -155,7 +156,7 @@ Không khai: vị trí, danh bạ, tin nhắn, tài chính, sức khỏe, âm th
 Ghi chú cho người duyệt:
 ```
 Trợ lý số Giáo viên is a free toolkit for Vietnamese school teachers. No account or login is required; every feature is available right after install.
-AI features (Ask Assistant, student comments, exam solving, parent messages, meeting minutes, document translation, draft self-assessment remarks) are processed through our server (Cloudflare Worker) using Google Gemini and Anthropic Claude. Student names are replaced with codes before sending. Every AI answer has a "Báo cáo" (Report) button. Server-side data can be deleted in Tài khoản > Xóa dữ liệu của tôi trên máy chủ.
+AI features (Ask Assistant, student comments, exam solving, parent messages, meeting minutes, document translation, draft self-assessment remarks, lesson slides built from a lesson plan) are processed through our server (Cloudflare Worker) using Google Gemini and Anthropic Claude. Student names are replaced with codes before sending. Every AI answer has a "Báo cáo" (Report) button. Server-side data can be deleted in Tài khoản > Xóa dữ liệu của tôi trên máy chủ.
 The "Công tác Đảng" section offers a meeting reminder, a membership-fee calculator and links that open official public websites/apps. The app is not affiliated with any government or party organization.
 The "Tin tức" section shows short self-written summaries with links to the original news sources.
 ```

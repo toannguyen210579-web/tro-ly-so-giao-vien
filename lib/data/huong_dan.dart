@@ -322,6 +322,29 @@ const huongDan = <String, List<MucHuongDan>>{
       'AI có thể nhầm. Thầy cô đọc lại bản dịch trước khi dùng; bấm "Báo cáo" khi thấy dịch sai.',
     ]),
   ],
+  'trinh_chieu': [
+    MucHuongDan('Đưa giáo án vào', [
+      'Bấm "Tệp giáo án (Word, PDF)" để chọn tệp kế hoạch bài dạy có sẵn trong máy (tệp tải từ Zalo, email đều chọn được). Đây là cách tốt nhất: bài chiếu bám đúng giáo án.',
+      'Giáo án giấy: bấm "Chụp giáo án" để chụp từng trang (tối đa 4 ảnh), hoặc "Ảnh có sẵn" để chọn ảnh đã chụp.',
+      'Hoặc dán nội dung giáo án vào ô chữ. Ô này cũng để ghi thêm yêu cầu, ví dụ "thêm trang trò chơi khởi động".',
+      'Chỉ gõ tên bài thì AI chỉ dựng được khung bài và gợi ý nội dung; thầy cô nhớ đối chiếu sách giáo khoa.',
+    ]),
+    MucHuongDan('Chọn cách dựng', [
+      'Chọn cấp học. THCS, THPT dựng theo khung Công văn 5512/BGDĐT-GDTrH (Mở đầu, Hình thành kiến thức mới, Luyện tập, Vận dụng); Tiểu học theo Công văn 2345/BGDĐT-GDTH (Khởi động, Khám phá, Luyện tập, Vận dụng); Mầm non chữ ít, to.',
+      'Chọn số trang chiếu khoảng 8, 12 hoặc 16 trang và màu bài chiếu. App nhớ lựa chọn cho lần sau.',
+      'Bấm "Tạo bài trình chiếu", chờ khoảng 30 giây đến 1 phút.',
+    ]),
+    MucHuongDan('Xem, sửa và lưu', [
+      'Mỗi trang hiện đúng như khi chiếu. Bấm vào trang để sửa tiêu đề, nội dung (mỗi ý một dòng), ghi chú hoặc bỏ trang.',
+      'Đáp án câu hỏi, cách tổ chức hoạt động nằm ở ghi chú giáo viên, không hiện trên trang chiếu.',
+      'Bấm "Lưu bài trình chiếu": app tạo tệp PowerPoint (.pptx) và PDF. Hộp "Đã lưu" có Mở xem, Lưu vào máy, Gửi Zalo, email.',
+      'Tệp PowerPoint mở được bằng PowerPoint, Google Trang trình bày, Keynote, WPS để sửa tiếp, thêm hình; ghi chú giáo viên xem ở phần Ghi chú khi trình chiếu.',
+    ]),
+    MucHuongDan('Lưu ý', [
+      'Mỗi ngày tạo được 5 bài. Giáo án rất dài thì app gửi khoảng 29.000 chữ đầu.',
+      'AI có thể nhầm. Thầy cô xem lại từng trang trước khi chiếu; bấm "Báo cáo" khi thấy sai.',
+    ]),
+  ],
   'danh_gia': [
     MucHuongDan('Căn cứ', [
       'Làm theo Nghị định số 233/2026/NĐ-CP (hiệu lực 01/7/2026, thay Nghị định 90/2020): tiêu chí chung tối đa 30 điểm, kết quả thực hiện nhiệm vụ tối đa 70 điểm (số lượng, chất lượng, tiến độ).',

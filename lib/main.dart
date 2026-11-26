@@ -11,6 +11,8 @@ void main() {
   // Phông DejaVu đóng gói trong app để in PDF có dấu: ghi giấy phép vào trang Giấy phép phần mềm.
   LicenseRegistry.addLicense(() async* {
     yield LicenseEntryWithLineBreaks(['DejaVu Serif (phông chữ PDF)'], await rootBundle.loadString('assets/fonts/LICENSE_DejaVu.txt'));
+    yield LicenseEntryWithLineBreaks(
+        ['Be Vietnam Pro (phông chữ PDF bài trình chiếu)'], await rootBundle.loadString('assets/fonts/LICENSE_BeVietnamPro_OFL.txt'));
   });
   runApp(const TroLyApp());
   // Máy thiếu giọng tiếng Việt: tải sẵn giọng cài sẵn (ưu tiên wifi) để Đọc to dùng được ngay lần đầu.

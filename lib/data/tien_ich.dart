@@ -51,6 +51,7 @@ const dsTienIch = <TienIch>[
   TienIch(ma: 'nhan_ph', giupGi: 'Có sẵn lời nhắn lịch sự, bấm gửi sang Zalo, không phải nghĩ câu chữ.', moTa: 'Tin mẫu mời họp, báo nghỉ, trao đổi khác để gửi qua Zalo', ten: 'Nhắn phụ huynh', bieuTuong: Icons.chat_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['phụ huynh', 'nhắn', 'zalo'], coTrongBanDau: true),
   TienIch(ma: 'gio_the', giupGi: 'Cả lớp giơ thẻ, điện thoại quét một lượt là biết đáp án, không phải đếm tay.', moTa: 'In thẻ QR cho cả lớp, các em xoay thẻ chọn A, B, C, D, chụp một tấm là biết đáp án', ten: 'Giơ thẻ', bieuTuong: Icons.style_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['giơ thẻ', 'plickers', 'khảo sát nhanh'], coTrongBanDau: true),
   TienIch(ma: 'tao_de', giupGi: 'Chụp đề là có đáp án, thang điểm để thầy cô xem lại, không phải giải từ đầu.', moTa: 'Chụp đề, AI làm lời giải từng bước, đáp án, thang điểm, ra đề tương tự', ten: 'Giải đề, soạn đáp án', bieuTuong: Icons.photo_camera_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['giải đề', 'giải bài', 'soạn đáp án', 'tạo đề', 'ra đề', 'đề tương tự'], coTrongBanDau: true),
+  TienIch(ma: 'trinh_chieu', giupGi: 'Chọn tệp giáo án là có bài trình chiếu theo đúng các hoạt động của bài, ra tệp PowerPoint, PDF, không phải soạn từng trang.', moTa: 'Chọn tệp giáo án Word, PDF hoặc chụp giáo án, AI dựng bài trình chiếu theo các hoạt động, có ghi chú giáo viên, ra PowerPoint, PDF', ten: 'Tạo bài trình chiếu', bieuTuong: Icons.slideshow_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['trình chiếu', 'bài trình chiếu', 'powerpoint', 'slide', 'bài giảng điện tử', 'soạn slide', 'trang chiếu'], coTrongBanDau: true),
   TienIch(ma: 'o_chu', giupGi: 'Có sẵn trò ôn bài trên điện thoại, không phải chuẩn bị đồ dùng.', moTa: 'Mỗi ngày một ô chữ mới để giải; tự tạo ô chữ ôn bài, chiếu lên lớp', ten: 'Ô chữ', bieuTuong: Icons.grid_on_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['ô chữ'], coTrongBanDau: true),
   TienIch(ma: 'dich', giupGi: 'Dịch tài liệu, trang sách, văn bản sang tiếng Việt, tiếng Anh và một số thứ tiếng khác, ra luôn tệp Word, PDF.', moTa: 'Dán chữ, chụp trang sách, chọn tệp Word, PDF để dịch; có song ngữ, ra tệp Word, PDF', ten: 'Dịch tài liệu', bieuTuong: Icons.translate_rounded, nhom: NhomTienIch.chuyenMon, tuKhoa: ['dịch tài liệu', 'dịch văn bản', 'dịch sang', 'song ngữ', 'translate'], coTrongBanDau: true),
   TienIch(ma: 'cong_cu', giupGi: 'Điểm danh, gọi tên, chia nhóm, tổ chức thử thách cả lớp ngay trên điện thoại, không phải chuẩn bị đồ dùng.', moTa: 'Điểm danh, gọi tên ngẫu nhiên, chia nhóm, đồng hồ, thử thách cả lớp', ten: 'Công cụ trên lớp', bieuTuong: Icons.timer_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['điểm danh', 'gọi tên', 'chia nhóm', 'thử thách cả lớp', 'rung chuông vàng'], coTrongBanDau: true),
@@ -69,10 +70,17 @@ TienIch timTheoMa(String ma) => dsTienIch.firstWhere((t) => t.ma == ma);
 /// khi đó câu được chuyển sang Hỏi Trợ lý.
 TienIch? timTheoCau(String cau) {
   final c = cau.toLowerCase();
+  // Nhiều tiện ích cùng khớp thì lấy tiện ích có từ khóa dài nhất (cụ thể nhất), ví dụ
+  // "chuyển giáo án word thành bài trình chiếu" mở Tạo bài trình chiếu, không mở Ảnh sang Word.
+  TienIch? chon;
+  var dai = 0;
   for (final t in dsTienIch) {
     for (final k in t.tuKhoa) {
-      if (c.contains(k)) return t;
+      if (k.length > dai && c.contains(k)) {
+        chon = t;
+        dai = k.length;
+      }
     }
   }
-  return null;
+  return chon;
 }
