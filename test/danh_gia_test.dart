@@ -82,6 +82,10 @@ void main() {
     });
     expect(th2.binhQuanChung + th2.binhQuanNhiemVu, closeTo(th2.binhQuan, 0.0001));
     expect(th2.binhQuan, closeTo((92 + 28 + 64) / 2, 0.0001));
+    // Làm tròn để hiện: hai phần cộng đúng bằng tổng (lỗi thấy trên máy giả lập 26/11: 28,43 + 65,91 khác 94,33)
+    for (final t in [th, th2]) {
+      expect(((t.chungHienThi + t.nhiemVuHienThi) * 100).round(), (t.tongHienThi * 100).round());
+    }
   });
 
   test('Tự xếp loại: chưa đủ 6 tháng không xếp loại; kỷ luật, suy thoái là Không hoàn thành', () {

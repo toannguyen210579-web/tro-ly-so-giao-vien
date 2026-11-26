@@ -209,6 +209,11 @@ class TongHopNam {
   const TongHopNam(this.soKyDaCham, this.soKy, this.binhQuan, this.binhQuanChung, this.binhQuanNhiemVu, this.canDatXuatSac, this.canDatTot);
 
   int get muc => mucTheoDiem(binhQuan);
+
+  /// Số hiện trên màn hình, phiếu: làm tròn 2 chữ số; phần nhiệm vụ lấy tổng trừ phần chung để hai phần cộng đúng bằng tổng.
+  double get tongHienThi => (binhQuan * 100).round() / 100;
+  double get chungHienThi => (binhQuanChung * 100).round() / 100;
+  double get nhiemVuHienThi => ((tongHienThi - chungHienThi) * 100).round() / 100;
 }
 
 double? _canDat(double tong, int daCham, int conLai, double nguong) {

@@ -151,7 +151,7 @@ class _DanhGiaXepLoaiState extends State<DanhGiaXepLoai> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(soDiem(th.binhQuan), key: const Key('dg_binh_quan'), style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900, height: 1)),
+                    Text(soDiem(th.tongHienThi), key: const Key('dg_binh_quan'), style: const TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w900, height: 1)),
                     const Text(' / 100', style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.w700)),
                   ],
                 ),
@@ -162,7 +162,7 @@ class _DanhGiaXepLoaiState extends State<DanhGiaXepLoai> {
                   child: Text('Dự kiến: ${mucXepLoai[th.muc]}', style: TextStyle(color: mau[th.muc], fontWeight: FontWeight.w900, fontSize: 13.5)),
                 ),
                 const SizedBox(height: 10),
-                Text('Tiêu chí chung ${soDiem(th.binhQuanChung)}/30 · Kết quả nhiệm vụ ${soDiem(th.binhQuanNhiemVu)}/70',
+                Text('Tiêu chí chung ${soDiem(th.chungHienThi)}/30 · Kết quả nhiệm vụ ${soDiem(th.nhiemVuHienThi)}/70',
                     style: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w600)),
                 if (th.canDatXuatSac != null) ...[
                   const SizedBox(height: 6),
@@ -305,9 +305,9 @@ class _DanhGiaXepLoaiState extends State<DanhGiaXepLoai> {
         nam: tenNam(_qc, _nam),
         hoTen: _phieu.hoTen,
         chucDanh: _phieu.chucDanh,
-        diemChung: '${soDiem(th.binhQuanChung)} điểm',
-        diemNhiemVu: '${soDiem(th.binhQuanNhiemVu)} điểm',
-        tongDiem: '${soDiem(th.binhQuan)} điểm (bình quân ${th.soKyDaCham} ${_qc.theoQuy ? 'quý' : 'tháng'})',
+        diemChung: '${soDiem(th.chungHienThi)} điểm',
+        diemNhiemVu: '${soDiem(th.nhiemVuHienThi)} điểm',
+        tongDiem: '${soDiem(th.tongHienThi)} điểm (bình quân ${th.soKyDaCham} ${_qc.theoQuy ? 'quý' : 'tháng'})',
         uuDiem: _phieu.uuDiem,
         hanChe: _phieu.hanChe,
         mucTu: muc,
@@ -364,9 +364,9 @@ class _DanhGiaXepLoaiState extends State<DanhGiaXepLoai> {
               children: [
                 const Text('I. Tổng hợp kết quả', style: TextStyle(fontWeight: FontWeight.w900)),
                 const SizedBox(height: 6),
-                Text('1. Tiêu chí chung: ${soDiem(th.binhQuanChung)}/30 điểm'),
-                Text('2. Kết quả thực hiện nhiệm vụ: ${soDiem(th.binhQuanNhiemVu)}/70 điểm'),
-                Text('3. Tổng điểm trong năm: ${soDiem(th.binhQuan)} điểm (${th.soKyDaCham}/${th.soKy} kỳ đã chấm)',
+                Text('1. Tiêu chí chung: ${soDiem(th.chungHienThi)}/30 điểm'),
+                Text('2. Kết quả thực hiện nhiệm vụ: ${soDiem(th.nhiemVuHienThi)}/70 điểm'),
+                Text('3. Tổng điểm trong năm: ${soDiem(th.tongHienThi)} điểm (${th.soKyDaCham}/${th.soKy} kỳ đã chấm)',
                     style: const TextStyle(fontWeight: FontWeight.w800)),
               ],
             ),
