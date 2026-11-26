@@ -87,8 +87,12 @@ void main() {
     await t.tap(find.text('Hỏi Trợ lý').last);
     await cho(t, 1500);
     await t.enterText(find.byType(TextField).first, 'Hôm nay là thứ mấy? Còn mấy ngày đến Tết Dương lịch?');
+    // Nút gửi chỉ hiện khi ô hỏi có chữ: chờ vẽ lại rồi mới bấm
+    await cho(t, 600);
+    // ignore: avoid_print
+    print('KQ hoi_nut_gui: ${find.byIcon(Icons.arrow_upward).evaluate().length} nut, micro ${find.byIcon(Icons.mic_rounded).evaluate().length + find.byIcon(Icons.mic_none).evaluate().length}');
     final dh = Stopwatch()..start();
-    await t.tap(find.byIcon(Icons.arrow_upward));
+    await t.tap(find.byIcon(Icons.arrow_upward).first);
     var coTraLoi = false;
     for (var i = 0; i < 60 && !coTraLoi; i++) {
       await cho(t, 500);
@@ -312,6 +316,93 @@ void main() {
       await chup(t, 'sua_giai_de_xong');
       // ignore: avoid_print
       print('KQ giai_de: ${ok ? "co ket qua sau ${dh.elapsedMilliseconds} ms" : "CHUA CO sau ${dh.elapsedMilliseconds} ms"}; thong bao: ${thongBao()}');
+    });
+
+    // Đợt 2, 3 (26/11/2026): Hỏi Trợ lý có nút ?, thanh dưới, Tin tức, phiên bản, Biên bản, Dịch tài liệu
+    await buoc('hoi_huong_dan', () async {
+      await t.tap(find.text('Hỏi Trợ lý').last);
+      await cho(t, 1500);
+      final soO = find.byType(TextField).evaluate().length;
+      final coNut = find.byKey(const Key('nut_huong_dan')).evaluate().isNotEmpty;
+      await chup(t, 'moi_hoi_trong');
+      if (coNut) {
+        await t.tap(find.byKey(const Key('nut_huong_dan')));
+        await cho(t, 1500);
+      }
+      final coHd = find.textContaining('Điểm mạnh').evaluate().isNotEmpty;
+      await chup(t, 'moi_hoi_huong_dan');
+      // ignore: avoid_print
+      print('KQ hoi_huong_dan: o hoi=$soO, nut ?=$coNut, trang huong dan=${coHd ? "co" : "KHONG"}');
+    });
+
+    await buoc('thanh_duoi', () async {
+      await t.tap(find.text('Tin tức').last);
+      await cho(t, 2500);
+      final nutFb = find.textContaining('Xem trên Facebook').evaluate().length;
+      final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
+      await chup(t, 'moi_tin_tuc');
+      await t.tap(find.text('Tài khoản').last);
+      await cho(t, 2500);
+      final pb = find.textContaining('0.4.0').evaluate().length;
+      await chup(t, 'moi_tai_khoan');
+      await t.tap(find.text('Trang chủ').last);
+      await cho(t, 2000);
+      final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
+      // ignore: avoid_print
+      print('KQ thanh_duoi: tin co thanh duoi=$coThanh, nut Facebook=$nutFb, so phien ban hien=$pb, ve trang chu=$veTc');
+    });
+
+    await buoc('bien_ban', () async {
+      await mo('hop');
+      await bamChu('Biên bản mới');
+      await cho(t, 1500);
+      final nChup = find.text('Chụp ảnh ghi chép').evaluate().length;
+      final nTep = find.text('Lấy từ tệp: ảnh, PDF, Word').evaluate().length;
+      await chup(t, 'moi_bien_ban');
+      Future<void> nhap(String nhan, String chu) async {
+        final f = find.widgetWithText(TextField, nhan);
+        if (f.evaluate().isEmpty) {
+          try {
+            await t.scrollUntilVisible(f, 300, scrollable: find.byType(Scrollable).first);
+          } catch (_) {}
+        }
+        await t.ensureVisible(f.first);
+        await cho(t, 300);
+        await t.enterText(f.first, chu);
+        await cho(t, 300);
+      }
+
+      await nhap('Về việc', 'đánh giá hoạt động chuyên môn tháng 11');
+      await nhap('Ghi chép', 'Cô Lan: tổ đã dạy đủ chương trình.\nThầy Hùng: cần thêm tiết phụ đạo cho lớp 9.');
+      await bamChu('Lưu biên bản');
+      final ok = await doiChu('Đã lưu biên bản', giay: 20);
+      final moXem = find.text('Mở xem').evaluate().length;
+      final luuMay = find.text('Lưu vào máy').evaluate().length;
+      await chup(t, 'moi_bien_ban_da_luu');
+      // ignore: avoid_print
+      print('KQ bien_ban: nut chup=$nChup, nut lay tu tep=$nTep, hop Da luu=${ok ? "co" : "KHONG"}, Mo xem=$moXem, Luu vao may=$luuMay; thong bao: ${thongBao()}');
+      if (ok) await bamChu('Xong');
+    });
+
+    await buoc('dich', () async {
+      await mo('dich');
+      await t.enterText(find.byType(TextField).first,
+          'Dear parents, the school will hold a parent-teacher meeting next Sunday at 7 a.m. Please attend on time.');
+      final dh = Stopwatch()..start();
+      await bamChu('Dịch');
+      final ok = await doiChu('Bản dịch (', giay: 90);
+      await chup(t, 'moi_dich');
+      final coViet = find.textContaining('phụ huynh').evaluate().isNotEmpty || find.textContaining('Phụ huynh').evaluate().isNotEmpty;
+      // ignore: avoid_print
+      print('KQ dich: ${ok ? "co ban dich sau ${dh.elapsedMilliseconds} ms" : "CHUA CO sau ${dh.elapsedMilliseconds} ms"}, co chu "phu huynh"=$coViet; thong bao: ${thongBao()}');
+      if (ok) {
+        await bamChu('Lưu bản dịch (Word, PDF)');
+        final luu = await doiChu('Đã lưu', giay: 20);
+        await chup(t, 'moi_dich_da_luu');
+        // ignore: avoid_print
+        print('KQ dich_luu: ${luu ? "co hop Da luu" : "KHONG THAY"}; thong bao: ${thongBao()}');
+        if (luu) await bamChu('Xong');
+      }
     });
 
     // ignore: avoid_print
