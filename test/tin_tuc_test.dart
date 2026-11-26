@@ -26,7 +26,8 @@ void main() {
     expect(find.text('Xem trên Facebook'), findsNothing);
   });
 
-  testWidgets('Clip chưa có đường dẫn Facebook: không hiện nút phát, nút Xem trên Facebook; có đường dẫn thì hiện', (t) async {
+  // Đổi 26/11/2026: thầy cô chốt tin nào cũng có nút; clip chưa có đường dẫn riêng thì nút mở trang Facebook của kênh
+  testWidgets('Clip nào cũng có nút phát và nút Xem trên Facebook, kể cả clip chưa có đường dẫn riêng', (t) async {
     Future<void> ve(String? link) => t.pumpWidget(MaterialApp(
         home: Scaffold(
             body: SingleChildScrollView(
@@ -36,8 +37,8 @@ void main() {
                     thich: false,
                     boThich: () {})))));
     await ve(null);
-    expect(find.text('Xem trên Facebook'), findsNothing);
-    expect(find.byIcon(Icons.play_arrow), findsNothing);
+    expect(find.text('Xem trên Facebook'), findsOneWidget);
+    expect(find.byIcon(Icons.play_arrow), findsOneWidget);
     await ve('https://www.facebook.com/reel/2538632786617837');
     expect(find.text('Xem trên Facebook'), findsOneWidget);
     expect(find.byIcon(Icons.play_arrow), findsOneWidget);

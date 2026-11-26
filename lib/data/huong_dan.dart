@@ -354,12 +354,13 @@ const huongDan = <String, List<MucHuongDan>>{
     MucHuongDan('Điểm mạnh của Trợ lý', [
       'Hỏi chế độ, quy định ngành giáo dục năm 2026: Trợ lý tra văn bản gốc trong kho (Luật Nhà giáo, các thông tư về xếp lương, chuẩn nghề nghiệp, Điều lệ trường…) rồi mới trả lời, có dẫn điều, khoản để thầy cô đối chiếu.',
       'Tên học sinh trong câu hỏi được thay bằng mã HS01, HS02… trước khi gửi AI.',
-      'Hỏi xong làm luôn trong app: viết nhận xét học sinh, soạn tin phụ huynh, sắp xếp biên bản họp, tính lương.',
+      'Hỏi xong làm luôn trong app: Trợ lý biết các tiện ích của app, chỉ thầy cô mở đúng tiện ích để viết nhận xét, chấm bài, làm biên bản, tính lương.',
     ]),
     MucHuongDan('Cách dùng', [
-      'Gõ câu hỏi vào ô "Hỏi AI…" rồi bấm nút gửi, hoặc bấm micro để nói thay gõ.',
+      'Gõ câu hỏi vào ô "Hỏi AI…" rồi bấm nút gửi màu xanh, hoặc bấm micro màu đỏ để nói thay gõ (bấm lần nữa để dừng).',
       'Bấm nút + để chụp ảnh, chọn ảnh có sẵn (chụp đề để hỏi cách giải) hoặc gửi tệp PDF, Word để hỏi về nội dung.',
       'Hỏi tiếp ngay dưới câu trả lời, Trợ lý nhớ các câu trước trong cùng cuộc trò chuyện, không phải nhắc lại.',
+      'Muốn hỏi việc khác từ đầu thì bấm nút Cuộc hỏi mới ở góc trên (cạnh dấu ?).',
       'Hỏi được cả dạy học, chuyên môn và chuyện thường ngày.',
     ]),
     MucHuongDan('Lưu ý', [

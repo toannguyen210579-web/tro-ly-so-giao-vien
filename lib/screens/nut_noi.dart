@@ -5,6 +5,9 @@ import 'package:speech_to_text/speech_to_text.dart';
 
 /// Nút micro đặt cạnh ô chữ: bấm rồi nói, lời nói thành chữ điền thẳng vào ô [dich]; bấm lần nữa để dừng.
 /// Thầy cô không phải gõ (yêu cầu 24/11/2026 cho Nhắn phụ huynh). Dùng bộ nhận giọng có sẵn của máy.
+/// Màu đỏ nhạt cho dễ nhận ra, khác nút gửi xanh (chốt 26/11/2026); đang nghe thì đỏ đậm, hiện nút dừng.
+/// Ô chữ bị xóa (đã gửi câu hỏi) mà máy còn đang nghe thì dừng nghe ngay: trước đây chữ của lần nói trước
+/// còn trong bộ nhận giọng, lồng vào câu hỏi sau (thầy cô báo 26/11/2026).
 class NutNoi extends StatefulWidget {
   final TextEditingController dich;
   final double co;
@@ -14,12 +17,42 @@ class NutNoi extends StatefulWidget {
   State<NutNoi> createState() => _NutNoiState();
 }
 
+const mauMicro = Color(0xFFF07C7C); // đỏ nhạt
+const mauMicroDangNghe = Color(0xFFD7261E);
+
 class _NutNoiState extends State<NutNoi> {
   // Bộ nhận giọng là một đối tượng dùng chung cả app: mỗi lần nghe tự gắn lại bộ nghe trạng thái của nút này
   final _stt = SpeechToText();
   bool _dangNghe = false;
   String _goc = ''; // chữ có sẵn trong ô trước khi nói
   String? _ma; // mã tiếng Việt của bộ nhận giọng
+  int _phien = 0; // mỗi lần bấm nghe là một phiên; kết quả của phiên cũ đến muộn thì bỏ
+
+  @override
+  void initState() {
+    super.initState();
+    widget.dich.addListener(_oDoi);
+  }
+
+  @override
+  void didUpdateWidget(NutNoi cu) {
+    super.didUpdateWidget(cu);
+    if (cu.dich != widget.dich) {
+      cu.dich.removeListener(_oDoi);
+      widget.dich.addListener(_oDoi);
+    }
+  }
+
+  /// Ô chữ bị xóa từ bên ngoài (bấm gửi, xóa hết) trong lúc đang nghe: dừng nghe, bỏ chữ cũ.
+  void _oDoi() {
+    if (!_dangNghe) return;
+    if (widget.dich.text.trim().isEmpty) {
+      _phien++;
+      _goc = '';
+      _stt.cancel();
+      if (mounted) setState(() => _dangNghe = false);
+    }
+  }
 
   void _trangThai(String s) {
     if ((s == 'done' || s == 'notListening') && mounted && _dangNghe) setState(() => _dangNghe = false);
@@ -62,10 +95,11 @@ class _NutNoiState extends State<NutNoi> {
       } catch (_) {}
     }
     _goc = widget.dich.text.trimRight();
+    final phien = ++_phien;
     setState(() => _dangNghe = true);
     try {
       await _stt.listen(
-        onResult: _ketQua,
+        onResult: (r) => _ketQua(r, phien),
         localeId: _ma,
         listenFor: const Duration(minutes: 2),
         pauseFor: const Duration(seconds: 5),
@@ -77,20 +111,23 @@ class _NutNoiState extends State<NutNoi> {
     }
   }
 
-  void _ketQua(SpeechRecognitionResult r) {
+  void _ketQua(SpeechRecognitionResult r, int phien) {
+    if (phien != _phien) return; // kết quả của lần nghe trước (đã gửi hoặc đã dừng)
     final t = r.recognizedWords.trim();
     if (t.isNotEmpty) {
       widget.dich.text = _goc.isEmpty ? t : '$_goc $t';
       widget.dich.selection = TextSelection.collapsed(offset: widget.dich.text.length);
     }
     if (r.finalResult) {
-      _goc = widget.dich.text.trimRight();
+      _goc = '';
+      _phien++;
       if (mounted) setState(() => _dangNghe = false);
     }
   }
 
   @override
   void dispose() {
+    widget.dich.removeListener(_oDoi);
     if (_dangNghe) _stt.cancel();
     super.dispose();
   }
@@ -100,10 +137,10 @@ class _NutNoiState extends State<NutNoi> {
     return Tooltip(
       message: _dangNghe ? 'Đang nghe, bấm để dừng' : 'Bấm rồi nói',
       child: Material(
-        color: _dangNghe ? const Color(0xFFD7261E) : const Color(0xFF1F6FE5),
+        color: _dangNghe ? mauMicroDangNghe : mauMicro,
         shape: const CircleBorder(),
         elevation: 4,
-        shadowColor: const Color(0x882C6EE8),
+        shadowColor: const Color(0x88D7261E),
         child: InkWell(
           customBorder: const CircleBorder(),
           onTap: _bam,

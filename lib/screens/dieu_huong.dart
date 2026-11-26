@@ -19,6 +19,7 @@ import 'nhan_phu_huynh.dart';
 import 'nhan_xet.dart';
 import 'quet_pdf.dart';
 import 'sap_co.dart';
+import 'thanh_duoi.dart';
 import 'so_minh_chung.dart';
 import 'tinh_luong.dart';
 import 'xem_them.dart';
@@ -66,16 +67,16 @@ void moTienIch(BuildContext context, TienIch t) {
     default:
       man = SapCo(tienIch: t);
   }
-  Navigator.of(context).push(MaterialPageRoute(builder: (_) => man));
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => CoThanhDuoi(child: man)));
 }
 
 void moXemThem(BuildContext context) {
-  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const XemThem()));
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CoThanhDuoi(child: XemThem())));
 }
 
 void moHoiTroLy(BuildContext context, {String? cauHoi}) {
   Navigator.of(context).push(
-    MaterialPageRoute(builder: (_) => HoiTroLy(cauHoiDau: cauHoi)),
+    MaterialPageRoute(builder: (_) => CoThanhDuoi(chon: nutHoi, child: HoiTroLy(cauHoiDau: cauHoi))),
   );
 }
 

@@ -259,6 +259,14 @@ class _HoiTroLyState extends State<HoiTroLy> {
       appBar: AppBar(
         title: const Text('Hỏi Trợ lý'),
         actions: [
+          // Cuộc hỏi mới: xóa các câu đã hỏi trên màn, câu sau không mang theo ngữ cảnh cũ
+          if (_ds.isNotEmpty && !_dangCho)
+            IconButton(
+              key: const Key('nut_hoi_moi'),
+              tooltip: 'Cuộc hỏi mới',
+              onPressed: _hoiMoi,
+              icon: const Icon(Icons.add_comment_outlined, color: MauApp.xanhTroi),
+            ),
           IconButton(
             key: const Key('nut_huong_dan'),
             tooltip: 'Hướng dẫn, điểm mạnh của Trợ lý',
@@ -282,6 +290,17 @@ class _HoiTroLyState extends State<HoiTroLy> {
   }
 
   /// Chưa hỏi gì: tên app và ô hỏi lớn ở giữa màn, không có chữ hướng dẫn.
+  void _hoiMoi() {
+    setState(() {
+      _ds.clear();
+      _o.clear();
+      _anh = null;
+      _tep = null;
+      _riengTu = false;
+      _ma = {};
+    });
+  }
+
   Widget _manTrong() {
     return LayoutBuilder(
       builder: (context, c) => SingleChildScrollView(
@@ -374,7 +393,13 @@ class _HoiTroLyState extends State<HoiTroLy> {
               IconButton(
                 tooltip: 'Chụp ảnh, chọn ảnh, tải tệp lên',
                 onPressed: _dangCho ? null : _chonAnh,
-                icon: const Icon(Icons.add_circle, color: MauApp.chu, size: 32),
+                // Nút + nhạt (thầy cô báo nút tròn đen đặc nặng mắt, 26/11/2026)
+                icon: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: const BoxDecoration(color: Color(0xFFE6EDF8), shape: BoxShape.circle),
+                  child: const Icon(Icons.add_rounded, color: MauApp.xanhDam, size: 26),
+                ),
               ),
               const Spacer(),
               // Micro luôn giữ chỗ (đang nghe mà bị gỡ khỏi màn thì máy ngừng nghe); có chữ thì hiện thêm nút gửi

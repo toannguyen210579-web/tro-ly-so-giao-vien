@@ -18,14 +18,10 @@ Widget anhTin(TinKenh t, {BoxFit fit = BoxFit.cover, double? width, double? heig
       : Image.network(t.duongDanAnh, fit: fit, width: width, height: height, errorBuilder: loi);
 }
 
+/// Mở clip trên Facebook. Clip chưa có đường dẫn riêng thì mở trang Facebook của kênh (thầy cô chốt 26/11/2026:
+/// tin nào cũng có nút, bấm phải có phản hồi).
 Future<void> moFacebook(BuildContext context, TinKenh t) async {
-  final link = t.linkFacebook;
-  if (link == null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Bài đăng này chưa có đường dẫn Facebook, kênh sẽ cập nhật sau.')),
-    );
-    return;
-  }
+  final link = t.linkFacebook ?? trangKenhFacebook;
   final ok = await launchUrl(Uri.parse(link), mode: LaunchMode.externalApplication);
   if (!ok && context.mounted) {
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa mở được Facebook.')));
@@ -33,7 +29,7 @@ Future<void> moFacebook(BuildContext context, TinKenh t) async {
 }
 
 void chiaSeTin(TinKenh t) {
-  final lk = t.laTinBao ? t.link : t.linkFacebook;
+  final lk = t.laTinBao ? t.link : (t.linkFacebook ?? trangKenhFacebook);
   final link = lk == null ? '' : '\n$lk';
   guiChu('${t.tit}\n${t.tomTat}$link\n(Theo ${t.nguon ?? tenKenh})');
 }
@@ -189,7 +185,6 @@ class _TheTinState extends State<TheTin> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tin;
-    final coXem = t.video != null || t.linkFacebook != null;
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(18),
@@ -249,22 +244,18 @@ class _TheTinState extends State<TheTin> {
             ],
             if (!t.laTinBao) ...[
             const SizedBox(height: 10),
-            // Clip chưa có video, chưa có đường dẫn Facebook: chỉ hiện ảnh bìa, không hiện nút phát bấm không được
-            // (thầy cô báo 24/11/2026)
             GestureDetector(
-              onTap: coXem
-                  ? () => t.video != null
-                      ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: [t])))
-                      : moFacebook(context, t)
-                  : null,
+              onTap: () => t.video != null
+                  ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: [t])))
+                  : moFacebook(context, t),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     AspectRatio(aspectRatio: 9 / 12, child: anhTin(t)),
-                    if (coXem)
-                      Container(
+                    // Clip luôn có nút phát: có video thì phát trong app, không thì mở Facebook (clip hoặc trang kênh)
+                    Container(
                         width: 64,
                         height: 64,
                         decoration: const BoxDecoration(color: Color(0x99000000), shape: BoxShape.circle),
@@ -292,7 +283,7 @@ class _TheTinState extends State<TheTin> {
                     icon: const Icon(Icons.open_in_new, size: 18),
                     label: const Text('Đọc bài gốc'),
                   )
-                else if (t.linkFacebook != null)
+                else
                   FilledButton.icon(
                     onPressed: () => moFacebook(context, t),
                     style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),

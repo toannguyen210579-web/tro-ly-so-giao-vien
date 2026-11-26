@@ -223,7 +223,7 @@ class _NhanXetHocSinhState extends State<NhanXetHocSinh> {
                   child: Padding(
                     padding: EdgeInsets.all(32),
                     child: Text(
-                      'Chưa có lớp nào. Bấm "Thêm lớp", dán danh sách tên học sinh (mỗi em một dòng) là bắt đầu được.',
+                      'Chưa có lớp nào. Bấm "Thêm lớp", dán danh sách tên học sinh (mỗi em một dòng) hoặc lấy từ tệp Excel (tệp xuất từ vnEdu, SMAS) là bắt đầu được.',
                       textAlign: TextAlign.center,
                     ),
                   ),

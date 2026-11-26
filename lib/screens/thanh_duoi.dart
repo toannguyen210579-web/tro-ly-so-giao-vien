@@ -61,3 +61,23 @@ class ThanhDuoi extends StatelessWidget {
     );
   }
 }
+
+/// Khung giữ thanh dưới cho màn tiện ích và Hỏi Trợ lý (thầy cô yêu cầu 26/11/2026: vào tiện ích vẫn thấy thanh dưới để
+/// về Trang chủ, sang Tin tức, Tệp của tôi nhanh). Màn bên trong là Scaffold riêng; khung ngoài bớt phần bàn phím và lề
+/// dưới cho màn bên trong nên không bị đẩy hai lần. Bấm Trang chủ thì về thẳng Trang chủ.
+class CoThanhDuoi extends StatelessWidget {
+  final Widget child;
+  final int chon;
+  const CoThanhDuoi({super.key, required this.child, this.chon = nutTrangChu});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: child,
+      bottomNavigationBar: ThanhDuoi(
+        chon: chon,
+        veDau: chon == nutTrangChu ? () => Navigator.of(context).popUntil((r) => r.isFirst) : null,
+      ),
+    );
+  }
+}

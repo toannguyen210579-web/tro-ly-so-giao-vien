@@ -49,11 +49,11 @@ class TroLyApp extends StatelessWidget {
           elevation: 0,
           centerTitle: false,
           iconTheme: IconThemeData(color: MauApp.xanhTroi),
+          // Tiêu đề không đổ bóng: bóng làm chữ nhòe trên iPhone (thầy cô báo 26/11/2026)
           titleTextStyle: TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.w900,
             color: MauApp.xanhDam,
-            shadows: _bong,
           ),
         ),
         textTheme: const TextTheme(
