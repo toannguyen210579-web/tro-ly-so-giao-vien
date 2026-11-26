@@ -8,6 +8,9 @@ on:
       buoc:
         description: "Chỉ chạy các bước này (cách nhau dấu phẩy, ví dụ giai_de,dich); để trống là chạy hết"
         default: ""
+      gpu:
+        description: "Cách vẽ của máy giả lập: swiftshader_indirect (mặc định) hoặc guest (vẽ trong máy giả lập, thử khi máy giả lập sập)"
+        default: "swiftshader_indirect"
   push:
     branches: [noi-may-chu]
     paths: ["integration_test/chay_thu_test.dart", ".github/workflows/chay_thu_app.yml"]
@@ -42,7 +45,7 @@ jobs:
           ram-size: 4096M
           heap-size: 576M
           disable-animations: true
-          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          emulator-options: -no-window -gpu ${{ github.event.inputs.gpu || 'swiftshader_indirect' }} -noaudio -no-boot-anim -camera-back none
           script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/${{ github.event.inputs.tep || 'chay_thu_test.dart' }} --dart-define=BUOC=${{ github.event.inputs.buoc }} 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION|Error" ket_qua.txt | head -60; echo "== Nhật ký hệ thống máy giả lập (app có bị tắt không)"; timeout 20 adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
       - name: Máy giả lập có bị hệ thống tắt vì hết bộ nhớ không (máy giả lập sập, 26/11/2026)
         if: always()
