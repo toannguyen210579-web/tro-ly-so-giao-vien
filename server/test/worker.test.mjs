@@ -327,3 +327,65 @@ test("Hỏi về kênh: máy chủ tự kèm danh sách clip, câu khác thì kh
   await goi(b.env, { mode: "hoi", input: "Phụ cấp thâm niên tính thế nào?" });
   assert.doesNotMatch(JSON.stringify(b.ghi.gemini[0] || b.ghi.claude[0] || {}), /Các clip gần đây/);
 });
+
+// Ảnh thật nhỏ của từng loại (1x1 điểm ảnh), mã hóa base64 như app gửi lên
+const ANH = {
+  png: "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==",
+  jpeg: "/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=",
+  gif: "R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  webp: "UklGRiIAAABXRUJQVlA4IBYAAAAwAQCdASoBAAEADsD+JaQAA3AAAAAA",
+  heic: "AAAAGGZ0eXBoZWljAAAAAG1pZjFoZWljAAAA",
+};
+
+test("Ảnh gửi Claude được khai đúng loại: PNG là image/png, JPEG là image/jpeg, WebP, GIF", async () => {
+  for (const [loai, mime] of [["png", "image/png"], ["jpeg", "image/jpeg"], ["gif", "image/gif"], ["webp", "image/webp"]]) {
+    const { env, ghi } = moiTruong();
+    const r = await goi(env, { mode: "hoi", input: "", images: [ANH[loai]] });
+    assert.equal(r.ok, true, loai);
+    const anh = ghi.claude[0].messages.at(-1).content.find((c) => c.type === "image");
+    assert.equal(anh.source.media_type, mime, loai);
+  }
+});
+
+test("Ảnh định dạng lạ (HEIC) bị từ chối ngay với lời báo rõ, không gọi AI, không trừ lượt", async () => {
+  const { env, ghi } = moiTruong();
+  const r = await goi(env, { mode: "hoi", input: "Đây là gì?", images: [ANH.heic] });
+  assert.equal(r.ok, false);
+  assert.equal(r.error, "anh_la");
+  assert.match(r.message, /định dạng/);
+  assert.equal(ghi.claude.length, 0);
+});
+
+function moiTruongClaudeLoi(status, loi) {
+  const m = moiTruong();
+  globalThis.fetch = async () => new Response(JSON.stringify({ type: "error", error: loi }), { status });
+  return m;
+}
+
+test("Lỗi Claude báo đúng lý do, chỉ nói 'đang bận' khi dịch vụ bận thật", async () => {
+  const ca = [
+    [400, { type: "invalid_request_error", message: "messages.0.content.0.image.source.base64: Image does not match the provided media type image/jpeg" }, "tep_loi", /chưa đọc được ảnh/],
+    [400, { type: "invalid_request_error", message: "Your credit balance is too low to access the Anthropic API." }, "het_han_muc", /hạn mức chi phí/],
+    [401, { type: "authentication_error", message: "invalid x-api-key" }, "sai_khoa_ai", /cấu hình/],
+    [413, { type: "request_too_large", message: "Request exceeds the maximum allowed number of bytes." }, "qua_lon", /lớn quá/],
+    [529, { type: "overloaded_error", message: "Overloaded" }, "ai_ban", /đang bận/],
+    [400, { type: "invalid_request_error", message: "something else" }, "loi_ai", /mã 400/],
+  ];
+  for (const [status, loi, ma, cau] of ca) {
+    const { env } = moiTruongClaudeLoi(status, loi);
+    const r = await goi(env, { mode: "hoi", input: "", images: [ANH.png] });
+    assert.equal(r.ok, false);
+    assert.equal(r.error, ma, loi.message);
+    assert.match(r.message, cau, loi.message);
+    if (ma !== "ai_ban") assert.doesNotMatch(r.message, /đang bận/, loi.message);
+  }
+});
+
+test("Hết lượt: không mời xem quảng cáo khi app chưa có quảng cáo", async () => {
+  const { env } = moiTruong();
+  await env.DB.prepare("INSERT INTO counters").bind("d:" + new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10) + ":giaide:kiemthu123", 10).first();
+  const r = await goi(env, { mode: "giaide", input: "1+1=?" });
+  assert.equal(r.error, "het_luot");
+  assert.equal(r.message, "Hôm nay thầy cô đã dùng hết 10 lượt, mai dùng tiếp nhé.");
+  assert.doesNotMatch(r.message, /quảng cáo/);
+});

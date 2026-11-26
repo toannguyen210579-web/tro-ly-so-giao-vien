@@ -463,6 +463,46 @@ async function quota(db, device, day) {
   };
 }
 
+// Nhận loại ảnh theo các byte đầu (app cũ gửi ảnh PNG từ Thư viện ảnh nguyên dạng; khai sai loại
+// thì Claude từ chối, thầy cô gặp lỗi 24/11/2026). Trả null khi không phải JPEG, PNG, GIF, WebP.
+function loaiAnh(b64) {
+  let s = "";
+  try {
+    s = atob(String(b64).slice(0, 24).replace(/[^A-Za-z0-9+/]/g, ""));
+  } catch {
+    return null;
+  }
+  const b = (i) => s.charCodeAt(i);
+  if (b(0) === 0xff && b(1) === 0xd8 && b(2) === 0xff) return "image/jpeg";
+  if (s.startsWith("\x89PNG")) return "image/png";
+  if (s.startsWith("GIF8")) return "image/gif";
+  if (s.startsWith("RIFF") && s.slice(8, 12) === "WEBP") return "image/webp";
+  return null;
+}
+
+// Lỗi Claude trả về: báo thầy cô đúng lý do, chỉ nói "đang bận" khi dịch vụ bận thật.
+// Không ghi nội dung câu hỏi vào nhật ký, chỉ ghi loại lỗi.
+function loiClaude(status, chiTiet) {
+  const loai = String((chiTiet && chiTiet.error && chiTiet.error.type) || "");
+  const loi = String((chiTiet && chiTiet.error && chiTiet.error.message) || "").toLowerCase();
+  if (status === 429 || status === 529 || status >= 500) {
+    return { err: "ai_ban", msg: "Dịch vụ AI đang bận, thầy cô thử lại sau ít phút." };
+  }
+  if (status === 401 || status === 403) {
+    return { err: "sai_khoa_ai", msg: "Trợ lý đang tạm dừng để nhà phát triển xử lý cấu hình, thầy cô thử lại sau." };
+  }
+  if (status === 413 || /too large|exceeds|maximum/.test(loi)) {
+    return { err: "qua_lon", msg: "Ảnh hoặc tệp lớn quá, AI không nhận. Thầy cô chọn ảnh nhỏ hơn hoặc gửi ít trang hơn." };
+  }
+  if (/credit|balance|billing|spend|usage limit/.test(loi)) {
+    return { err: "het_han_muc", msg: "Trợ lý đã dùng hết hạn mức chi phí, nhà phát triển đang xử lý. Thầy cô thử lại sau." };
+  }
+  if (/image|media type|media_type|document|pdf/.test(loi)) {
+    return { err: "tep_loi", msg: "AI chưa đọc được ảnh hoặc tệp này. Thầy cô chụp lại hoặc chọn ảnh, tệp khác." };
+  }
+  return { err: "loi_ai", msg: "Trợ lý gặp lỗi khi xử lý câu hỏi (mã " + status + (loai ? ", " + loai : "") + "), thầy cô thử lại." };
+}
+
 async function callClaude(env, mode, content, hist = [], trich = "") {
   // Hỏi Trợ lý qua Claude luôn kèm kiến thức nền về chế độ nhà giáo (mô hình chưa biết văn bản năm 2026)
   // và các điều văn bản gốc tìm được trong kho (trich)
@@ -490,10 +530,13 @@ async function callClaude(env, mode, content, hist = [], trich = "") {
     return { err: "loi_mang", msg: "Không kết nối được dịch vụ AI, thầy cô thử lại sau." };
   }
   if (!r.ok) {
-    // 400 do hết hạn mức chi tiêu, 401 sai khóa, 429 quá tải, 529 dịch vụ bận
-    console.log(JSON.stringify({ ev: "ai_error", status: r.status, mode }));
-    const code = r.status === 401 ? "sai_khoa_ai" : r.status === 429 || r.status === 529 ? "ai_ban" : "loi_ai";
-    return { err: code, msg: "Dịch vụ AI đang bận hoặc tạm dừng, thầy cô thử lại sau.", status: r.status };
+    // 400 sai dữ liệu (ảnh, tệp) hoặc hết hạn mức chi tiêu, 401 sai khóa, 413 quá lớn, 429 quá tải, 529 dịch vụ bận
+    let chiTiet = null;
+    try { chiTiet = await r.json(); } catch {}
+    const l = loiClaude(r.status, chiTiet);
+    const loai = String((chiTiet && chiTiet.error && chiTiet.error.type) || "");
+    console.log(JSON.stringify({ ev: "ai_error", status: r.status, loai, ma: l.err, mode }));
+    return { ...l, status: r.status };
   }
   const data = await r.json();
   const text = (data.content || []).filter((c) => c.type === "text").map((c) => c.text).join("").trim();
@@ -521,7 +564,7 @@ async function callGemini(env, mode, input, imgs, hist = []) {
 
 async function callGeminiOnce(env, mode, input, imgs, model, hist = []) {
   const parts = [
-    ...imgs.map((a) => ({ inline_data: { mime_type: "image/jpeg", data: a } })),
+    ...imgs.map((a) => ({ inline_data: { mime_type: loaiAnh(a) || "image/jpeg", data: a } })),
     { text: input || (mode === "hoi" ? "Giải thích nội dung trong ảnh." : "Giải đề trong ảnh.") },
   ];
   let r;
@@ -727,6 +770,9 @@ export default {
     const imgs = Array.isArray(body.images) ? body.images.filter((a) => typeof a === "string" && a) : [];
     if (imgs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận ảnh.", 400);
     if (imgs.length > 4 || imgs.some((a) => a.length > 2000000)) return err("anh_lon", "Tối đa 4 ảnh, mỗi ảnh dưới 1,5 MB.", 400);
+    if (imgs.some((a) => !loaiAnh(a))) {
+      return err("anh_la", "Ảnh này ở định dạng AI chưa đọc được. Thầy cô chụp màn hình ảnh đó rồi gửi lại.", 400);
+    }
     const pdfs = Array.isArray(body.pdfs) ? body.pdfs.filter((a) => typeof a === "string" && a) : [];
     if (pdfs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận tệp PDF.", 400);
     if (pdfs.length > 1 || pdfs.some((a) => a.length > 6000000)) return err("pdf_lon", "Mỗi lần gửi một tệp PDF, dưới 4 MB.", 400);
@@ -737,7 +783,7 @@ export default {
     }
     const content = imgs.length || pdfs.length
       ? [...pdfs.map((a) => ({ type: "document", source: { type: "base64", media_type: "application/pdf", data: a } })),
-        ...imgs.map((a) => ({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: a } })),
+        ...imgs.map((a) => ({ type: "image", source: { type: "base64", media_type: loaiAnh(a), data: a } })),
         { type: "text", text: input || (mode === "hoi" ? "Giải thích nội dung trong tệp." : "Giải đề trong tệp.") }]
       : input;
     if (await getFlag(db, "block:" + device)) {
@@ -753,11 +799,13 @@ export default {
     const used = await getN(db, devKey);
     const bonus = used >= limit ? await getN(db, bonusKey) : 0;
     if (used >= limit && bonus <= 0) {
+      // App chưa gắn quảng cáo: chỉ mời xem quảng cáo khi đã bật QUANG_CAO = "1" (sửa 26/11/2026,
+      // trước đó máy chủ mời xem quảng cáo trong khi app không có quảng cáo nào)
       const ads = await getN(db, "a:" + day + ":" + device);
-      const more = ads < MAX_ADS_PER_DAY && tier === "free"
-        ? " Thầy cô có thể xem một quảng cáo ngắn để nhận thêm " + BONUS_PER_AD + " lượt."
-        : " Mai dùng tiếp nhé.";
-      return err("het_luot", "Hôm nay thầy cô đã dùng hết " + limit + " lượt." + more, 429);
+      const more = env.QUANG_CAO === "1" && ads < MAX_ADS_PER_DAY && tier === "free"
+        ? ". Thầy cô có thể xem một quảng cáo ngắn để nhận thêm " + BONUS_PER_AD + " lượt."
+        : ", mai dùng tiếp nhé.";
+      return err("het_luot", "Hôm nay thầy cô đã dùng hết " + limit + " lượt" + more, 429);
     }
     if ((await addN(db, "ip:" + day + ":" + ip, 1)) > IP_LIMIT) {
       return err("qua_nhieu", "Mạng này đã gửi quá nhiều yêu cầu hôm nay.", 429);

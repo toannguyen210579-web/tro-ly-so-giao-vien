@@ -21,7 +21,7 @@ export const TIN = [
   "tit": "Dạy vượt định mức được trả thêm bao nhiêu?",
   "tom_tat": "Mỗi tiết dạy thêm được trả bằng 150% tiền một tiết dạy, theo Thông tư 21/2025 của Bộ Giáo dục và Đào tạo. Tiền một tiết tính từ tổng lương 12 tháng, gồm cả phụ cấp. Ví dụ kênh tự tính: giáo viên THCS hệ số 3,33, định mức 19 tiết/tuần, chưa tính phụ cấp, mỗi tiết dạy thêm khoảng 153 nghìn đồng. Mỗi giáo viên dạy thêm tối đa 200 tiết một năm học.",
   "anh_bia": "asset:assets/tin/17-11_day-vuot-dinh-muc-tra-them-bao-nhieu.jpg",
-  "link_facebook": null,
+  "link_facebook": "https://www.facebook.com/reel/2215745653156494",
   "video": null
  },
  {
@@ -30,7 +30,7 @@ export const TIN = [
   "tit": "Thưởng Tết giáo viên tính thế nào?",
   "tom_tat": "Quỹ thưởng bằng 10% quỹ lương cả năm, theo Nghị định 161 của Chính phủ, hiệu lực từ 1/7. Quỹ tính trên tiền lương theo hệ số, không tính phụ cấp. Tiền thưởng chia theo kết quả xếp loại cả năm, không nhất thiết theo hệ số lương. Mỗi trường tự ban hành quy chế tiền thưởng và phải công khai; tiền dùng không hết thì nộp lại ngân sách.",
   "anh_bia": "asset:assets/tin/17-11_thuong-tet-giao-vien-nghi-dinh-161.jpg",
-  "link_facebook": null,
+  "link_facebook": "https://www.facebook.com/reel/2538632786617837",
   "video": null
  },
  {
@@ -39,7 +39,7 @@ export const TIN = [
   "tit": "Có bằng đại học sau, có lên hạng II mới không?",
   "tom_tat": "Theo Thông tư 93, phải từng giữ hạng II cũ. Tiểu học và THCS, hạng II mới có hệ số từ 4,00 đến 6,38, cần đủ 9 năm dạy có đóng BHXH và hai năm học gần nhất hoàn thành tốt nhiệm vụ; không đủ thì xếp hạng III, giữ hệ số. Bằng đại học năm 2023, đang hạng III, chưa từng giữ hạng II cũ thì vẫn phải xét thăng hạng. Việc bổ nhiệm phải xong trước 31/12.",
   "anh_bia": "asset:assets/tin/16-11_thong-tu-93-hoi-dap-bang-dai-hoc-len-hang-ii.jpg",
-  "link_facebook": null,
+  "link_facebook": "https://www.facebook.com/reel/1700038428130269",
   "video": null
  },
  {
