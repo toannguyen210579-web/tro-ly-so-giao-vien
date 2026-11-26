@@ -35,8 +35,9 @@ void main() {
 
   testWidgets('Màn Tin tức dựng được, cuộn được hết danh sách', (t) async {
     await t.pumpWidget(const MaterialApp(home: ManTin()));
-    await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 500)));
-    for (var i = 0; i < 20; i++) {
+    // Tải tin (mạng bị chặn trong phép thử, lấy tệp mẫu): xen kẽ chờ thật và vẽ khung
+    for (var i = 0; i < 20 && find.byType(ListView).evaluate().isEmpty; i++) {
+      await t.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 200)));
       await t.pump(const Duration(milliseconds: 100));
     }
     expect(t.takeException(), isNull);
