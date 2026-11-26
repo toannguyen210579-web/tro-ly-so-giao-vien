@@ -1,0 +1,20 @@
+I/flutter ( 5994): KQ binh_quan: 93,25
+I/flutter ( 5994): KQ chup 01_cac_ky: on
+I/flutter ( 5994): KQ chup 02_cac_ky_duoi: on
+I/flutter ( 5994): KQ tong_ky_3: 96,5
+I/flutter ( 5994): KQ chup 03_cham_thang: on
+I/flutter ( 5994): KQ chup 04_cham_viec: on
+I/flutter ( 5994): KQ binh_quan_sau: 94,33
+I/flutter ( 5994): KQ chup 05_sau_luu: on
+I/flutter ( 5994): KQ chup 06_phieu: on
+I/flutter ( 5994): KQ chup 06b_phieu_giua: on
+I/flutter ( 5994): KQ tu_xep_loai: II. Tự xếp loại: Hoàn thành xuất sắc nhiệm vụ
+I/flutter ( 5994): KQ chup 07_phieu_duoi: on
+I/flutter ( 5994): KQ chup 08_da_luu: on
+I/flutter ( 5994): KQ tep_phieu: Phieu_xep_loai_nam_hoc_2026_2027_20261126_035610.docx, Phieu_xep_loai_nam_hoc_2026_2027_20261126_035610.pdf
+I/flutter ( 5994): KQ co_tep Phieu_xep_loai_nam_hoc_2026_2027_20261126_035610.docx: 2855 byte
+I/flutter ( 5994): KQ co_tep Phieu_xep_loai_nam_hoc_2026_2027_20261126_035610.pdf: 34536 byte
+I/flutter ( 5994): KQ chup 09_quy_che: on
+I/flutter ( 5994): KQ danh_gia: xong
+I/flutter ( 5994): 00:58 +2: All tests passed!
+All tests passed.
