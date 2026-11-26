@@ -1,0 +1,25 @@
+I/flutter ( 5675): KQ chup 00_trang_chu: on
+I/flutter ( 5675): KQ chup 30_minh_chung: on
+I/flutter ( 5675): KQ anh_mau: co tep 130021 byte
+I/flutter ( 5675): KQ chon_anh: co anh sau lan 1
+I/flutter ( 5675): KQ chup 31_minh_chung_them: on
+I/flutter ( 5675): KQ chup 32_minh_chung_ds: on
+I/flutter ( 5675): KQ minh_chung_xuat: hien bang chon
+I/flutter ( 5675): KQ chup 33_minh_chung_xuat: on
+I/flutter ( 5675): KQ minh_chung: xong
+I/flutter ( 5675): KQ chup 40_nhan_xet: on
+I/flutter ( 5675): KQ chup 41_nhan_xet_lop: on
+I/flutter ( 5675): KQ nhan_xet_ai: xong
+I/flutter ( 5675): KQ chup 42_nhan_xet_ai: on
+I/flutter ( 5675): KQ nhan_xet: xong
+I/flutter ( 5675): KQ chup 50_sang_word: on
+I/flutter ( 5675): KQ anh_mau: co tep 139265 byte
+I/flutter ( 5675): KQ chon_anh: co anh sau lan 1
+I/flutter ( 5675): KQ sang_word_doc: doc duoc
+I/flutter ( 5675): KQ chup 51_sang_word_chu: on
+I/flutter ( 5675): KQ sang_word: xong
+I/flutter ( 5675): KQ chup 80_cong_cu: on
+I/flutter ( 5675): KQ chup 81_cong_cu_duoi: on
+I/flutter ( 5675): KQ cong_cu: xong
+I/flutter ( 5675): 01:17 +2: All tests passed!
+All tests passed.
