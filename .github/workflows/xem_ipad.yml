@@ -39,6 +39,7 @@ jobs:
           target: google_apis
           profile: pixel_2
           ram-size: 4096M
+          heap-size: 576M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -skin 2064x2752
           script: |
@@ -47,6 +48,7 @@ jobs:
             sleep 5
             adb shell wm size; adb shell wm density
             flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80
+            adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
       - name: Đẩy ảnh lên nhánh anh-xem-ipad
         if: always()
         run: |

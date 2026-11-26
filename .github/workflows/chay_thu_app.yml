@@ -36,9 +36,11 @@ jobs:
           api-level: 34
           arch: x86_64
           target: google_apis
+          ram-size: 4096M
+          heap-size: 576M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/${{ github.event.inputs.tep || 'chay_thu_test.dart' }} 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION|Error" ket_qua.txt | head -60
+          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/${{ github.event.inputs.tep || 'chay_thu_test.dart' }} 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION|Error" ket_qua.txt | head -60; echo "== Nhật ký hệ thống máy giả lập (app có bị tắt không)"; adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
       - name: Máy giả lập có bị hệ thống tắt vì hết bộ nhớ không (máy giả lập sập, 26/11/2026)
         if: always()
         run: |
