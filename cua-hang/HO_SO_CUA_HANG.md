@@ -41,7 +41,7 @@ nhận xét,trắc nghiệm,chấm bài,biên bản,quét pdf,ảnh thẻ,minh c
 (100/100 ký tự; bỏ chữ "giáo viên" vì đã có trong tên.)
 
 ### Mô tả đầy đủ
-Dùng chung hai kho, tối đa 4.000 ký tự. So với bản 0.3.0: thêm dòng Công tác Đảng, mục Tin tức, đoạn LƯU Ý (22/11/2026); thêm Dịch tài liệu, Biên bản chụp ảnh ghi chép và ra Word, PDF, lưu tệp tại chỗ (26/11/2026). Đoạn LƯU Ý là bắt buộc theo chính sách "Tuyên bố gây hiểu lầm" của Google Play: app có thông tin về chế độ, văn bản nhà nước thì mô tả phải nói rõ app không thuộc cơ quan nhà nước và dẫn nguồn chính thức.
+Dùng chung hai kho, tối đa 4.000 ký tự. So với bản 0.3.0: thêm dòng Công tác Đảng, mục Tin tức, đoạn LƯU Ý (22/11/2026); thêm Dịch tài liệu, Đánh giá xếp loại, Biên bản chụp ảnh ghi chép và ra Word, PDF, lưu tệp tại chỗ (26/11/2026). Đoạn LƯU Ý là bắt buộc theo chính sách "Tuyên bố gây hiểu lầm" của Google Play: app có thông tin về chế độ, văn bản nhà nước thì mô tả phải nói rõ app không thuộc cơ quan nhà nước và dẫn nguồn chính thức.
 
 ```
 Bớt sổ sách, thêm giờ cho học trò. Thầy cô lo dạy, việc vặt để Trợ lý lo.
@@ -57,6 +57,7 @@ VIỆC HÀNH CHÍNH
 • Ảnh sang Word: chụp văn bản, app nhận chữ thành tệp Word sửa được.
 • Lịch, nhắc hạn: ghi việc, điện thoại nhắc trước hạn nộp.
 • Tính lương: nhập hạng, bậc, năm công tác; app tính lương, phụ cấp, ngày nâng bậc.
+• Đánh giá, xếp loại: tự chấm điểm tháng, quý theo Nghị định 233/2026, app cộng điểm cả năm, cho biết các kỳ còn lại cần đạt bao nhiêu, xuất phiếu xếp loại viên chức Word, PDF.
 • Công tác Đảng: nhắc lịch họp chi bộ hằng tháng, tính đảng phí theo Quy định 01-QĐ/TW năm 2026, mở nhanh trang Dịch vụ công của Đảng và ứng dụng Sổ tay đảng viên, hỏi đáp về Điều lệ Đảng, sinh hoạt chi bộ, thủ tục đảng viên.
 
 VIỆC CHUYÊN MÔN
@@ -122,7 +123,7 @@ Mỗi tiện ích có nút "Hướng dẫn sử dụng" ghi từng bước.
 | Loại dữ liệu | Bắt buộc / tùy chọn | Mục đích | Xử lý tạm thời |
 | --- | --- | --- | --- |
 | Mã thiết bị hoặc mã khác (mã máy ngẫu nhiên app tự tạo; kèm địa chỉ IP dùng giới hạn lượt) | Bắt buộc khi dùng AI | Chức năng ứng dụng; Chống gian lận, bảo mật và tuân thủ | Không (bộ đếm tự xóa sau 3 ngày) |
-| Nội dung khác do người dùng tạo (câu hỏi, ghi chép họp, ý nhắn phụ huynh, văn bản nhờ đọc thành tiếng, chữ cần dịch gửi lên máy chủ) | Tùy chọn | Chức năng ứng dụng | Có, trừ nội dung thầy cô bấm Báo cáo (lưu tối đa 90 ngày) |
+| Nội dung khác do người dùng tạo (câu hỏi, ghi chép họp, ý nhắn phụ huynh, văn bản nhờ đọc thành tiếng, chữ cần dịch, nội dung tự đánh giá nhờ AI viết nháp gửi lên máy chủ) | Tùy chọn | Chức năng ứng dụng | Có, trừ nội dung thầy cô bấm Báo cáo (lưu tối đa 90 ngày) |
 | Ảnh (ảnh đề khi Giải đề, ảnh khi hỏi Trợ lý, ảnh trang ghi chép ở Biên bản, ảnh trang cần dịch) | Tùy chọn | Chức năng ứng dụng | Có |
 
 Không khai: vị trí, danh bạ, tin nhắn, tài chính, sức khỏe, âm thanh (lời nói đổi thành chữ bằng bộ nhận giọng của điện thoại, app không gửi âm thanh lên máy chủ).
@@ -154,7 +155,7 @@ Không khai: vị trí, danh bạ, tin nhắn, tài chính, sức khỏe, âm th
 Ghi chú cho người duyệt:
 ```
 Trợ lý số Giáo viên is a free toolkit for Vietnamese school teachers. No account or login is required; every feature is available right after install.
-AI features (Ask Assistant, student comments, exam solving, parent messages, meeting minutes, document translation) are processed through our server (Cloudflare Worker) using Google Gemini and Anthropic Claude. Student names are replaced with codes before sending. Every AI answer has a "Báo cáo" (Report) button. Server-side data can be deleted in Tài khoản > Xóa dữ liệu của tôi trên máy chủ.
+AI features (Ask Assistant, student comments, exam solving, parent messages, meeting minutes, document translation, draft self-assessment remarks) are processed through our server (Cloudflare Worker) using Google Gemini and Anthropic Claude. Student names are replaced with codes before sending. Every AI answer has a "Báo cáo" (Report) button. Server-side data can be deleted in Tài khoản > Xóa dữ liệu của tôi trên máy chủ.
 The "Công tác Đảng" section offers a meeting reminder, a membership-fee calculator and links that open official public websites/apps. The app is not affiliated with any government or party organization.
 The "Tin tức" section shows short self-written summaries with links to the original news sources.
 ```

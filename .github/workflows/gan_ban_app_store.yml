@@ -122,6 +122,17 @@ jobs:
                                               "attributes": {"description": mo_ta, "keywords": tu_khoa}}})
                       can(st2, r2, "Cập nhật mô tả")
                       bao(f"Đã cập nhật mô tả ({len(mo_ta)} ký tự), từ khóa ({len(tu_khoa)} ký tự) bản {l['attributes']['locale']}")
+              # Ghi chú cho người duyệt: khối ``` sau dòng "Ghi chú cho người duyệt:"
+              if "\nGhi chú cho người duyệt:" in hs:
+                  g = hs.index("```", hs.index("\nGhi chú cho người duyệt:")) + 3
+                  ghi_chu = hs[g:hs.index("```", g)].strip()
+                  st2, r2 = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreReviewDetail")
+                  if st2 == 200 and r2.get("data") and len(ghi_chu) <= 4000:
+                      st3, r3 = api("PATCH", f"/v1/appStoreReviewDetails/{r2['data']['id']}",
+                                    {"data": {"type": "appStoreReviewDetails", "id": r2["data"]["id"],
+                                              "attributes": {"notes": ghi_chu}}})
+                      can(st3, r3, "Cập nhật ghi chú cho người duyệt")
+                      bao(f"Đã cập nhật ghi chú cho người duyệt ({len(ghi_chu)} ký tự)")
               st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations?limit=50")
               can(st, r, "Bản mô tả")
 
