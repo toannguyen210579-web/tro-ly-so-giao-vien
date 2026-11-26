@@ -396,6 +396,34 @@ void main() {
       }
     });
 
+    // Tạo bài trình chiếu (26/11/2026): gọi máy chủ thật, lưu PowerPoint + PDF trên máy (phông Be Vietnam Pro trong app)
+    await buoc('trinh_chieu', () async {
+      await mo('trinh_chieu');
+      await t.enterText(
+          find.byKey(const Key('tc_o_chu')),
+          'KẾ HOẠCH BÀI DẠY. Môn Khoa học tự nhiên 6. Bài 9: Sự đa dạng của chất. '
+          'I. Mục tiêu: nêu được sự đa dạng của chất; trình bày được một số đặc điểm cơ bản ba thể của chất. '
+          'III. Tiến trình. Hoạt động 1 Mở đầu: GV cho HS quan sát ảnh cốc nước, khối đá, hơi nước bốc lên; hỏi: ba vật này có gì giống nhau? '
+          'Hoạt động 2 Hình thành kiến thức: 2.1 Chất có ở xung quanh ta: vật thể tự nhiên (cây, đá), vật thể nhân tạo (bàn, ghế), vật sống, vật không sống. '
+          '2.2 Ba thể của chất: rắn (hình dạng cố định, khó nén), lỏng (hình dạng theo vật chứa, khó nén), khí (dễ nén, không có hình dạng cố định). '
+          'Hoạt động 3 Luyện tập: Câu 1. Kể tên 3 vật thể tự nhiên. Câu 2. Nước đá ở thể nào? Đáp án: Câu 2 thể rắn. '
+          'Hoạt động 4 Vận dụng: vì sao bơm được không khí vào quả bóng? Đáp án: chất khí dễ nén.');
+      final dh = Stopwatch()..start();
+      await bamChu('Tạo bài trình chiếu');
+      final ok = await doiChu(' trang)', giay: 120);
+      await chup(t, 'moi_trinh_chieu');
+      // ignore: avoid_print
+      print('KQ trinh_chieu: ${ok ? "co bai sau ${dh.elapsedMilliseconds} ms" : "CHUA CO sau ${dh.elapsedMilliseconds} ms"}; thong bao: ${thongBao()}');
+      if (ok) {
+        await bamChu('Lưu bài trình chiếu (PowerPoint, PDF)');
+        final luu = await doiChu('Đã lưu bài trình chiếu', giay: 30);
+        await chup(t, 'moi_trinh_chieu_da_luu');
+        // ignore: avoid_print
+        print('KQ trinh_chieu_luu: ${luu ? "co hop Da luu" : "KHONG THAY"}; thong bao: ${thongBao()}');
+        if (luu) await bamChu('Xong');
+      }
+    });
+
     // ignore: avoid_print
     print('KQ tong_loi_app: ${loi.isEmpty ? "khong" : loi.toSet().join(" | ")}');
   }, timeout: const Timeout(Duration(minutes: 40)));
