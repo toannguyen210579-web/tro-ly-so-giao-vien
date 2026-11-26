@@ -160,6 +160,20 @@ jobs:
             -authenticationKeyPath "$KEY" \
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      # Lỗi xuất bản iPhone (vd 24/11/2026: "exportArchive The data couldn't be read because it
+      # isn't in the correct format") chỉ ghi chi tiết trong gói nhật ký .xcdistributionlogs:
+      # in các dòng lỗi ra nhật ký chạy, bỏ dòng có thể chứa khóa, không tải gói nhật ký lên.
+      - name: Nhật ký xuất bản iPhone khi lỗi
+        if: failure()
+        run: |
+          for d in $(find /var/folders "${TMPDIR:-/tmp}" -maxdepth 6 -name "*.xcdistributionlogs" 2>/dev/null | sort -u); do
+            echo "== $d"; ls "$d"
+            for f in "$d"/*.log; do
+              echo "--- $(basename "$f")"
+              grep -iE "error|fail|format|plist|invalid|denied|agreement|status|unable|couldn" "$f" \
+                | grep -viE "bearer|authorization|token|private key|BEGIN" | tail -60 | cut -c1-400
+            done
+          done
       - name: Xóa tệp khóa tạm
         if: always()
         run: rm -f $RUNNER_TEMP/AuthKey_*.p8
