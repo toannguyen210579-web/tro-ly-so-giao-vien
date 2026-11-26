@@ -2,6 +2,13 @@ name: Xem app qua ảnh chụp
 # Chụp lại 21/11/2026: gợi ý một dòng, con trỏ nhấp nháy trong ô hỏi
 on:
   workflow_dispatch:
+    inputs:
+      buoc:
+        description: "Chỉ chạy các bước này (cách nhau dấu phẩy); để trống là chạy hết"
+        default: ""
+      hau_to:
+        description: "Hậu tố tên nhánh ảnh (ví dụ -1) khi chạy nhiều lượt riêng"
+        default: ""
   push:
     branches: [noi-may-chu]
     paths: ["integration_test/xem_app_test.dart", ".github/workflows/xem_app.yml"]
@@ -38,7 +45,7 @@ jobs:
           heap-size: 576M
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80; echo "== Nhật ký hệ thống máy giả lập (app có bị tắt không)"; adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
+          script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart --dart-define=BUOC=${{ github.event.inputs.buoc }} 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80; echo "== Nhật ký hệ thống máy giả lập (app có bị tắt không)"; timeout 20 adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
       - name: Đẩy ảnh lên nhánh anh-xem-app (để tải về bằng git)
         if: always()
         run: |
@@ -46,7 +53,7 @@ jobs:
           cp anh_chay_thu/xem_*.png /tmp/anh/ 2>/dev/null || true
           grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt > /tmp/anh/ket_qua.txt 2>/dev/null || true
           cd /tmp/anh
-          git init -q -b anh-xem-app
+          git init -q -b anh-xem-app${{ github.event.inputs.hau_to }}
           git add .
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Ảnh xem app (${GITHUB_SHA::7})"
-          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-xem-app
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-xem-app${{ github.event.inputs.hau_to }}

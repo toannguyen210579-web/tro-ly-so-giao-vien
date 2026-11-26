@@ -6,6 +6,13 @@ name: Xem app tren iPad (anh cua hang)
 # đặt vào khung máy tính bảng. Ảnh đẩy lên nhánh anh-xem-ipad.
 on:
   workflow_dispatch:
+    inputs:
+      buoc:
+        description: "Chỉ chạy các bước này (cách nhau dấu phẩy); để trống là chạy hết"
+        default: ""
+      hau_to:
+        description: "Hậu tố tên nhánh ảnh (ví dụ -1) khi chạy nhiều lượt riêng"
+        default: ""
   push:
     branches: [noi-may-chu]
     paths: [".github/workflows/xem_ipad.yml"]
@@ -47,8 +54,8 @@ jobs:
             adb shell wm density 320
             sleep 5
             adb shell wm size; adb shell wm density
-            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80
-            adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
+            flutter drive --driver=test_driver/integration_test.dart --target=integration_test/xem_app_test.dart --dart-define=BUOC=${{ github.event.inputs.buoc }} 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt | head -80
+            timeout 20 adb logcat -d -b main,system,crash 2>/dev/null | grep -iE "lmkd|lowmemory|Killing|has died|FATAL|Out of memory" | tail -30
       - name: Đẩy ảnh lên nhánh anh-xem-ipad
         if: always()
         run: |
@@ -57,7 +64,7 @@ jobs:
           python3 -c "import struct,glob;[print(f, struct.unpack('>II', open(f,'rb').read()[16:24])) for f in sorted(glob.glob('/tmp/anh/*.png'))[:5]]" || true
           grep -E "KQ|All tests passed|Some tests failed|EXCEPTION" ket_qua.txt > /tmp/anh/ket_qua.txt 2>/dev/null || true
           cd /tmp/anh
-          git init -q -b anh-xem-ipad
+          git init -q -b anh-xem-ipad${{ github.event.inputs.hau_to }}
           git add .
           git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Ảnh cỡ iPad (${GITHUB_SHA::7})"
-          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-xem-ipad
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-xem-ipad${{ github.event.inputs.hau_to }}

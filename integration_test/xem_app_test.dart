@@ -50,6 +50,9 @@ class _AnhMau extends ImagePickerPlatform {
   Future<List<XFile>?> getMultiImage({double? maxWidth, double? maxHeight, int? imageQuality}) async => [XFile(duong)];
 }
 
+/// Chỉ chạy các bước này (cách nhau dấu phẩy); để trống là chạy hết.
+const _chiBuoc = String.fromEnvironment('BUOC');
+
 const _tenLop7A = [
   'Lê Hoàng An', 'Trần Ngọc Anh', 'Nguyễn Gia Bảo', 'Phạm Minh Châu', 'Võ Thành Đạt', 'Đỗ Hải Đăng', 'Bùi Thu Hà',
   'Hoàng Gia Hân', 'Ngô Đức Huy', 'Đặng Minh Khang', 'Lý Bảo Khánh', 'Trịnh Ngọc Lan', 'Phan Gia Linh', 'Vũ Đức Long',
@@ -162,6 +165,8 @@ void main() {
   }
 
   Future<void> buoc(String ten, Future<void> Function() viec) async {
+    // Chạy riêng vài bước (ô buoc của workflow, --dart-define=BUOC=a,b): lượt chạy ngắn, máy giả lập ít sập giữa chừng
+    if (_chiBuoc.isNotEmpty && !_chiBuoc.split(',').contains(ten)) return;
     // Hỏng lần đầu (thường do màn hình chưa kịp dựng) thì làm lại một lần
     for (var lan = 1; lan <= 2; lan++) {
       try {

@@ -11,6 +11,9 @@ import 'package:tro_ly_so_giao_vien/screens/dieu_huong.dart';
 import 'package:tro_ly_so_giao_vien/screens/trang_chu.dart';
 import 'package:tro_ly_so_giao_vien/services/giong_may.dart';
 
+/// Chỉ chạy các bước này (cách nhau dấu phẩy, --dart-define=BUOC=...); để trống là chạy hết.
+const _chiBuoc = String.fromEnvironment('BUOC');
+
 void main() {
   final b = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -47,6 +50,8 @@ void main() {
     // Thanh dưới (Tin tức, Tài khoản) thử riêng ở thanh_duoi_test.dart: trong phép thử dài này, mở màn có thanh dưới
     // từ thanh dưới thì máy giả lập sập vài giây sau (26/11/2026, 6 lần); thử riêng thì chạy bình thường.
 
+    // Chạy riêng vài bước (ô buoc của workflow): bỏ phần đầu (giọng đọc, mở từng tiện ích, Hỏi Trợ lý, Đọc to)
+    if (_chiBuoc.isEmpty) {
     // 3. Giọng đọc cài sẵn: tải về, tạo tiếng
     final d1 = Stopwatch()..start();
     try {
@@ -146,6 +151,8 @@ void main() {
     Navigator.of(t.element(find.byType(Scaffold).last)).pop();
     await cho(t, 1000);
 
+    }
+
     // 5. Các lỗi thầy cô báo ngày 24/11/2026 (bản 0.4.0 (6)): bấm thật từng nút đã sửa
     Future<void> mo(String ma) async {
       moTienIch(t.element(find.byType(TrangChu)), dsTienIch.firstWhere((x) => x.ma == ma));
@@ -192,6 +199,7 @@ void main() {
         find.byType(SnackBar).evaluate().map((e) => ((e.widget as SnackBar).content as Text?)?.data ?? '').join(' | ');
 
     Future<void> buoc(String ten, Future<void> Function() viec) async {
+      if (_chiBuoc.isNotEmpty && !_chiBuoc.split(',').contains(ten)) return;
       // ignore: avoid_print
       print('KQ bat_dau $ten');
       final truoc = loi.length;
