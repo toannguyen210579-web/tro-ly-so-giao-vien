@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:tro_ly_so_giao_vien/data/tien_ich.dart';
 import 'package:tro_ly_so_giao_vien/main.dart' as app;
 import 'package:tro_ly_so_giao_vien/screens/dieu_huong.dart';
+import 'package:tro_ly_so_giao_vien/screens/tin_kenh.dart';
 import 'package:tro_ly_so_giao_vien/screens/trang_chu.dart';
 import 'package:tro_ly_so_giao_vien/services/giong_may.dart';
 
@@ -335,23 +336,6 @@ void main() {
       print('KQ hoi_huong_dan: o hoi=$soO, nut ?=$coNut, trang huong dan=${coHd ? "co" : "KHONG"}');
     });
 
-    await buoc('thanh_duoi', () async {
-      await t.tap(find.text('Tin tức').last);
-      await cho(t, 2500);
-      final nutFb = find.textContaining('Xem trên Facebook').evaluate().length;
-      final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
-      await chup(t, 'moi_tin_tuc');
-      await t.tap(find.text('Tài khoản').last);
-      await cho(t, 2500);
-      final pb = find.textContaining('0.4.0').evaluate().length;
-      await chup(t, 'moi_tai_khoan');
-      await t.tap(find.text('Trang chủ').last);
-      await cho(t, 2000);
-      final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
-      // ignore: avoid_print
-      print('KQ thanh_duoi: tin co thanh duoi=$coThanh, nut Facebook=$nutFb, so phien ban hien=$pb, ve trang chu=$veTc');
-    });
-
     await buoc('bien_ban', () async {
       await mo('hop');
       await bamChu('Biên bản mới');
@@ -403,6 +387,27 @@ void main() {
         print('KQ dich_luu: ${luu ? "co hop Da luu" : "KHONG THAY"}; thong bao: ${thongBao()}');
         if (luu) await bamChu('Xong');
       }
+    });
+
+    await buoc('thanh_duoi', () async {
+      // ignore: avoid_print
+      print('KQ thanh_duoi_bam_tin: ${find.text('Tin tức').evaluate().length} cho');
+      await t.tap(find.text('Tin tức').last);
+      await cho(t, 2500);
+      // ignore: avoid_print
+      print('KQ thanh_duoi_da_mo_tin: ${find.byType(ManTin).evaluate().length}');
+      final nutFb = find.textContaining('Xem trên Facebook').evaluate().length;
+      final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
+      await chup(t, 'moi_tin_tuc');
+      await t.tap(find.text('Tài khoản').last);
+      await cho(t, 2500);
+      final pb = find.textContaining('0.4.0').evaluate().length;
+      await chup(t, 'moi_tai_khoan');
+      await t.tap(find.text('Trang chủ').last);
+      await cho(t, 2000);
+      final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
+      // ignore: avoid_print
+      print('KQ thanh_duoi: tin co thanh duoi=$coThanh, nut Facebook=$nutFb, so phien ban hien=$pb, ve trang chu=$veTc');
     });
 
     // ignore: avoid_print
