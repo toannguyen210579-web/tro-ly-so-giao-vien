@@ -45,6 +45,33 @@ void main() {
     await b.convertFlutterSurfaceToImage();
     await chup(t, '00_trang_chu');
 
+    // 0. Thanh dưới: Tin tức, Tài khoản, về Trang chủ. Chạy ngay đầu: mở Tin tức sau khi đã chạy nhiều màn (khoảng 10 phút)
+    // thì máy giả lập mất kết nối (26/11/2026, 4 lần); mở ngay khi khởi động thì bình thường (integration_test/tin_tuc_test.dart)
+    try {
+      // ignore: avoid_print
+      print('KQ thanh_duoi_bam_tin: ${find.text('Tin tức').evaluate().length} cho');
+      await t.tap(find.text('Tin tức').last);
+      await cho(t, 2500);
+      final nutFb = find.textContaining('Xem trên Facebook').evaluate().length;
+      final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
+      final coTin = find.byType(ManTin).evaluate().length;
+      await chup(t, 'moi_tin_tuc');
+      await t.tap(find.text('Tài khoản').last);
+      await cho(t, 2500);
+      final pb = find.textContaining('0.4.0').evaluate().length;
+      await chup(t, 'moi_tai_khoan');
+      await t.tap(find.text('Trang chủ').last);
+      await cho(t, 2000);
+      final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
+      // ignore: avoid_print
+      print('KQ thanh_duoi: man tin=$coTin, tin co thanh duoi=$coThanh, nut Facebook=$nutFb, so phien ban hien=$pb, ve trang chu=$veTc');
+    } catch (e) {
+      // ignore: avoid_print
+      print('KQ thanh_duoi: LOI PHEP THU ${e.toString().split('\n').first}');
+    }
+    Navigator.of(t.element(find.byType(TrangChu, skipOffstage: false))).popUntil((r) => r.isFirst);
+    await cho(t, 1000);
+
     // 3. Giọng đọc cài sẵn: tải về, tạo tiếng
     final d1 = Stopwatch()..start();
     try {
@@ -205,29 +232,6 @@ void main() {
       }
       await veTrangChu();
     }
-
-    // Thanh dưới chạy sớm: chạy lâu (khoảng 12 phút, nhiều màn) rồi mới mở Tin tức thì máy giả lập mất kết nối (26/11/2026);
-    // mở Tin tức ngay khi khởi động thì bình thường (integration_test/tin_tuc_test.dart)
-    await buoc('thanh_duoi', () async {
-      // ignore: avoid_print
-      print('KQ thanh_duoi_bam_tin: ${find.text('Tin tức').evaluate().length} cho');
-      await t.tap(find.text('Tin tức').last);
-      await cho(t, 2500);
-      // ignore: avoid_print
-      print('KQ thanh_duoi_da_mo_tin: ${find.byType(ManTin).evaluate().length}');
-      final nutFb = find.textContaining('Xem trên Facebook').evaluate().length;
-      final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
-      await chup(t, 'moi_tin_tuc');
-      await t.tap(find.text('Tài khoản').last);
-      await cho(t, 2500);
-      final pb = find.textContaining('0.4.0').evaluate().length;
-      await chup(t, 'moi_tai_khoan');
-      await t.tap(find.text('Trang chủ').last);
-      await cho(t, 2000);
-      final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
-      // ignore: avoid_print
-      print('KQ thanh_duoi: tin co thanh duoi=$coThanh, nut Facebook=$nutFb, so phien ban hien=$pb, ve trang chu=$veTc');
-    });
 
     // Lỗi 4: Tính lương xuất bảng lương ra văn bản (Word và PDF)
     await buoc('tinh_luong', () async {
