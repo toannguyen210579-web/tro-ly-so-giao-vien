@@ -14,7 +14,8 @@ void main() {
       expect(t.tit, isNotEmpty);
       expect(t.anhDongGoi, isTrue);
       expect(File(t.duongDanAnh).existsSync(), isTrue, reason: t.duongDanAnh);
-      expect(t.linkFacebook, isNull);
+      // Clip đã đăng có đường dẫn reel của trang kênh; clip chưa đăng để trống (app ẩn nút xem)
+      if (t.linkFacebook != null) expect(t.linkFacebook, startsWith('https://www.facebook.com/reel/'));
     }
   });
 }

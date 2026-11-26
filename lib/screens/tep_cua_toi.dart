@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/chia_se.dart';
+import 'thanh_duoi.dart';
 
 /// Các thư mục app lưu tệp đã tạo, kèm tên hiển thị.
 const _thuMucTep = {
@@ -80,6 +81,7 @@ class _TepCuaToiState extends State<TepCuaToi> {
     final ds = _ds;
     return Scaffold(
       appBar: AppBar(title: const Text('Tệp của tôi')),
+      bottomNavigationBar: const ThanhDuoi(chon: nutTep),
       body: ds == null
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

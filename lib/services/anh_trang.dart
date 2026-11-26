@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math' as math;
 import 'dart:typed_data';
@@ -77,6 +78,14 @@ Future<String> anhSangJpeg(String duong, {int toiDa = 2200}) async {
   }
   if (jpg == null) throw const FormatException('Không mở được ảnh này.');
   return _ghiTam(jpg, 'jpg');
+}
+
+/// Ảnh gửi AI: luôn đổi sang JPEG, cạnh dài tối đa 1568 điểm ảnh, mã base64.
+/// Ảnh PNG, HEIC, WebP chọn từ Thư viện ảnh không gửi nguyên dạng nữa (thầy cô báo 24/11/2026:
+/// ảnh PNG bị AI từ chối). Ném [FormatException] khi không mở được ảnh.
+Future<String> anhGuiAi(String duong) async {
+  final jpg = await anhSangJpeg(duong, toiDa: 1568);
+  return base64Encode(await File(jpg).readAsBytes());
 }
 
 /// Mỗi trang của tệp PDF thành một ảnh (150 dpi, đủ rõ để in, đọc chữ). Tối đa [toiDaTrangPdf] trang.

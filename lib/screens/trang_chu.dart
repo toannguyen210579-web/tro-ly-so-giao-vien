@@ -5,10 +5,9 @@ import '../main.dart';
 import '../data/lich.dart';
 import 'bieu_tuong.dart';
 import 'lich_nhac_han.dart';
-import 'chu_chay.dart';
 import 'dieu_huong.dart';
-import 'tai_khoan.dart';
-import 'tep_cua_toi.dart';
+import 'nut_gui.dart';
+import 'thanh_duoi.dart';
 import 'tin_kenh.dart';
 
 class TrangChu extends StatefulWidget {
@@ -20,20 +19,12 @@ class TrangChu extends StatefulWidget {
 
 class _TrangChuState extends State<TrangChu> {
   final _o = TextEditingController();
-  final _tieuDiem = FocusNode();
-
-  @override
-  void initState() {
-    super.initState();
-    // Ô trống, chưa bấm vào: hiện con trỏ nhấp nháy để thầy cô biết chỗ gõ
-    _tieuDiem.addListener(() => setState(() {}));
-    _o.addListener(() => setState(() {}));
-  }
+  final _cuon = ScrollController();
 
   @override
   void dispose() {
     _o.dispose();
-    _tieuDiem.dispose();
+    _cuon.dispose();
     super.dispose();
   }
 
@@ -42,11 +33,17 @@ class _TrangChuState extends State<TrangChu> {
     _o.clear();
   }
 
+  /// Bấm nút Trang chủ khi đang ở Trang chủ: cuộn về đầu trang
+  void _veDau() {
+    if (_cuon.hasClients) _cuon.animateTo(0, duration: const Duration(milliseconds: 350), curve: Curves.easeOut);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: ListView(
+          controller: _cuon,
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
           children: [
             _dauTrang(),
@@ -61,28 +58,7 @@ class _TrangChuState extends State<TrangChu> {
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: 2,
-        onDestinationSelected: (i) {
-          // Thứ tự: Hỏi Trợ lý, Tin tức, Trang chủ (giữa), Tệp của tôi, Tài khoản
-          final man = switch (i) {
-            1 => const ManTin(),
-            3 => const TepCuaToi(),
-            4 => const TaiKhoan(),
-            _ => null,
-          };
-          if (i == 0) moHoiTroLy(context);
-          if (man != null) Navigator.of(context).push(MaterialPageRoute(builder: (_) => man));
-        },
-        indicatorColor: Colors.transparent,
-        destinations: const [
-          NavigationDestination(icon: KhoiMau(icon: Icons.chat_rounded, mau: mauHoiTroLy), label: 'Hỏi Trợ lý'),
-          NavigationDestination(icon: KhoiMau(icon: Icons.play_arrow_rounded, mau: mauTinTuc, coIcon: 23), label: 'Tin tức'),
-          NavigationDestination(icon: KhoiMau(icon: Icons.home_rounded, mau: mauTrangChu), label: 'Trang chủ'),
-          NavigationDestination(icon: KhoiMau(icon: Icons.folder_rounded, mau: mauTep), label: 'Tệp của tôi'),
-          NavigationDestination(icon: KhoiMau(icon: Icons.person_rounded, mau: mauTaiKhoan), label: 'Tài khoản'),
-        ],
-      ),
+      bottomNavigationBar: ThanhDuoi(chon: nutTrangChu, veDau: _veDau),
     );
   }
 
@@ -123,17 +99,17 @@ class _TrangChuState extends State<TrangChu> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Chữ nhắc "Hỏi AI…" (thay "Thầy cô cần làm gì?", 24/11/2026); dùng dấu nháy mặc định của máy.
+          // Gõ đúng tên tiện ích thì mở thẳng tiện ích, câu khác chuyển sang hỏi AI (xuLyCauNhap).
           TextField(
             controller: _o,
-            focusNode: _tieuDiem,
             textInputAction: TextInputAction.send,
             onSubmitted: (_) => _gui(),
-            decoration: InputDecoration(
-              hintText: 'Thầy cô cần làm gì?',
-              hintStyle: const TextStyle(fontWeight: FontWeight.w700, color: MauApp.chuPhu),
+            style: const TextStyle(fontSize: 16),
+            decoration: const InputDecoration(
+              hintText: 'Hỏi AI…',
+              hintStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: MauApp.chuPhu),
               border: InputBorder.none,
-              prefixIcon: (!_tieuDiem.hasFocus && _o.text.isEmpty) ? const ConTroNhapNhay() : null,
-              prefixIconConstraints: const BoxConstraints(minWidth: 10, minHeight: 24),
             ),
           ),
           Row(
@@ -164,13 +140,9 @@ class _TrangChuState extends State<TrangChu> {
                   ),
                 ),
               ),
-              IconButton(
-                tooltip: 'Gửi',
-                onPressed: () => _gui(),
-                // Nút gửi màu xanh, mũi tên màu đỏ (theo ý thầy 21/11/2026)
-                icon: const KhoiMau(icon: Icons.arrow_upward_rounded, mau: mauTrangChu, rong: 46, cao: 46, coIcon: 28, bo: 23,
-                    mauIcon: Color(0xFFE53935), nenTrang: true),
-              ),
+              const SizedBox(width: 6),
+              // Nút gửi xanh trời tươi, mũi tên trắng (thầy cô chốt 24/11/2026, thay nút mũi tên đỏ ngày 21/11)
+              NutGui(bam: () => _gui(), co: 46),
             ],
           ),
         ],
@@ -192,41 +164,16 @@ class _TrangChuState extends State<TrangChu> {
             ],
           ),
         ),
+        // Các ô căn trên: tên một dòng hay hai dòng thì biểu tượng vẫn thẳng hàng (thầy cô báo lệch 24/11/2026)
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            for (final t in ds) Expanded(child: _o1(t.ten, t.bieuTuong, t.ma, () => moTienIch(context, t), moTa: t.moTa)),
-            Expanded(child: _o1('Khác', Icons.apps, 'khac', () => moXemThem(context), moTa: 'Xem đủ 16 tiện ích')),
+            for (final t in ds)
+              Expanded(child: OTienIch(ma: t.ma, icon: t.bieuTuong, ten: t.ten, bam: () => moTienIch(context, t))),
+            Expanded(child: OTienIch(ma: 'khac', icon: Icons.apps, ten: 'Khác', bam: () => moXemThem(context))),
           ],
         ),
       ],
-    );
-  }
-
-  Widget _o1(String ten, IconData icon, String ma, VoidCallback bam, {String? moTa}) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: bam,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-        child: Column(
-          children: [
-            BieuTuongNoi(ma: ma, icon: icon, size: 50),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 32,
-              child: Text(ten,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, height: 1.2)),
-            ),
-            if (moTa != null) ...[
-              const SizedBox(height: 2),
-              ChuChay(moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),
-            ],
-          ],
-        ),
-      ),
     );
   }
 
@@ -317,41 +264,6 @@ class KhoiMau extends StatelessWidget {
               child: hinh,
             )
           : hinh,
-    );
-  }
-}
-
-
-/// Con trỏ nhấp nháy đặt trước chữ nhắc trong ô hỏi, báo chỗ bấm vào để gõ.
-class ConTroNhapNhay extends StatefulWidget {
-  const ConTroNhapNhay({super.key});
-
-  @override
-  State<ConTroNhapNhay> createState() => _ConTroNhapNhayState();
-}
-
-class _ConTroNhapNhayState extends State<ConTroNhapNhay> with SingleTickerProviderStateMixin {
-  late final AnimationController _a =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 530))..repeat(reverse: true);
-
-  @override
-  void dispose() {
-    _a.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 4),
-      child: FadeTransition(
-        opacity: _a.drive(CurveTween(curve: Curves.easeInOut)),
-        child: Container(
-          width: 2.5,
-          height: 22,
-          decoration: BoxDecoration(color: MauApp.xanhTroi, borderRadius: BorderRadius.circular(2)),
-        ),
-      ),
     );
   }
 }

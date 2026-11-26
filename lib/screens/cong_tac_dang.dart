@@ -11,7 +11,6 @@ import '../services/tep_pdf.dart';
 import '../services/van_ban_dang.dart';
 import 'bieu_tuong.dart';
 import 'cau_giup_viec.dart';
-import 'chu_chay.dart';
 import 'dieu_huong.dart';
 import '../services/chia_se.dart';
 
@@ -128,33 +127,6 @@ class _CongTacDangState extends State<CongTacDang> {
     }
   }
 
-  /// Một ô kiểu biểu tượng app: khối màu chuyển, tên, dòng chữ chạy nói công dụng.
-  Widget _oApp(String ma, IconData icon, String ten, String moTa, VoidCallback bam) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(14),
-      onTap: bam,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-        child: Column(
-          children: [
-            BieuTuongNoi(ma: ma, icon: icon, size: 60),
-            const SizedBox(height: 8),
-            SizedBox(
-              height: 34,
-              child: Text(ten,
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.25)),
-            ),
-            const SizedBox(height: 2),
-            ChuChay(moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),
-          ],
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final cb = _cb;
@@ -186,25 +158,52 @@ class _CongTacDangState extends State<CongTacDang> {
           ),
           const SizedBox(height: 8),
           ],
-          // Mỗi việc một biểu tượng kiểu app trên điện thoại (thầy cô yêu cầu 24/11/2026), chữ chạy nói công dụng
+          // Mỗi việc một biểu tượng kiểu app trên điện thoại (thầy cô yêu cầu 24/11/2026). Ô căn trên, cao theo cỡ chữ.
+          // Hai mục mở sang nơi khác dùng biểu tượng riêng của app (không làm giống logo của đơn vị khác, chốt 24/11/2026),
+          // có dấu "mở ra ngoài" và dòng ghi đúng nơi sẽ mở.
           GridView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            // Chiều cao ô cố định: máy màn hẹp không bị tràn chữ
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisExtent: 142, mainAxisSpacing: 6),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              mainAxisExtent: chieuCaoOTienIch(context, size: 60, coChuThich: true, moRaNgoai: true),
+              mainAxisSpacing: 6,
+            ),
             children: [
-              _oApp('dang_lich', Icons.event_available_rounded, 'Lịch họp chi bộ',
-                  'Đặt ngày họp hằng tháng, điện thoại nhắc trước một ngày',
-                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManLichHopChiBo()))),
-              _oApp('dang_phi', Icons.savings_rounded, 'Tính đảng phí',
-                  'Mức đóng hằng tháng theo Quy định 01-QĐ/TW năm 2026, nút nộp trực tuyến',
-                  () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi()))),
-              _oApp('dang_dvc', Icons.account_balance_rounded, 'Dịch vụ công của Đảng',
-                  'Thu nộp đảng phí, chuyển sinh hoạt đảng (đăng nhập bằng VNeID)', _moDichVuCong),
-              _oApp('dang_so_tay', Icons.menu_book_rounded, 'Sổ tay đảng viên',
-                  'Mở ứng dụng iCPV - Book để đọc tài liệu, theo dõi sinh hoạt chi bộ', _moIcpv),
-              _oApp('dang_hoi', Icons.forum_rounded, 'Hỏi công tác Đảng',
-                  'Điều lệ Đảng, sinh hoạt chi bộ, thủ tục đảng viên; có dẫn nguồn văn bản', () => moHoiTroLy(context)),
+              OTienIch(
+                  ma: 'dang_lich',
+                  icon: Icons.event_available_rounded,
+                  ten: 'Lịch họp chi bộ',
+                  size: 60,
+                  bam: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManLichHopChiBo()))),
+              OTienIch(
+                  ma: 'dang_phi',
+                  icon: Icons.savings_rounded,
+                  ten: 'Tính đảng phí',
+                  size: 60,
+                  bam: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManDangPhi()))),
+              OTienIch(
+                  ma: 'dang_dvc',
+                  icon: Icons.assignment_turned_in_rounded,
+                  ten: 'Dịch vụ công của Đảng',
+                  chuThich: 'Mở trang dichvucong.dcs.vn',
+                  moRaNgoai: true,
+                  size: 60,
+                  bam: _moDichVuCong),
+              OTienIch(
+                  ma: 'dang_so_tay',
+                  icon: Icons.book_rounded,
+                  ten: 'Sổ tay đảng viên',
+                  chuThich: 'Mở app iCPV - Book',
+                  moRaNgoai: true,
+                  size: 60,
+                  bam: _moIcpv),
+              OTienIch(
+                  ma: 'dang_hoi',
+                  icon: Icons.forum_rounded,
+                  ten: 'Hỏi công tác Đảng',
+                  size: 60,
+                  bam: () => moHoiTroLy(context)),
             ],
           ),
           const SizedBox(height: 16),

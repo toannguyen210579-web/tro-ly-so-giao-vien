@@ -3,8 +3,8 @@ import 'dart:io';
 
 import 'package:archive/archive.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:image/image.dart' as img;
 
+import 'anh_trang.dart';
 import 'van_phong_cu.dart';
 
 /// Tệp thầy cô tải lên, đã chuyển sẵn sang dạng gửi được cho AI.
@@ -58,12 +58,8 @@ Future<TepTaiLen?> chonTep(List<String> cho) async {
     return TepTaiLen(ten, chu: chu);
   }
   if (duoiAnh.contains(duoi)) {
-    final anh = img.decodeImage(byte);
-    if (anh == null) throw const FormatException('Không mở được ảnh này.');
-    final nho = (anh.width > 1568 || anh.height > 1568)
-        ? img.copyResize(anh, width: anh.width >= anh.height ? 1568 : null, height: anh.height > anh.width ? 1568 : null)
-        : anh;
-    return TepTaiLen(ten, anh: base64Encode(img.encodeJpg(nho, quality: 80)));
+    // Đổi mọi ảnh (cả HEIC của iPhone) sang JPEG trước khi gửi AI
+    return TepTaiLen(ten, anh: await anhGuiAi(f.path!));
   }
   throw const FormatException('Loại tệp này chưa hỗ trợ.');
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -9,8 +10,18 @@ import '../main.dart';
 import '../services/tro_ly_api.dart';
 import 'bieu_tuong.dart';
 import 'dieu_huong.dart';
+import 'thanh_duoi.dart';
 
-const phienBanApp = '0.3.0';
+/// Số phiên bản và số bản đọc từ chính app lúc chạy, ví dụ "0.4.0 (9)" (trước 26/11/2026 ghi cứng "0.3.0",
+/// nâng phiên bản quên sửa nên màn Tài khoản hiện sai).
+Future<String> docPhienBanApp() async {
+  try {
+    final p = await PackageInfo.fromPlatform();
+    return p.buildNumber.isEmpty ? p.version : '${p.version} (${p.buildNumber})';
+  } catch (_) {
+    return '';
+  }
+}
 
 /// Hồ sơ thầy cô lưu trên máy, dùng để điền sẵn vào biên bản, tin nhắn.
 class HoSo {
@@ -44,6 +55,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
   int _luotGiaiDe = luotMienPhi['giaide']!;
   int _luotNhanXet = luotMienPhi['nhanxet']!;
   String _maMay = '';
+  String _phienBan = '';
 
   @override
   void initState() {
@@ -54,6 +66,8 @@ class _TaiKhoanState extends State<TaiKhoan> {
   Future<void> _tai() async {
     final h = await HoSo.doc();
     final ma = await TroLyApi.maMay();
+    final pb = await docPhienBanApp();
+    if (mounted) setState(() => _phienBan = pb);
     await TroLyApi.layLuot();
     final a = await TroLyApi.luotConLai('giai_de', luotMienPhi['giaide']!);
     final b = await TroLyApi.luotConLai('nhanxet', luotMienPhi['nhanxet']!);
@@ -125,6 +139,7 @@ class _TaiKhoanState extends State<TaiKhoan> {
     final phu = [_hoSo[2], _hoSo[1]].where((s) => s.isNotEmpty).join(' · ');
     return Scaffold(
       appBar: AppBar(title: const Text('Tài khoản')),
+      bottomNavigationBar: const ThanhDuoi(chon: nutTaiKhoan),
       body: RefreshIndicator(
         onRefresh: _tai,
         child: ListView(
@@ -178,25 +193,18 @@ class _TaiKhoanState extends State<TaiKhoan> {
             const SizedBox(height: 20),
             const Text('Tiện ích', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
             const SizedBox(height: 8),
-            GridView.count(
-              crossAxisCount: 4,
+            // Ô căn trên, chiều cao theo cỡ chữ của máy (cùng kiểu với Tất cả tiện ích)
+            GridView(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              childAspectRatio: 0.8,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisExtent: chieuCaoOTienIch(context, size: 46),
+                mainAxisSpacing: 4,
+              ),
               children: [
                 for (final t in dsTienIch)
-                  InkWell(
-                    borderRadius: BorderRadius.circular(14),
-                    onTap: () => moTienIch(context, t),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        BieuTuongNoi(ma: t.ma, icon: t.bieuTuong, size: 46, mo: !t.coTrongBanDau),
-                        const SizedBox(height: 7),
-                        Text(t.ten, textAlign: TextAlign.center, maxLines: 2, style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600)),
-                      ],
-                    ),
-                  ),
+                  OTienIch(ma: t.ma, icon: t.bieuTuong, ten: t.ten, size: 46, mo: !t.coTrongBanDau, bam: () => moTienIch(context, t)),
               ],
             ),
             const SizedBox(height: 16),
@@ -254,15 +262,15 @@ class _TaiKhoanState extends State<TaiKhoan> {
                     onTap: () => showLicensePage(
                       context: context,
                       applicationName: 'Trợ lý số Giáo viên',
-                      applicationVersion: phienBanApp,
+                      applicationVersion: _phienBan,
                       applicationLegalese: 'Bớt sổ sách, thêm giờ cho học trò.',
                     ),
                   ),
                   const Divider(height: 1),
-                  const ListTile(
-                    leading: Icon(Icons.info_outline, color: MauApp.xanhDam),
-                    title: Text('Phiên bản'),
-                    trailing: Text(phienBanApp),
+                  ListTile(
+                    leading: const Icon(Icons.info_outline, color: MauApp.xanhDam),
+                    title: const Text('Phiên bản'),
+                    trailing: Text(_phienBan.isEmpty ? '…' : _phienBan),
                   ),
                 ],
               ),

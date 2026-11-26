@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../data/tien_ich.dart';
 import '../main.dart';
 import 'bieu_tuong.dart';
-import 'chu_chay.dart';
 import 'dieu_huong.dart';
 
 /// Danh sách đủ các tiện ích, chia hai nhóm Hành chính và Chuyên môn.
@@ -33,30 +32,19 @@ class XemThem extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(8, 16, 0, 8),
           child: Text(ten, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: mau)),
         ),
-        GridView.count(
-          crossAxisCount: 4,
+        // Ô căn trên, chiều cao theo cỡ chữ của máy: biểu tượng thẳng hàng, chữ to không bị cắt;
+        // không còn dòng chữ chạy giải thích (thầy cô chốt 24/11/2026)
+        GridView(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
-          childAspectRatio: 0.72,
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            mainAxisExtent: chieuCaoOTienIch(context),
+            mainAxisSpacing: 4,
+          ),
           children: [
             for (final t in ds)
-              InkWell(
-                borderRadius: BorderRadius.circular(14),
-                onTap: () => moTienIch(context, t),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    BieuTuongNoi(ma: t.ma, icon: t.bieuTuong, size: 50, mo: !t.coTrongBanDau),
-                    const SizedBox(height: 8),
-                    Text(t.ten, textAlign: TextAlign.center, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600)),
-                    const SizedBox(height: 2),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: ChuChay(t.moTa, style: const TextStyle(fontSize: 10.5, color: MauApp.chuPhu)),
-                    ),
-                  ],
-                ),
-              ),
+              OTienIch(ma: t.ma, icon: t.bieuTuong, ten: t.ten, mo: !t.coTrongBanDau, bam: () => moTienIch(context, t)),
           ],
         ),
       ],

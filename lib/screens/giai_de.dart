@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../data/cham_diem.dart';
 import '../data/luu_tru.dart';
 import '../main.dart';
+import '../services/anh_trang.dart' show anhGuiAi;
 import '../services/chon_tep.dart';
 import '../services/tep_pdf.dart';
 import '../services/tep_word.dart' show taoDocx;
@@ -151,8 +151,17 @@ class _GiaiDeState extends State<GiaiDe> {
     });
     _ghiNho();
     final anh = <String>[];
-    for (final a in _anh) {
-      anh.add(base64Encode(await File(a.path).readAsBytes()));
+    try {
+      // Ảnh PNG, HEIC chọn từ Thư viện ảnh: đổi sang JPEG trước khi gửi (AI từ chối nếu khai sai loại)
+      for (final a in _anh) {
+        anh.add(await anhGuiAi(a.path));
+      }
+    } on FormatException {
+      _demGio?.cancel();
+      if (!mounted) return;
+      setState(() => _dangCho = false);
+      _bao('Có ảnh không mở được. Thầy cô bỏ ảnh đó rồi chụp lại.');
+      return;
     }
     anh.addAll(_tep.where((t) => t.anh != null).map((t) => t.anh!));
     final pdf = _tep.where((t) => t.pdf != null).map((t) => t.pdf!).toList();

@@ -6,6 +6,7 @@ import '../data/tin_kenh.dart';
 import '../main.dart';
 import '../services/tep_pdf.dart';
 import '../services/chia_se.dart';
+import 'thanh_duoi.dart';
 
 const tenKenh = 'Việt Nam Tiêu Điểm';
 
@@ -86,7 +87,7 @@ class _DongTinMoiState extends State<DongTinMoi> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('TIN MỚI · Việt Nam Tiêu Điểm',
+                    const Text('TIN MỚI',
                         style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w800, color: Color(0xFFD7261E))),
                     const SizedBox(height: 3),
                     Text(t.tit, maxLines: 2, overflow: TextOverflow.ellipsis,
@@ -141,6 +142,7 @@ class _ManTinState extends State<ManTin> {
     final ds = _ds;
     return Scaffold(
       appBar: AppBar(title: const Text('Tin tức')),
+      bottomNavigationBar: const ThanhDuoi(chon: nutTin),
       body: ds == null
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -187,6 +189,7 @@ class _TheTinState extends State<TheTin> {
   @override
   Widget build(BuildContext context) {
     final t = widget.tin;
+    final coXem = t.video != null || t.linkFacebook != null;
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(18),
@@ -246,22 +249,27 @@ class _TheTinState extends State<TheTin> {
             ],
             if (!t.laTinBao) ...[
             const SizedBox(height: 10),
+            // Clip chưa có video, chưa có đường dẫn Facebook: chỉ hiện ảnh bìa, không hiện nút phát bấm không được
+            // (thầy cô báo 24/11/2026)
             GestureDetector(
-              onTap: () => t.video != null
-                  ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: [t])))
-                  : moFacebook(context, t),
+              onTap: coXem
+                  ? () => t.video != null
+                      ? Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: [t])))
+                      : moFacebook(context, t)
+                  : null,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
                     AspectRatio(aspectRatio: 9 / 12, child: anhTin(t)),
-                    Container(
-                      width: 64,
-                      height: 64,
-                      decoration: const BoxDecoration(color: Color(0x99000000), shape: BoxShape.circle),
-                      child: const Icon(Icons.play_arrow, color: Colors.white, size: 40),
-                    ),
+                    if (coXem)
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: const BoxDecoration(color: Color(0x99000000), shape: BoxShape.circle),
+                        child: const Icon(Icons.play_arrow, color: Colors.white, size: 40),
+                      ),
                   ],
                 ),
               ),
@@ -284,7 +292,7 @@ class _TheTinState extends State<TheTin> {
                     icon: const Icon(Icons.open_in_new, size: 18),
                     label: const Text('Đọc bài gốc'),
                   )
-                else
+                else if (t.linkFacebook != null)
                   FilledButton.icon(
                     onPressed: () => moFacebook(context, t),
                     style: FilledButton.styleFrom(backgroundColor: const Color(0xFF1877F2)),
@@ -324,7 +332,12 @@ class _ManXemClipState extends State<ManXemClip> {
     return Scaffold(
       backgroundColor: Colors.black,
       extendBodyBehindAppBar: true,
-      appBar: AppBar(backgroundColor: Colors.transparent, foregroundColor: Colors.white, title: const Text(tenKenh)),
+      appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.white,
+          iconTheme: const IconThemeData(color: Colors.white),
+          titleTextStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white),
+          title: const Text(tenKenh)),
       body: PageView.builder(
         controller: _trang,
         scrollDirection: Axis.vertical,

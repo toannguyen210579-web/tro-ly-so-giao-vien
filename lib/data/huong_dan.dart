@@ -285,20 +285,24 @@ const huongDan = <String, List<MucHuongDan>>{
     ]),
   ],
   'hoi': [
-    MucHuongDan('Hỏi', [
-      'Gõ câu hỏi vào ô "Thầy cô cần hỏi gì?" rồi bấm gửi.',
-      'Hỏi được chế độ, chính sách, văn bản, chuyên môn, dạy học và chuyện thường ngày.',
-      '"Chụp ảnh, tải tệp lên": chụp bài tập để hỏi cách giải, hoặc gửi tệp PDF, Word để hỏi về nội dung.',
-      'Hỏi tiếp ngay dưới câu trả lời, Trợ lý nhớ các câu trước trong cùng cuộc trò chuyện.',
+    // Mở bằng nút ? ở góc trên màn Hỏi Trợ lý (chốt 24/11/2026). Chỉ nêu ưu thế có thật, không ghi "vượt trội", "tốt nhất".
+    MucHuongDan('Điểm mạnh của Trợ lý', [
+      'Hỏi chế độ, quy định ngành giáo dục năm 2026: Trợ lý tra văn bản gốc trong kho (Luật Nhà giáo, các thông tư về xếp lương, chuẩn nghề nghiệp, Điều lệ trường…) rồi mới trả lời, có dẫn điều, khoản để thầy cô đối chiếu.',
+      'Tên học sinh trong câu hỏi được thay bằng mã HS01, HS02… trước khi gửi AI.',
+      'Hỏi xong làm luôn trong app: viết nhận xét học sinh, soạn tin phụ huynh, sắp xếp biên bản họp, tính lương.',
     ]),
-    MucHuongDan('Câu trả lời dựa trên gì', [
-      'Trợ lý tra kho văn bản quy định chuyên môn (tiểu học đến THPT) và tin trên mạng, có ghi nguồn để thầy cô đối chiếu.',
+    MucHuongDan('Cách dùng', [
+      'Gõ câu hỏi vào ô "Hỏi AI…" rồi bấm nút gửi, hoặc bấm micro để nói thay gõ.',
+      'Bấm nút + để chụp ảnh, chọn ảnh có sẵn (chụp đề để hỏi cách giải) hoặc gửi tệp PDF, Word để hỏi về nội dung.',
+      'Hỏi tiếp ngay dưới câu trả lời, Trợ lý nhớ các câu trước trong cùng cuộc trò chuyện, không phải nhắc lại.',
+      'Hỏi được cả dạy học, chuyên môn và chuyện thường ngày.',
+    ]),
+    MucHuongDan('Lưu ý', [
+      'Kho văn bản đang được bổ sung hằng ngày. Văn bản chưa có trong kho thì Trợ lý nói rõ phần nào còn thiếu.',
       'Từ 01/7/2025 không còn Phòng GD&ĐT: trường mầm non, tiểu học, THCS thuộc UBND xã, phường; trường THPT thuộc Sở GD&ĐT.',
-      'Việc hệ trọng (lương, chế độ, kỷ luật), thầy cô đối chiếu văn bản gốc trước khi làm theo.',
-    ]),
-    MucHuongDan('Thông tin riêng tư', [
-      'Tên học sinh trong câu hỏi được thay bằng mã HS01, HS02… trước khi gửi đi.',
+      'AI có thể nhầm. Việc hệ trọng (lương, chế độ, kỷ luật), thầy cô đối chiếu văn bản gốc trước khi làm theo.',
       'Câu trả lời sai, không phù hợp thì bấm "Báo cáo" để nhóm làm app sửa.',
+      'Mỗi ngày có số câu hỏi miễn phí; dùng hết thì hôm sau dùng tiếp.',
     ]),
   ],
 };

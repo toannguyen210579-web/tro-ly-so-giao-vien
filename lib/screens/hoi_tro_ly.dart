@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,10 +8,14 @@ import '../main.dart';
 import '../data/tin_kenh.dart';
 import 'tin_kenh.dart' show ManXemClip;
 import '../services/an_danh.dart';
+import '../services/anh_trang.dart' show anhGuiAi;
 import '../services/chon_tep.dart';
 import '../services/tro_ly_api.dart';
-import 'cau_giup_viec.dart';
+import 'bieu_tuong.dart';
+import 'cau_giup_viec.dart' show ManHuongDan;
 import 'chu_ai.dart';
+import 'nut_gui.dart';
+import 'nut_noi.dart';
 
 class _TinNhan {
   final bool laNguoiDung;
@@ -30,6 +33,9 @@ class _TinNhan {
 
 /// Hỏi Trợ lý: hỏi mọi việc, chụp ảnh bài tập để hỏi. Không hiện số câu; máy chủ vẫn có trần chống lạm dụng.
 /// Câu có tên học sinh, số điện thoại, email được làm sạch ngay trên máy và gửi sang Claude.
+/// Giao diện (chốt 24/11/2026, học cách bố trí ô hỏi của AI Hay): chưa hỏi thì giữa màn chỉ có tên app và một ô hỏi lớn
+/// (nút + bên trái, micro bên phải, gõ chữ thì hiện thêm nút gửi); đã hỏi thì ô hỏi nằm sát đáy, tin nhắn ở trên.
+/// Hướng dẫn và điểm mạnh của Trợ lý để trong nút ? ở góc trên bên phải.
 class HoiTroLy extends StatefulWidget {
   final String? cauHoiDau;
   const HoiTroLy({super.key, this.cauHoiDau});
@@ -51,6 +57,10 @@ class _HoiTroLyState extends State<HoiTroLy> {
   @override
   void initState() {
     super.initState();
+    // Gõ chữ thì nút micro đổi thành nút gửi
+    _o.addListener(() {
+      if (mounted) setState(() {});
+    });
     final c = widget.cauHoiDau;
     if (c != null && c.trim().isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _gui(c));
@@ -159,7 +169,21 @@ class _HoiTroLyState extends State<HoiTroLy> {
       for (final t in _ds)
         if (!t.laNguoiDung && !t.loi && t.cauHoi != null && t.cauHoi!.isNotEmpty) (t.cauHoi!, t.traLoiGoc ?? t.noiDung),
     ];
-    final dsAnh = anh == null ? <String>[] : [base64Encode(await File(anh.path).readAsBytes())];
+    final dsAnh = <String>[];
+    if (anh != null) {
+      try {
+        // Ảnh PNG, HEIC chọn từ Thư viện ảnh: đổi sang JPEG trước khi gửi (thầy cô báo 24/11/2026)
+        dsAnh.add(await anhGuiAi(anh.path));
+      } on FormatException {
+        if (!mounted) return;
+        setState(() {
+          _dangCho = false;
+          _ds.add(const _TinNhan(false, 'Ảnh này không mở được. Thầy cô chụp lại hoặc chọn ảnh khác.', loi: true));
+        });
+        _cuonXuong();
+        return;
+      }
+    }
     if (tep?.anh != null) dsAnh.add(tep!.anh!);
     // Hỏi về kênh Việt Nam Tiêu Điểm, clip, tin mới: gửi kèm danh sách clip của kênh để AI trả lời đúng
     var guiDi = sach.noiDung;
@@ -230,189 +254,228 @@ class _HoiTroLyState extends State<HoiTroLy> {
 
   @override
   Widget build(BuildContext context) {
+    final dangTroChuyen = _ds.isNotEmpty || _dangCho;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Hỏi Trợ lý'),
-      ),
-      body: Column(
-        children: [
-          const CauGiupViec('hoi', margin: EdgeInsets.fromLTRB(16, 4, 16, 4)),
-          const Padding(
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(
-              'Hỏi Trợ lý mọi việc: chế độ, văn bản, dạy học hay chuyện thường ngày. Chụp ảnh bài tập để hỏi cách giải.',
-              style: TextStyle(color: MauApp.chuPhu),
-            ),
-          ),
-          SafeArea(
-            top: false,
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_tep != null)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: InputChip(
-                          avatar: Icon(_tep!.pdf != null ? Icons.picture_as_pdf_outlined : Icons.image_outlined, size: 18),
-                          label: Text(_tep!.ten, overflow: TextOverflow.ellipsis),
-                          onDeleted: () => setState(() => _tep = null),
-                        ),
-                      ),
-                    ),
-                  if (_anh != null)
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 6),
-                        child: Stack(
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.file(File(_anh!.path), height: 80, fit: BoxFit.cover),
-                            ),
-                            Positioned(
-                              right: 0,
-                              top: 0,
-                              child: IconButton.filledTonal(
-                                visualDensity: VisualDensity.compact,
-                                tooltip: 'Bỏ ảnh',
-                                onPressed: () => setState(() => _anh = null),
-                                icon: const Icon(Icons.close, size: 16),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  Row(
-                children: [
-                  IconButton(
-                    tooltip: 'Chụp ảnh, tải tệp lên',
-                    onPressed: _dangCho ? null : _chonAnh,
-                    icon: const Icon(Icons.attach_file, color: MauApp.xanhDam),
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _o,
-                      minLines: 1,
-                      maxLines: 4,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _gui(),
-                      decoration: InputDecoration(
-                        hintText: 'Thầy cô cần hỏi gì?',
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
-                    tooltip: 'Gửi câu hỏi',
-                    onPressed: _dangCho ? null : () => _gui(),
-                    icon: const Icon(Icons.arrow_upward),
-                  ),
-                ],
-              ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              controller: _cuon,
-              padding: const EdgeInsets.all(16),
-              itemCount: _ds.length + (_dangCho ? 1 : 0),
-              itemBuilder: (_, i) {
-                if (i == _ds.length) {
-                  return const Align(
-                    alignment: Alignment.centerLeft,
-                    child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator()),
-                  );
-                }
-                final t = _ds[i];
-                return Align(
-                  alignment: t.laNguoiDung ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
-                    padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
-                    decoration: BoxDecoration(
-                      color: t.laNguoiDung ? MauApp.xanhTroi : Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (t.anh != null)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 6),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.file(File(t.anh!), height: 140, fit: BoxFit.cover),
-                            ),
-                          ),
-                        if (t.laNguoiDung)
-                          SelectableText(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: Colors.white))
-                        else
-                          ChuAI(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: MauApp.chu)),
-                        if (t.loi && (t.cauGoc ?? '').isNotEmpty)
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: _dangCho ? null : () => _gui(t.cauGoc),
-                              icon: const Icon(Icons.refresh, size: 16),
-                              label: const Text('Gửi lại'),
-                            ),
-                          ),
-                        if (!t.laNguoiDung && !t.loi && t.goiY.isNotEmpty) ...[
-                          const SizedBox(height: 8),
-                          for (final i in t.goiY)
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: OutlinedButton.icon(
-                                onPressed: () => Navigator.of(context)
-                                    .push(MaterialPageRoute(builder: (_) => ManXemClip(ds: t.tinKenh, batDau: i))),
-                                icon: const Icon(Icons.play_circle_outline),
-                                label: Text('Xem clip: ${t.tinKenh[i].tit}', maxLines: 2, overflow: TextOverflow.ellipsis),
-                              ),
-                            ),
-                          if (trangKenhFacebook.isNotEmpty)
-                            TextButton.icon(
-                              onPressed: () => launchUrl(Uri.parse(trangKenhFacebook), mode: LaunchMode.externalApplication),
-                              icon: const Icon(Icons.open_in_new, size: 18),
-                              label: const Text('Mở trang kênh Việt Nam Tiêu Điểm'),
-                            ),
-                        ],
-                        if (!t.laNguoiDung && !t.loi) ...[
-                          const SizedBox(height: 4),
-                          const Text(
-                            'AI có thể nhầm. Thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.',
-                            style: TextStyle(fontSize: 11.5, color: MauApp.chuPhu),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton.icon(
-                              onPressed: () => _baoCao(t),
-                              icon: const Icon(Icons.flag_outlined, size: 16),
-                              label: const Text('Báo cáo'),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
+        actions: [
+          IconButton(
+            key: const Key('nut_huong_dan'),
+            tooltip: 'Hướng dẫn, điểm mạnh của Trợ lý',
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const ManHuongDan('hoi'))),
+            icon: const Icon(Icons.help_outline_rounded, color: MauApp.xanhTroi),
           ),
         ],
       ),
+      body: SafeArea(
+        top: false,
+        child: dangTroChuyen
+            ? Column(
+                children: [
+                  Expanded(child: _danhSach()),
+                  Padding(padding: const EdgeInsets.fromLTRB(12, 4, 12, 10), child: _oHoi(lon: false)),
+                ],
+              )
+            : _manTrong(),
+      ),
+    );
+  }
+
+  /// Chưa hỏi gì: tên app và ô hỏi lớn ở giữa màn, không có chữ hướng dẫn.
+  Widget _manTrong() {
+    return LayoutBuilder(
+      builder: (context, c) => SingleChildScrollView(
+        padding: EdgeInsets.fromLTRB(16, c.maxHeight * 0.16, 16, 24),
+        child: Column(
+          children: [
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                BieuTuongNoi(ma: 'hoi', icon: Icons.chat_rounded, size: 40),
+                SizedBox(width: 12),
+                Flexible(
+                  child: Text('Trợ lý số GV',
+                      style: TextStyle(fontSize: 26, fontWeight: FontWeight.w900, color: MauApp.xanhDam)),
+                ),
+              ],
+            ),
+            const SizedBox(height: 22),
+            _oHoi(lon: true),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Ô hỏi: ảnh, tệp đính kèm; ô chữ "Hỏi AI…"; nút + bên trái, micro hoặc nút gửi bên phải.
+  Widget _oHoi({required bool lon}) {
+    final coNoiDung = _o.text.trim().isNotEmpty || _anh != null || _tep != null;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(14, 6, 8, 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: const Color(0xFFB9CCEB), width: 1.2),
+        boxShadow: const [BoxShadow(color: Color(0x262C6EE8), blurRadius: 16, offset: Offset(0, 6))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_tep != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: InputChip(
+                avatar: Icon(_tep!.pdf != null ? Icons.picture_as_pdf_outlined : Icons.image_outlined, size: 18),
+                label: Text(_tep!.ten, overflow: TextOverflow.ellipsis),
+                onDeleted: () => setState(() => _tep = null),
+              ),
+            ),
+          if (_anh != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Stack(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image.file(File(_anh!.path), height: 80, fit: BoxFit.cover),
+                  ),
+                  Positioned(
+                    right: 0,
+                    top: 0,
+                    child: IconButton.filledTonal(
+                      visualDensity: VisualDensity.compact,
+                      tooltip: 'Bỏ ảnh',
+                      onPressed: () => setState(() => _anh = null),
+                      icon: const Icon(Icons.close, size: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          TextField(
+            controller: _o,
+            minLines: lon ? 2 : 1,
+            maxLines: 5,
+            textInputAction: TextInputAction.send,
+            onSubmitted: (_) => _gui(),
+            style: const TextStyle(fontSize: 16.5),
+            decoration: const InputDecoration(
+              hintText: 'Hỏi AI…',
+              hintStyle: TextStyle(fontSize: 16.5, color: MauApp.chuPhu),
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              filled: false,
+            ),
+          ),
+          Row(
+            children: [
+              IconButton(
+                tooltip: 'Chụp ảnh, chọn ảnh, tải tệp lên',
+                onPressed: _dangCho ? null : _chonAnh,
+                icon: const Icon(Icons.add_circle, color: MauApp.chu, size: 32),
+              ),
+              const Spacer(),
+              // Micro luôn giữ chỗ (đang nghe mà bị gỡ khỏi màn thì máy ngừng nghe); có chữ thì hiện thêm nút gửi
+              NutNoi(dich: _o, co: 44),
+              if (coNoiDung || _dangCho) ...[
+                const SizedBox(width: 10),
+                NutGui(bam: () => _gui(), dangCho: _dangCho, co: 44),
+              ],
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _danhSach() {
+    return ListView.builder(
+      controller: _cuon,
+      padding: const EdgeInsets.all(16),
+      itemCount: _ds.length + (_dangCho ? 1 : 0),
+      itemBuilder: (_, i) {
+        if (i == _ds.length) {
+          return const Align(
+            alignment: Alignment.centerLeft,
+            child: Padding(padding: EdgeInsets.all(8), child: CircularProgressIndicator()),
+          );
+        }
+        final t = _ds[i];
+        return Align(
+          alignment: t.laNguoiDung ? Alignment.centerRight : Alignment.centerLeft,
+          child: Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.82),
+            padding: const EdgeInsets.fromLTRB(14, 10, 14, 6),
+            decoration: BoxDecoration(
+              color: t.laNguoiDung ? MauApp.xanhTroi : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (t.anh != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.file(File(t.anh!), height: 140, fit: BoxFit.cover),
+                    ),
+                  ),
+                if (t.laNguoiDung)
+                  SelectableText(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: Colors.white))
+                else
+                  ChuAI(t.noiDung, style: const TextStyle(fontSize: 15, height: 1.45, color: MauApp.chu)),
+                if (t.loi && (t.cauGoc ?? '').isNotEmpty)
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: _dangCho ? null : () => _gui(t.cauGoc),
+                      icon: const Icon(Icons.refresh, size: 16),
+                      label: const Text('Gửi lại'),
+                    ),
+                  ),
+                if (!t.laNguoiDung && !t.loi && t.goiY.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  for (final i in t.goiY)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 6),
+                      child: OutlinedButton.icon(
+                        onPressed: () =>
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => ManXemClip(ds: t.tinKenh, batDau: i))),
+                        icon: const Icon(Icons.play_circle_outline),
+                        label: Text('Xem clip: ${t.tinKenh[i].tit}', maxLines: 2, overflow: TextOverflow.ellipsis),
+                      ),
+                    ),
+                  if (trangKenhFacebook.isNotEmpty)
+                    TextButton.icon(
+                      onPressed: () => launchUrl(Uri.parse(trangKenhFacebook), mode: LaunchMode.externalApplication),
+                      icon: const Icon(Icons.open_in_new, size: 18),
+                      label: const Text('Mở trang kênh Việt Nam Tiêu Điểm'),
+                    ),
+                ],
+                if (!t.laNguoiDung && !t.loi) ...[
+                  const SizedBox(height: 4),
+                  const Text(
+                    'AI có thể nhầm. Thầy cô kiểm tra lại thông tin quan trọng trước khi dùng.',
+                    style: TextStyle(fontSize: 11.5, color: MauApp.chuPhu),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton.icon(
+                      onPressed: () => _baoCao(t),
+                      icon: const Icon(Icons.flag_outlined, size: 16),
+                      label: const Text('Báo cáo'),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }

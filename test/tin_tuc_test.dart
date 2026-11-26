@@ -25,4 +25,21 @@ void main() {
     expect(find.text('Đọc bài gốc'), findsOneWidget);
     expect(find.text('Xem trên Facebook'), findsNothing);
   });
+
+  testWidgets('Clip chưa có đường dẫn Facebook: không hiện nút phát, nút Xem trên Facebook; có đường dẫn thì hiện', (t) async {
+    Future<void> ve(String? link) => t.pumpWidget(MaterialApp(
+        home: Scaffold(
+            body: SingleChildScrollView(
+                child: TheTin(
+                    tin: TinKenh(
+                        id: 'c', ngay: DateTime(2026, 11, 17), tit: 'Clip', tomTat: 'Tóm tắt', anhBia: 'asset:assets/tin/17-11_thuong-tet-giao-vien-nghi-dinh-161.jpg', linkFacebook: link),
+                    thich: false,
+                    boThich: () {})))));
+    await ve(null);
+    expect(find.text('Xem trên Facebook'), findsNothing);
+    expect(find.byIcon(Icons.play_arrow), findsNothing);
+    await ve('https://www.facebook.com/reel/2538632786617837');
+    expect(find.text('Xem trên Facebook'), findsOneWidget);
+    expect(find.byIcon(Icons.play_arrow), findsOneWidget);
+  });
 }

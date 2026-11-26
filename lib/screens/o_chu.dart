@@ -301,9 +301,12 @@ class _ChoiOChuState extends State<_ChoiOChu> {
     final c = _chon;
     return Scaffold(
       backgroundColor: const Color(0xFF14233A),
+      // Kiểu chữ tiêu đề chung của app (xanh đậm) đè màu trắng, nên đặt riêng chữ trắng cho nền tối (thầy cô báo 24/11/2026)
       appBar: AppBar(
         backgroundColor: const Color(0xFF14233A),
         foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        titleTextStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.w900, color: Colors.white),
         title: Text(o.ten),
       ),
       body: ListView(

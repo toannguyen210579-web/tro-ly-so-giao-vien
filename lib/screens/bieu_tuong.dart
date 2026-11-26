@@ -93,3 +93,106 @@ class BieuTuongNoi extends StatelessWidget {
     return mo ? Opacity(opacity: 0.55, child: o) : o;
   }
 }
+
+/// Một ô trong lưới biểu tượng (Trang chủ, Tất cả tiện ích, Tài khoản, Công tác Đảng): biểu tượng ở trên, tên bên dưới
+/// tối đa 2 dòng, có thể thêm một dòng chú thích ngắn đứng yên. Nội dung căn trên nên biểu tượng cùng hàng luôn thẳng nhau;
+/// chiều cao ô lấy theo [chieuCaoOTienIch] nên máy để chữ to không bị cắt chữ (thầy cô báo 24/11/2026).
+/// Không dùng dòng chữ chạy nữa (thầy cô chê chữ nhỏ, chạy rối, 24/11/2026).
+class OTienIch extends StatelessWidget {
+  final String ma;
+  final IconData icon;
+  final String ten;
+  final VoidCallback bam;
+  final double size;
+  final bool mo;
+
+  /// Dòng chú thích ngắn dưới tên, ví dụ "Mở app iCPV - Book"
+  final String? chuThich;
+
+  /// Dấu nhỏ "mở ra ngoài" ở góc biểu tượng: bấm vào là sang app, trang web khác
+  final bool moRaNgoai;
+
+  const OTienIch({
+    super.key,
+    required this.ma,
+    required this.icon,
+    required this.ten,
+    required this.bam,
+    this.size = 50,
+    this.mo = false,
+    this.chuThich,
+    this.moRaNgoai = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bieuTuong = BieuTuongNoi(ma: ma, icon: icon, size: size, mo: mo);
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: bam,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(2, 6, 2, 4),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            if (moRaNgoai)
+              SizedBox(
+                width: size + 8,
+                height: size + 4,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Positioned(left: 4, top: 0, child: bieuTuong),
+                    Positioned(
+                      right: -2,
+                      bottom: -2,
+                      child: Container(
+                        width: size * 0.4,
+                        height: size * 0.4,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                          boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 3, offset: Offset(0, 1))],
+                          border: Border.all(color: const Color(0xFFDCE3EE)),
+                        ),
+                        child: Icon(Icons.open_in_new_rounded, size: size * 0.24, color: const Color(0xFF1F4E8C)),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              bieuTuong,
+            const SizedBox(height: 8),
+            Text(
+              ten,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, height: 1.2, color: Color(0xFF14233A)),
+            ),
+            if (chuThich != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                chuThich!,
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 11.5, height: 1.2, color: Color(0xFF55657A)),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Chiều cao một ô [OTienIch] theo cỡ chữ đang đặt trên máy: biểu tượng, khoảng cách, 2 dòng tên
+/// (và 2 dòng chú thích nếu có), cộng phần đệm. Dùng làm mainAxisExtent của lưới.
+double chieuCaoOTienIch(BuildContext context, {double size = 50, bool coChuThich = false, bool moRaNgoai = false}) {
+  final tl = MediaQuery.textScalerOf(context);
+  final ten = tl.scale(12.5) * 1.2 * 2;
+  final chuThich = coChuThich ? 2 + tl.scale(11.5) * 1.2 * 2 : 0.0;
+  return 6 + size + (moRaNgoai ? 4 : 0) + 8 + ten + chuThich + 10;
+}
