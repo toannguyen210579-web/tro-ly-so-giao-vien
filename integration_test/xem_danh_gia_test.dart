@@ -130,6 +130,7 @@ void main() {
       await cuon(t, 'dg_ds_cham', 650);
       await chup(t, '04_cham_viec');
       await bam(t, find.byKey(const Key('dg_luu_ky')), ms: 2000, trong: 'dg_ds_cham');
+      await cuon(t, 'dg_ds_ky', -5000);
       kq('binh_quan_sau: ${t.widget<Text>(find.byKey(const Key('dg_binh_quan'))).data}');
       await chup(t, '05_sau_luu');
 

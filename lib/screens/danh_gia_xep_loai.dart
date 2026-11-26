@@ -854,6 +854,7 @@ class _ManChamKyState extends State<ManChamKy> {
             decoration: const InputDecoration(
               labelText: 'Điểm trường xác nhận (nếu có)',
               helperText: 'Có điểm này thì app dùng nó để tính điểm năm thay cho điểm tự chấm.',
+              helperMaxLines: 3,
               border: OutlineInputBorder(),
             ),
           ),
@@ -862,7 +863,12 @@ class _ManChamKyState extends State<ManChamKy> {
             controller: _ghiChu,
             minLines: 2,
             maxLines: 5,
-            decoration: const InputDecoration(labelText: 'Ghi chú (việc nổi bật, khen thưởng, việc chưa làm được)', border: OutlineInputBorder(), alignLabelWithHint: true),
+            decoration: const InputDecoration(
+              labelText: 'Ghi chú',
+              hintText: 'Việc nổi bật, khen thưởng, việc chưa làm được',
+              border: OutlineInputBorder(),
+              alignLabelWithHint: true,
+            ),
           ),
           const SizedBox(height: 20),
           FilledButton.icon(
