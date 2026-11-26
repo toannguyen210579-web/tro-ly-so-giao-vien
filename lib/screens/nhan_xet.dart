@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -6,6 +8,9 @@ import '../data/luu_tru.dart';
 import '../services/doc_danh_sach.dart';
 import '../services/van_phong_cu.dart';
 import '../main.dart';
+import '../services/chia_se.dart';
+import '../services/tep_pdf.dart' show thuMucApp, tenTep, dauThoiGian;
+import '../services/tep_xlsx.dart';
 import '../services/tro_ly_api.dart';
 import 'cau_giup_viec.dart';
 
@@ -500,6 +505,30 @@ class _ManLopState extends State<_ManLop> {
     _bao('Đã chép cả lớp. Mở Excel, bấm vào ô A1 rồi dán.');
   }
 
+  /// Lưu cả lớp thành tệp Excel (đưa vào phần mềm trường đang dùng); hộp Đã lưu tệp có Mở xem, Gửi, Lưu vào máy.
+  Future<void> _luuExcel() async {
+    final coDiem = lop.cap == 'tr';
+    final bang = <List<String>>[
+      ['STT', 'Họ và tên', 'Mức', if (coDiem) 'ĐTB môn HK', 'Nhận xét'],
+      for (var i = 0; i < lop.hocSinh.length; i++)
+        [
+          '${i + 1}',
+          lop.hocSinh[i].ten,
+          lop.hocSinh[i].muc,
+          if (coDiem) lop.hocSinh[i].diemTrungBinh?.toStringAsFixed(1) ?? '',
+          lop.hocSinh[i].nhanXet.replaceAll('\n', ' '),
+        ],
+    ];
+    try {
+      final f = File('${(await thuMucApp('xuat')).path}/Nhan_xet_lop_${tenTep(lop.ten)}_${dauThoiGian(DateTime.now())}.xlsx');
+      await f.writeAsBytes(taoXlsx(bang, tenTrang: 'Nhận xét', doRong: [6, 26, 12, if (coDiem) 12, 70]));
+      if (!mounted) return;
+      await baoDaLuuTep(context, f, tieuDe: 'Đã lưu nhận xét cả lớp (Excel)');
+    } catch (_) {
+      _bao('Chưa lưu được tệp, thầy cô thử lại.');
+    }
+  }
+
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));
 
   Future<void> _suaHocSinh(HocSinh h) async {
@@ -520,6 +549,7 @@ class _ManLopState extends State<_ManLop> {
         title: Text('Lớp ${lop.ten}${lop.mon.isEmpty ? '' : ' · ${lop.mon}'}'),
         actions: [
           IconButton(tooltip: 'Chép cả lớp sang Excel', onPressed: _chepTatCa, icon: const Icon(Icons.copy_all)),
+          IconButton(tooltip: 'Lưu tệp Excel cả lớp', onPressed: _luuExcel, icon: const Icon(Icons.save_alt)),
         ],
       ),
       body: Column(
