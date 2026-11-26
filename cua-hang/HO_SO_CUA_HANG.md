@@ -35,7 +35,7 @@ Bớt sổ sách, thêm giờ cho học trò. Thầy cô lo dạy, việc vặt 
 Trợ lý số Giáo viên gom các việc giấy tờ, chuyên môn hằng ngày của thầy cô vào một app, mỗi việc một chạm. Không cần tạo tài khoản. Dữ liệu lớp học, điểm, biên bản, minh chứng lưu ngay trên điện thoại.
 
 VIỆC HÀNH CHÍNH
-• Họp, biên bản: ghi nhanh trong lúc họp, nói để ghi, app trình bày thành biên bản PDF đúng thể thức.
+• Họp, biên bản: ghi nhanh trong lúc họp, nói để ghi, chụp ảnh trang ghi chép hoặc lấy từ tệp PDF, Word; app trình bày thành biên bản Word, PDF đúng thể thức.
 • Quét PDF: chụp giấy tờ, app tự làm phẳng trang, gộp nhiều trang thành một tệp PDF gửi Zalo.
 • Sổ minh chứng: chụp lưu giấy khen, giấy chứng nhận theo nhóm; đến kỳ nộp hồ sơ xuất mỗi minh chứng một tệp PDF đặt tên sẵn, gói .zip, PDF gộp hoặc danh mục Excel.
 • Ảnh thẻ: tự tách nền xanh hoặc trắng, xếp ảnh 3x4, 4x6 lên tờ in 10x15.
@@ -45,9 +45,10 @@ VIỆC HÀNH CHÍNH
 • Tính lương: nhập hạng, bậc, năm công tác; app tính lương, phụ cấp, ngày nâng bậc.
 
 VIỆC CHUYÊN MÔN
-• Nhận xét học sinh: theo Thông tư 27/2020 (tiểu học), Thông tư 22/2021 (THCS, THPT), sửa đổi bởi Thông tư 89/2026; có mức Miễn, học sinh khuyết tật; tính điểm trung bình môn; chép cả lớp sang Excel.
+• Nhận xét học sinh: theo Thông tư 27/2020 (tiểu học), Thông tư 22/2021 (THCS, THPT), sửa đổi bởi Thông tư 89/2026; có mức Miễn, học sinh khuyết tật; tính điểm trung bình môn; chép hoặc lưu tệp Excel cả lớp.
 • Chấm trắc nghiệm: nhập đáp án nhiều mã đề, gõ nhanh hoặc chạm chọn bài làm, app chấm ngay, thống kê câu nhiều em sai.
 • Giải đề, soạn đáp án: chụp đề, AI làm lời giải từng bước, đáp án, thang điểm, ra đề tương tự.
+• Dịch tài liệu: dán chữ, chụp trang sách, chọn tệp PDF, Word để dịch sang tiếng Việt, tiếng Anh, tiếng Trung, tiếng Nhật, tiếng Hàn, tiếng Pháp; chọn dịch sát nghĩa hoặc dễ hiểu, có bản song ngữ, ra tệp Word, PDF.
 • Nhắn phụ huynh: tin mẫu lịch sự, AI soạn theo ý thầy cô, gửi qua Zalo.
 • Ô chữ: tạo ô chữ ôn bài, chiếu lên lớp.
 • Giơ thẻ: in thẻ cho cả lớp, chụp một tấm là biết em nào chọn đáp án nào.
@@ -59,13 +60,15 @@ Hỏi nhanh chế độ, văn bản, chuyên môn và chuyện thường ngày; 
 RIÊNG TƯ
 Tên học sinh được thay bằng mã trước khi gửi cho AI; số điện thoại, email được che. App không bán dữ liệu, không có quảng cáo.
 
+Tiện ích nào tạo tệp đều có nút Mở xem, Gửi, Lưu vào máy ngay tại chỗ; các tệp đã tạo xem lại trong mục Tệp của tôi.
+
 Mỗi tiện ích có nút "Hướng dẫn sử dụng" ghi từng bước.
 
 Nội dung do AI tạo có thể sai. Thầy cô đọc lại, sửa trước khi dùng.
 
 ## 4. Từ khóa App Store (tối đa 100 ký tự)
 
-giáo viên,nhận xét,trắc nghiệm,chấm bài,biên bản,quét pdf,ảnh thẻ,minh chứng,thông tư 22,lương
+giáo viên,nhận xét,trắc nghiệm,chấm bài,biên bản,quét pdf,ảnh thẻ,minh chứng,thông tư 22,lương,dịch
 
 ## 5. An toàn dữ liệu (Google Play, mục Data safety)
 
@@ -84,7 +87,7 @@ Các loại dữ liệu khai là "thu thập":
 | --- | --- | --- | --- |
 | Mã thiết bị hoặc mã khác (mã máy ngẫu nhiên do app tạo) | Bắt buộc khi dùng AI | Chức năng app (đếm lượt), chống gian lận | Không (bộ đếm tự xóa sau 3 ngày) |
 | Nội dung khác do người dùng tạo (câu hỏi, ghi chép họp, ý nhắn phụ huynh gửi cho AI) | Tùy chọn | Chức năng app | Có, trừ nội dung thầy cô bấm Báo cáo (lưu tối đa 90 ngày để xem xét) |
-| Ảnh (ảnh đề khi dùng Giải đề, ảnh khi hỏi Trợ lý) | Tùy chọn | Chức năng app | Có |
+| Ảnh (ảnh đề khi dùng Giải đề, ảnh khi hỏi Trợ lý, ảnh trang ghi chép ở Biên bản, ảnh, tệp cần dịch) | Tùy chọn | Chức năng app | Có |
 
 Không khai: vị trí, danh bạ, tin nhắn, tài chính, sức khỏe, ghi âm (lời nói chuyển thành chữ bằng bộ nhận giọng của điện thoại, app không gửi âm thanh lên máy chủ của app).
 

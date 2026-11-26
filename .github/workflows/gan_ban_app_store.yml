@@ -9,10 +9,10 @@ on:
         default: "0.4.0"
       so_build:
         description: "Số build cần gắn"
-        default: "6"
-  push:
-    branches: [noi-may-chu]
-    paths: [".github/workflows/gan_ban_app_store.yml"]
+        default: "9"
+      mo_ta:
+        description: "Cập nhật mô tả, từ khóa theo cua-hang/HO_SO_CUA_HANG.md (co/khong)"
+        default: "khong"
 
 permissions:
   contents: read
@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
+      - uses: actions/checkout@v4
       - name: Cài thư viện ký JWT
         run: pip install --quiet pyjwt cryptography
       - name: Gắn bản và kiểm tra trang phiên bản
@@ -31,7 +32,8 @@ jobs:
           ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
           APP_ID: "6838612892"
           PHIEN_BAN: ${{ github.event.inputs.phien_ban || '0.4.0' }}
-          SO_BUILD: ${{ github.event.inputs.so_build || '6' }}
+          SO_BUILD: ${{ github.event.inputs.so_build || '9' }}
+          MO_TA: ${{ github.event.inputs.mo_ta || 'khong' }}
         shell: python
         run: |
           import json, os, sys, time, urllib.error, urllib.parse, urllib.request
@@ -101,9 +103,26 @@ jobs:
           can(st, r, "Đọc lại bản đã gắn")
           bao(f"Đã gắn bản {VER} ({r['data']['attributes']['version']}) vào trang phiên bản")
 
-          # Liệt kê những gì trang phiên bản đã có
+          # Cập nhật mô tả, từ khóa (bản tiếng Việt) theo hồ sơ cửa hàng trong kho mã, khi được yêu cầu
           st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations?limit=50")
           can(st, r, "Bản mô tả")
+          if os.environ.get("MO_TA") == "co":
+              hs = open("cua-hang/HO_SO_CUA_HANG.md", encoding="utf-8").read()
+              mo_ta = hs[hs.index("## 3."):hs.index("## 4.")].split("\n", 2)[2].strip()
+              tu_khoa = hs[hs.index("## 4."):hs.index("## 5.")].split("\n", 2)[2].strip().splitlines()[0].strip()
+              if len(mo_ta) > 4000 or len(tu_khoa) > 100:
+                  print(f"::error::Mô tả {len(mo_ta)} ký tự (tối đa 4000), từ khóa {len(tu_khoa)} (tối đa 100)"); sys.exit(1)
+              for l in r["data"]:
+                  if l["attributes"]["locale"].lower().startswith("vi"):
+                      st2, r2 = api("PATCH", f"/v1/appStoreVersionLocalizations/{l['id']}",
+                                    {"data": {"type": "appStoreVersionLocalizations", "id": l["id"],
+                                              "attributes": {"description": mo_ta, "keywords": tu_khoa}}})
+                      can(st2, r2, "Cập nhật mô tả")
+                      bao(f"Đã cập nhật mô tả ({len(mo_ta)} ký tự), từ khóa ({len(tu_khoa)} ký tự) bản {l['attributes']['locale']}")
+              st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/appStoreVersionLocalizations?limit=50")
+              can(st, r, "Bản mô tả")
+
+          # Liệt kê những gì trang phiên bản đã có
           for l in r["data"]:
               a = l["attributes"]
               bao(f"Ngôn ngữ {a['locale']}: mô tả {len(a.get('description') or '')} ký tự, từ khóa {len(a.get('keywords') or '')}, "
