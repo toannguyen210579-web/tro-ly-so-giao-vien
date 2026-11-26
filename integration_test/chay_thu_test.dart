@@ -46,13 +46,12 @@ void main() {
 
     // 0. Thanh dưới: Tài khoản (số phiên bản), về Trang chủ
     try {
-      // Màn Tin tức không mở ở đây: trên máy giả lập (vẽ bằng phần mềm) khung đầu của Tin tức mất 2–6 giây, chạy kèm
-      // việc khác thì máy giả lập sập (26/11/2026, 5 lần). Tin tức thử riêng ở tin_tuc_test.dart và xem_app_test.dart.
+      // Không chụp ảnh ở bước này: máy giả lập hay sập ("Service has disappeared") lúc chụp ảnh ngay sau khi chuyển màn
+      // (26/11/2026, 6 lần, cả khi mở Tin tức lẫn Tài khoản), mất hết kết quả. Tin tức thử riêng ở tin_tuc_test.dart.
       final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
       await t.tap(find.text('Tài khoản').last);
       await cho(t, 2500);
       final pb = find.textContaining('0.4.0').evaluate().length;
-      await chup(t, 'moi_tai_khoan');
       await t.tap(find.text('Trang chủ').last);
       await cho(t, 2000);
       final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
@@ -345,7 +344,6 @@ void main() {
       await cho(t, 1500);
       final soO = find.byType(TextField).evaluate().length;
       final coNut = find.byKey(const Key('nut_huong_dan')).evaluate().isNotEmpty;
-      await chup(t, 'moi_hoi_trong');
       if (coNut) {
         await t.tap(find.byKey(const Key('nut_huong_dan')));
         await cho(t, 1500);
@@ -362,7 +360,6 @@ void main() {
       await cho(t, 1500);
       final nChup = find.text('Chụp ảnh ghi chép').evaluate().length;
       final nTep = find.text('Lấy từ tệp: ảnh, PDF, Word').evaluate().length;
-      await chup(t, 'moi_bien_ban');
       Future<void> nhap(String nhan, String chu) async {
         final f = find.widgetWithText(TextField, nhan);
         if (f.evaluate().isEmpty) {
@@ -386,7 +383,6 @@ void main() {
       } catch (_) {}
       // ignore: avoid_print
       print('KQ bien_ban_nut_duoi_o_ghi_chep: chup=${find.text('Chụp ảnh ghi chép').evaluate().length}, lay tu tep=${find.text('Lấy từ tệp: ảnh, PDF, Word').evaluate().length}');
-      await chup(t, 'moi_bien_ban_nut');
       await bamChu('Lưu biên bản');
       final ok = await doiChu('Đã lưu biên bản', giay: 20);
       final moXem = find.text('Mở xem').evaluate().length;
@@ -411,8 +407,7 @@ void main() {
       if (ok) {
         await bamChu('Lưu bản dịch (Word, PDF)');
         final luu = await doiChu('Đã lưu', giay: 20);
-        await chup(t, 'moi_dich_da_luu');
-        // ignore: avoid_print
+          // ignore: avoid_print
         print('KQ dich_luu: ${luu ? "co hop Da luu" : "KHONG THAY"}; thong bao: ${thongBao()}');
         if (luu) await bamChu('Xong');
       }

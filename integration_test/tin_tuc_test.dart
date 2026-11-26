@@ -1,4 +1,5 @@
-// Thử riêng: mở app, bấm Tin tức ở thanh dưới ngay từ đầu (máy giả lập mất kết nối ở bước này, 26/11/2026).
+// Thử riêng: mở app, bấm Tin tức ở thanh dưới, chụp màn Tin tức (26/11/2026). Màn chạy đúng; máy giả lập có lúc sập khi
+// chụp ảnh ngay sau khi chuyển màn, không riêng gì Tin tức.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';

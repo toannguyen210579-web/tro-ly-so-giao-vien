@@ -235,8 +235,8 @@ void main() {
     await b.convertFlutterSurfaceToImage();
     await chup(t, '00_trang_chu');
 
-    // ---------- Nút Tin tức ở thanh dưới: chụp ngay đầu. Chụp ở cuối (sau khoảng 12 phút, nhiều màn) thì máy giả lập
-    // mất kết nối và mất hết ảnh đã chụp (26/11/2026)
+    // ---------- Nút Tin tức ở thanh dưới: chụp ngay đầu. Lần chụp ở cuối (26/11/2026) máy giả lập sập lúc chụp ảnh
+    // ngay sau khi chuyển màn, mất hết ảnh đã chụp; chụp ở đầu thì nếu sập cũng chỉ mất ít
     await buoc('tin_tuc', () async {
       await chup(t, '95_thanh_duoi');
       await bam(t, find.text('Tin tức').last, ms: 3000);
