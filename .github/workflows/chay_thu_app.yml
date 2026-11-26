@@ -39,6 +39,13 @@ jobs:
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
           script: flutter drive --driver=test_driver/integration_test.dart --target=integration_test/${{ github.event.inputs.tep || 'chay_thu_test.dart' }} 2>&1 | tee ket_qua.txt; grep -E "KQ|All tests passed|Some tests failed|EXCEPTION|Error" ket_qua.txt | head -60
+      - name: Máy giả lập có bị hệ thống tắt vì hết bộ nhớ không (máy giả lập sập, 26/11/2026)
+        if: always()
+        run: |
+          free -m || true
+          sudo dmesg -T 2>/dev/null | grep -iE "out of memory|killed process|oom" | tail -20 || true
+          ls -la /tmp/android-runner/ 2>/dev/null | head || true
+          for f in $(ls -t /tmp/android-runner/*.log 2>/dev/null | head -2); do echo "== $f"; tail -40 "$f"; done
       - uses: actions/upload-artifact@v4
         if: always()
         with:
