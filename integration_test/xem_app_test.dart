@@ -277,6 +277,38 @@ void main() {
       await chup(t, '13_giai_de_nut');
     });
 
+    // ---------- Tạo bài trình chiếu (26/11/2026): giáo án mẫu tự soạn, AI dựng bài thật qua máy chủ
+    await buoc('trinh_chieu', () async {
+      await moMa(t, 'trinh_chieu');
+      await t.enterText(
+          find.byKey(const Key('tc_o_chu')),
+          'KẾ HOẠCH BÀI DẠY. Môn: Toán 6. Bài 23: Mở rộng phân số. Phân số bằng nhau (Tiết 1).\n'
+          'I. MỤC TIÊU: Nhận biết phân số với tử số hoặc mẫu số là số nguyên âm; nhận biết hai phân số bằng nhau; nêu quy tắc bằng nhau của phân số.\n'
+          'III. TIẾN TRÌNH DẠY HỌC\n'
+          'Hoạt động 1: Mở đầu. Nhiệt độ lúc 6 giờ sáng ở Sa Pa là -3 độ C. Nếu chia đều -3 độ C cho 4 khoảng thời gian thì mỗi khoảng giảm bao nhiêu? '
+          'Sản phẩm: -3/4. HS thảo luận cặp đôi 2 phút.\n'
+          'Hoạt động 2: Hình thành kiến thức. 2.1 Ta gọi a/b, trong đó a, b là số nguyên, b khác 0 là một phân số; a là tử số, b là mẫu số. '
+          'Ví dụ: -3/4; 5/-7. Mỗi số nguyên n viết được dưới dạng n/1. Luyện tập 1: Viết các phân số: âm ba phần năm; bảy phần âm hai. '
+          '2.2 Hai phân số bằng nhau: a/b = c/d nếu a.d = b.c. Ví dụ: 2/3 = 4/6 vì 2.6 = 3.4. '
+          'Luyện tập 2: Các cặp phân số sau có bằng nhau không: -3/5 và 6/-10; 2/7 và 4/15?\n'
+          'Hoạt động 3: Luyện tập. Bài 6.1, 6.2 SGK trang 9, chia 4 nhóm, 5 phút.\n'
+          'Hoạt động 4: Vận dụng. Tìm số nguyên x biết x/4 = -6/8. Đáp án x = -3. Về nhà: bài 6.3, 6.4.');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await cho(t, 1000);
+      await chup(t, '15_trinh_chieu');
+      await bam(t, find.byKey(const Key('tc_tao')), ms: 1500);
+      var xong = false;
+      for (var i = 0; i < 120 && !xong; i++) {
+        await cho(t, 1000);
+        xong = find.textContaining(' trang)', skipOffstage: false).evaluate().isNotEmpty;
+      }
+      kq('trinh_chieu_ai: ${xong ? "co bai" : "CHUA CO"}');
+      await cuonDen(t, find.textContaining(' trang)'), viTri: 0.02);
+      await chup(t, '16_trinh_chieu_ket_qua', giuThongBao: true);
+      await cuonDen(t, find.byKey(const ValueKey('tc_trang_2')), viTri: 0.02);
+      await chup(t, '17_trinh_chieu_trang');
+    });
+
     // ---------- Chấm trắc nghiệm
     await buoc('cham_tn', () async {
       await moMa(t, 'cham_tn');
