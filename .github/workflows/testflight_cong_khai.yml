@@ -1,0 +1,188 @@
+name: TestFlight cong khai
+
+# Nhóm thử bên ngoài "Dùng thử công khai" có link công khai (ai bấm link cũng cài được, tối đa 10.000 người),
+# gắn một bản, điền thông tin thử nghiệm và gửi Apple duyệt bản thử (Beta App Review).
+# Dùng cho người bình luận "Dùng thử" dưới clip kênh Việt Nam Tiêu Điểm. Người dùng đồng ý gửi duyệt bản thử 26/11/2026.
+# Chạy lại an toàn: nhóm, thông tin, bản đã gắn, bản đã gửi duyệt thì giữ nguyên.
+on:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/testflight_cong_khai.yml"]
+  workflow_dispatch:
+    inputs:
+      phien_ban:
+        description: "Số phiên bản"
+        default: "0.4.0"
+      so_build:
+        description: "Số build"
+        default: "11"
+      gui_duyet:
+        description: "Gửi Apple duyệt bản thử (co/khong)"
+        default: "co"
+
+permissions:
+  contents: read
+
+jobs:
+  cong-khai:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Cài thư viện ký JWT
+        run: pip install --quiet pyjwt cryptography
+
+      - name: Nhóm công khai, thông tin thử nghiệm, gửi duyệt
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          APP_ID: "6838612892"
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban || '0.4.0' }}
+          SO_BUILD: ${{ github.event.inputs.so_build || '11' }}
+          GUI_DUYET: ${{ github.event.inputs.gui_duyet || 'co' }}
+          TEN_NHOM: "Dùng thử công khai"
+        shell: python
+        run: |
+          import json, os, sys, time, urllib.error, urllib.parse, urllib.request
+          import jwt
+
+          KEY = os.environ["ASC_KEY_P8"]
+          if not KEY.strip():
+              print("::error::Chưa có secret ASC_KEY_P8"); sys.exit(1)
+          KID, ISS = os.environ["ASC_KEY_ID"], os.environ["ASC_ISSUER_ID"]
+          APP, VER, BUILD, TEN = os.environ["APP_ID"], os.environ["PHIEN_BAN"], os.environ["SO_BUILD"], os.environ["TEN_NHOM"]
+          BASE = "https://api.appstoreconnect.apple.com"
+          EMAIL_HT = "hotro.trolysogv@gmail.com"
+          WEB = "https://tro-ly-gv.toannguyen210579.workers.dev"
+          tom_tat = []
+
+          def bao(msg):
+              print(f"::notice title=TestFlight cong khai::{msg}")
+              tom_tat.append(msg)
+
+          def token():
+              now = int(time.time())
+              return jwt.encode({"iss": ISS, "iat": now, "exp": now + 1100, "aud": "appstoreconnect-v1"},
+                                KEY, algorithm="ES256", headers={"kid": KID, "typ": "JWT"})
+
+          def api(method, path, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request(BASE + path, data=data, method=method,
+                                           headers={"Authorization": "Bearer " + token(), "Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      raw = r.read()
+                      return r.status, (json.loads(raw) if raw else {})
+              except urllib.error.HTTPError as e:
+                  raw = e.read()
+                  try:
+                      js = json.loads(raw)
+                  except Exception:
+                      js = {"raw": raw.decode(errors="replace")[:500]}
+                  return e.code, js
+
+          def loi(js):
+              return "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in js.get("errors", [])) or str(js)[:300]
+
+          MO_TA = ("Trợ lý số Giáo viên - Một chạm: trợ lý cho thầy cô phổ thông. Hỏi Trợ lý (AI), biên bản họp ra Word và PDF, "
+                   "nhận xét học sinh bằng AI, chấm trắc nghiệm ra Excel, đánh giá xếp loại viên chức theo Nghị định 233/2026, "
+                   "dịch tài liệu, quét PDF, ảnh thẻ, tính lương, ô chữ và thử thách cả lớp.")
+          THU_GI = ("Bản dùng thử cho thầy cô. Mời thầy cô thử: Biên bản họp (chụp trang ghi chép rồi Lưu ra Word, PDF), "
+                    "Nhận xét học sinh (Nhờ AI viết nhận xét), Chấm trắc nghiệm (Chép sang Excel), Đánh giá, xếp loại "
+                    "(chấm từng tháng, Lưu phiếu). Góp ý bằng cách chụp màn hình trong TestFlight hoặc gửi thư về " + EMAIL_HT + ".")
+
+          # 1. Bản cần gắn
+          q = urllib.parse.urlencode({"filter[app]": APP, "filter[version]": BUILD, "filter[preReleaseVersion.version]": VER,
+                                      "fields[builds]": "version,processingState,expired,usesNonExemptEncryption"})
+          st, js = api("GET", "/v1/builds?" + q)
+          if st != 200 or not js.get("data"):
+              print(f"::error::Không thấy bản {VER} ({BUILD}) ({st}): {loi(js)}"); sys.exit(1)
+          build = js["data"][0]; bid = build["id"]; a = build["attributes"]
+          if a.get("processingState") != "VALID" or a.get("expired"):
+              print(f"::error::Bản {VER} ({BUILD}) chưa dùng được: {a.get('processingState')}, hết hạn={a.get('expired')}"); sys.exit(1)
+          bao(f"Bản {VER} ({BUILD}) VALID.")
+
+          # 2. Thông tin thử nghiệm của app (mô tả, email góp ý, chính sách riêng tư)
+          st, js = api("GET", f"/v1/apps/{APP}/betaAppLocalizations?limit=50")
+          co = {x["attributes"]["locale"]: x["id"] for x in js.get("data", [])} if st == 200 else {}
+          for loc in ("vi", "en-US"):
+              attrs = {"description": MO_TA, "feedbackEmail": EMAIL_HT, "privacyPolicyUrl": WEB + "/quyen-rieng-tu", "marketingUrl": WEB + "/ho-tro"}
+              if loc in co:
+                  st, js = api("PATCH", f"/v1/betaAppLocalizations/{co[loc]}", {"data": {"type": "betaAppLocalizations", "id": co[loc], "attributes": attrs}})
+              else:
+                  st, js = api("POST", "/v1/betaAppLocalizations", {"data": {"type": "betaAppLocalizations", "attributes": dict(attrs, locale=loc),
+                               "relationships": {"app": {"data": {"type": "apps", "id": APP}}}}})
+              bao(f"Thông tin thử nghiệm ({loc}): " + ("đã ghi." if st in (200, 201) else f"lỗi {st}: {loi(js)}"))
+
+          # 3. Liên hệ cho người duyệt bản thử: chép từ thông tin người duyệt của trang phiên bản App Store (người dùng đã điền), không in ra
+          st, js = api("GET", f"/v1/apps/{APP}/appStoreVersions?filter[versionString]={VER}&limit=5")
+          lien_he = None
+          if st == 200 and js.get("data"):
+              vid = js["data"][0]["id"]
+              st2, js2 = api("GET", f"/v1/appStoreVersions/{vid}/appStoreReviewDetail")
+              if st2 == 200 and js2.get("data"):
+                  lien_he = js2["data"]["attributes"]
+          st, js = api("GET", f"/v1/apps/{APP}/betaAppReviewDetail")
+          if st == 200 and js.get("data"):
+              rid = js["data"]["id"]; cu = js["data"]["attributes"]
+              attrs = {"demoAccountRequired": False, "notes": "No login needed. All features work without an account. AI features need internet."}
+              if lien_he:
+                  for k in ("contactFirstName", "contactLastName", "contactPhone", "contactEmail"):
+                      if lien_he.get(k) and not cu.get(k):
+                          attrs[k] = lien_he[k]
+              st, js = api("PATCH", f"/v1/betaAppReviewDetails/{rid}", {"data": {"type": "betaAppReviewDetails", "id": rid, "attributes": attrs}})
+              du = all((cu.get(k) or attrs.get(k)) for k in ("contactFirstName", "contactLastName", "contactPhone", "contactEmail"))
+              bao("Liên hệ người duyệt bản thử: " + ("đã ghi" if st == 200 else f"lỗi {st}: {loi(js)}") + ("" if du else " (CÒN THIẾU mục liên hệ)"))
+          else:
+              bao(f"Không đọc được thông tin người duyệt bản thử ({st}): {loi(js)}")
+
+          # 4. "Cần thử gì" cho bản này
+          st, js = api("GET", f"/v1/builds/{bid}/betaBuildLocalizations?limit=50")
+          co = {x["attributes"]["locale"]: x["id"] for x in js.get("data", [])} if st == 200 else {}
+          for loc in ("vi", "en-US"):
+              if loc in co:
+                  st, js = api("PATCH", f"/v1/betaBuildLocalizations/{co[loc]}", {"data": {"type": "betaBuildLocalizations", "id": co[loc], "attributes": {"whatsNew": THU_GI}}})
+              else:
+                  st, js = api("POST", "/v1/betaBuildLocalizations", {"data": {"type": "betaBuildLocalizations", "attributes": {"locale": loc, "whatsNew": THU_GI},
+                               "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}})
+              bao(f"Cần thử gì ({loc}): " + ("đã ghi." if st in (200, 201) else f"lỗi {st}: {loi(js)}"))
+
+          # 5. Nhóm bên ngoài có link công khai
+          st, js = api("GET", f"/v1/apps/{APP}/betaGroups?limit=200")
+          nhom = next((g for g in js.get("data", []) if not g["attributes"].get("isInternalGroup") and g["attributes"].get("name") == TEN), None) if st == 200 else None
+          if nhom:
+              gid = nhom["id"]; bao(f"Nhóm \"{TEN}\" đã có, dùng lại.")
+          else:
+              st, js = api("POST", "/v1/betaGroups", {"data": {"type": "betaGroups",
+                           "attributes": {"name": TEN, "publicLinkEnabled": True, "publicLinkLimitEnabled": True, "publicLinkLimit": 10000, "feedbackEnabled": True},
+                           "relationships": {"app": {"data": {"type": "apps", "id": APP}}}}})
+              if st != 201:
+                  print(f"::error::Tạo nhóm lỗi ({st}): {loi(js)}"); sys.exit(1)
+              gid = js["data"]["id"]; bao(f"Đã tạo nhóm bên ngoài \"{TEN}\".")
+          st, js = api("PATCH", f"/v1/betaGroups/{gid}", {"data": {"type": "betaGroups", "id": gid,
+                       "attributes": {"publicLinkEnabled": True, "publicLinkLimitEnabled": True, "publicLinkLimit": 10000, "feedbackEnabled": True}}})
+          if st != 200:
+              bao(f"Bật link công khai: {st}: {loi(js)}")
+          st, js = api("POST", f"/v1/betaGroups/{gid}/relationships/builds", {"data": [{"type": "builds", "id": bid}]})
+          bao("Gắn bản vào nhóm: " + ("xong." if st in (200, 201, 204) else f"{st}: {loi(js)}"))
+
+          # 6. Gửi Apple duyệt bản thử
+          if os.environ["GUI_DUYET"] == "co":
+              st, js = api("POST", "/v1/betaAppReviewSubmissions", {"data": {"type": "betaAppReviewSubmissions",
+                           "relationships": {"build": {"data": {"type": "builds", "id": bid}}}}})
+              if st == 201:
+                  bao("Đã gửi Apple duyệt bản thử: " + str(js["data"]["attributes"].get("betaReviewState")))
+              else:
+                  bao(f"Gửi duyệt bản thử: {st}: {loi(js)}")
+          time.sleep(5)
+          st, js = api("GET", f"/v1/builds/{bid}/buildBetaDetail")
+          if st == 200:
+              bao("Trạng thái bên ngoài: " + str(js["data"]["attributes"].get("externalBuildState")))
+
+          # 7. Link công khai
+          st, js = api("GET", f"/v1/betaGroups/{gid}")
+          if st == 200:
+              g = js["data"]["attributes"]
+              bao(f"LINK CONG KHAI: {g.get('publicLink')} (bật: {g.get('publicLinkEnabled')}, giới hạn: {g.get('publicLinkLimit')})")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("\n".join("- " + x for x in tom_tat) + "\n")
