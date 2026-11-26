@@ -11,9 +11,9 @@ if ! grep -q NSCameraUsageDescription "$PLIST"; then
 import sys
 p=sys.argv[1]; s=open(p,encoding='utf-8').read()
 them='''	<key>NSCameraUsageDescription</key>
-	<string>Dùng máy ảnh để quét giấy tờ, chụp ảnh thẻ, chụp đề, chụp văn bản sang Word, chụp minh chứng và quét thẻ Giơ thẻ.</string>
+	<string>Dùng máy ảnh để quét giấy tờ, chụp ảnh thẻ, chụp đề, chụp văn bản sang Word, chụp trang ghi chép họp, chụp trang cần dịch, chụp minh chứng và quét thẻ Giơ thẻ.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Chọn ảnh có sẵn để quét thành PDF, làm ảnh thẻ, lưu minh chứng, gửi đề cần giải và đọc thẻ Giơ thẻ.</string>
+	<string>Chọn ảnh có sẵn để quét thành PDF, làm ảnh thẻ, lưu minh chứng, gửi đề cần giải, hỏi Trợ lý, lấy ghi chép họp, dịch tài liệu và đọc thẻ Giơ thẻ.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Dùng micro để chuyển lời nói thành chữ.</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
