@@ -106,7 +106,8 @@ class _AnhTheState extends State<AnhThe> {
     final s = DateTime.now().millisecondsSinceEpoch;
     final f1 = File('${d.path}/AnhThe_${_co}_$s.jpg')..writeAsBytesSync(a);
     final f2 = File('${d.path}/ToIn_10x15_${_co}_$s.jpg')..writeAsBytesSync(t);
-    await guiTep([f1.path, f2.path], context: context);
+    if (!mounted) return;
+    await baoDaLuu(context, [f1, f2], tieuDe: 'Đã lưu ảnh thẻ và tờ in 10x15');
   }
 
   @override

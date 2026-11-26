@@ -106,6 +106,67 @@ List<int> taoDocxBang({
   return _dongGoiDocx(b.toString());
 }
 
+/// Tệp Word biên bản cuộc họp (thầy cô yêu cầu 24/11/2026: bấm Lưu biên bản là có tệp Word để sửa tiếp):
+/// đầu văn bản hai cột không kẻ (tên đơn vị bên trái; quốc hiệu, tiêu ngữ, địa danh ngày tháng bên phải),
+/// tên biên bản ở giữa, các đoạn nội dung, chữ ký hai bên. [doan]: (nội dung, in đậm).
+List<int> taoDocxBienBan({
+  required String donViTren,
+  required String donVi,
+  required String ngayThang,
+  required String tieuDe,
+  required List<String> phuDe,
+  required List<(String, bool)> doan,
+  required List<(String, String)> kyTen,
+}) {
+  const rongTrang = 9354;
+  String run(String t, {bool dam = false, bool nghieng = false, int co = 26}) =>
+      '<w:r><w:rPr><w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" w:cs="Times New Roman"/>'
+      '${dam ? '<w:b/>' : ''}${nghieng ? '<w:i/>' : ''}<w:sz w:val="$co"/><w:szCs w:val="$co"/></w:rPr>'
+      '<w:t xml:space="preserve">${_xml(t)}</w:t></w:r>';
+  String p(String t, {String jc = 'both', bool dam = false, bool nghieng = false, int co = 26, int sau = 80, int truoc = 0}) =>
+      '<w:p><w:pPr><w:jc w:val="$jc"/><w:spacing w:before="$truoc" w:after="$sau" w:line="300" w:lineRule="auto"/></w:pPr>'
+      '${run(t, dam: dam, nghieng: nghieng, co: co)}</w:p>';
+  // Đường kẻ ngắn dưới tên đơn vị, dưới tiêu ngữ: đoạn trống có viền dưới, thụt hai bên
+  String gach(int thut) => '<w:p><w:pPr><w:pBdr><w:bottom w:val="single" w:sz="6" w:space="1" w:color="000000"/></w:pBdr>'
+      '<w:spacing w:before="0" w:after="120"/><w:ind w:left="$thut" w:right="$thut"/></w:pPr></w:p>';
+  String o(int rong, String noiDung) =>
+      '<w:tc><w:tcPr><w:tcW w:w="$rong" w:type="dxa"/></w:tcPr>$noiDung</w:tc>';
+  const khongVien = '<w:tblBorders><w:top w:val="nil"/><w:left w:val="nil"/><w:bottom w:val="nil"/><w:right w:val="nil"/>'
+      '<w:insideH w:val="nil"/><w:insideV w:val="nil"/></w:tblBorders>';
+  String bang(List<int> cot, List<String> cacO) => '<w:tbl><w:tblPr><w:tblW w:w="$rongTrang" w:type="dxa"/>$khongVien'
+      '<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid>${cot.map((w) => '<w:gridCol w:w="$w"/>').join()}</w:tblGrid>'
+      '<w:tr>${[for (var i = 0; i < cot.length; i++) o(cot[i], cacO[i])].join()}</w:tr></w:tbl>';
+
+  final trai = StringBuffer();
+  if (donViTren.isNotEmpty) trai.write(p(donViTren.toUpperCase(), jc: 'center', co: 25, sau: 0));
+  trai
+    ..write(p(donVi.toUpperCase(), jc: 'center', dam: true, co: 25, sau: 0))
+    ..write(gach(1100));
+  final phai = StringBuffer()
+    ..write(p('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', jc: 'center', dam: true, co: 25, sau: 0))
+    ..write(p('Độc lập - Tự do - Hạnh phúc', jc: 'center', dam: true, sau: 0))
+    ..write(gach(1300))
+    ..write(p(ngayThang, jc: 'center', nghieng: true, sau: 0));
+  final b = StringBuffer()..write(bang([3900, rongTrang - 3900], [trai.toString(), phai.toString()]));
+  b.write(p(tieuDe, jc: 'center', dam: true, co: 28, truoc: 240, sau: 0));
+  for (final d in phuDe) {
+    b.write(p(d, jc: 'center', dam: true, sau: 0));
+  }
+  b.write(p('', sau: 120));
+  for (final (t, dam) in doan) {
+    b.write(p(t, dam: dam));
+  }
+  b.write(p('', sau: 120));
+  final rong = rongTrang ~/ kyTen.length;
+  b.write(bang([for (final _ in kyTen) rong], [
+    for (final (chuc, ten) in kyTen)
+      p(chuc, jc: 'center', dam: true, sau: 0) +
+          p('(Ký, ghi rõ họ tên)', jc: 'center', nghieng: true, co: 22, sau: 1300) +
+          p(ten, jc: 'center', dam: true, sau: 0),
+  ]));
+  return _dongGoiDocx(b.toString());
+}
+
 /// Gói phần thân văn bản thành tệp .docx (A4, lề văn bản hành chính).
 List<int> _dongGoiDocx(String than) {
   final document = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'

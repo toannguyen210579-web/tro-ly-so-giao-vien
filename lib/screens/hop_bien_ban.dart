@@ -10,6 +10,7 @@ import '../data/luu_tru.dart';
 import '../main.dart';
 import '../services/chon_tep.dart';
 import '../services/tep_pdf.dart';
+import '../services/tep_word.dart' show taoDocxBienBan;
 import '../services/tro_ly_api.dart';
 import 'doc_to_ghi_loi.dart';
 import 'cau_giup_viec.dart';
@@ -81,6 +82,123 @@ class BienBan {
 
 const _khoa = 'bien_ban';
 
+/// Thông tin đơn vị app nhớ cho lần sau: cơ quan cấp trên, tên trường hoặc tổ, địa danh ghi ngày tháng.
+Future<(String, String, String)> docDonViBienBan() async {
+  final p = await SharedPreferences.getInstance();
+  return (p.getString('bb_don_vi_tren') ?? '', p.getString('bb_don_vi') ?? '', p.getString('bb_dia_danh') ?? '');
+}
+
+String cauKetThucBienBan(BienBan bb) {
+  final kt = bb.ketThuc.isEmpty ? '…… giờ …… phút' : bb.ketThuc;
+  return 'Cuộc họp kết thúc vào lúc $kt cùng ngày. Biên bản đã được thông qua trước '
+      'các thành viên dự họp và nhất trí với nội dung biên bản.';
+}
+
+/// Tạo cả tệp Word (để sửa tiếp) và PDF (để in, gửi) của biên bản, lưu vào mục Tệp của tôi. Trả về [Word, PDF].
+/// Bấm "Lưu biên bản" là có tệp luôn (thầy cô báo 24/11/2026: lưu xong không thấy tệp nào).
+Future<List<File>> taoTepBienBan(BienBan bb) async {
+  final (donViTrenGoc, donViGoc, diaDanhGoc) = await docDonViBienBan();
+  final d = bb.batDau;
+  final diaDanh = diaDanhGoc.trim().isEmpty ? '……' : diaDanhGoc.trim();
+  final donViTren = donViTrenGoc.trim().toUpperCase();
+  final donVi = donViGoc.trim().isEmpty ? 'TÊN ĐƠN VỊ' : donViGoc.trim().toUpperCase();
+  final ngayThang = '$diaDanh, ngày ${hai(d.day)} tháng ${hai(d.month)} năm ${d.year}';
+  final phuDe = bb.veViec.isEmpty ? [bb.loai] : [bb.loai, bb.veViec];
+  String hoac(String s) => s.isEmpty ? '……' : s;
+  List<String> dong(String s) => s.split('\n').map((x) => x.trim()).where((x) => x.isNotEmpty).toList();
+  final phan = <(String, bool)>[
+    ('I. THỜI GIAN, ĐỊA ĐIỂM, THÀNH PHẦN', true),
+    ('Thời gian bắt đầu: ${hai(d.hour)} giờ ${hai(d.minute)} phút, ngày ${ngayVN(d)}.', false),
+    ('Địa điểm: ${hoac(bb.diaDiem)}.', false),
+    ('Chủ trì: ${hoac(bb.chuTri)}.', false),
+    ('Thư ký: ${hoac(bb.thuKy)}.', false),
+    ('Thành phần tham dự: ${hoac(bb.thanhPhan)}', false),
+    ('II. NỘI DUNG', true),
+    for (final x in dong(bb.noiDung)) (x, false),
+    ('III. KẾT LUẬN', true),
+    for (final x in dong(bb.ketLuan)) (x, false),
+    (cauKetThucBienBan(bb), false),
+  ];
+  final kyTen = [('THƯ KÝ', bb.thuKy), ('CHỦ TRÌ', bb.chuTri)];
+
+  final theme = await PhongPdf.theme();
+  final doc = pw.Document(theme: theme);
+  const co = 13.0;
+  pw.TextStyle st({bool dam = false, bool nghieng = false, double size = co}) => pw.TextStyle(
+        fontSize: size,
+        fontWeight: dam ? pw.FontWeight.bold : pw.FontWeight.normal,
+        fontStyle: nghieng ? pw.FontStyle.italic : pw.FontStyle.normal,
+        lineSpacing: 3,
+      );
+  pw.Widget doan(String s, {bool dam = false}) => pw.Padding(
+        padding: const pw.EdgeInsets.only(top: 4),
+        child: pw.Text(s, style: st(dam: dam), textAlign: pw.TextAlign.justify),
+      );
+  doc.addPage(pw.MultiPage(
+    pageFormat: PdfPageFormat.a4,
+    margin: const pw.EdgeInsets.fromLTRB(85, 57, 57, 57), // lề trái 30 mm, trên dưới phải 20 mm
+    build: (_) => [
+      pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Expanded(
+            flex: 5,
+            child: pw.Column(children: [
+              if (donViTren.isNotEmpty) pw.Text(donViTren, style: st(size: 12.5), textAlign: pw.TextAlign.center),
+              pw.Text(donVi, style: st(dam: true, size: 12.5), textAlign: pw.TextAlign.center),
+              pw.Container(width: 60, height: 0.6, color: PdfColors.black, margin: const pw.EdgeInsets.only(top: 2)),
+            ]),
+          ),
+          pw.Expanded(
+            flex: 7,
+            child: pw.Column(children: [
+              pw.Text('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', style: st(dam: true, size: 12.5), textAlign: pw.TextAlign.center),
+              pw.Text('Độc lập - Tự do - Hạnh phúc', style: st(dam: true)),
+              pw.Container(width: 150, height: 0.6, color: PdfColors.black, margin: const pw.EdgeInsets.only(top: 2)),
+              pw.SizedBox(height: 8),
+              pw.Text(ngayThang, style: st(nghieng: true)),
+            ]),
+          ),
+        ],
+      ),
+      pw.SizedBox(height: 18),
+      pw.Center(child: pw.Text('BIÊN BẢN', style: st(dam: true, size: 14))),
+      pw.Center(child: pw.Text(phuDe.join('\n'), style: st(dam: true), textAlign: pw.TextAlign.center)),
+      pw.SizedBox(height: 12),
+      for (final (t, dam) in phan) doan(t, dam: dam),
+      pw.SizedBox(height: 18),
+      pw.Row(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          for (final (chuc, ten) in kyTen)
+            pw.Expanded(
+              child: pw.Column(children: [
+                pw.Text(chuc, style: st(dam: true)),
+                pw.Text('(Ký, ghi rõ họ tên)', style: st(nghieng: true, size: 11)),
+                pw.SizedBox(height: 60),
+                pw.Text(ten, style: st(dam: true)),
+              ]),
+            ),
+        ],
+      ),
+    ],
+  ));
+  final goc = '${(await thuMucApp('xuat')).path}/Bien_ban_${tenTep(bb.veViec.isEmpty ? bb.loai : bb.veViec)}_${dauThoiGian(d)}';
+  final fPdf = File('$goc.pdf');
+  await fPdf.writeAsBytes(await doc.save());
+  final fWord = File('$goc.docx');
+  await fWord.writeAsBytes(taoDocxBienBan(
+    donViTren: donViTren,
+    donVi: donVi,
+    ngayThang: ngayThang,
+    tieuDe: 'BIÊN BẢN',
+    phuDe: phuDe,
+    doan: phan,
+    kyTen: kyTen,
+  ));
+  return [fWord, fPdf];
+}
+
 class HopBienBan extends StatefulWidget {
   const HopBienBan({super.key});
 
@@ -136,7 +254,7 @@ class _HopBienBanState extends State<HopBienBan> {
           const CauGiupViec('hop'),
           const Text(
             'Ghi nhanh ý kiến trong lúc họp (có nút "Nói để ghi" để nói thay gõ). '
-            'Họp xong, app xếp thành biên bản đúng mẫu, xuất PDF để in hoặc gửi.',
+            'Họp xong, app xếp thành biên bản đúng mẫu; bấm Lưu là có ngay tệp Word và PDF để in, gửi.',
             style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
           ),
           const SizedBox(height: 12),
@@ -149,6 +267,22 @@ class _HopBienBanState extends State<HopBienBan> {
                 leading: const Icon(Icons.mic_none, color: MauApp.xanhDam),
                 title: Text(b.veViec.isEmpty ? b.loai : b.veViec, maxLines: 2, overflow: TextOverflow.ellipsis),
                 subtitle: Text('${b.loai} · ${ngayVN(b.batDau)}'),
+                // Lấy lại tệp Word, PDF của biên bản đã lưu mà không phải mở ra
+                trailing: IconButton(
+                  tooltip: 'Xuất tệp Word, PDF',
+                  icon: const Icon(Icons.file_download_outlined, color: MauApp.xanhDam),
+                  onPressed: () async {
+                    try {
+                      final ds = await taoTepBienBan(b);
+                      if (!context.mounted) return;
+                      await baoDaLuu(context, ds, tieuDe: 'Đã xuất biên bản (Word, PDF)');
+                    } catch (_) {
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Chưa tạo được tệp, thầy cô thử lại.')));
+                      }
+                    }
+                  },
+                ),
               ),
             ),
         ],
@@ -316,9 +450,20 @@ class _SuaBienBanState extends State<_SuaBienBan> {
     ));
   }
 
+  /// Lưu biên bản và tạo luôn tệp Word, PDF; hộp "Đã lưu biên bản" hiện tại chỗ với Mở xem, Gửi, Lưu vào máy.
   Future<void> _luu() async {
     _ghiVao();
     await _luuDonVi();
+    var ds = <File>[];
+    try {
+      ds = await taoTepBienBan(bb);
+    } catch (_) {}
+    if (!mounted) return;
+    if (ds.isNotEmpty) {
+      await baoDaLuu(context, ds, tieuDe: 'Đã lưu biên bản (Word, PDF)');
+    } else {
+      _bao('Đã lưu biên bản nhưng chưa tạo được tệp. Thầy cô mở lại, bấm Xuất tệp để thử lại.');
+    }
     if (mounted) Navigator.of(context).pop(true);
   }
 
@@ -335,12 +480,6 @@ class _SuaBienBanState extends State<_SuaBienBan> {
       ),
     );
     if (ok == true && mounted) Navigator.of(context).pop(false);
-  }
-
-  String _cauKetThuc() {
-    final kt = bb.ketThuc.isEmpty ? '…… giờ …… phút' : bb.ketThuc;
-    return 'Cuộc họp kết thúc vào lúc $kt cùng ngày. Biên bản đã được thông qua trước '
-        'các thành viên dự họp và nhất trí với nội dung biên bản.';
   }
 
   String _vanBan() {
@@ -361,99 +500,21 @@ class _SuaBienBanState extends State<_SuaBienBan> {
       ..writeln('KẾT LUẬN')
       ..writeln(bb.ketLuan)
       ..writeln()
-      ..writeln(_cauKetThuc());
+      ..writeln(cauKetThucBienBan(bb));
     return b.toString();
   }
 
-  Future<void> _xuatPdf() async {
+  /// Xuất lại tệp Word và PDF của biên bản (nút Xuất tệp ở góc trên).
+  Future<void> _xuatTep() async {
     _ghiVao();
     await _luuDonVi();
-    final theme = await PhongPdf.theme();
-    final doc = pw.Document(theme: theme);
-    const co = 13.0;
-    pw.TextStyle st({bool dam = false, bool nghieng = false, double size = co}) => pw.TextStyle(
-          fontSize: size,
-          fontWeight: dam ? pw.FontWeight.bold : pw.FontWeight.normal,
-          fontStyle: nghieng ? pw.FontStyle.italic : pw.FontStyle.normal,
-          lineSpacing: 3,
-        );
-    pw.Widget doan(String s, {bool dam = false}) => pw.Padding(
-          padding: const pw.EdgeInsets.only(top: 4),
-          child: pw.Text(s, style: st(dam: dam), textAlign: pw.TextAlign.justify),
-        );
-    final d = bb.batDau;
-    final diaDanh = _diaDanh.text.trim().isEmpty ? '……' : _diaDanh.text.trim();
-    final donViTren = _donViTren.text.trim().toUpperCase();
-    final donVi = _donVi.text.trim().isEmpty ? 'TÊN ĐƠN VỊ' : _donVi.text.trim().toUpperCase();
-
-    doc.addPage(pw.MultiPage(
-      pageFormat: PdfPageFormat.a4,
-      margin: const pw.EdgeInsets.fromLTRB(85, 57, 57, 57), // lề trái 30 mm, trên dưới phải 20 mm
-      build: (_) => [
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            pw.Expanded(
-              flex: 5,
-              child: pw.Column(children: [
-                if (donViTren.isNotEmpty) pw.Text(donViTren, style: st(size: 12.5), textAlign: pw.TextAlign.center),
-                pw.Text(donVi, style: st(dam: true, size: 12.5), textAlign: pw.TextAlign.center),
-                pw.Container(width: 60, height: 0.6, color: PdfColors.black, margin: const pw.EdgeInsets.only(top: 2)),
-              ]),
-            ),
-            pw.Expanded(
-              flex: 7,
-              child: pw.Column(children: [
-                pw.Text('CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM', style: st(dam: true, size: 12.5), textAlign: pw.TextAlign.center),
-                pw.Text('Độc lập - Tự do - Hạnh phúc', style: st(dam: true)),
-                pw.Container(width: 150, height: 0.6, color: PdfColors.black, margin: const pw.EdgeInsets.only(top: 2)),
-                pw.SizedBox(height: 8),
-                pw.Text('$diaDanh, ngày ${hai(d.day)} tháng ${hai(d.month)} năm ${d.year}', style: st(nghieng: true)),
-              ]),
-            ),
-          ],
-        ),
-        pw.SizedBox(height: 18),
-        pw.Center(child: pw.Text('BIÊN BẢN', style: st(dam: true, size: 14))),
-        pw.Center(
-          child: pw.Text(bb.veViec.isEmpty ? bb.loai : '${bb.loai}\n${bb.veViec}', style: st(dam: true), textAlign: pw.TextAlign.center),
-        ),
-        pw.SizedBox(height: 12),
-        doan('I. THỜI GIAN, ĐỊA ĐIỂM, THÀNH PHẦN', dam: true),
-        doan('Thời gian bắt đầu: ${hai(d.hour)} giờ ${hai(d.minute)} phút, ngày ${ngayVN(d)}.'),
-        doan('Địa điểm: ${bb.diaDiem.isEmpty ? '……' : bb.diaDiem}.'),
-        doan('Chủ trì: ${bb.chuTri.isEmpty ? '……' : bb.chuTri}.'),
-        doan('Thư ký: ${bb.thuKy.isEmpty ? '……' : bb.thuKy}.'),
-        doan('Thành phần tham dự: ${bb.thanhPhan.isEmpty ? '……' : bb.thanhPhan}'),
-        pw.SizedBox(height: 6),
-        doan('II. NỘI DUNG', dam: true),
-        for (final dong in bb.noiDung.split('\n').where((s) => s.trim().isNotEmpty)) doan(dong.trim()),
-        pw.SizedBox(height: 6),
-        doan('III. KẾT LUẬN', dam: true),
-        for (final dong in bb.ketLuan.split('\n').where((s) => s.trim().isNotEmpty)) doan(dong.trim()),
-        pw.SizedBox(height: 6),
-        doan(_cauKetThuc()),
-        pw.SizedBox(height: 18),
-        pw.Row(
-          crossAxisAlignment: pw.CrossAxisAlignment.start,
-          children: [
-            for (final (chuc, ten) in [('THƯ KÝ', bb.thuKy), ('CHỦ TRÌ', bb.chuTri)])
-              pw.Expanded(
-                child: pw.Column(children: [
-                  pw.Text(chuc, style: st(dam: true)),
-                  pw.Text('(Ký, ghi rõ họ tên)', style: st(nghieng: true, size: 11)),
-                  pw.SizedBox(height: 60),
-                  pw.Text(ten, style: st(dam: true)),
-                ]),
-              ),
-          ],
-        ),
-      ],
-    ));
-    final ten = 'Bien_ban_${tenTep(bb.veViec.isEmpty ? bb.loai : bb.veViec)}_${dauThoiGian(d)}.pdf';
-    final f = File('${(await thuMucApp('xuat')).path}/$ten');
-    await f.writeAsBytes(await doc.save());
-    await guiTep([f.path], context: context);
+    try {
+      final ds = await taoTepBienBan(bb);
+      if (!mounted) return;
+      await baoDaLuu(context, ds, tieuDe: 'Đã xuất biên bản (Word, PDF)');
+    } catch (_) {
+      if (mounted) _bao('Chưa tạo được tệp, thầy cô thử lại.');
+    }
   }
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));
@@ -496,7 +557,7 @@ class _SuaBienBanState extends State<_SuaBienBan> {
               _bao('Đã chép biên bản, dán vào Word hoặc Zalo được.');
             },
           ),
-          IconButton(tooltip: 'Xuất PDF', icon: const Icon(Icons.picture_as_pdf_outlined), onPressed: _xuatPdf),
+          IconButton(tooltip: 'Xuất tệp Word, PDF', icon: const Icon(Icons.file_download_outlined), onPressed: _xuatTep),
           IconButton(tooltip: 'Xóa', icon: const Icon(Icons.delete_outline), onPressed: _xoa),
         ],
       ),

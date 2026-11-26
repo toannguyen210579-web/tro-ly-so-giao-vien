@@ -310,7 +310,8 @@ class _SoanSinhHoatChiBoState extends State<SoanSinhHoatChiBo> {
     final ten = '${bienBan ? 'Bien_ban' : 'Nghi_quyet'}_chi_bo_thang_${sh.ngay.month}_${sh.ngay.year}_${dauThoiGian(DateTime.now())}.docx';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(taoDocxDang(vb));
-    await guiTep([f.path], context: context);
+    if (!mounted) return;
+    await baoDaLuuTep(context, f, tieuDe: bienBan ? 'Đã lưu biên bản chi bộ (Word)' : 'Đã lưu nghị quyết chi bộ (Word)');
   }
 
   void _bao(String s) {

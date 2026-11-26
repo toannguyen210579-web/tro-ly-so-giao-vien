@@ -74,7 +74,8 @@ class _GiaiDeState extends State<GiaiDe> {
     final ten = '${loai}_${tenTep('$_mon${_lop.isEmpty ? '' : ' lop $_lop'}')}_${dauThoiGian(DateTime.now())}.docx';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(taoDocx(doan));
-    await guiTep([f.path], context: context);
+    if (!mounted) return;
+    await baoDaLuuTep(context, f, tieuDe: 'Đã lưu tệp Word');
   }
 
   @override

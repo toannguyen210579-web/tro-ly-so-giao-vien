@@ -260,7 +260,8 @@ class _ManDeState extends State<_ManDe> {
     }
     final f = File('${(await thuMucApp('xuat')).path}/Diem_${tenTep(de.ten)}_${dauThoiGian(DateTime.now())}.csv');
     await f.writeAsString(b.toString());
-    await guiTep([f.path], context: context);
+    if (!mounted) return;
+    await baoDaLuuTep(context, f, tieuDe: 'Đã lưu bảng điểm');
   }
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));

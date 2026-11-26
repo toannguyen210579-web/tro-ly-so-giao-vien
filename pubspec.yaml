@@ -31,6 +31,8 @@ dependencies:
   flutter_local_notifications: ^18.0.1
   timezone: ">=0.9.4 <1.0.0"
   file_picker: ^8.1.2
+  # Mở xem tệp Word, PDF, Excel app vừa tạo bằng trình xem của máy (hộp Đã lưu tệp)
+  open_filex: ^4.6.0
   # In bộ thẻ Giơ thẻ ra máy in; đổi tệp PDF có sẵn thành ảnh trang để gộp (Quét PDF, Sổ minh chứng)
   printing: ^5.13.0
   # Giọng đọc tiếng Việt chạy trên máy. Giữ đúng 1.13.8: từ 2.0 thư viện bỏ bộ phát âm espeak nên không đọc được tiếng Việt

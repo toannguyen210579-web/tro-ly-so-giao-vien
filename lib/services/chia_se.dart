@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 
 /// Vùng gốc của bảng chia sẻ (bắt buộc trên iPad, và trên iPhone khi app đóng gói bằng Xcode 26).
@@ -54,10 +56,49 @@ String get noiLuuTep => Platform.isIOS
     ? 'Tệp nằm trong mục Tệp của tôi của app, và trong ứng dụng Tệp của máy: Trên iPhone (iPad) › Trợ lý số GV.'
     : 'Tệp nằm trong mục Tệp của tôi của app (thanh dưới cùng).';
 
-/// Báo đã lưu tệp, kèm nút gửi đi (Zalo, email, Lưu vào Tệp, Drive…). [nutThem]: nút riêng của từng tiện ích
-/// (ví dụ In ngay), đặt trên nút Gửi.
-Future<void> baoDaLuuTep(BuildContext context, File f, {String tieuDe = 'Đã lưu tệp', List<Widget> nutThem = const []}) {
+/// Mở xem tệp bằng trình xem của máy (Word, PDF, Excel, ảnh). Không mở được thì đưa bảng gửi để thầy cô chọn app mở.
+Future<void> moXemTep(BuildContext context, File f) async {
+  try {
+    final kq = await OpenFilex.open(f.path);
+    if (kq.type == ResultType.done) return;
+  } catch (_) {}
+  if (!context.mounted) return;
+  _baoLoi(context, 'Máy chưa có app mở được loại tệp này. Thầy cô chọn app trong bảng gửi để mở.');
+  await guiTep([f.path], context: context);
+}
+
+/// Lưu một bản tệp ra nơi thầy cô chọn trong máy (ứng dụng Tệp, thư mục Tải về, Drive…).
+Future<void> luuVaoMay(BuildContext context, File f) async {
   final ten = f.uri.pathSegments.last;
+  try {
+    final duong = await FilePicker.platform.saveFile(dialogTitle: 'Lưu vào máy', fileName: ten, bytes: await f.readAsBytes());
+    if (duong == null || !context.mounted) return;
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('Đã lưu $ten vào máy.')));
+  } catch (_) {
+    if (!context.mounted) return;
+    _baoLoi(context, 'Chưa mở được nơi lưu. Thầy cô bấm Gửi rồi chọn "Lưu vào Tệp".');
+  }
+}
+
+IconData _bieuTuongTep(String ten) {
+  final d = ten.split('.').last.toLowerCase();
+  if (d == 'pdf') return Icons.picture_as_pdf_outlined;
+  if (d == 'docx' || d == 'doc') return Icons.description_outlined;
+  if (d == 'xlsx' || d == 'csv') return Icons.table_chart_outlined;
+  if (d == 'jpg' || d == 'jpeg' || d == 'png') return Icons.image_outlined;
+  if (d == 'zip') return Icons.folder_zip_outlined;
+  return Icons.insert_drive_file_outlined;
+}
+
+/// Báo đã lưu tệp ngay tại màn đang làm, với 3 việc: Mở xem, Gửi, Lưu vào máy (quy tắc chung chốt 24/11/2026:
+/// tiện ích nào tạo tệp thì thầy cô lấy tệp luôn tại chỗ, mục Tệp của tôi chỉ để xem lại, lấy khi cần).
+/// [nutThem]: nút riêng của từng tiện ích (ví dụ In ngay), đặt trên nút Gửi.
+Future<void> baoDaLuuTep(BuildContext context, File f, {String tieuDe = 'Đã lưu tệp', List<Widget> nutThem = const []}) =>
+    baoDaLuu(context, [f], tieuDe: tieuDe, nutThem: nutThem);
+
+/// Như [baoDaLuuTep] cho nhiều tệp cùng lúc (ví dụ biên bản ra cả Word và PDF): mỗi tệp một dòng có nút
+/// Mở xem, Lưu vào máy; nút Gửi gửi tất cả.
+Future<void> baoDaLuu(BuildContext context, List<File> ds, {String tieuDe = 'Đã lưu tệp', List<Widget> nutThem = const []}) {
   return showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
@@ -76,17 +117,59 @@ Future<void> baoDaLuuTep(BuildContext context, File f, {String tieuDe = 'Đã l�
               const SizedBox(width: 8),
               Expanded(child: Text(tieuDe, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900))),
             ]),
-            const SizedBox(height: 8),
-            Text(ten, style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 4),
             Text(noiLuuTep, style: const TextStyle(fontSize: 12.5, color: Color(0xFF55657A), height: 1.35)),
-            const SizedBox(height: 14),
+            const SizedBox(height: 10),
+            for (final f in ds)
+              Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.fromLTRB(10, 8, 6, 6),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F6FB),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFDCE3EE)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Row(children: [
+                      Icon(_bieuTuongTep(f.uri.pathSegments.last), color: const Color(0xFF1F4E8C)),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(f.uri.pathSegments.last,
+                            maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)),
+                      ),
+                    ]),
+                    Wrap(
+                      alignment: WrapAlignment.end,
+                      spacing: 4,
+                      children: [
+                        Builder(
+                          builder: (b) => TextButton.icon(
+                            onPressed: () => moXemTep(b, f),
+                            icon: const Icon(Icons.visibility_outlined, size: 18),
+                            label: const Text('Mở xem'),
+                          ),
+                        ),
+                        Builder(
+                          builder: (b) => TextButton.icon(
+                            onPressed: () => luuVaoMay(b, f),
+                            icon: const Icon(Icons.save_alt, size: 18),
+                            label: const Text('Lưu vào máy'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 4),
             ...nutThem,
             Builder(
               builder: (b) => FilledButton.icon(
-                onPressed: () => guiTep([f.path], context: b),
+                onPressed: () => guiTep([for (final f in ds) f.path], context: b),
                 icon: const Icon(Icons.ios_share),
-                label: const Text('Gửi qua Zalo, email, lưu ra nơi khác'),
+                label: Text(ds.length > 1 ? 'Gửi cả ${ds.length} tệp qua Zalo, email…' : 'Gửi qua Zalo, email…'),
               ),
             ),
             const SizedBox(height: 6),

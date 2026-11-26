@@ -205,11 +205,11 @@ class _SoMinhChungState extends State<SoMinhChung> {
       if (kieu == 'pdf') {
         final f = File('$goc/So_minh_chung_$dau.pdf');
         await f.writeAsBytes(await _taoPdf(ds));
-        await guiTep([f.path], context: context);
+        if (mounted) await baoDaLuuTep(context, f, tieuDe: 'Đã lưu sổ minh chứng (PDF)');
       } else if (kieu == 'excel') {
         final f = File('$goc/Danh_muc_minh_chung_$dau.xlsx');
         await f.writeAsBytes(excel);
-        await guiTep([f.path], context: context);
+        if (mounted) await baoDaLuuTep(context, f, tieuDe: 'Đã lưu danh mục minh chứng (Excel)');
       } else {
         final thu = Directory('$goc/Minh_chung_$dau');
         await thu.create(recursive: true);
@@ -231,10 +231,9 @@ class _SoMinhChungState extends State<SoMinhChung> {
           final List<int>? z = ZipEncoder().encode(a);
           final fz = File('$goc/Minh_chung_$dau.zip');
           await fz.writeAsBytes(z ?? <int>[]);
-          await guiTep([fz.path], context: context);
+          if (mounted) await baoDaLuuTep(context, fz, tieuDe: 'Đã lưu tệp nén minh chứng');
         } else {
-          _bao('Đã tạo ${ds.length} tệp PDF và danh mục. Thầy cô chọn Lưu vào Tệp hoặc Drive để tải lên hệ thống từng tệp.');
-          await guiTep([for (final f in tep) f.path], context: context);
+          if (mounted) await baoDaLuu(context, tep, tieuDe: 'Đã tạo ${ds.length} tệp PDF và danh mục');
         }
       }
     } catch (e) {

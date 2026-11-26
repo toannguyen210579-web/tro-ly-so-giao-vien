@@ -88,7 +88,8 @@ class _AnhSangWordState extends State<AnhSangWord> {
     final ten = 'Van_ban_${tenTep(_tieuDe.text.trim().isEmpty ? 'tu_anh' : _tieuDe.text.trim())}_${dauThoiGian(DateTime.now())}.docx';
     final f = File('${(await thuMucApp('xuat')).path}/$ten');
     await f.writeAsBytes(taoDocx(doan, tieuDe: _tieuDe.text));
-    await guiTep([f.path], context: context);
+    if (!mounted) return;
+    await baoDaLuuTep(context, f, tieuDe: 'Đã lưu tệp Word');
   }
 
   void _bao(String s) {
