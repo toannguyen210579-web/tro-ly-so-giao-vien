@@ -12,10 +12,10 @@ class TienIch {
   /// Có trong bản đầu hay chưa. Tiện ích chưa có sẽ mở màn "Sắp có".
   final bool coTrongBanDau;
 
-  /// Từ khóa để ô "Thầy cô cần làm gì?" mở thẳng tiện ích này.
+  /// Từ khóa để ô hỏi ở Trang chủ ("Hỏi AI…") mở thẳng tiện ích này.
   final List<String> tuKhoa;
 
-  /// Một câu ngắn nói công dụng, chạy chữ dưới tên tiện ích.
+  /// Một câu ngắn nói công dụng (không còn hiện dưới tên tiện ích từ 26/11/2026, giữ cho tìm kiếm, hướng dẫn).
   final String moTa;
 
   /// Một câu nói rõ tiện ích làm hộ việc gì, không bắt nhập thêm (hiện ở đầu màn tiện ích).
@@ -51,6 +51,7 @@ const dsTienIch = <TienIch>[
   TienIch(ma: 'tao_de', giupGi: 'Chụp đề là có đáp án, thang điểm để thầy cô xem lại, không phải giải từ đầu.', moTa: 'Chụp đề, AI làm lời giải từng bước, đáp án, thang điểm, ra đề tương tự', ten: 'Giải đề, soạn đáp án', bieuTuong: Icons.photo_camera_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['giải đề', 'giải bài', 'soạn đáp án', 'tạo đề', 'ra đề', 'đề tương tự'], coTrongBanDau: true),
   TienIch(ma: 'o_chu', giupGi: 'Có sẵn trò ôn bài trên điện thoại, không phải chuẩn bị đồ dùng.', moTa: 'Tạo ô chữ ôn bài từ từ khóa của bài học, chiếu lên lớp', ten: 'Ô chữ', bieuTuong: Icons.grid_on_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['ô chữ'], coTrongBanDau: true),
   TienIch(ma: 'gio_the', giupGi: 'Cả lớp giơ thẻ, điện thoại quét một lượt là biết đáp án, không phải đếm tay.', moTa: 'In thẻ QR cho cả lớp, các em xoay thẻ chọn A, B, C, D, chụp một tấm là biết đáp án', ten: 'Giơ thẻ', bieuTuong: Icons.style_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['giơ thẻ', 'plickers', 'khảo sát nhanh'], coTrongBanDau: true),
+  TienIch(ma: 'dich', giupGi: 'Dịch tài liệu, trang sách, văn bản sang tiếng Việt, tiếng Anh và một số thứ tiếng khác, ra luôn tệp Word, PDF.', moTa: 'Dán chữ, chụp trang sách, chọn tệp Word, PDF để dịch; có song ngữ, ra tệp Word, PDF', ten: 'Dịch tài liệu', bieuTuong: Icons.translate_rounded, nhom: NhomTienIch.chuyenMon, tuKhoa: ['dịch tài liệu', 'dịch văn bản', 'dịch sang', 'song ngữ', 'translate'], coTrongBanDau: true),
   TienIch(ma: 'cong_cu', giupGi: 'Điểm danh, gọi tên, chia nhóm ngay trên điện thoại, không phải chuẩn bị đồ dùng.', moTa: 'Điểm danh, gọi tên ngẫu nhiên, chia nhóm, đồng hồ bấm giờ trên lớp', ten: 'Công cụ trên lớp', bieuTuong: Icons.timer_outlined, nhom: NhomTienIch.chuyenMon, tuKhoa: ['điểm danh', 'gọi tên', 'chia nhóm'], coTrongBanDau: true),
 ];
 

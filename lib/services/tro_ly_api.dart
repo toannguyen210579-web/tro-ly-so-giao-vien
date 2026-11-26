@@ -25,6 +25,8 @@ const _cheDo = {
   'giai_de': 'giaide',
   'de_tuong_tu': 'detuongtu',
   'bien_ban': 'bienban',
+  'chep_chu': 'chep_chu', // Biên bản: chép chữ từ ảnh, trang PDF
+  'dich': 'dich', // Dịch tài liệu: mỗi lần một trang
 };
 
 class KetQuaTroLy {
@@ -105,7 +107,7 @@ class TroLyApi {
           if (lichSu.isNotEmpty) 'history': [for (final (q, a) in lichSu.skip(lichSu.length > 4 ? lichSu.length - 4 : 0)) {'q': q, 'a': a}],
         },
         // Giải đề, ra đề tương tự viết lời giải dài: chờ lâu hơn để không báo lỗi khi máy chủ đang đổi sang AI dự phòng
-        giay: (loai == 'giai_de' || loai == 'de_tuong_tu') ? 150 : (anh.isEmpty && pdf.isEmpty ? 60 : 120),
+        giay: (loai == 'giai_de' || loai == 'de_tuong_tu') ? 150 : (anh.isEmpty && pdf.isEmpty && loai != 'dich' ? 60 : 120),
       );
       Map<String, dynamic> j;
       try {

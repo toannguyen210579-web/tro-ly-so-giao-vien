@@ -22,15 +22,18 @@ const huongDan = <String, List<MucHuongDan>>{
       'Gõ vào ô "Diễn biến, ý kiến", mỗi ý kiến một dòng.',
       'Bấm "Nói để ghi" để nói, app chuyển lời nói thành chữ.',
       'Bấm "Chèn giờ" để đánh dấu thời điểm từng ý kiến.',
-      'Đã ghi sẵn trong Word thì bấm "Lấy ghi chép từ tệp Word".',
+      'Ghi chép viết tay trong sổ: bấm "Chụp ảnh ghi chép", chụp từng trang (chụp được nhiều trang). AI chép lại chữ vào ô Ghi chép.',
+      'Đã có ảnh, tệp PDF hoặc tệp Word: bấm "Lấy từ tệp", chọn ảnh có sẵn, tệp PDF (cả PDF quét) hoặc tệp Word.',
+      'Lần đầu gửi ảnh, tệp PDF lên AI, app hỏi thầy cô đồng ý. Đọc lại phần chữ AI chép, sửa chỗ sai trước khi lưu.',
     ]),
     MucHuongDan('Nhờ AI trình bày', [
       'Bấm "Nhờ AI sắp xếp thành biên bản", đọc thông báo rồi bấm "Đồng ý gửi".',
       'AI sắp xếp ghi chép thành biên bản đúng thể thức. Thầy cô đọc lại, sửa trước khi lưu.',
     ]),
     MucHuongDan('Lưu và xuất', [
-      'Bấm "Lưu biên bản". Biên bản nằm trong danh sách ở màn đầu.',
-      'Mở biên bản để xuất PDF, chép sang Word hoặc Zalo.',
+      'Bấm "Lưu biên bản": app lưu biên bản và tạo luôn tệp Word (sửa tiếp được) và tệp PDF (để in, gửi).',
+      'Hộp "Đã lưu biên bản" hiện ngay: bấm "Mở xem" để xem tệp, "Lưu vào máy" để chọn nơi lưu, "Gửi" để gửi Zalo, email.',
+      'Cần lấy lại tệp: bấm nút tải xuống cạnh biên bản trong danh sách, hoặc mở biên bản rồi bấm nút tải xuống ở góc trên.',
       'Xóa biên bản: biên bản bị xóa khỏi máy, không lấy lại được.',
     ]),
     _riengTu,
@@ -282,6 +285,28 @@ const huongDan = <String, List<MucHuongDan>>{
     ]),
     MucHuongDan('Đồng hồ', [
       'Thẻ "Đồng hồ": chọn số phút, bấm chạy. Hết giờ điện thoại báo. "Đặt lại" để chạy lại.',
+    ]),
+  ],
+  'dich': [
+    MucHuongDan('Đưa nội dung cần dịch', [
+      'Dán hoặc gõ chữ vào ô "Chữ cần dịch".',
+      'Hoặc bấm "Chụp ảnh" để chụp trang sách, tài liệu (chụp được nhiều trang), "Ảnh có sẵn" để chọn ảnh trong máy.',
+      'Hoặc bấm "Tệp PDF, Word": tệp Word thì chữ hiện vào ô; tệp PDF (cả PDF quét) thì mỗi trang dịch thành một trang.',
+    ]),
+    MucHuongDan('Chọn cách dịch', [
+      'Chọn ngôn ngữ đích: Tiếng Việt, Anh, Trung, Nhật, Hàn, Pháp. Ngôn ngữ gốc app tự nhận.',
+      '"Sát nghĩa": bám câu chữ, văn phong trang trọng, dùng cho văn bản, tài liệu. "Dễ hiểu": câu ngắn, từ đơn giản để học sinh đọc.',
+      'Bật "Song ngữ" để bản gốc và bản dịch đặt cạnh nhau từng đoạn, tiện soạn bài tiếng Anh.',
+    ]),
+    MucHuongDan('Lưu và gửi', [
+      'Bấm "Lưu bản dịch": app tạo tệp Word và PDF, hộp "Đã lưu" có Mở xem, Lưu vào máy, Gửi Zalo, email.',
+      'Bản dịch có chữ Trung, Nhật, Hàn thì chỉ xuất tệp Word (tệp PDF chưa hiện được các chữ này).',
+    ]),
+    MucHuongDan('Lưu ý', [
+      'Mỗi trang chữ (khoảng 2.500 ký tự), mỗi ảnh hoặc trang PDF tính một lượt; mỗi ngày dịch được 20 trang.',
+      'Mất mạng: đoạn chữ ngắn Anh ⇄ Việt vẫn dịch được ngay trên máy (ghi "Dịch bởi Google"), cần tải gói ngôn ngữ một lần khi có wifi.',
+      'App chưa dịch tiếng dân tộc thiểu số: AI dịch các tiếng này còn kém, gửi phụ huynh bản dịch sai thì hại hơn có lợi.',
+      'AI có thể nhầm. Thầy cô đọc lại bản dịch trước khi dùng; bấm "Báo cáo" khi thấy dịch sai.',
     ]),
   ],
   'hoi': [

@@ -17,6 +17,7 @@ const mauTienIch = <String, (Color, Color)>{
   'o_chu': (Color(0xFFFFC27A), Color(0xFFE5570B)),
   'gio_the': (Color(0xFFFF7E92), Color(0xFFBC1340)),
   'cong_cu': (Color(0xFF63F0D8), Color(0xFF0E7A70)),
+  'dich': (Color(0xFFE29BFF), Color(0xFF8E24AA)),
   'hoi': (Color(0xFF6FD3FF), Color(0xFF2563EB)),
   'dang': (Color(0xFFFF7B6B), Color(0xFFC62828)),
   // Các mục trong Công tác Đảng (biểu tượng kiểu app, thầy cô yêu cầu 24/11/2026): tông đỏ, vàng

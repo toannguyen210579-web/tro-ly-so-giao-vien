@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data/luu_tru.dart';
 import '../main.dart';
+import '../services/anh_trang.dart' show anhGuiAi, chonTrangTuTep;
 import '../services/chon_tep.dart';
 import '../services/tep_pdf.dart';
 import '../services/tep_word.dart' show taoDocxBienBan;
@@ -309,6 +311,8 @@ class _SuaBienBanState extends State<_SuaBienBan> {
   late String _loai;
   late DateTime _batDau;
   bool _dangChoAI = false;
+  bool _dangChep = false;
+  String _tienDoChep = '';
 
   @override
   void initState() {
@@ -519,6 +523,152 @@ class _SuaBienBanState extends State<_SuaBienBan> {
 
   void _bao(String s) => ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(s)));
 
+  /// Chụp từng trang sổ ghi chép (chụp được nhiều trang) rồi nhờ AI chép chữ vào ô Ghi chép (thầy cô yêu cầu 24/11/2026).
+  Future<void> _chupGhiChep() async {
+    final trang = <String>[];
+    try {
+      while (true) {
+        final x = await ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 90);
+        if (x == null) break;
+        trang.add(x.path);
+        if (!mounted) return;
+        final tiep = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            title: Text('Đã chụp ${trang.length} trang'),
+            content: const Text('Chụp thêm trang tiếp theo hay chép chữ luôn?'),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Chép chữ luôn')),
+              FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Chụp thêm trang')),
+            ],
+          ),
+        );
+        if (tiep != true) break;
+      }
+    } catch (_) {
+      _bao('Chưa mở được máy ảnh. Thầy cô cho app quyền dùng máy ảnh trong Cài đặt.');
+      return;
+    }
+    await _chepChu(trang);
+  }
+
+  /// Lấy ghi chép từ ảnh có sẵn, tệp PDF (cả PDF quét) hoặc tệp Word.
+  Future<void> _layTuTepMoi() async {
+    final nguon = await showModalBottomSheet<String>(
+      context: context,
+      builder: (c) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Chọn ảnh có sẵn'),
+              subtitle: const Text('Chọn được nhiều ảnh, mỗi ảnh một trang'),
+              onTap: () => Navigator.pop(c, 'anh'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.picture_as_pdf_outlined),
+              title: const Text('Tệp PDF hoặc ảnh trong máy'),
+              subtitle: const Text('Ứng dụng Tệp, Drive, Tải về; cả PDF quét'),
+              onTap: () => Navigator.pop(c, 'tep'),
+            ),
+            ListTile(
+              leading: const Icon(Icons.description_outlined),
+              title: const Text('Tệp Word'),
+              onTap: () => Navigator.pop(c, 'word'),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (nguon == null || !mounted) return;
+    if (nguon == 'word') {
+      await _layTuTep();
+      return;
+    }
+    var trang = <String>[];
+    try {
+      if (nguon == 'anh') {
+        trang = (await ImagePicker().pickMultiImage(imageQuality: 90)).map((x) => x.path).toList();
+      } else {
+        final kq = await chonTrangTuTep();
+        if (kq == null) return;
+        if (kq.loiNhan != null) _bao(kq.loiNhan!);
+        trang = kq.trang;
+      }
+    } catch (_) {
+      _bao('Chưa lấy được ảnh, tệp. Thầy cô cho app quyền dùng ảnh trong Cài đặt rồi thử lại.');
+      return;
+    }
+    await _chepChu(trang);
+  }
+
+  /// Gửi từng trang ảnh cho AI chép chữ (một lượt mỗi trang), nối vào ô Ghi chép. Hỏi thầy cô đồng ý lần đầu.
+  Future<void> _chepChu(List<String> trang) async {
+    if (trang.isEmpty || !mounted) return;
+    if (diaChiMayChu.isEmpty) {
+      _bao('Máy chủ AI chưa được nối nên chưa chép chữ từ ảnh được.');
+      return;
+    }
+    final p = await SharedPreferences.getInstance();
+    if (!(p.getBool('bb_dong_y_anh') ?? false)) {
+      if (!mounted) return;
+      final ok = await showDialog<bool>(
+        context: context,
+        builder: (c) => AlertDialog(
+          title: const Text('Gửi ảnh ghi chép cho AI?'),
+          content: const Text(
+            'Ảnh, tệp thầy cô chọn được gửi lên máy chủ AI để chép lại chữ vào ô Ghi chép. '
+            'Nội dung cuộc họp chỉ gửi cho AI trả phí, không dùng AI miễn phí. '
+            'Thầy cô đọc lại phần chữ AI chép, sửa chỗ sai trước khi lưu. App chỉ hỏi lần này.',
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Thôi')),
+            FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Đồng ý gửi')),
+          ],
+        ),
+      );
+      if (ok != true) return;
+      await p.setBool('bb_dong_y_anh', true);
+    }
+    if (!mounted) return;
+    setState(() => _dangChep = true);
+    final chu = <String>[];
+    String? loi;
+    for (var i = 0; i < trang.length; i++) {
+      if (!mounted) return;
+      setState(() => _tienDoChep = 'Đang chép trang ${i + 1}/${trang.length}…');
+      final String anh;
+      try {
+        anh = await anhGuiAi(trang[i]);
+      } on FormatException {
+        loi = 'Trang ${i + 1} không mở được, đã bỏ qua.';
+        continue;
+      }
+      final kq = await TroLyApi.hoi('', loai: 'chep_chu', anh: [anh]);
+      if (kq.traLoi == null) {
+        loi = kq.loi ?? 'Chưa chép được, thầy cô thử lại.';
+        break;
+      }
+      final t = kq.traLoi!.trim();
+      if (t.isNotEmpty && !t.startsWith('Không thấy chữ trong ảnh')) chu.add(t);
+    }
+    if (!mounted) return;
+    setState(() {
+      _dangChep = false;
+      _tienDoChep = '';
+      if (chu.isNotEmpty) {
+        final o = _o['noi_dung']!;
+        o.text = [o.text.trim(), ...chu].where((x) => x.isNotEmpty).join('\n');
+      }
+    });
+    if (chu.isEmpty) {
+      _bao(loi ?? 'Không thấy chữ trong ảnh. Thầy cô chụp rõ hơn rồi thử lại.');
+    } else {
+      _bao('Đã chép ${chu.length} trang vào ô Ghi chép. Thầy cô đọc lại, sửa chỗ sai trước khi lưu.${loi == null ? '' : ' $loi'}');
+    }
+  }
+
   Future<void> _layTuTep() async {
     try {
       final t = await chonTep(duoiChu);
@@ -607,10 +757,18 @@ class _SuaBienBanState extends State<_SuaBienBan> {
             spacing: 8,
             runSpacing: 8,
             children: [
+              // Chụp ảnh sổ ghi chép, lấy từ ảnh, PDF, Word (thầy cô yêu cầu 24/11/2026)
               OutlinedButton.icon(
-                onPressed: _layTuTep,
+                onPressed: _dangChep ? null : _chupGhiChep,
+                icon: _dangChep
+                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.photo_camera_outlined, size: 18),
+                label: Text(_dangChep ? _tienDoChep : 'Chụp ảnh ghi chép'),
+              ),
+              OutlinedButton.icon(
+                onPressed: _dangChep ? null : _layTuTepMoi,
                 icon: const Icon(Icons.upload_file, size: 18),
-                label: const Text('Lấy ghi chép từ tệp Word'),
+                label: const Text('Lấy từ tệp: ảnh, PDF, Word'),
               ),
               FilledButton.tonalIcon(
               onPressed: _dangChoAI ? null : _nhoAI,
