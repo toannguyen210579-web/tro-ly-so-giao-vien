@@ -265,6 +265,17 @@ test("Hỏi Trợ lý được dặn không dùng LaTeX", async () => {
   assert.match(ghi.gemini[0].body.systemInstruction.parts[0].text, /Không dùng LaTeX/);
 });
 
+test("Hỏi Trợ lý biết các tiện ích của app để chỉ thầy cô mở, hiểu áp là app", async () => {
+  const { env, ghi } = moiTruong();
+  await goi(env, { mode: "hoi", input: "Bạn biết áp trợ lý giáo viên là gì không" });
+  const sys = ghi.gemini[0].body.systemInstruction.parts[0].text;
+  for (const ten of ["Họp, biên bản", "Đánh giá, xếp loại", "Sổ minh chứng", "Công tác Đảng", "Chấm trắc nghiệm", "Giơ thẻ", "Dịch tài liệu", "Tệp của tôi"]) {
+    assert.ok(sys.includes(ten), `thiếu ${ten}`);
+  }
+  assert.match(sys, /áp, ấp, ap .*= app/);
+  assert.match(sys, /chỉ đúng tên tiện ích/);
+});
+
 test("Câu hỏi về lương, phụ cấp, chế độ đi thẳng Claude", async () => {
   for (const q of ["Phụ cấp ưu đãi theo Nghị định 182/2026 là bao nhiêu?", "giao vien hang II he so bao nhieu", "Thông tư 93 ai được truy lĩnh?", "Nghỉ hưu sớm cần mấy năm đóng BHXH?"]) {
     const { env, ghi } = moiTruong();
