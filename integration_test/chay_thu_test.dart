@@ -44,10 +44,8 @@ void main() {
     await b.convertFlutterSurfaceToImage();
     await chup(t, '00_trang_chu');
 
-    // 0. Thanh dưới: Tin tức, Tài khoản, về Trang chủ. Chạy ngay đầu: mở Tin tức sau khi đã chạy nhiều màn (khoảng 10 phút)
-    // thì máy giả lập mất kết nối (26/11/2026, 4 lần); mở ngay khi khởi động thì bình thường (integration_test/tin_tuc_test.dart)
+    // 0. Thanh dưới: Tài khoản (số phiên bản), về Trang chủ
     try {
-      // ignore: avoid_print
       // Màn Tin tức không mở ở đây: trên máy giả lập (vẽ bằng phần mềm) khung đầu của Tin tức mất 2–6 giây, chạy kèm
       // việc khác thì máy giả lập sập (26/11/2026, 5 lần). Tin tức thử riêng ở tin_tuc_test.dart và xem_app_test.dart.
       final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
