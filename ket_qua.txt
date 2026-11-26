@@ -1,0 +1,27 @@
+I/flutter ( 5950): KQ chup 00_trang_chu: on
+I/flutter ( 5950): KQ chup 95_thanh_duoi: on
+I/flutter ( 5950): KQ chup 96_tin_tuc: on
+I/flutter ( 5950): KQ tin_tuc: xong
+I/flutter ( 5950): KQ chup 10_giai_de: on
+I/flutter ( 5950): KQ anh_mau: co tep 139265 byte
+I/flutter ( 5950): KQ chon_anh: co anh sau lan 1
+I/flutter ( 5950): KQ chup 11_giai_de_co_anh: on
+I/flutter ( 5950): KQ giai_de_ai: co ket qua
+I/flutter ( 5950): KQ chup 12_giai_de_ket_qua: on
+I/flutter ( 5950): KQ chup 13_giai_de_nut: on
+I/flutter ( 5950): KQ giai_de: xong
+I/flutter ( 5950): KQ chup 15_trinh_chieu: on
+I/flutter ( 5950): KQ trinh_chieu_ai: co bai
+I/flutter ( 5950): KQ chup 16_trinh_chieu_ket_qua: on
+I/flutter ( 5950): KQ chup 17_trinh_chieu_trang: on
+I/flutter ( 5950): KQ trinh_chieu: xong
+I/flutter ( 5950): KQ chup 20_cham_tn: on
+I/flutter ( 5950): KQ chup 21_cham_tn_bai: on
+I/flutter ( 5950): KQ chup 21b_cham_tn_tab: on
+I/flutter ( 5950): KQ cham_tn_diem: Đúng 9/10 · 9 điểm
+I/flutter ( 5950): KQ chup 22_cham_tn_nhap: on
+I/flutter ( 5950): KQ chup 23_cham_tn_ket_qua: on
+I/flutter ( 5950): KQ chup 24_cham_tn_thong_ke: on
+I/flutter ( 5950): KQ cham_tn: xong
+I/flutter ( 5950): 01:44 +2: All tests passed!
+All tests passed.
