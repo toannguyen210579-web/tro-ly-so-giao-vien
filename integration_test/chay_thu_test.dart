@@ -44,25 +44,8 @@ void main() {
     await b.convertFlutterSurfaceToImage();
     await chup(t, '00_trang_chu');
 
-    // 0. Thanh dưới: Tài khoản (số phiên bản), về Trang chủ
-    try {
-      // Không chụp ảnh ở bước này: máy giả lập hay sập ("Service has disappeared") lúc chụp ảnh ngay sau khi chuyển màn
-      // (26/11/2026, 6 lần, cả khi mở Tin tức lẫn Tài khoản), mất hết kết quả. Tin tức thử riêng ở tin_tuc_test.dart.
-      final coThanh = find.byType(NavigationBar).evaluate().isNotEmpty;
-      await t.tap(find.text('Tài khoản').last);
-      await cho(t, 2500);
-      final pb = find.textContaining('0.4.0').evaluate().length;
-      await t.tap(find.text('Trang chủ').last);
-      await cho(t, 2000);
-      final veTc = find.byType(TrangChu).evaluate().isNotEmpty;
-      // ignore: avoid_print
-      print('KQ thanh_duoi: trang chu co thanh duoi=$coThanh, so phien ban hien=$pb, ve trang chu=$veTc');
-    } catch (e) {
-      // ignore: avoid_print
-      print('KQ thanh_duoi: LOI PHEP THU ${e.toString().split('\n').first}');
-    }
-    Navigator.of(t.element(find.byType(TrangChu, skipOffstage: false))).popUntil((r) => r.isFirst);
-    await cho(t, 1000);
+    // Thanh dưới (Tin tức, Tài khoản) thử riêng ở thanh_duoi_test.dart: trong phép thử dài này, mở màn có thanh dưới
+    // từ thanh dưới thì máy giả lập sập vài giây sau (26/11/2026, 6 lần); thử riêng thì chạy bình thường.
 
     // 3. Giọng đọc cài sẵn: tải về, tạo tiếng
     final d1 = Stopwatch()..start();
