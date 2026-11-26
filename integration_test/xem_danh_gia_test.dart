@@ -42,19 +42,41 @@ void main() {
     }
   }
 
-  Future<void> cuon(WidgetTester t, double dy) async {
+  Finder ds(String k) => find.descendant(of: find.byKey(Key(k)), matching: find.byType(Scrollable)).first;
+
+  /// Cuộn danh sách có khóa [k] thêm [dy] điểm (âm là cuộn lên).
+  Future<void> cuon(WidgetTester t, String k, double dy) async {
     try {
-      final sc = find.descendant(of: find.byType(ListView).last, matching: find.byType(Scrollable)).first;
-      final vt = t.state<ScrollableState>(sc).position;
+      final vt = t.state<ScrollableState>(ds(k)).position;
       vt.jumpTo(min(max(0, vt.pixels + dy), vt.maxScrollExtent));
-    } catch (_) {}
+    } catch (e) {
+      kq('cuon $k: LOI $e');
+    }
     await cho(t, 600);
   }
 
-  Future<void> bam(WidgetTester t, Finder f, {int ms = 1200}) async {
+  /// Cuộn danh sách [k] cho tới khi [f] hiện ra (danh sách dài chỉ dựng phần gần màn hình).
+  Future<void> toi(WidgetTester t, Finder f, String k) async {
+    if (f.evaluate().isEmpty) {
+      await cuon(t, k, -5000);
+      final vt = t.state<ScrollableState>(ds(k)).position;
+      for (var i = 0; i < 40 && f.evaluate().isEmpty && vt.pixels < vt.maxScrollExtent; i++) {
+        vt.jumpTo(min(vt.pixels + 250, vt.maxScrollExtent));
+        await cho(t, 200);
+      }
+    }
+    await t.ensureVisible(f.first);
+    await cho(t, 400);
+  }
+
+  Future<void> bam(WidgetTester t, Finder f, {int ms = 1200, String? trong}) async {
     FocusManager.instance.primaryFocus?.unfocus();
     await cho(t, 400);
-    await t.ensureVisible(f.first);
+    if (trong != null) {
+      await toi(t, f, trong);
+    } else {
+      await t.ensureVisible(f.first);
+    }
     await cho(t, 300);
     await t.tap(f.first);
     await cho(t, ms);
@@ -90,37 +112,40 @@ void main() {
       await cho(t, 2500);
       kq('binh_quan: ${t.widget<Text>(find.byKey(const Key('dg_binh_quan'))).data}');
       await chup(t, '01_cac_ky');
-      await cuon(t, 500);
+      await cuon(t, 'dg_ds_ky', 500);
       await chup(t, '02_cac_ky_duoi');
 
       // Chấm tháng thứ ba: trừ nửa điểm nhóm 3, thêm hai việc
-      await cuon(t, -2000);
-      await bam(t, find.byKey(Key('dg_ky_${moc[2].ma}')), ms: 2000);
+      await bam(t, find.byKey(Key('dg_ky_${moc[2].ma}')), ms: 2000, trong: 'dg_ds_ky');
       await bam(t, find.byTooltip('Trừ nửa điểm').at(2));
-      await bam(t, find.byKey(const Key('dg_them_viec')));
+      await bam(t, find.byKey(const Key('dg_them_viec')), trong: 'dg_ds_cham');
       await t.enterText(find.byKey(const Key('dg_ten_viec_0')), 'Dạy đủ 19 tiết/tuần môn Toán 7');
-      await bam(t, find.byKey(const Key('dg_them_viec')));
+      await bam(t, find.byKey(const Key('dg_them_viec')), trong: 'dg_ds_cham');
       await t.enterText(find.byKey(const Key('dg_ten_viec_1')), 'Hồ sơ thi giáo viên dạy giỏi');
-      await bam(t, find.text('Trễ hạn').last);
+      await bam(t, find.text('Trễ hạn').last, trong: 'dg_ds_cham');
       await cho(t, 600);
-      await cuon(t, -2000);
+      await cuon(t, 'dg_ds_cham', -5000);
       kq('tong_ky_3: ${t.widget<Text>(find.byKey(const Key('dg_tong_ky'))).data}');
       await chup(t, '03_cham_thang');
-      await cuon(t, 650);
+      await cuon(t, 'dg_ds_cham', 650);
       await chup(t, '04_cham_viec');
-      await bam(t, find.byKey(const Key('dg_luu_ky')), ms: 2000);
+      await bam(t, find.byKey(const Key('dg_luu_ky')), ms: 2000, trong: 'dg_ds_cham');
       kq('binh_quan_sau: ${t.widget<Text>(find.byKey(const Key('dg_binh_quan'))).data}');
       await chup(t, '05_sau_luu');
 
       await bam(t, find.text('Phiếu năm'), ms: 1500);
+      await toi(t, find.byKey(const Key('dg_uu_diem')), 'dg_ds_phieu');
       await t.enterText(find.byKey(const Key('dg_uu_diem')), '- Dạy đủ 19 tiết/tuần, kế hoạch bài dạy nộp đúng hạn.\n- Chủ nhiệm lớp 7A nề nếp tốt.');
       await t.enterText(find.byKey(const Key('dg_han_che')), '- Nộp sổ điểm giữa kỳ còn trễ hạn.');
       await cho(t, 600);
+      await cuon(t, 'dg_ds_phieu', -5000);
       await chup(t, '06_phieu');
-      await cuon(t, 900);
+      await cuon(t, 'dg_ds_phieu', 700);
+      await chup(t, '06b_phieu_giua');
+      await cuon(t, 'dg_ds_phieu', 900);
       kq('tu_xep_loai: ${t.widget<Text>(find.byKey(const Key('dg_tu_xep_loai'))).data}');
       await chup(t, '07_phieu_duoi');
-      await bam(t, find.byKey(const Key('dg_luu_phieu')), ms: 4000);
+      await bam(t, find.byKey(const Key('dg_luu_phieu')), ms: 4000, trong: 'dg_ds_phieu');
       await chup(t, '08_da_luu');
       final thu = Directory('${(await getApplicationDocumentsDirectory()).path}/xuat');
       final tep = thu.existsSync() ? thu.listSync().map((e) => e.path.split('/').last).where((e) => e.startsWith('Phieu_xep_loai')).toList() : <String>[];

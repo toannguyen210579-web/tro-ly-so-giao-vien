@@ -222,6 +222,7 @@ class _DanhGiaXepLoaiState extends State<DanhGiaXepLoai> {
   }
 
   Widget _theCacKy() => ListView(
+        key: const Key('dg_ds_ky'),
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           const CauGiupViec('danh_gia'),
@@ -343,6 +344,7 @@ class _DanhGiaXepLoaiState extends State<DanhGiaXepLoai> {
     final muc = mucTuXepLoai(th.binhQuan, _phieu.dieuKien);
     final dk = _phieu.dieuKien;
     return ListView(
+      key: const Key('dg_ds_phieu'),
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
       children: [
         Text('Phiếu xếp loại chất lượng viên chức · ${tenNam(_qc, _nam)}', style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16)),
@@ -751,6 +753,7 @@ class _ManChamKyState extends State<ManChamKy> {
     return Scaffold(
       appBar: AppBar(title: Text(widget.moc.ten)),
       body: ListView(
+        key: const Key('dg_ds_cham'),
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         children: [
           Container(

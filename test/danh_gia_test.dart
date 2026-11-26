@@ -75,6 +75,13 @@ void main() {
     expect(th.canDatXuatSac, closeTo(90.857, 0.001));
     expect(th.canDatTot, closeTo(65.143, 0.001)); // (70 x 9 - 174) / 7
     expect(tongHop(q, moc, {}).soKyDaCham, 0);
+    // Hai phần cộng đúng bằng tổng, kể cả kỳ có điểm trường xác nhận khác điểm tự chấm
+    final th2 = tongHop(q, moc, {
+      '2026-09': KyDanhGia(ma: '2026-09', chung: [10, 12, 8], viec: [ViecGiao(ten: 'Dạy')], diemTruong: 92),
+      '2026-10': KyDanhGia(ma: '2026-10', chung: [10, 11, 7], viec: [ViecGiao(ten: 'Dạy', tienDo: 1)]),
+    });
+    expect(th2.binhQuanChung + th2.binhQuanNhiemVu, closeTo(th2.binhQuan, 0.0001));
+    expect(th2.binhQuan, closeTo((92 + 28 + 64) / 2, 0.0001));
   });
 
   test('Tự xếp loại: chưa đủ 6 tháng không xếp loại; kỷ luật, suy thoái là Không hoàn thành', () {

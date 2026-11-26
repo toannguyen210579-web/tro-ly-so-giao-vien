@@ -222,9 +222,23 @@ TongHopNam tongHop(QuyCheDanhGia q, List<MocKy> moc, Map<String, KyDanhGia> ky) 
   final da = [for (final m in moc) if (ky[m.ma]?.daCham ?? false) ky[m.ma]!];
   if (da.isEmpty) return TongHopNam(0, moc.length, 0, 0, 0, null, null);
   final tong = da.fold(0.0, (a, k) => a + k.diem(q));
-  // Thành phần lấy theo điểm tự chấm (điểm trường xác nhận chỉ có tổng)
-  final chung = da.fold(0.0, (a, k) => a + k.diemChung()) / da.length;
-  final nv = da.fold(0.0, (a, k) => a + k.diemNhiemVu(q).fold(0.0, (x, y) => x + y)) / da.length;
+  // Hai phần của phiếu phải cộng đúng bằng tổng: kỳ có điểm trường xác nhận thì chia điểm đó theo tỷ lệ
+  // tiêu chí chung, nhiệm vụ của điểm tự chấm (chưa tự chấm chi tiết thì chia theo khung 30/70).
+  double chung = 0, nv = 0;
+  for (final k in da) {
+    final c = k.diemChung();
+    final n = k.diemNhiemVu(q).fold(0.0, (x, y) => x + y);
+    final d = k.diem(q);
+    if (c + n > 0) {
+      chung += d * c / (c + n);
+      nv += d * n / (c + n);
+    } else {
+      chung += d * 0.3;
+      nv += d * 0.7;
+    }
+  }
+  chung /= da.length;
+  nv /= da.length;
   final conLai = moc.length - da.length;
   return TongHopNam(da.length, moc.length, tong / da.length, chung, nv, _canDat(tong, da.length, conLai, 90), _canDat(tong, da.length, conLai, 70));
 }
