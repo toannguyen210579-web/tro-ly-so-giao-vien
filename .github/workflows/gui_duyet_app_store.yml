@@ -1,0 +1,154 @@
+name: Gui duyet App Store
+# Gửi Apple duyệt phiên bản trên App Store (đưa app lên kho). CHỈ chạy khi người dùng bảo "gửi duyệt".
+# Không có lượt chạy tự động khi đẩy mã; phải bấm chạy tay với ô xac_nhan = gui. Thêm 27/11/2026 (người dùng nhắn "gửi duyệt" bản 0.4.0 (12)).
+# Kiểm tra trước: phiên bản đúng trạng thái chờ gửi, đúng số build đã gắn, bản đã xử lý xong; rồi tạo (hoặc dùng lại)
+# reviewSubmission, thêm phiên bản vào, gửi đi. Gửi rồi thì chạy lại chỉ báo trạng thái.
+on:
+  workflow_dispatch:
+    inputs:
+      phien_ban:
+        description: "Số phiên bản"
+        default: "0.4.0"
+      so_build:
+        description: "Số build phải đang gắn ở trang phiên bản"
+        default: "12"
+      xac_nhan:
+        description: "Gõ gui để gửi duyệt thật (để trống thì chỉ kiểm tra)"
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  gui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Cài thư viện ký JWT
+        run: pip install --quiet pyjwt cryptography
+      - name: Kiểm tra và gửi duyệt
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          APP_ID: "6838612892"
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban }}
+          SO_BUILD: ${{ github.event.inputs.so_build }}
+          XAC_NHAN: ${{ github.event.inputs.xac_nhan }}
+        shell: python
+        run: |
+          import json, os, sys, time, urllib.error, urllib.parse, urllib.request
+          import jwt
+
+          KEY = os.environ["ASC_KEY_P8"]
+          if not KEY.strip():
+              print("::error::Chưa có secret ASC_KEY_P8"); sys.exit(1)
+          KID, ISS, APP = os.environ["ASC_KEY_ID"], os.environ["ASC_ISSUER_ID"], os.environ["APP_ID"]
+          VER, BUILD, GUI = os.environ["PHIEN_BAN"], os.environ["SO_BUILD"], os.environ["XAC_NHAN"].strip() == "gui"
+          BASE = "https://api.appstoreconnect.apple.com"
+
+          def bao(msg):
+              print(f"::notice title=Gửi duyệt App Store::{msg}")
+
+          def token():
+              now = int(time.time())
+              return jwt.encode({"iss": ISS, "iat": now, "exp": now + 1100, "aud": "appstoreconnect-v1"},
+                                KEY, algorithm="ES256", headers={"kid": KID, "typ": "JWT"})
+
+          def api(method, path, body=None):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request(BASE + path, data=data, method=method,
+                                           headers={"Authorization": "Bearer " + token(), "Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      raw = r.read()
+                      return r.status, (json.loads(raw) if raw else {})
+              except urllib.error.HTTPError as e:
+                  raw = e.read()
+                  try:
+                      js = json.loads(raw)
+                  except Exception:
+                      js = {"raw": raw.decode(errors="replace")[:800]}
+                  return e.code, js
+
+          def loi(js):
+              out = []
+              for x in js.get("errors", []):
+                  s = f"{x.get('code')}: {x.get('detail')}"
+                  for k in (x.get("meta") or {}).get("associatedErrors", {}).values():
+                      s += " | " + "; ".join(f"{y.get('code')}: {y.get('detail')}" for y in k)
+                  out.append(s)
+              return " || ".join(out) or str(js)[:500]
+
+          def can(st, js, viec):
+              if st not in (200, 201, 204):
+                  print(f"::error::{viec}: HTTP {st} {loi(js)}"); sys.exit(1)
+
+          # 1. Phiên bản và bản đã gắn
+          st, js = api("GET", f"/v1/apps/{APP}/appStoreVersions?" + urllib.parse.urlencode(
+              {"filter[versionString]": VER, "filter[platform]": "IOS", "limit": 5}))
+          can(st, js, "Tìm phiên bản")
+          if not js["data"]:
+              print(f"::error::Không thấy phiên bản {VER}"); sys.exit(1)
+          ver = js["data"][0]
+          trang_thai = ver["attributes"].get("appVersionState") or ver["attributes"].get("appStoreState")
+          bao(f"Phiên bản {VER}: {trang_thai}; phát hành: {ver['attributes'].get('releaseType')}")
+          st, r = api("GET", f"/v1/appStoreVersions/{ver['id']}/build?fields[builds]=version,processingState,usesNonExemptEncryption")
+          can(st, r, "Đọc bản đã gắn")
+          if not r.get("data"):
+              print("::error::Trang phiên bản chưa gắn bản nào"); sys.exit(1)
+          b = r["data"]["attributes"]
+          bao(f"Bản đã gắn: {VER} ({b.get('version')}), {b.get('processingState')}, mã hóa không miễn trừ: {b.get('usesNonExemptEncryption')}")
+          if b.get("version") != BUILD:
+              print(f"::error::Bản đang gắn là ({b.get('version')}), không phải ({BUILD}): dừng, không gửi"); sys.exit(1)
+          if b.get("processingState") != "VALID":
+              print("::error::Bản chưa xử lý xong: dừng"); sys.exit(1)
+
+          # 2. Đã gửi rồi thì chỉ báo
+          if trang_thai in ("WAITING_FOR_REVIEW", "IN_REVIEW", "PENDING_DEVELOPER_RELEASE", "READY_FOR_SALE",
+                            "READY_FOR_DISTRIBUTION", "PROCESSING_FOR_DISTRIBUTION", "ACCEPTED", "PENDING_APPLE_RELEASE"):
+              bao("Phiên bản này đã gửi duyệt hoặc đã duyệt; không gửi lại.")
+              sys.exit(0)
+
+          if not GUI:
+              bao("Chỉ kiểm tra (ô xac_nhan chưa ghi gui): chưa gửi.")
+              sys.exit(0)
+
+          # 3. Tìm reviewSubmission chưa gửi của app, không có thì tạo
+          st, js = api("GET", "/v1/reviewSubmissions?" + urllib.parse.urlencode(
+              {"filter[app]": APP, "filter[platform]": "IOS", "filter[state]": "READY_FOR_REVIEW,UNRESOLVED_ISSUES", "limit": 10}))
+          can(st, js, "Tìm lượt gửi duyệt")
+          if js["data"]:
+              sub = js["data"][0]
+              bao(f"Dùng lại lượt gửi duyệt {sub['id']} ({sub['attributes'].get('state')})")
+          else:
+              st, js = api("POST", "/v1/reviewSubmissions", {"data": {"type": "reviewSubmissions",
+                           "attributes": {"platform": "IOS"},
+                           "relationships": {"app": {"data": {"type": "apps", "id": APP}}}}})
+              can(st, js, "Tạo lượt gửi duyệt")
+              sub = js["data"]
+              bao(f"Đã tạo lượt gửi duyệt {sub['id']}")
+          sid = sub["id"]
+
+          # 4. Thêm phiên bản vào lượt gửi (nếu chưa có)
+          st, js = api("GET", f"/v1/reviewSubmissions/{sid}/items?include=appStoreVersion&limit=20")
+          can(st, js, "Đọc mục trong lượt gửi")
+          co_roi = any(((i.get("relationships") or {}).get("appStoreVersion") or {}).get("data", {}) and
+                       i["relationships"]["appStoreVersion"]["data"]["id"] == ver["id"] for i in js.get("data", []))
+          if not co_roi:
+              st, js = api("POST", "/v1/reviewSubmissionItems", {"data": {"type": "reviewSubmissionItems",
+                           "relationships": {"reviewSubmission": {"data": {"type": "reviewSubmissions", "id": sid}},
+                                             "appStoreVersion": {"data": {"type": "appStoreVersions", "id": ver["id"]}}}}})
+              can(st, js, "Thêm phiên bản vào lượt gửi")
+              bao(f"Đã thêm phiên bản {VER} vào lượt gửi")
+
+          # 5. Gửi
+          st, js = api("PATCH", f"/v1/reviewSubmissions/{sid}", {"data": {"type": "reviewSubmissions", "id": sid,
+                       "attributes": {"submitted": True}}})
+          can(st, js, "Gửi duyệt")
+          bao(f"ĐÃ GỬI DUYỆT: lượt {sid}, trạng thái {js['data']['attributes'].get('state')}")
+          time.sleep(5)
+          st, js = api("GET", f"/v1/appStoreVersions/{ver['id']}")
+          if st == 200:
+              a = js["data"]["attributes"]
+              bao(f"Phiên bản {VER} giờ là: {a.get('appVersionState') or a.get('appStoreState')}")
