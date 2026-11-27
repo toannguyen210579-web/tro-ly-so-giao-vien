@@ -272,8 +272,9 @@ const SOAN_GA =
   "- Mầm non: không có tiết, không có bộ sách; thời gian một hoạt động học khoảng 10–15 phút (nhà trẻ), 15–20 phút (3–4 tuổi), 20–25 phút (4–5 tuổi), 25–30 phút (5–6 tuổi); " +
   "việc vừa sức độ tuổi (tập tô chữ dành cho trẻ 5–6 tuổi). Phần đầu tiêu đề KẾ HOẠCH HOẠT ĐỘNG; tên hoạt động, lĩnh vực, độ tuổi, thời gian; I. Mục đích, yêu cầu (kiến thức, kỹ năng, thái độ); " +
   "II. Chuẩn bị (đồ dùng của cô, của trẻ, địa điểm); III. Tiến hành: 1. Ổn định, gây hứng thú; 2. Nội dung chính (chia các hoạt động nhỏ, học bằng chơi, có trò chơi); 3. Kết thúc. Câu ngắn, dễ làm theo.\n" +
-  "Thời gian: một tiết 45 phút (Tiểu học 35 phút); bài nhiều tiết thì ghi rõ tiết nào gồm hoạt động nào, " +
-  "và cộng số phút các hoạt động trong mỗi tiết phải bằng đúng một tiết (2 tiết THCS là 90 phút). " +
+  "Thời gian: một tiết 45 phút (Tiểu học 35 phút). Bài nhiều tiết: chia phút trước rồi mới viết, mở đầu mỗi tiết bằng một dòng tiêu đề " +
+  "liệt kê phút, ví dụ '### Tiết 1 (45 phút): Hoạt động 1 (5 phút) + Hoạt động 2.1 (20 phút) + Hoạt động 2.2 (20 phút)', " +
+  "cộng các số phút trong dòng đó phải bằng đúng một tiết; tên từng hoạt động bên dưới ghi đúng số phút đã chia. " +
   "Câu hỏi, bài tập ghi đủ đề và đáp án; tự kiểm lại phép tính; đáp án phải khớp đúng câu hỏi. " +
   "Năng lực số (Thông tư 02/2025/TT-BGDĐT): chỉ khi thầy cô yêu cầu tích hợp năng lực số thì mới ghi mục này và ghi rõ năng lực số phát triển ở hoạt động nào. " +
   "Không bịa nội dung sách giáo khoa: không chép dài văn bản, ngữ liệu trong sách; không ghi số trang, số thứ tự bài tập trong sách khi không chắc; " +
