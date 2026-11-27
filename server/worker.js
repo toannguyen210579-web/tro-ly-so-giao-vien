@@ -268,7 +268,7 @@ const SOAN_GA =
   "Tên bài học; Số tiết; Thời gian thực hiện (để dấu chấm). I. Yêu cầu cần đạt (học sinh làm được gì, vận dụng được gì; phẩm chất, năng lực được hình thành). " +
   "II. Đồ dùng dạy học (của giáo viên, của học sinh). III. Các hoạt động dạy học chủ yếu: 1. Hoạt động Mở đầu (khởi động, kết nối); " +
   "2. Hoạt động Hình thành kiến thức mới (trải nghiệm, khám phá, phân tích); 3. Hoạt động Luyện tập, thực hành; 4. Hoạt động Vận dụng, trải nghiệm (nếu có); " +
-  "mỗi hoạt động ghi thời gian, một dòng mục tiêu, rồi từng bước ghi 'Giáo viên:' và 'Học sinh:' (không chia a) b) c) d), đó là khung THCS, THPT). IV. Điều chỉnh sau bài dạy (để dòng chấm cho thầy cô ghi).\n" +
+  "mỗi hoạt động ghi thời gian, một dòng mục tiêu, rồi từng bước ghi 'Giáo viên:' và 'Học sinh:' (Tiểu học không dùng bốn mục a) b) c) d), đó là khung THCS, THPT). IV. Điều chỉnh sau bài dạy (để dòng chấm cho thầy cô ghi).\n" +
   "- Mầm non: không có tiết, không có bộ sách; thời gian một hoạt động học khoảng 10–15 phút (nhà trẻ), 15–20 phút (3–4 tuổi), 20–25 phút (4–5 tuổi), 25–30 phút (5–6 tuổi); " +
   "việc vừa sức độ tuổi (tập tô chữ dành cho trẻ 5–6 tuổi). Phần đầu tiêu đề KẾ HOẠCH HOẠT ĐỘNG; tên hoạt động, lĩnh vực, độ tuổi, thời gian; I. Mục đích, yêu cầu (kiến thức, kỹ năng, thái độ); " +
   "II. Chuẩn bị (đồ dùng của cô, của trẻ, địa điểm); III. Tiến hành: 1. Ổn định, gây hứng thú; 2. Nội dung chính (chia các hoạt động nhỏ, học bằng chơi, có trò chơi); 3. Kết thúc. Câu ngắn, dễ làm theo.\n" +
@@ -278,8 +278,8 @@ const SOAN_GA =
   "câu hỏi, trò chơi về tác phẩm, bài đọc chỉ dùng chi tiết chắc chắn có trong tác phẩm, không chắc thì hỏi khái quát; " +
   "chỗ cần đối chiếu thì ghi '(đối chiếu sách giáo khoa)'. " +
   "Trình bày cho màn hình điện thoại: tiêu đề lớn dùng ##, tên hoạt động dùng ###, ý dùng gạch đầu dòng, chữ đậm cho a) b) c) d); không dùng bảng, không dùng LaTeX. " +
-  "Viết đủ mà gọn để vừa một lần trả lời: 1 tiết khoảng 900 đến 1.100 chữ, 2 tiết khoảng 1.600 đến 2.000 chữ, không quá 2.100 chữ; " +
-  "mỗi bước tổ chức thực hiện một đến hai câu, không nhắc lại ý đã ghi ở mục khác. " +
+  "Viết đủ mà gọn để vừa một lần trả lời: 1 tiết khoảng 800 đến 1.000 chữ; 2 tiết khoảng 1.300 đến 1.700 chữ (không dưới 1.300 chữ, không quá 1.800 chữ); " +
+  "mỗi bước tổ chức thực hiện hai đến ba câu nói rõ giáo viên, học sinh làm gì; không nhắc lại ý đã ghi ở mục khác. " +
   "Cuối giáo án thêm đúng hai dòng: 'Giáo án do AI soạn, thầy cô đọc lại, chỉnh sửa cho hợp với lớp mình trước khi dùng.' và " +
   "'Muốn làm bài trình chiếu: chọn tất cả, sao chép giáo án này rồi dán vào ô Hoặc dán nội dung giáo án của tiện ích Tạo bài trình chiếu (nhóm Chuyên môn).' " +
   "Thầy cô nhờ sửa, thêm một phần của giáo án vừa soạn thì chỉ viết lại phần đó; nhờ viết tiếp thì viết tiếp từ chỗ dừng, không viết lại từ đầu. " +

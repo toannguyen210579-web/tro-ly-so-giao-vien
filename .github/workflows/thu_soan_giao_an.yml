@@ -49,11 +49,8 @@ jobs:
             return j, time.time() - t
           CAU = [
             ("1_thcs_van6", "Soạn giáo án Ngữ văn 6 bài Thánh Gióng, 2 tiết, bộ Kết nối tri thức", None),
-            ("2_thieu_bai", "soan giup minh giao an", None),
-            ("3_mam_non_tiep", "Mầm non 4-5 tuổi, làm quen chữ cái o, ô, ơ", "2_thieu_bai"),
-            ("4_tieu_hoc_tv2", "Soạn kế hoạch bài dạy Tiếng Việt lớp 2 bài Ngày hôm qua đâu rồi, 2 tiết, Kết nối tri thức", None),
-            ("5_ba_tiet", "giáo án Toán 8 bài Định lí Pythagore và ứng dụng, 3 tiết, Kết nối tri thức", None),
-            ("6_viet_tiep", "soạn tiếp tiết 3", "5_ba_tiet"),
+            ("2_tieu_hoc_tv2", "Soạn kế hoạch bài dạy Tiếng Việt lớp 2 bài Ngày hôm qua đâu rồi, 2 tiết, Kết nối tri thức", None),
+            ("3_thpt_sinh11", "KHBD Sinh học 11 bài Quang hợp ở thực vật, 2 tiết, Kết nối tri thức", None),
           ]
           tra = {}
           tong = []
