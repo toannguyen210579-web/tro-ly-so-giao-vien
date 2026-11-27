@@ -212,7 +212,7 @@ const CAU_MAC_DINH = {
 // Thầy cô gõ vào ô "Hỏi AI…" nhờ soạn giáo án: máy chủ nhận ra, đi thẳng Claude với hướng dẫn soạn theo khung
 // kế hoạch bài dạy của từng cấp học, câu trả lời dài hơn câu hỏi thường. Thiếu môn, lớp, tên bài thì AI hỏi lại.
 // Không làm tiện ích riêng; soạn xong thầy cô dán giáo án vào tiện ích Tạo bài trình chiếu để làm bài chiếu.
-const GA_MAX_OUT = 7000;      // giáo án 1–2 tiết khoảng 2.000–2.800 chữ
+const GA_MAX_OUT = 10000;     // tiếng Việt khoảng 1,1 ký tự mỗi token: giáo án 2 tiết khoảng 2.000 chữ là 8.500 token, Haiku viết hết khoảng 40 giây (app chờ 60 giây)
 const GA_MAX_IN = 12000;      // dán kèm giáo án cũ, nội dung bài để soạn lại
 const GA_LIMIT = { free: 10, pro: 30 }; // số giáo án soạn xong mỗi máy mỗi ngày (câu hỏi lại không tính)
 const GA_DAI = 2500;          // câu trả lời từ chừng này ký tự và có khung giáo án mới tính là một giáo án
@@ -249,9 +249,10 @@ const SOAN_GA =
   "Cần đủ ba thông tin: môn học (Mầm non: lĩnh vực hoặc hoạt động), lớp (Mầm non: độ tuổi hoặc nhóm lớp), tên bài (hoặc chủ đề). " +
   "Thiếu một trong ba thì chưa soạn, trả lời ngắn, mở đầu đúng câu 'Để soạn giáo án, thầy cô cho tôi biết thêm:' rồi nêu thông tin còn thiếu, " +
   "hỏi thêm số tiết và bộ sách (Kết nối tri thức với cuộc sống, Chân trời sáng tạo, Cánh diều...), kèm một câu gõ mẫu như " +
-  "'Ngữ văn 6, bài Thánh Gióng, 2 tiết, Kết nối tri thức'. " +
+  "'Ngữ văn 6, bài Thánh Gióng, 2 tiết, Kết nối tri thức' (Mầm non không hỏi số tiết, bộ sách; mẫu như 'Mầm non 4-5 tuổi, làm quen chữ cái o, ô, ơ'). " +
   "Đủ ba thông tin thì soạn luôn, không hỏi thêm: chưa có số tiết thì lấy 1 tiết (bài đọc hiểu văn bản dài lấy 2 tiết); chưa có bộ sách thì soạn theo yêu cầu cần đạt của chương trình môn học; " +
-  "ghi các điều tự chọn này trong một dòng in nghiêng ngay dưới phần đầu. " +
+  "chỉ khi có điều tự chọn như vậy mới ghi một dòng in nghiêng ngay dưới phần đầu (thông tin thầy cô đã cho thì không ghi là tự chọn). " +
+  "Bài từ 3 tiết trở lên: soạn hai tiết đầu, cuối phần đó ghi 'Thầy cô gõ \"soạn tiếp tiết 3\" để soạn phần còn lại.' " +
   "Thầy cô gửi kèm ảnh, tệp trang sách hoặc giáo án cũ thì bám đúng nội dung đó. Thầy cô có yêu cầu riêng (trò chơi, làm việc nhóm, phiếu học tập, tích hợp...) thì làm theo.\n" +
   "Khung trình bày theo cấp học:\n" +
   "- THCS, THPT: theo Phụ lục IV Công văn 5512/BGDĐT-GDTrH ngày 18/12/2020. Phần đầu: Trường, Tổ, Họ và tên giáo viên (để dấu chấm cho thầy cô điền); " +
@@ -267,14 +268,18 @@ const SOAN_GA =
   "Tên bài học; Số tiết; Thời gian thực hiện (để dấu chấm). I. Yêu cầu cần đạt (học sinh làm được gì, vận dụng được gì; phẩm chất, năng lực được hình thành). " +
   "II. Đồ dùng dạy học (của giáo viên, của học sinh). III. Các hoạt động dạy học chủ yếu: 1. Hoạt động Mở đầu (khởi động, kết nối); " +
   "2. Hoạt động Hình thành kiến thức mới (trải nghiệm, khám phá, phân tích); 3. Hoạt động Luyện tập, thực hành; 4. Hoạt động Vận dụng, trải nghiệm (nếu có); " +
-  "mỗi hoạt động ghi thời gian, từng bước ghi 'Giáo viên:' và 'Học sinh:'. IV. Điều chỉnh sau bài dạy (để dòng chấm cho thầy cô ghi).\n" +
-  "- Mầm non: phần đầu tiêu đề KẾ HOẠCH HOẠT ĐỘNG; tên hoạt động, lĩnh vực, độ tuổi, thời gian; I. Mục đích, yêu cầu (kiến thức, kỹ năng, thái độ); " +
+  "mỗi hoạt động ghi thời gian, một dòng mục tiêu, rồi từng bước ghi 'Giáo viên:' và 'Học sinh:' (không chia a) b) c) d), đó là khung THCS, THPT). IV. Điều chỉnh sau bài dạy (để dòng chấm cho thầy cô ghi).\n" +
+  "- Mầm non: không có tiết, không có bộ sách; thời gian một hoạt động học khoảng 10–15 phút (nhà trẻ), 15–20 phút (3–4 tuổi), 20–25 phút (4–5 tuổi), 25–30 phút (5–6 tuổi); " +
+  "việc vừa sức độ tuổi (tập tô chữ dành cho trẻ 5–6 tuổi). Phần đầu tiêu đề KẾ HOẠCH HOẠT ĐỘNG; tên hoạt động, lĩnh vực, độ tuổi, thời gian; I. Mục đích, yêu cầu (kiến thức, kỹ năng, thái độ); " +
   "II. Chuẩn bị (đồ dùng của cô, của trẻ, địa điểm); III. Tiến hành: 1. Ổn định, gây hứng thú; 2. Nội dung chính (chia các hoạt động nhỏ, học bằng chơi, có trò chơi); 3. Kết thúc. Câu ngắn, dễ làm theo.\n" +
-  "Câu hỏi, bài tập ghi đủ đề và đáp án. Năng lực số (Thông tư 02/2025/TT-BGDĐT): thầy cô yêu cầu hoặc bài có dùng thiết bị số thì ghi rõ năng lực số phát triển ở hoạt động nào. " +
+  "Câu hỏi, bài tập ghi đủ đề và đáp án; tự kiểm lại phép tính; đáp án phải khớp đúng câu hỏi. " +
+  "Năng lực số (Thông tư 02/2025/TT-BGDĐT): chỉ khi thầy cô yêu cầu tích hợp năng lực số thì mới ghi mục này và ghi rõ năng lực số phát triển ở hoạt động nào. " +
   "Không bịa nội dung sách giáo khoa: không chép dài văn bản, ngữ liệu trong sách; không ghi số trang, số thứ tự bài tập trong sách khi không chắc; " +
+  "câu hỏi, trò chơi về tác phẩm, bài đọc chỉ dùng chi tiết chắc chắn có trong tác phẩm, không chắc thì hỏi khái quát; " +
   "chỗ cần đối chiếu thì ghi '(đối chiếu sách giáo khoa)'. " +
   "Trình bày cho màn hình điện thoại: tiêu đề lớn dùng ##, tên hoạt động dùng ###, ý dùng gạch đầu dòng, chữ đậm cho a) b) c) d); không dùng bảng, không dùng LaTeX. " +
-  "Viết đủ mà gọn: mỗi tiết khoảng 900 đến 1.300 chữ, cả giáo án không quá 2.600 chữ (bài nhiều tiết thì viết gọn từng phần). " +
+  "Viết đủ mà gọn để vừa một lần trả lời: 1 tiết khoảng 900 đến 1.100 chữ, 2 tiết khoảng 1.600 đến 2.000 chữ, không quá 2.100 chữ; " +
+  "mỗi bước tổ chức thực hiện một đến hai câu, không nhắc lại ý đã ghi ở mục khác. " +
   "Cuối giáo án thêm đúng hai dòng: 'Giáo án do AI soạn, thầy cô đọc lại, chỉnh sửa cho hợp với lớp mình trước khi dùng.' và " +
   "'Muốn làm bài trình chiếu: chọn tất cả, sao chép giáo án này rồi dán vào ô Hoặc dán nội dung giáo án của tiện ích Tạo bài trình chiếu (nhóm Chuyên môn).' " +
   "Thầy cô nhờ sửa, thêm một phần của giáo án vừa soạn thì chỉ viết lại phần đó; nhờ viết tiếp thì viết tiếp từ chỗ dừng, không viết lại từ đầu. " +

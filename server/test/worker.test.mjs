@@ -522,7 +522,7 @@ test("Soạn giáo án: nhiều cách hỏi đều đi Claude với khung kế h
     assert.match(sys, /Mầm non/, cau);
     assert.match(sys, /Để soạn giáo án, thầy cô cho tôi biết thêm:/, cau);
     assert.match(sys, /Hiện tại ở Việt Nam là/, cau);
-    assert.equal(ghi.claude[0].max_tokens, 7000, cau);
+    assert.equal(ghi.claude[0].max_tokens, 10000, cau);
   }
 });
 
