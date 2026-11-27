@@ -1,9 +1,14 @@
 name: Gui duyet App Store
 # Gửi Apple duyệt phiên bản trên App Store (đưa app lên kho). CHỈ chạy khi người dùng bảo "gửi duyệt".
-# Không có lượt chạy tự động khi đẩy mã; phải bấm chạy tay với ô xac_nhan = gui. Thêm 27/11/2026 (người dùng nhắn "gửi duyệt" bản 0.4.0 (12)).
+# Gửi thật chỉ khi chạy tay với ô xac_nhan = gui. Thêm 27/11/2026 (người dùng nhắn "gửi duyệt" bản 0.4.0 (12)).
 # Kiểm tra trước: phiên bản đúng trạng thái chờ gửi, đúng số build đã gắn, bản đã xử lý xong; rồi tạo (hoặc dùng lại)
 # reviewSubmission, thêm phiên bản vào, gửi đi. Gửi rồi thì chạy lại chỉ báo trạng thái.
+# Lượt chạy khi đẩy chính tệp này chỉ để GitHub nhận workflow (nhánh noi-may-chu không phải nhánh mặc định):
+# khi đó ô xac_nhan trống nên chỉ kiểm tra, không gửi.
 on:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/gui_duyet_app_store.yml"]
   workflow_dispatch:
     inputs:
       phien_ban:
@@ -32,9 +37,9 @@ jobs:
           ASC_KEY_ID: 4J84ST68KM
           ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
           APP_ID: "6838612892"
-          PHIEN_BAN: ${{ github.event.inputs.phien_ban }}
-          SO_BUILD: ${{ github.event.inputs.so_build }}
-          XAC_NHAN: ${{ github.event.inputs.xac_nhan }}
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban || '0.4.0' }}
+          SO_BUILD: ${{ github.event.inputs.so_build || '12' }}
+          XAC_NHAN: ${{ github.event.inputs.xac_nhan || '' }}
         shell: python
         run: |
           import json, os, sys, time, urllib.error, urllib.parse, urllib.request
