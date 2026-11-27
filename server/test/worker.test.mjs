@@ -481,3 +481,119 @@ test("Tạo bài trình chiếu: giáo án dài, ảnh, PDF đều đi Claude, t
   assert.equal(r4.error, "qua_dai");
   assert.equal(d.ghi.claude.length, 0);
 });
+
+// ---- Soạn giáo án trong Hỏi Trợ lý (27/11/2026) ----
+const CAU_GA = [
+  "soạn giáo án Ngữ văn 6 bài Thánh Gióng",
+  "soan giao an toan 4 tiet 2",
+  "Soạn kế hoạch bài dạy môn Toán lớp 7 bài Tam giác bằng nhau",
+  "cho mình giáo án tiếng việt lớp 3 bài Ngày khai trường",
+  "KHBD lịch sử 8 bài 5",
+  "soạn bài Thánh Gióng lớp 6 Kết nối tri thức",
+  "giáo án mầm non 4-5 tuổi làm quen chữ cái a ă â",
+  "thiết kế bài dạy khoa học lớp 4 bài Nước",
+  "lesson plan tieng anh lop 10 unit 3",
+  "gíao án gdcd 9",
+  "GIÁO ÁN SINH HỌC 11 BÀI QUANG HỢP",
+  "soạn giảng môn Tin học lớp 8",
+  "mẫu giáo án theo phụ lục 4 công văn 5512",
+  "Soạn giúp tôi giáo án",
+];
+const CAU_KHONG_GA = [
+  "soạn bài phát biểu khai giảng năm học mới",
+  "làm bài trình chiếu từ giáo án toán 5",
+  "soạn giáo án điện tử powerpoint bài phân số",
+  "lương giáo viên hạng II bao nhiêu",
+  "Hôm nay ngày mấy?",
+  "soạn bài văn tả cảnh cho con",
+];
+
+test("Soạn giáo án: nhiều cách hỏi đều đi Claude với khung kế hoạch bài dạy từng cấp, trả lời dài", async () => {
+  for (const cau of CAU_GA) {
+    const { env, ghi } = moiTruong();
+    const r = await goi(env, { mode: "hoi", input: cau });
+    assert.equal(r.ok, true, cau);
+    assert.equal(r.by, "claude", cau);
+    assert.equal(r.giao_an, true, cau);
+    assert.equal(ghi.gemini.length, 0, cau);
+    const sys = ghi.claude[0].system;
+    assert.match(sys, /Phụ lục IV Công văn 5512\/BGDĐT-GDTrH/, cau);
+    assert.match(sys, /Phụ lục 3 Công văn 2345\/BGDĐT-GDTH/, cau);
+    assert.match(sys, /Mầm non/, cau);
+    assert.match(sys, /Để soạn giáo án, thầy cô cho tôi biết thêm:/, cau);
+    assert.match(sys, /Hiện tại ở Việt Nam là/, cau);
+    assert.equal(ghi.claude[0].max_tokens, 7000, cau);
+  }
+});
+
+test("Soạn giáo án: bài phát biểu, bài trình chiếu, câu hỏi chế độ không bị coi là giáo án", async () => {
+  for (const cau of CAU_KHONG_GA) {
+    const { env, ghi } = moiTruong();
+    const r = await goi(env, { mode: "hoi", input: cau });
+    assert.equal(r.giao_an, undefined, cau);
+    const sys = ghi.claude.length ? ghi.claude[0].system : ghi.gemini[0].body.systemInstruction.parts[0].text;
+    assert.doesNotMatch(sys, /Phụ lục IV Công văn 5512/, cau);
+  }
+});
+
+test("Soạn giáo án: trả lời câu hỏi lại (môn, lớp, bài) vẫn là soạn giáo án; hỏi sang chế độ thì trả lời như thường", async () => {
+  const hoiLai = [{ q: "soạn giáo án giúp mình", a: "Để soạn giáo án, thầy cô cho tôi biết thêm: môn, lớp, tên bài..." }];
+  const a = moiTruong();
+  const r = await goi(a.env, { mode: "hoi", input: "Ngữ văn 6, Thánh Gióng, 2 tiết", history: hoiLai });
+  assert.equal(r.giao_an, true);
+  assert.equal(a.ghi.claude[0].messages.length, 3);
+
+  const daSoan = [{ q: "giáo án toán 7 bài 1", a: "## KẾ HOẠCH BÀI DẠY\n..." }];
+  const b = moiTruong();
+  assert.equal((await goi(b.env, { mode: "hoi", input: "viết tiếp", history: daSoan })).giao_an, true);
+  const c = moiTruong();
+  const r3 = await goi(c.env, { mode: "hoi", input: "lương giáo viên hạng III bao nhiêu", history: daSoan });
+  assert.equal(r3.giao_an, undefined);
+  assert.doesNotMatch(c.ghi.claude[0].system, /Phụ lục IV Công văn 5512/);
+});
+
+test("Soạn giáo án: mỗi máy 10 giáo án mỗi ngày, câu hỏi lại không tính; quá thì báo rõ, câu hỏi khác vẫn hỏi được", async () => {
+  const { env } = moiTruong();
+  let traLoi = "Để soạn giáo án, thầy cô cho tôi biết thêm: môn, lớp, tên bài.";
+  globalThis.fetch = async (url) => {
+    if (String(url).includes("anthropic")) {
+      return new Response(JSON.stringify({ content: [{ type: "text", text: traLoi }], usage: {}, stop_reason: "end_turn" }), { status: 200 });
+    }
+    throw new Error("không mong gọi " + url);
+  };
+  for (let i = 0; i < 3; i++) assert.equal((await goi(env, { mode: "hoi", input: "soạn giáo án" })).ok, true);
+  traLoi = "Trường: ....\n## KẾ HOẠCH BÀI DẠY\n" + "Hoạt động của giáo viên và học sinh. ".repeat(100);
+  for (let i = 0; i < 10; i++) assert.equal((await goi(env, { mode: "hoi", input: "giáo án toán 6 bài " + i })).ok, true, "lần " + i);
+  const r = await goi(env, { mode: "hoi", input: "giáo án toán 6 bài 11" });
+  assert.equal(r.ok, false);
+  assert.equal(r.error, "het_luot_ga");
+  assert.match(r.message, /10 giáo án/);
+  env.GEMINI = undefined;
+  assert.equal((await goi(env, { mode: "hoi", input: "lương hạng III bao nhiêu" })).ok, true);
+});
+
+test("Soạn giáo án: dài quá một lần trả lời thì nhắc gõ 'viết tiếp'; lượt trước là giáo án thì giữ cả phần cuối", async () => {
+  const { env } = moiTruong();
+  const gui = [];
+  globalThis.fetch = async (url, o) => {
+    gui.push(JSON.parse(o.body));
+    return new Response(JSON.stringify({ content: [{ type: "text", text: "## KẾ HOẠCH BÀI DẠY\n..." }], usage: {}, stop_reason: "max_tokens" }), { status: 200 });
+  };
+  const r = await goi(env, { mode: "hoi", input: "giáo án ngữ văn 6 bài Thánh Gióng 2 tiết" });
+  assert.match(r.text, /gõ "viết tiếp"/);
+  const dai = "## KẾ HOẠCH BÀI DẠY\n" + "x".repeat(3000) + "CUỐI-PHẦN-ĐÃ-VIẾT";
+  await goi(env, { mode: "hoi", input: "viết tiếp", history: [{ q: "giáo án ngữ văn 6", a: dai }] });
+  const a = gui[1].messages[1].content;
+  assert.match(a, /^## KẾ HOẠCH BÀI DẠY/);
+  assert.match(a, /CUỐI-PHẦN-ĐÃ-VIẾT$/);
+  assert.ok(a.length <= 2010);
+});
+
+test("Soạn giáo án: dán kèm giáo án cũ dài đến 12.000 ký tự; câu hỏi thường vẫn giới hạn 2.000", async () => {
+  const { env } = moiTruong();
+  const r = await goi(env, { mode: "hoi", input: "Soạn lại giáo án này cho lớp 7:\n" + "nội dung ".repeat(1000) });
+  assert.equal(r.ok, true);
+  assert.equal(r.giao_an, true);
+  const r2 = await goi(env, { mode: "hoi", input: "giải thích giúp " + "chữ ".repeat(1000) });
+  assert.equal(r2.ok, false);
+});

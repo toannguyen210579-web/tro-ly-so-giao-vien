@@ -95,6 +95,8 @@ const GIOI_THIEU_APP =
   "Giải đề, soạn đáp án (chụp đề, lời giải từng bước, thang điểm, đề tương tự); " +
   "Tạo bài trình chiếu (chọn tệp giáo án Word, PDF hoặc chụp giáo án, app dựng bài trình chiếu theo các hoạt động của giáo án, ra tệp PowerPoint, PDF); Ô chữ (ô chữ mỗi ngày, tự tạo ô chữ ôn bài); " +
   "Dịch tài liệu (dán chữ, chụp trang sách, tệp PDF, Word; song ngữ; ra Word, PDF); Công cụ trên lớp (điểm danh, gọi tên, chia nhóm, đồng hồ, thử thách cả lớp). " +
+  "Ngay trong ô Hỏi AI, Trợ lý soạn được giáo án (kế hoạch bài dạy) theo khung của từng cấp học: thầy cô gõ môn, lớp, tên bài, số tiết, bộ sách " +
+  "(ví dụ: Soạn giáo án Ngữ văn 6 bài Thánh Gióng, 2 tiết, Kết nối tri thức); soạn xong có thể dán giáo án vào tiện ích Tạo bài trình chiếu. " +
   "Việc thầy cô hỏi làm được bằng một tiện ích trên thì trả lời ngắn rồi chỉ đúng tên tiện ích và nhóm để mở " +
   "(ví dụ: Thầy cô mở tiện ích Chấm trắc nghiệm ở nhóm Chuyên môn trên Trang chủ). " +
   "Được hỏi app là gì, có gì thì kể ngắn theo hai nhóm, mỗi nhóm vài tiện ích tiêu biểu, rồi hỏi thầy cô cần làm việc gì. " +
@@ -206,13 +208,91 @@ const CAU_MAC_DINH = {
   trinhchieu: "Cấp học: THCS. Số trang chiếu: khoảng 12.",
 };
 
-// Hướng dẫn hệ thống kèm ngày giờ Việt Nam để AI trả lời đúng câu hỏi về ngày tháng
-function sysOf(mode, now = new Date()) {
+// ---- Soạn giáo án trong Hỏi Trợ lý (người dùng chốt 27/11/2026) ----
+// Thầy cô gõ vào ô "Hỏi AI…" nhờ soạn giáo án: máy chủ nhận ra, đi thẳng Claude với hướng dẫn soạn theo khung
+// kế hoạch bài dạy của từng cấp học, câu trả lời dài hơn câu hỏi thường. Thiếu môn, lớp, tên bài thì AI hỏi lại.
+// Không làm tiện ích riêng; soạn xong thầy cô dán giáo án vào tiện ích Tạo bài trình chiếu để làm bài chiếu.
+const GA_MAX_OUT = 7000;      // giáo án 1–2 tiết khoảng 2.000–2.800 chữ
+const GA_MAX_IN = 12000;      // dán kèm giáo án cũ, nội dung bài để soạn lại
+const GA_LIMIT = { free: 10, pro: 30 }; // số giáo án soạn xong mỗi máy mỗi ngày (câu hỏi lại không tính)
+const GA_DAI = 2500;          // câu trả lời từ chừng này ký tự và có khung giáo án mới tính là một giáo án
+const boDau = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").toLowerCase();
+// So khớp trên chữ đã bỏ dấu, nên "giáo án", "giao an", "gíao án", "GIÁO ÁN" đều nhận
+const GA_RE = /\bgiao an\b|\bkhbd\b|ke hoach bai (day|hoc)|ke hoach (to chuc )?hoat dong (hoc|giao duc|choi|cho tre|lam quen|kham pha|phat trien)|thiet ke bai (day|hoc|giang)|soan giang|lesson plan|\bgiao an (mam non|tieu hoc|thcs|thpt)|(phu luc (iv|4) (cong van |cv )?5512)|(phu luc (3|iii) (cong van |cv )?2345)/;
+// "soạn bài", "soạn tiết" chỉ tính khi có dấu hiệu bài học (lớp, tiết, sách, môn)
+const GA_SOAN_RE = /\bsoan (bai|tiet|tiep tiet)\b/;
+const GA_BAI_HOC_RE = /\blop \d|\btiet \d|\bsgk\b|sach giao khoa|ket noi tri thuc|chan troi sang tao|canh dieu|bo sach|\bmon (toan|van|ngu van|tieng|khoa|lich su|dia|vat ly|hoa|sinh|tin|cong nghe|gdcd|giao duc|am nhac|my thuat|hoat dong|the duc)|\bmam non\b|\bmau giao\b|\bnha tre\b|\btre \d/;
+// Bài trình chiếu, phát biểu, bài viết... không phải giáo án: để Hỏi Trợ lý trả lời như thường (chỉ tiện ích Tạo bài trình chiếu)
+const GA_KHONG_RE = /trinh chieu|powerpoint|\bppt\b|\bslide|giao an dien tu|phat bieu|dien van|tham luan|bai bao|bai tho|\bthu (moi|cam on|chuc)/;
+// Câu trả lời trước của Trợ lý là giáo án hoặc câu hỏi lại để soạn giáo án: câu tiếp theo (vd "Ngữ văn 6, Thánh Gióng, 2 tiết",
+// "viết tiếp", "thêm trò chơi khởi động") vẫn thuộc việc soạn giáo án
+const GA_DAU_RE = /de soan giao an|ke hoach bai day|tien trinh day hoc|cac hoat dong day hoc chu yeu|giao an do ai soan/;
+// Khung có trong giáo án đã soạn (để đếm số giáo án mỗi ngày)
+const GA_KHUNG_RE = /ke hoach bai day|ke hoach hoat dong|tien trinh day hoc|cac hoat dong day hoc chu yeu/;
+
+function laSoanGiaoAn(input, hist = []) {
+  const t = boDau(input);
+  if (GA_KHONG_RE.test(t)) return false;
+  if (GA_RE.test(t) || (GA_SOAN_RE.test(t) && GA_BAI_HOC_RE.test(t))) return true;
+  const truoc = hist[hist.length - 1];
+  if (!truoc) return false;
+  const tq = boDau(truoc.q);
+  const gaTruoc = (GA_RE.test(tq) && !GA_KHONG_RE.test(tq)) || GA_DAU_RE.test(boDau(truoc.a));
+  // Đang soạn giáo án mà thầy cô chuyển sang hỏi chế độ, thủ tục... thì trả lời như câu hỏi thường
+  // (câu có dấu hiệu bài học như "lớp 6, 2 tiết" vẫn là trả lời cho câu hỏi lại của Trợ lý)
+  const l = input.toLowerCase();
+  return gaTruoc && (GA_BAI_HOC_RE.test(t) || (!CHE_DO_RE.test(l) && !KHAC_RE.test(l)));
+}
+
+const SOAN_GA =
+  " Nhiệm vụ lúc này: soạn giáo án (kế hoạch bài dạy) cho thầy cô theo Chương trình giáo dục phổ thông 2018 (Mầm non theo Chương trình giáo dục mầm non). " +
+  "Cần đủ ba thông tin: môn học (Mầm non: lĩnh vực hoặc hoạt động), lớp (Mầm non: độ tuổi hoặc nhóm lớp), tên bài (hoặc chủ đề). " +
+  "Thiếu một trong ba thì chưa soạn, trả lời ngắn, mở đầu đúng câu 'Để soạn giáo án, thầy cô cho tôi biết thêm:' rồi nêu thông tin còn thiếu, " +
+  "hỏi thêm số tiết và bộ sách (Kết nối tri thức với cuộc sống, Chân trời sáng tạo, Cánh diều...), kèm một câu gõ mẫu như " +
+  "'Ngữ văn 6, bài Thánh Gióng, 2 tiết, Kết nối tri thức'. " +
+  "Đủ ba thông tin thì soạn luôn, không hỏi thêm: chưa có số tiết thì lấy 1 tiết (bài đọc hiểu văn bản dài lấy 2 tiết); chưa có bộ sách thì soạn theo yêu cầu cần đạt của chương trình môn học; " +
+  "ghi các điều tự chọn này trong một dòng in nghiêng ngay dưới phần đầu. " +
+  "Thầy cô gửi kèm ảnh, tệp trang sách hoặc giáo án cũ thì bám đúng nội dung đó. Thầy cô có yêu cầu riêng (trò chơi, làm việc nhóm, phiếu học tập, tích hợp...) thì làm theo.\n" +
+  "Khung trình bày theo cấp học:\n" +
+  "- THCS, THPT: theo Phụ lục IV Công văn 5512/BGDĐT-GDTrH ngày 18/12/2020. Phần đầu: Trường, Tổ, Họ và tên giáo viên (để dấu chấm cho thầy cô điền); " +
+  "tiêu đề KẾ HOẠCH BÀI DẠY; tên bài dạy; Môn học/Hoạt động giáo dục, lớp; Thời gian thực hiện (số tiết). " +
+  "I. Mục tiêu: 1. Về kiến thức; 2. Về năng lực (năng lực chung, năng lực đặc thù); 3. Về phẩm chất; nêu cụ thể học sinh làm được gì theo yêu cầu cần đạt. " +
+  "II. Thiết bị dạy học và học liệu. III. Tiến trình dạy học: Hoạt động 1: Mở đầu (xác định vấn đề, nhiệm vụ học tập); " +
+  "Hoạt động 2: Hình thành kiến thức mới (chia 2.1, 2.2... theo các nội dung của bài); Hoạt động 3: Luyện tập; Hoạt động 4: Vận dụng. " +
+  "Mỗi hoạt động ghi tên kèm thời gian và đủ bốn mục a) Mục tiêu, b) Nội dung, c) Sản phẩm, d) Tổ chức thực hiện; " +
+  "d) theo bốn bước: Chuyển giao nhiệm vụ; Thực hiện nhiệm vụ; Báo cáo, thảo luận; Kết luận, nhận định. " +
+  "Mô tả việc giáo viên và học sinh làm (giao nhiệm vụ, quan sát, hướng dẫn, nhận xét; đọc, viết, thảo luận, trình bày), không viết lời thoại. " +
+  "c) Sản phẩm ghi cụ thể kết quả, đáp án mong đợi. Bài nhiều tiết thì ghi rõ tiết nào gồm hoạt động nào.\n" +
+  "- Tiểu học: theo Phụ lục 3 Công văn 2345/BGDĐT-GDTH ngày 07/6/2021. Phần đầu: tiêu đề KẾ HOẠCH BÀI DẠY; Môn học/Hoạt động giáo dục, lớp; " +
+  "Tên bài học; Số tiết; Thời gian thực hiện (để dấu chấm). I. Yêu cầu cần đạt (học sinh làm được gì, vận dụng được gì; phẩm chất, năng lực được hình thành). " +
+  "II. Đồ dùng dạy học (của giáo viên, của học sinh). III. Các hoạt động dạy học chủ yếu: 1. Hoạt động Mở đầu (khởi động, kết nối); " +
+  "2. Hoạt động Hình thành kiến thức mới (trải nghiệm, khám phá, phân tích); 3. Hoạt động Luyện tập, thực hành; 4. Hoạt động Vận dụng, trải nghiệm (nếu có); " +
+  "mỗi hoạt động ghi thời gian, từng bước ghi 'Giáo viên:' và 'Học sinh:'. IV. Điều chỉnh sau bài dạy (để dòng chấm cho thầy cô ghi).\n" +
+  "- Mầm non: phần đầu tiêu đề KẾ HOẠCH HOẠT ĐỘNG; tên hoạt động, lĩnh vực, độ tuổi, thời gian; I. Mục đích, yêu cầu (kiến thức, kỹ năng, thái độ); " +
+  "II. Chuẩn bị (đồ dùng của cô, của trẻ, địa điểm); III. Tiến hành: 1. Ổn định, gây hứng thú; 2. Nội dung chính (chia các hoạt động nhỏ, học bằng chơi, có trò chơi); 3. Kết thúc. Câu ngắn, dễ làm theo.\n" +
+  "Câu hỏi, bài tập ghi đủ đề và đáp án. Năng lực số (Thông tư 02/2025/TT-BGDĐT): thầy cô yêu cầu hoặc bài có dùng thiết bị số thì ghi rõ năng lực số phát triển ở hoạt động nào. " +
+  "Không bịa nội dung sách giáo khoa: không chép dài văn bản, ngữ liệu trong sách; không ghi số trang, số thứ tự bài tập trong sách khi không chắc; " +
+  "chỗ cần đối chiếu thì ghi '(đối chiếu sách giáo khoa)'. " +
+  "Trình bày cho màn hình điện thoại: tiêu đề lớn dùng ##, tên hoạt động dùng ###, ý dùng gạch đầu dòng, chữ đậm cho a) b) c) d); không dùng bảng, không dùng LaTeX. " +
+  "Viết đủ mà gọn: mỗi tiết khoảng 900 đến 1.300 chữ, cả giáo án không quá 2.600 chữ (bài nhiều tiết thì viết gọn từng phần). " +
+  "Cuối giáo án thêm đúng hai dòng: 'Giáo án do AI soạn, thầy cô đọc lại, chỉnh sửa cho hợp với lớp mình trước khi dùng.' và " +
+  "'Muốn làm bài trình chiếu: chọn tất cả, sao chép giáo án này rồi dán vào ô Hoặc dán nội dung giáo án của tiện ích Tạo bài trình chiếu (nhóm Chuyên môn).' " +
+  "Thầy cô nhờ sửa, thêm một phần của giáo án vừa soạn thì chỉ viết lại phần đó; nhờ viết tiếp thì viết tiếp từ chỗ dừng, không viết lại từ đầu. " +
+  "Thầy cô chỉ hỏi về quy định, cách làm giáo án (không nhờ soạn) thì trả lời ngắn như câu hỏi thường.";
+
+// Ngày giờ Việt Nam gắn vào cuối hướng dẫn hệ thống để AI trả lời đúng câu hỏi về ngày tháng
+function ngayGioVN(now = new Date()) {
   const vn = new Date(now.getTime() + 7 * 3600 * 1000);
   const thu = ["Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"][vn.getUTCDay()];
   const h = (n) => String(n).padStart(2, "0");
-  return SYSTEM[mode] + " Hiện tại ở Việt Nam là " + thu + ", ngày " + h(vn.getUTCDate()) + "/" + h(vn.getUTCMonth() + 1) +
+  return " Hiện tại ở Việt Nam là " + thu + ", ngày " + h(vn.getUTCDate()) + "/" + h(vn.getUTCMonth() + 1) +
     "/" + vn.getUTCFullYear() + ", " + h(vn.getUTCHours()) + " giờ " + h(vn.getUTCMinutes()) + ".";
+}
+function sysOf(mode, now = new Date()) {
+  return SYSTEM[mode] + ngayGioVN(now);
+}
+function sysGiaoAn(now = new Date()) {
+  return CHUNG + SOAN_GA + ngayGioVN(now);
 }
 
 // Hỏi về kênh Việt Nam Tiêu Điểm: máy chủ tự kèm danh sách clip (mọi bản app đều dùng được) và dặn trả lời đúng câu hỏi
@@ -281,7 +361,13 @@ function historyOf(body, mode) {
   return body.history
     .filter((t) => t && typeof t.q === "string" && typeof t.a === "string" && t.q.trim() && t.a.trim())
     .slice(-4)
-    .map((t) => ({ q: t.q.trim().slice(0, 2000), a: t.a.trim().slice(0, 2000) }));
+    .map((t) => ({ q: t.q.trim().slice(0, 2000), a: catTraLoi(t.a.trim()) }));
+}
+// Câu trả lời dài giữ 2.000 ký tự. Riêng giáo án giữ phần đầu và phần cuối, để "viết tiếp" biết đã dừng ở đâu.
+function catTraLoi(a) {
+  if (a.length <= 2000) return a;
+  if (!GA_DAU_RE.test(boDau(a.slice(0, 1500)))) return a.slice(0, 2000);
+  return a.slice(0, 500) + "\n…\n" + a.slice(-1500);
 }
 
 // Đóng gói âm thanh PCM 16 bit (Gemini trả về dạng thô) thành tệp WAV để điện thoại phát được
@@ -598,10 +684,10 @@ function loiClaude(status, chiTiet) {
   return { err: "loi_ai", msg: "Trợ lý gặp lỗi khi xử lý câu hỏi (mã " + status + (loai ? ", " + loai : "") + "), thầy cô thử lại." };
 }
 
-async function callClaude(env, mode, content, hist = [], trich = "") {
+async function callClaude(env, mode, content, hist = [], trich = "", tuy = {}) {
   // Hỏi Trợ lý qua Claude luôn kèm kiến thức nền về chế độ nhà giáo (mô hình chưa biết văn bản năm 2026)
-  // và các điều văn bản gốc tìm được trong kho (trich)
-  const system = mode === "hoi" ? sysOf(mode) + "\n" + KIEN_THUC + trich : sysOf(mode);
+  // và các điều văn bản gốc tìm được trong kho (trich). tuy.system, tuy.maxTokens: soạn giáo án dùng hướng dẫn, độ dài riêng.
+  const system = tuy.system || (mode === "hoi" ? sysOf(mode) + "\n" + KIEN_THUC + trich : sysOf(mode));
   let r;
   try {
     r = await fetch("https://api.anthropic.com/v1/messages", {
@@ -613,7 +699,7 @@ async function callClaude(env, mode, content, hist = [], trich = "") {
       },
       body: JSON.stringify({
         model: MODEL,
-        max_tokens: MAX_OUT[mode] || MAX_TOKENS,
+        max_tokens: tuy.maxTokens || MAX_OUT[mode] || MAX_TOKENS,
         system,
         messages: [
           ...hist.flatMap((t) => [{ role: "user", content: t.q }, { role: "assistant", content: t.a }]),
@@ -639,7 +725,7 @@ async function callClaude(env, mode, content, hist = [], trich = "") {
     console.log(JSON.stringify({ ev: "ai_empty", mode, stop: data.stop_reason }));
     return { err: "loi_ai", msg: "AI chưa trả lời được, thầy cô thử lại.", status: "rong:" + data.stop_reason };
   }
-  return { text, by: "claude", usage: data.usage || {} };
+  return { text, by: "claude", usage: data.usage || {}, stop: data.stop_reason };
 }
 
 // Giải đề, ra đề tương tự: lời giải dài, cho Gemini viết lâu hơn (máy chủ phụ cắt ở 15 giây nếu không ghi).
@@ -872,7 +958,10 @@ export default {
     if (pdfs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận tệp PDF.", 400);
     if (pdfs.length > 1 || pdfs.some((a) => a.length > 6000000)) return err("pdf_lon", "Mỗi lần gửi một tệp PDF, dưới 4 MB.", 400);
     if (!input && !imgs.length && !pdfs.length) return err("trong", "Thầy cô chưa nhập nội dung.", 400);
-    const maxIn = MAX_IN[mode] || MAX_INPUT;
+    const hist = historyOf(body, mode);
+    // Nhờ soạn giáo án trong Hỏi Trợ lý (27/11/2026): đi Claude, hướng dẫn và độ dài riêng
+    const laGA = mode === "hoi" && laSoanGiaoAn(input, hist);
+    const maxIn = laGA ? GA_MAX_IN : MAX_IN[mode] || MAX_INPUT;
     if (input.length > maxIn) {
       return err("qua_dai", "Nội dung dài quá, tối đa " + maxIn + " ký tự.", 400);
     }
@@ -902,25 +991,28 @@ export default {
         : ", mai dùng tiếp nhé.";
       return err("het_luot", "Hôm nay thầy cô đã dùng hết " + limit + " lượt" + more, 429);
     }
+    const gaKey = "d:" + day + ":giaoan:" + device;
+    if (laGA && (await getN(db, gaKey)) >= GA_LIMIT[tier]) {
+      return err("het_luot_ga", "Hôm nay thầy cô đã soạn đủ " + GA_LIMIT[tier] + " giáo án, mai soạn tiếp nhé. Các câu hỏi khác vẫn hỏi được.", 429);
+    }
     if ((await addN(db, "ip:" + day + ":" + ip, 1)) > IP_LIMIT) {
       return err("qua_nhieu", "Mạng này đã gửi quá nhiều yêu cầu hôm nay.", 429);
     }
 
     // Câu có thông tin cá nhân (app đánh dấu private) luôn đi qua Claude
     const priv = body.private === true;
-    const hist = historyOf(body, mode);
     let res = null;
     let gem = null; // lý do Gemini không trả lời (để chẩn đoán, không chứa dữ liệu người dùng)
     // Ảnh gửi Gemini gói miễn phí hay bị treo lâu (thử ngày 19/11), nên câu có ảnh đi thẳng Claude
     const cheDo = mode === "hoi" && laCauCheDo(input, hist);
     // Câu cần thông tin mới (giá cả, tin tức, lịch, văn bản mới...): tìm trên mạng qua các cổng miễn phí
     let tim = null;
-    if (mode === "hoi" && !imgs.length && !pdfs.length && env.GEMINI && canTim(input) && !input.includes("Các clip gần đây")) {
+    if (mode === "hoi" && !laGA && !imgs.length && !pdfs.length && env.GEMINI && canTim(input) && !input.includes("Các clip gần đây")) {
       try { tim = await timTrenMang(env, input); } catch {}
     }
     const vao = kemKetQua(input, tim, gioVN());
     const noiDung = imgs.length || pdfs.length ? content : vao;
-    if (!priv && !cheDo && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
+    if (!priv && !cheDo && !laGA && !imgs.length && !pdfs.length && GEMINI_MODES.includes(mode) && env.GEMINI) {
       res = await callGemini(env, mode, vao, imgs, hist);
       if (res.err) {
         gem = String(res.status);
@@ -932,12 +1024,20 @@ export default {
       }
     }
     let trich = "";
-    if ((!res || res.err) && mode === "hoi") {
+    if ((!res || res.err) && mode === "hoi" && !laGA) {
       trich = await timKienThuc(db, [input, ...hist.slice(-1).map((h) => h.q)].join("\n"));
     }
-    if (!res || res.err) res = await callClaude(env, mode, noiDung, hist, trich);
+    if (!res || res.err) {
+      res = await callClaude(env, mode, noiDung, hist, trich, laGA ? { system: sysGiaoAn(), maxTokens: GA_MAX_OUT } : {});
+    }
     if (res.err) return json({ ok: false, error: res.err, message: res.msg, gem, claude: String(res.status || "") }, 502);
-    const text = res.text;
+    let text = res.text;
+    if (laGA && res.stop === "max_tokens") {
+      text += "\n\n(Giáo án dài, đến đây đã hết độ dài một lần trả lời. Thầy cô gõ \"viết tiếp\" để Trợ lý viết phần còn lại.)";
+    }
+    // Chỉ tính là một giáo án khi đã soạn ra giáo án (câu hỏi lại môn, lớp, tên bài không tính)
+    const daSoan = laGA && text.length >= GA_DAI && GA_KHUNG_RE.test(boDau(text.slice(0, 1500)));
+    if (daSoan) await addN(db, gaKey, 1);
     const data = { usage: res.usage };
 
     // Trừ lượt sau khi AI đã trả kết quả
@@ -952,11 +1052,12 @@ export default {
     if (Math.random() < 0.01 && ctx && ctx.waitUntil) ctx.waitUntil(cleanup(db));
     // Nhật ký (xem trong Observability > Logs) để phát hiện máy dùng bất thường
     const u = data.usage || {};
-    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, tim: tim ? tim.cong + (tim.luu ? "(luu)" : "") : null, kt: trich.length, in: u.input_tokens, out: u.output_tokens }));
+    console.log(JSON.stringify({ ev: "ai", day, device, mode, tier, ip, by: res.by, priv, cheDo, ga: laGA ? (daSoan ? "soan" : "hoi_lai") : null, tim: tim ? tim.cong + (tim.luu ? "(luu)" : "") : null, kt: trich.length, in: u.input_tokens, out: u.output_tokens }));
     return json({
       ok: true,
       text,
       by: res.by,
+      ...(laGA ? { giao_an: true } : {}),
       ...(gem ? { gem } : {}),
       ...(tim ? { tim: tim.cong } : {}),
       remaining: Math.max(0, limit - usedNow),

@@ -1,0 +1,80 @@
+name: Thu Hoi Tro ly soan giao an
+# Thử soạn giáo án qua máy chủ thật (27/11/2026): chờ lượt "Triển khai máy chủ" của cùng lần đẩy mã xong,
+# gửi các câu nhờ soạn giáo án (THCS, Tiểu học, Mầm non, THPT, câu thiếu thông tin, câu hỏi tiếp),
+# đo thời gian (app chờ Hỏi Trợ lý tối đa 60 giây) rồi đẩy toàn văn câu trả lời lên nhánh thu-giao-an để đọc lại.
+on:
+  workflow_dispatch:
+  push:
+    branches: [noi-may-chu]
+    paths: [".github/workflows/thu_soan_giao_an.yml"]
+permissions:
+  contents: write
+  actions: read
+jobs:
+  thu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Chờ triển khai máy chủ xong
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for i in $(seq 1 40); do
+            s=$(curl -fsS -H "Authorization: Bearer $GH_TOKEN" \
+              "https://api.github.com/repos/${{ github.repository }}/actions/workflows/trien_khai_may_chu.yml/runs?head_sha=${{ github.sha }}&per_page=1" \
+              | python3 -c "import json,sys; r=json.load(sys.stdin)['workflow_runs']; print((r[0]['status']+' '+str(r[0]['conclusion'])) if r else 'khong_co')")
+            echo "lần $i: $s"
+            case "$s" in completed*|khong_co) break;; esac
+            sleep 20
+          done
+          sleep 15
+      - name: Gửi các câu nhờ soạn giáo án
+        run: |
+          mkdir -p kq
+          cat > thu.py <<'P'
+          import json, time, urllib.request, urllib.error
+          URL = "https://tro-ly-gv.toannguyen210579.workers.dev/v1/ai"
+          MAY = "ci-thu-giao-an-" + time.strftime("%H%M")
+          def hoi(input, history=None):
+            b = {"device_id": MAY, "mode": "hoi", "input": input}
+            if history: b["history"] = history
+            rq = urllib.request.Request(URL, data=json.dumps(b).encode(), headers={"content-type": "application/json", "user-agent": "ci-thu-ga"})
+            t = time.time()
+            try:
+              j = json.load(urllib.request.urlopen(rq, timeout=180))
+            except urllib.error.HTTPError as e:
+              j = json.loads(e.read() or b"{}")
+            except Exception as e:
+              j = {"loi": str(e)}
+            return j, time.time() - t
+          CAU = [
+            ("1_thcs_van6", "Soạn giáo án Ngữ văn 6 bài Thánh Gióng, 2 tiết, bộ Kết nối tri thức", None),
+            ("2_thieu_bai", "giao an toan lop 4", None),
+            ("3_tieu_hoc_tiep", "bài Phép cộng các số có nhiều chữ số, 1 tiết, Kết nối tri thức", "2_thieu_bai"),
+            ("4_tieu_hoc_tv2", "Soạn kế hoạch bài dạy Tiếng Việt lớp 2 bài Ngày hôm qua đâu rồi", None),
+            ("5_mam_non", "giáo án mầm non 4-5 tuổi, hoạt động làm quen chữ cái o, ô, ơ", None),
+            ("6_thpt_ly10", "KHBD Vật lí 10 bài Chuyển động thẳng biến đổi đều, Kết nối tri thức", None),
+            ("7_hoi_quy_dinh", "giáo án có bắt buộc phải viết tay không", None),
+            ("8_sua_phan", "thêm một trò chơi khởi động cho hoạt động mở đầu", "1_thcs_van6"),
+          ]
+          tra = {}
+          tong = []
+          for ten, cau, sau in CAU:
+            hist = [{"q": tra[sau][0], "a": tra[sau][1]}] if sau and sau in tra else None
+            j, giay = hoi(cau, hist)
+            txt = j.get("text") or ""
+            tra[ten] = (cau, txt)
+            dong = (f"KQ {ten}: {giay:.1f} giây | ok={j.get('ok')} | by={j.get('by')} | giao_an={j.get('giao_an')} | "
+                    f"dài {len(txt)} ký tự, {len(txt.split())} chữ | loi={j.get('error')} {j.get('message','')} {j.get('loi','')}")
+            print(dong); tong.append(dong)
+            open(f"kq/{ten}.md", "w").write(f"# {cau}\n\n{dong}\n\n---\n\n{txt}\n")
+          open("kq/TONG.txt", "w").write("\n".join(tong) + "\n")
+          P
+          python3 thu.py
+      - name: Đẩy kết quả lên nhánh thu-giao-an
+        run: |
+          cd kq
+          git init -q -b thu-giao-an
+          git config user.name "ci"; git config user.email "ci@users.noreply.github.com"
+          git add -A && git commit -qm "Kết quả thử soạn giáo án ${{ github.sha }}"
+          git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" thu-giao-an
