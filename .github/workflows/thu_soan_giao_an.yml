@@ -48,9 +48,8 @@ jobs:
               j = {"loi": str(e)}
             return j, time.time() - t
           CAU = [
-            ("1_thcs_van6", "Soạn giáo án Ngữ văn 6 bài Thánh Gióng, 2 tiết, bộ Kết nối tri thức", None),
-            ("2_tieu_hoc_tv2", "Soạn kế hoạch bài dạy Tiếng Việt lớp 2 bài Ngày hôm qua đâu rồi, 2 tiết, Kết nối tri thức", None),
-            ("3_thpt_sinh11", "KHBD Sinh học 11 bài Quang hợp ở thực vật, 2 tiết, Kết nối tri thức", None),
+            ("1_thpt_sinh11", "KHBD Sinh học 11 bài Quang hợp ở thực vật, 2 tiết, Kết nối tri thức", None),
+            ("2_thcs_toan7", "soạn giáo án toán 7 bài tam giác bằng nhau 2 tiết", None),
           ]
           tra = {}
           tong = []
