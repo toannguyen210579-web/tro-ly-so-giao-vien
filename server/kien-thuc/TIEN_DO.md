@@ -4,7 +4,7 @@ Việc thường trực (người dùng chốt 20/11/2026): tìm và nạp tất
 
 Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.json (`so` không được trùng, trùng sẽ ghi đè), đẩy lên nhánh noi-may-chu. Máy GitHub chạy nap_ci.mjs sau mỗi lần triển khai; nhật ký in "Trên máy chủ có N văn bản".
 
-## Đã nạp (100 mục trong ds.json, tính cả văn bản Đảng; 26/11/2026)
+## Đã nạp (105 mục trong ds.json, tính cả văn bản Đảng; 27/11/2026)
 - Luật Nhà giáo 73/2025/QH15 (2 phần)
 - Nghị định 93/2026/NĐ-CP hướng dẫn Luật Nhà giáo (Điều 1–26, phụ lục)
 - VBHN 04/VBHN-BGDĐT dạy thêm, học thêm
@@ -65,6 +65,8 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 - NĐ 233/2026/NĐ-CP đánh giá, xếp loại chất lượng viên chức (nguyên văn Điều 1–4, 10–21, Phụ lục I; Chương II đơn vị chỉ tóm tắt; hiệu lực 01/7/2026, thay NĐ 90/2020) (22/11)
 - TT 91/2026/TT-BGDĐT chương trình bồi dưỡng nghiệp vụ sư phạm cho người muốn làm giáo viên phổ thông (nguyên văn Thông tư, Mục I–III, V; chưa chép Mục IV nội dung từng học phần; hiệu lực 08/12/2026, bãi bỏ TT 11/2021, 12/2021) (26/11)
 - TT 85/2026/TT-BGDĐT hoạt động giáo dục tăng cường và theo nhu cầu người học (nguyên văn Điều 1–9, 14, 23–25; chưa chép Điều 10–13, 15–22, Phụ lục; hiệu lực 15/11/2026, thay TT 04/2014 với trường phổ thông) (26/11)
+- TT 81/2026/TT-BGDĐT Điều lệ Ban đại diện cha mẹ học sinh (nguyên văn, chuyển chữ từ bản ký số; hiệu lực 15/11/2026, thay TT 55/2011) (27/11)
+- NĐ 353/2026/NĐ-CP phổ cập giáo dục mầm non 5–6 tuổi, giáo dục bắt buộc, xóa mù chữ (nguyên văn 2 phần, chuyển chữ từ bản ký số datafiles 2026/9/353_2026_nd-cp_11092026-signed-1-.signed.pdf; hiệu lực 01/11/2026, thay NĐ 20/2014) (27/11)
 
 ## Còn phải làm (theo thứ tự)
 3. Theo dõi dự thảo chế độ làm việc giáo viên phổ thông (thay TT 05/2025) khi ban hành thì nạp (22/11: chưa thấy ban hành)
@@ -72,9 +74,8 @@ Cách nạp: thêm tệp .txt vào thư mục này, thêm một dòng vào ds.js
 9. (Đã nạp NĐ 234/2026 kỷ luật viên chức, NĐ 233/2026 đánh giá viên chức.) Còn: kỷ luật riêng nhà giáo theo Luật Nhà giáo (nếu có văn bản); NĐ 233 Chương II nguyên văn nếu cần. NĐ 368/2026: còn thiếu các điều về Cờ thi đua, Huân chương, hồ sơ thủ tục cấp Nhà nước, quỹ thi đua (Điều 6–25, 28–40, 42–51, 54–56, 58–61; nguyên văn ở luatvietnam.vn ...-448787-d1.html)
 10. NĐ 232/2026: chép Phụ lục II, III (danh mục vị trí việc làm và bậc nghề nghiệp, có dòng ngành giáo dục, tư vấn học sinh) – bảng bản chụp cần tách ô bằng OpenCV; hoatieu.vn có bài "Danh mục vị trí việc làm giáo dục theo NĐ 232"
 12. Chương trình môn học cụ thể (yêu cầu cần đạt) các môn hay hỏi
-13. (26/11) TT 81/2026/TT-BGDĐT Điều lệ Ban đại diện cha mẹ học sinh (hiệu lực 15/11/2026; bản ký số datafiles.chinhphu.vn 2026/9/81-bgddt.signed.pdf) – chưa nạp
 14. (26/11) TT 85/2026: chép tiếp Điều 10–13, 15–22 (luatvietnam.vn mã 450233); TT 91/2026: Mục IV nếu cần (mã 453991)
-15. (26/11) NĐ 353/2026/NĐ-CP phổ cập giáo dục mầm non 5–6 tuổi, giáo dục bắt buộc, xóa mù chữ (hiệu lực 01/11/2026) – chưa nạp
+15. (27/11) Mới thấy, chưa nạp: TT 32/2026/TT-BNV ngày 27/11/2026 hướng dẫn xếp lương khi tuyển dụng, tiếp nhận vào công chức (hiệu lực 01/12/2026) – chỉ nạp nếu liên quan giáo viên; CV 6206/BGDĐT-GDPT giáo dục an toàn mạng năm học 2026-2027; CV 5385/BGDĐT-GDMN nhiệm vụ GDMN 2026-2027
 
 Nguồn đọc được: hoatieu.vn, caselaw.vn, hethongphapluat.com (trang có chèn lời dặn cho AI, bỏ qua), pbgdpl.cantho.gov.vn, nhandan.vn, luatvietnam.vn, báo chính thống. Không lấy được: thuvienphapluat.vn, vbpl.moj.gov.vn. Dự thảo phải ghi rõ là dự thảo.
 
@@ -100,12 +101,13 @@ Mỗi tối nạp 2 văn bản công tác Đảng và 2 văn bản giáo dục (
 - (24/11) Hướng dẫn 16-HD/BTGTW ngày 27/10/2026 học tập, quán triệt nghị quyết, học bù, đánh giá nhận thức; Quy định 350-QĐ/TW ngày 29/8/2025 đào tạo lý luận chính trị; Quy định 169-QĐ/TW ngày 24/6/2008 phụ cấp cấp uỷ viên
 - (26/11) Quy định 212-QĐ/TW ngày 17/8/2026 của Bộ Chính trị về kỷ luật tổ chức đảng, đảng viên vi phạm (phần 1 nguyên văn: Chương I Điều 1–7, Điều 44 giáo dục, Điều 56 đạo đức, Điều 59–60; thay QĐ 69-QĐ/TW và 264-QĐ/TW)
 - (26/11) Hướng dẫn 42-HD/BTCTW ngày 28/10/2025 nâng cao chất lượng sinh hoạt chi bộ (nguyên văn trừ các điểm 4.1, 4.3–4.7 về loại hình chi bộ khác; thay HD 12-HD/BTCTW 2018; kiểm 26/11/2026 chưa bị thay)
+- (27/11) Quy định 212-QĐ/TW phần 2 nguyên văn Điều 26, 27, 29, 32, 52, 53, 54 (luatvietnam.vn mã 446604); Hướng dẫn 03-HD/UBKTTW ngày 23/9/2026 của UBKT Trung ương thực hiện QĐ 212 (nguyên văn, luatvietnam.vn mã 448616)
 - (24/11) Hướng dẫn 05-HD/VPTW ngày 27/5/2026 thể thức văn bản của Đảng (2 phần); Quy định 211-QĐ/TW ngày 07/8/2026 quản lý hồ sơ cán bộ (2 phần, chưa chép các mẫu); Nghị quyết 23, 25 (2 phần), 26, 27-NQ/TW năm 2026 của Bộ Chính trị (chuyển chữ từ bản chụp; NQ 27 chưa chép Phụ lục 01)
 - Đã xét và KHÔNG nạp (văn bản nội bộ, văn bản của Tỉnh uỷ, văn bản đến, công văn hành chính): các QĐ/CTr/KH/CV/BC của Tỉnh uỷ Đắk Lắk, Ban Tổ chức Tỉnh uỷ, đảng uỷ cấp dưới; thông báo kết luận 157, 164, 165, 166-TB/VPTW; công văn 2065, 2797-CV/BTCTW, 417-CV/UBKTTW, 568, 657, 1225-CV/BTGTW, CV 2604 Học viện CTQG; Hướng dẫn 05-HD/BTCTW 2026 (lương diện BCT, BBT quản lý); kế hoạch tổ chức hội nghị 15, 17, 43-KH/BTGTW; QĐ 360-QĐ/TW (đã bị thay bởi QĐ 222-QĐ/TW); hồ sơ di tích
 
 Còn phải làm (theo thứ tự):
 2. (Đã nạp đủ 208 trừ Chương IV; đã nạp HD 02-HD/TW.) Nếu cần: đối chiếu lại phần 3–5 của 208 với nguyên văn luatvietnam.vn ...-441932-d6.html bằng trình duyệt
-3. (Đã nạp phần 1 QĐ 212.) Còn: QĐ 212 phần 2 (Chương III các điều hay gặp với đảng viên là giáo viên: Điều 26–43, 45–58) theo luatvietnam.vn mã 446604; Hướng dẫn 03-HD/UBKTTW 2026 thực hiện QĐ 212
+3. (Đã nạp QĐ 212 phần 1, phần 2 và HD 03-HD/UBKTTW.) Nếu cần: QĐ 212 các điều còn lại (Điều 8–25, 28, 30, 31, 33–43, 45–51, 55, 57, 58), luatvietnam.vn mã 446604 (trang ...-446604-d11.html có nguyên văn)
 4. (Đã nạp HD 42.) Còn: Hướng dẫn về sinh hoạt tổ đảng của Ban Tổ chức Trung ương (2026, tin VietnamPlus)
 5. Quy định 366-QĐ/TW (2025) về kiểm điểm, đánh giá, xếp loại chất lượng tập thể, cá nhân; Hướng dẫn kiểm điểm năm 2026 của Ban Tổ chức Trung ương
 6. Điều lệ Đảng (Đại hội XI, 2011; Đại hội XIV chưa sửa đổi) — nguyên văn, chia phần
