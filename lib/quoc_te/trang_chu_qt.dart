@@ -65,8 +65,6 @@ class _TrangChuQTState extends State<TrangChuQT> {
       _O('score', Icons.emoji_events_outlined, const Color(0xFF8A4FD3), () => const BangDiemQT()),
       _O('attendance', Icons.fact_check_outlined, const Color(0xFFD42539), () => const DiemDanhQT()),
     ];
-    final rong = MediaQuery.of(context).size.width;
-    final cot = rong >= 600 ? 3 : 2;
     return Scaffold(
       appBar: AppBar(
         title: const Text(tenAppQuocTe),
@@ -84,7 +82,10 @@ class _TrangChuQTState extends State<TrangChuQT> {
         children: [
           Text(chu('title'), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          GridView(
+          LayoutBuilder(builder: (context, khung) {
+            // Số cột theo bề ngang thật của khung: điện thoại 2 cột, máy tính bảng 3 cột
+            final cot = khung.maxWidth >= 560 ? 3 : 2;
+            return GridView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             // Ô cao cố định (giãn theo cỡ chữ của máy) để tên dài hai dòng không bị tràn
@@ -126,7 +127,8 @@ class _TrangChuQTState extends State<TrangChuQT> {
                   ),
                 ),
             ],
-          ),
+          );
+          }),
           const SizedBox(height: 16),
           Card(
             margin: EdgeInsets.zero,
