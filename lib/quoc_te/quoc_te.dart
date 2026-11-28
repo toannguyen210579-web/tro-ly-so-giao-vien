@@ -10,8 +10,8 @@ import 'ngon_ngu.dart';
 /// Bản Việt (mặc định) không đổi gì.
 const bool quocTe = bool.fromEnvironment('QUOC_TE');
 
-/// Tên tạm của bản quốc tế (chưa chốt tên trên kho ứng dụng).
-const tenAppQuocTe = 'Classroom Kit';
+/// Tên bản quốc tế: người dùng chọn 28/11/2026 ("bàn làm việc của giáo viên"); chưa giữ tên trên kho.
+const tenAppQuocTe = 'TeachDesk';
 
 /// Thứ tiếng đang dùng. Đổi giá trị là các màn bản quốc tế vẽ lại.
 final ValueNotifier<String> tieng = ValueNotifier<String>('en');

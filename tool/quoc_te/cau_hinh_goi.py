@@ -3,7 +3,7 @@ Chạy sau khi tool/chuan_bi.sh đã tạo thư mục android, ios (gọi từ c
 import os
 import re
 
-ten = 'Classroom Kit'  # tên tạm, chưa chốt
+ten = 'TeachDesk'  # người dùng chọn 28/11/2026, chưa giữ tên trên kho
 
 p = 'ios/Runner/Info.plist'
 if os.path.exists(p):
