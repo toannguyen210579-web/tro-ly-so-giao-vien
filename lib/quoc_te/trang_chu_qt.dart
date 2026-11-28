@@ -6,6 +6,7 @@ import '../screens/cham_trac_nghiem.dart';
 import '../screens/gio_the.dart';
 import '../screens/o_chu.dart';
 import '../screens/quet_pdf.dart';
+import 'ai_qt.dart';
 import 'cong_cu_qt.dart';
 import 'ngon_ngu.dart';
 import 'quoc_te.dart';
@@ -74,6 +75,7 @@ class _TrangChuQTState extends State<TrangChuQT> {
       _O('answerCards', Icons.style_outlined, const Color(0xFF0B8A6A), () => const GioThe()),
       _O('quizGrader', Icons.fact_check, const Color(0xFF1F4E8C), () => const ChamTracNghiem()),
       _O('crossword', Icons.grid_on_outlined, const Color(0xFFE5570B), () => const OChuMan()),
+      _O('aiTools', Icons.auto_awesome, const Color(0xFF6A3DE8), () => const AiQT()),
     ];
     return Scaffold(
       appBar: AppBar(

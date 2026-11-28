@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tro_ly_so_giao_vien/data/o_chu.dart';
+import 'package:tro_ly_so_giao_vien/quoc_te/ai_qt.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/cong_cu_qt.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/ngon_ngu.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/quoc_te.dart';
@@ -89,12 +90,12 @@ void main() {
     expect(LopQT.tach(' An \n\nBình\r\nAn\nChi '), ['An', 'Bình', 'Chi']);
   });
 
-  testWidgets('Trang chủ: 10 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
+  testWidgets('Trang chủ: 11 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
     await t.binding.setSurfaceSize(const Size(390, 844));
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
     expect(bangChu['en']!['score'], 'Scoreboard');
-    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'answerCards', 'quizGrader', 'crossword']) {
+    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'answerCards', 'quizGrader', 'crossword', 'aiTools']) {
       expect(find.text(bangChu['en']![k]!), findsOneWidget, reason: k);
     }
     await _chup(t, '01_trang_chu_en');
@@ -338,6 +339,48 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Chấm trắc nghiệm'), findsOneWidget);
     expect(find.text('Chưa có bài kiểm tra nào.'), findsOneWidget);
+  });
+
+  testWidgets('Trợ lý AI: gửi đúng công cụ và ngôn ngữ, hiện kết quả, số lượt còn lại, báo hết lượt', (t) async {
+    await t.binding.setSurfaceSize(const Size(390, 844));
+    final daGui = <Map<String, dynamic>>[];
+    var traLoi = <String, dynamic>{'ok': true, 'text': '1. What do plants need?\nANSWER KEY: 1A', 'remaining': 4};
+    guiAiQT = (du) async {
+      daGui.add(du);
+      return traLoi;
+    };
+    tieng.value = 'es';
+    await t.pumpWidget(_app());
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('o_aiTools')));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('o_aiTools')));
+    await t.pumpAndSettle();
+    for (final (ma, _, _) in congCuAiQT) {
+      expect(find.text(bangChu['es']!['ai_$ma']!), findsOneWidget, reason: ma);
+    }
+    await _chup(t, '13_tro_ly_ai_es');
+    await t.tap(find.byKey(const ValueKey('ai_quiz')));
+    await t.pumpAndSettle();
+    // Chưa nhập thì nhắc, không gửi
+    await t.tap(find.byKey(const ValueKey('ai_tao')));
+    await t.pump();
+    expect(find.text(bangChu['es']!['aiEmpty']!), findsOneWidget);
+    expect(daGui, isEmpty);
+    await t.enterText(find.byKey(const ValueKey('ai_noi_dung')), 'La fotosíntesis');
+    await t.tap(find.byKey(const ValueKey('ai_tao')));
+    await t.pumpAndSettle();
+    expect(daGui.single['mode'], 'qt');
+    expect(daGui.single['tool'], 'quiz');
+    expect(daGui.single['lang'], 'Español');
+    expect(daGui.single['input'], 'La fotosíntesis');
+    expect(find.textContaining('ANSWER KEY: 1A'), findsOneWidget);
+    expect(find.text(chu('aiLeft', n: 4)), findsOneWidget);
+    await _chup(t, '14_ket_qua_ai_es');
+    traLoi = {'ok': false, 'error': 'het_luot'};
+    await t.tap(find.byKey(const ValueKey('ai_tao')));
+    await t.pumpAndSettle();
+    expect(find.text(bangChu['es']!['aiErrLimit']!), findsOneWidget);
   });
 
   testWidgets('Không tràn chữ ở trang chủ với cả 21 thứ tiếng (màn 360×740)', (t) async {
