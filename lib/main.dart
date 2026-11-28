@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'quoc_te/quoc_te.dart';
+import 'quoc_te/trang_chu_qt.dart';
 import 'screens/trang_chu.dart';
 import 'services/giong_may.dart';
 
@@ -14,6 +16,12 @@ void main() {
     yield LicenseEntryWithLineBreaks(
         ['Be Vietnam Pro (phông chữ PDF bài trình chiếu)'], await rootBundle.loadString('assets/fonts/LICENSE_BeVietnamPro_OFL.txt'));
   });
+  if (quocTe) {
+    // Bản quốc tế: chọn tiếng theo máy (hoặc lần chọn trước) rồi mới vẽ; không tải giọng tiếng Việt.
+    WidgetsFlutterBinding.ensureInitialized();
+    taiTieng().whenComplete(() => runApp(const TroLyApp()));
+    return;
+  }
   runApp(const TroLyApp());
   // Máy thiếu giọng tiếng Việt: tải sẵn giọng cài sẵn (ưu tiên wifi) để Đọc to dùng được ngay lần đầu.
   unawaited(GiongMay.taiSanNeuCan());
@@ -37,7 +45,7 @@ class TroLyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Trợ lý số GV',
+      title: quocTe ? tenAppQuocTe : 'Trợ lý số GV',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
@@ -138,7 +146,13 @@ class TroLyApp extends StatelessWidget {
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: KhungManRong(child: child!),
       ),
-      home: const TrangChu(),
+      // Bản quốc tế: đổi tiếng thì dựng lại trang chủ bằng tiếng mới.
+      home: quocTe
+          ? ValueListenableBuilder<String>(
+              valueListenable: tieng,
+              builder: (_, ma, __) => TrangChuQT(key: ValueKey('qt_$ma')),
+            )
+          : const TrangChu(),
     );
   }
 }

@@ -1,0 +1,53 @@
+name: Ban quoc te
+
+# Bản quốc tế của app (nhánh ban-quoc-te): kiểm tra mã, chạy phép thử, đóng gói bản dùng thử Android.
+# Không tải lên kho ứng dụng nào.
+on:
+  push:
+    branches: [ban-quoc-te]
+    paths-ignore: ["server/**", "cua-hang/**", "**.md"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  kiem_tra:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: bash tool/chuan_bi.sh
+      - run: flutter pub get
+      - name: Bảng chữ khớp với tệp gốc
+        run: python3 tool/quoc_te/tao_ngon_ngu.py && git diff --exit-code lib/quoc_te/ngon_ngu.dart
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test test/quoc_te_test.dart
+      - name: Phép thử của bản Việt vẫn chạy (không làm hỏng bản đang dùng)
+        run: flutter test
+      - name: Đẩy ảnh chụp màn bản quốc tế lên nhánh anh-quoc-te (để xem lại)
+        if: always()
+        run: |
+          [ -d build/anh_qt ] || exit 0
+          cd build/anh_qt && ls -la && git init -q -b anh-quoc-te && git add . \
+            && git -c user.name=ci -c user.email=ci@users.noreply.github.com commit -q -m "Ảnh bản quốc tế (${GITHUB_SHA::7})" \
+            && git push -f -q "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git" anh-quoc-te || true
+      - name: Đóng gói bản dùng thử Android (chưa ký phát hành)
+        run: |
+          for i in 1 2 3; do
+            flutter build apk --debug --dart-define=QUOC_TE=true && exit 0
+            echo "Đóng gói lỗi lần $i, chờ rồi thử lại"; sleep $((i * 60))
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ban-quoc-te-android-dung-thu
+          path: build/app/outputs/flutter-apk/app-debug.apk
