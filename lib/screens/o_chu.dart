@@ -7,10 +7,22 @@ import '../data/o_chu_moi_ngay.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
 import 'o_chu_moi_ngay.dart';
+import '../quoc_te/quoc_te.dart';
 
 const _khoa = 'o_chu';
 
-OChu _mau() => OChu(
+OChu _mau() => laQuocTe
+    ? OChu(
+        id: 'mau',
+        ten: 'Sample: Geography',
+        tuKhoa: 'Map',
+        hang: [
+          HangO("Earth's natural satellite?", 'Moon'),
+          HangO('The planet we live on?', 'Earth'),
+          HangO('The largest ocean?', 'Pacific'),
+        ],
+      )
+    : OChu(
       id: 'mau',
       ten: 'Ô chữ mẫu: Quê hương',
       tuKhoa: 'Quê',
@@ -127,26 +139,29 @@ class _OChuManState extends State<OChuMan> {
   Widget build(BuildContext context) {
     final ds = _ds;
     return Scaffold(
-      appBar: AppBar(title: const Text('Ô chữ')),
+      appBar: AppBar(title: Text(tx('Ô chữ', 'crossword'))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: ds == null ? null : () => _sua(),
         icon: const Icon(Icons.add),
-        label: const Text('Ô chữ mới'),
+        label: Text(tx('Ô chữ mới', 'newCrossword')),
       ),
       body: ds == null
           ? const Center(child: CircularProgressIndicator())
           : ListView(
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
               children: [
-                const CauGiupViec('o_chu'),
-                _theHomNay(),
+                if (laQuocTe) const SizedBox(height: 12) else const CauGiupViec('o_chu'),
+                // Ô chữ mỗi ngày chỉ có đề tiếng Việt: bản quốc tế không hiện
+                if (!laQuocTe) _theHomNay(),
                 const SizedBox(height: 16),
-                const Text('Ô chữ của tôi', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: MauApp.chu)),
+                Text(tx('Ô chữ của tôi', 'myCrosswords'), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, color: MauApp.chu)),
                 const SizedBox(height: 2),
-                const Text(
-                  'Mỗi hàng ngang là một câu hỏi. Chữ ở cột tô màu của các hàng ghép thành từ khóa. '
-                  'Kết nối điện thoại với ti vi hoặc máy chiếu, bấm Chơi, mở từng hàng khi học sinh trả lời.',
-                  style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
+                Text(
+                  tx(
+                      'Mỗi hàng ngang là một câu hỏi. Chữ ở cột tô màu của các hàng ghép thành từ khóa. '
+                          'Kết nối điện thoại với ti vi hoặc máy chiếu, bấm Chơi, mở từng hàng khi học sinh trả lời.',
+                      'cwHint'),
+                  style: const TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
                 ),
                 const SizedBox(height: 12),
                 for (final o in ds)
@@ -155,17 +170,17 @@ class _OChuManState extends State<OChuMan> {
                     child: ListTile(
                       leading: const Icon(Icons.grid_on_outlined, color: Color(0xFFE5570B)),
                       title: Text(o.ten, style: const TextStyle(fontWeight: FontWeight.w700)),
-                      subtitle: Text('${o.hang.length} hàng ngang · từ khóa ${o.khoa.length} chữ'),
+                      subtitle: Text(tx('${o.hang.length} hàng ngang · từ khóa ${o.khoa.length} chữ', 'cwInfo', n: o.hang.length, m: o.khoa.length)),
                       onTap: () => _sua(o),
                       trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                         FilledButton(
                           onPressed: o.loi.isEmpty
                               ? () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => _ChoiOChu(o: o)))
                               : null,
-                          child: const Text('Chơi'),
+                          child: Text(tx('Chơi', 'play')),
                         ),
                         IconButton(
-                          tooltip: 'Xóa',
+                          tooltip: tx('Xóa', 'delete'),
                           icon: const Icon(Icons.delete_outline),
                           onPressed: () async {
                             ds.remove(o);
@@ -198,7 +213,7 @@ class _SuaOChuState extends State<_SuaOChu> {
 
   OChu get _hienTai => OChu(
         id: widget.goc?.id == 'mau' ? DateTime.now().microsecondsSinceEpoch.toString() : (widget.goc?.id ?? DateTime.now().microsecondsSinceEpoch.toString()),
-        ten: _ten.text.trim().isEmpty ? 'Ô chữ ${_tuKhoa.text.trim()}' : _ten.text.trim(),
+        ten: _ten.text.trim().isEmpty ? '${tx('Ô chữ', 'crossword')} ${_tuKhoa.text.trim()}' : _ten.text.trim(),
         tuKhoa: _tuKhoa.text.trim(),
         hang: [for (final (h, d) in _hang) HangO(h.text.trim(), d.text.trim())],
       );
@@ -218,18 +233,18 @@ class _SuaOChuState extends State<_SuaOChu> {
     final k = o.khoa;
     final loi = o.loi;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.goc == null ? 'Ô chữ mới' : 'Sửa ô chữ')),
+      appBar: AppBar(title: Text(widget.goc == null ? tx('Ô chữ mới', 'newCrossword') : tx('Sửa ô chữ', 'editCrossword'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
         children: [
-          TextField(controller: _ten, onChanged: (_) => setState(() {}), decoration: const InputDecoration(labelText: 'Tên ô chữ', hintText: 'Ví dụ: Ôn tập Bài 5, Lịch sử 8', border: OutlineInputBorder())),
+          TextField(controller: _ten, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: tx('Tên ô chữ', 'cwName'), hintText: laQuocTe ? null : 'Ví dụ: Ôn tập Bài 5, Lịch sử 8', border: const OutlineInputBorder())),
           const SizedBox(height: 12),
           TextField(
             controller: _tuKhoa,
             onChanged: (_) => _khopSoHang(),
             decoration: InputDecoration(
-              labelText: 'Từ khóa hàng dọc',
-              helperText: k.isEmpty ? 'Ví dụ: Điện Biên → ĐIỆNBIÊN, cần 8 hàng ngang' : 'Gồm ${k.length} chữ: $k',
+              labelText: tx('Từ khóa hàng dọc', 'keyword'),
+              helperText: k.isEmpty ? tx('Ví dụ: Điện Biên → ĐIỆNBIÊN, cần 8 hàng ngang', 'cwKeyHelp') : tx('Gồm ${k.length} chữ: $k', 'cwKeyLetters', n: k.length, m: k),
               border: const OutlineInputBorder(),
             ),
           ),
@@ -241,23 +256,23 @@ class _SuaOChuState extends State<_SuaOChu> {
                 padding: const EdgeInsets.fromLTRB(12, 6, 4, 10),
                 child: Column(children: [
                   Row(children: [
-                    Text('Hàng ${i + 1}${i < k.length ? ' · có chữ ${k[i]}' : ''}', style: const TextStyle(fontWeight: FontWeight.w800)),
+                    Text(i < k.length ? tx('Hàng ${i + 1} · có chữ ${k[i]}', 'rowHas', n: i + 1, m: k[i]) : tx('Hàng ${i + 1}', 'rowN', n: i + 1), style: const TextStyle(fontWeight: FontWeight.w800)),
                     const Spacer(),
                     IconButton(
-                      tooltip: 'Bỏ hàng',
+                      tooltip: tx('Bỏ hàng', 'removeRow'),
                       icon: const Icon(Icons.close),
                       onPressed: () => setState(() => _hang.removeAt(i)),
                     ),
                   ]),
-                  TextField(controller: _hang[i].$1, onChanged: (_) => setState(() {}), decoration: const InputDecoration(labelText: 'Câu hỏi')),
-                  TextField(controller: _hang[i].$2, onChanged: (_) => setState(() {}), decoration: const InputDecoration(labelText: 'Đáp án')),
+                  TextField(controller: _hang[i].$1, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: tx('Câu hỏi', 'question'))),
+                  TextField(controller: _hang[i].$2, onChanged: (_) => setState(() {}), decoration: InputDecoration(labelText: tx('Đáp án', 'answer'))),
                 ]),
               ),
             ),
           OutlinedButton.icon(
             onPressed: () => setState(() => _hang.add((TextEditingController(), TextEditingController()))),
             icon: const Icon(Icons.add),
-            label: const Text('Thêm hàng ngang'),
+            label: Text(tx('Thêm hàng ngang', 'addRow')),
           ),
           const SizedBox(height: 12),
           if (loi.isNotEmpty)
@@ -267,7 +282,7 @@ class _SuaOChuState extends State<_SuaOChu> {
               child: Text(loi.join('\n'), style: const TextStyle(height: 1.4)),
             )
           else ...[
-            const Text('Xem trước', style: TextStyle(fontWeight: FontWeight.w800)),
+            Text(tx('Xem trước', 'preview'), style: const TextStyle(fontWeight: FontWeight.w800)),
             const SizedBox(height: 6),
             LuoiOChu(o: o, mo: List.filled(o.hang.length, true), moKhoa: true),
           ],
@@ -275,7 +290,7 @@ class _SuaOChuState extends State<_SuaOChu> {
           FilledButton.icon(
             onPressed: () => Navigator.of(context).pop(_hienTai),
             icon: const Icon(Icons.check),
-            label: const Text('Lưu ô chữ'),
+            label: Text(tx('Lưu ô chữ', 'save')),
           ),
         ],
       ),
@@ -391,7 +406,9 @@ class _ChoiOChuState extends State<_ChoiOChu> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16)),
             child: Text(
-              c == null ? 'Chạm vào số thứ tự của hàng để hiện câu hỏi.' : 'Hàng ${c + 1} (${o.hang[c].chu.length} chữ): ${o.hang[c].cauHoi}',
+              c == null
+                  ? tx('Chạm vào số thứ tự của hàng để hiện câu hỏi.', 'tapRow')
+                  : tx('Hàng ${c + 1} (${o.hang[c].chu.length} chữ): ${o.hang[c].cauHoi}', 'rowQ', n: c + 1, m: '(${o.hang[c].chu.length}) ${o.hang[c].cauHoi}'),
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700, height: 1.35),
             ),
           ),
@@ -405,12 +422,12 @@ class _ChoiOChuState extends State<_ChoiOChu> {
               ),
               onPressed: c == null ? null : () => setState(() => _mo[c] = true),
               icon: const Icon(Icons.visibility),
-              label: const Text('Mở đáp án hàng này'),
+              label: Text(tx('Mở đáp án hàng này', 'revealRow')),
             ),
             FilledButton.tonalIcon(
               onPressed: () => setState(() => _moKhoa = true),
               icon: const Icon(Icons.key),
-              label: const Text('Mở từ khóa'),
+              label: Text(tx('Mở từ khóa', 'revealKey')),
             ),
             // Nền tối: nút viền trong suốt, chữ trắng. Kiểu chung của app tô nền trắng cho nút viền nên trước đây
             // chữ trắng trên nền trắng thành một nút trắng trơn (lỗi thầy cô báo 24/11/2026).
@@ -428,14 +445,14 @@ class _ChoiOChuState extends State<_ChoiOChu> {
                 _chon = null;
               }),
               icon: const Icon(Icons.replay),
-              label: const Text('Chơi lại'),
+              label: Text(tx('Chơi lại', 'playAgain')),
             ),
           ]),
           if (_moKhoa)
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: Center(
-                child: Text('TỪ KHÓA: ${o.tuKhoa.toUpperCase()}',
+                child: Text(tx('TỪ KHÓA: ${o.tuKhoa.toUpperCase()}', 'keywordIs', m: o.tuKhoa.toUpperCase()),
                     style: const TextStyle(color: Color(0xFFFFC27A), fontSize: 30, fontWeight: FontWeight.w900)),
               ),
             ),

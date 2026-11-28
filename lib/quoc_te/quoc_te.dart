@@ -41,16 +41,18 @@ Future<void> datTieng(String ma) async {
 }
 
 /// Lấy chữ theo khóa; thiếu thì lấy tiếng Anh; [n] thay vào chỗ {n}.
-String chu(String khoa, {Object? n, String? ma}) {
-  final s = bangChu[ma ?? tieng.value]?[khoa] ?? bangChu['en']![khoa] ?? khoa;
-  return n == null ? s : s.replaceAll('{n}', '$n');
+String chu(String khoa, {Object? n, Object? m, String? ma}) {
+  var s = bangChu[ma ?? tieng.value]?[khoa] ?? bangChu['en']![khoa] ?? khoa;
+  if (n != null) s = s.replaceAll('{n}', '$n');
+  if (m != null) s = s.replaceAll('{m}', '$m');
+  return s;
 }
 
 /// Đang chạy bản quốc tế hay không: mặc định theo cờ đóng gói, phép thử đổi được.
 bool laQuocTe = quocTe;
 
 /// Chữ dùng chung cho hai bản: bản Việt giữ nguyên câu [vi], bản quốc tế lấy theo [khoa].
-String tx(String vi, String khoa, {Object? n}) => laQuocTe ? chu(khoa, n: n) : vi;
+String tx(String vi, String khoa, {Object? n, Object? m}) => laQuocTe ? chu(khoa, n: n, m: m) : vi;
 
 /// Danh sách lớp của bản quốc tế: chỉ lưu trên máy.
 class LopQT {

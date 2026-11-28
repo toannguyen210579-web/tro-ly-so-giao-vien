@@ -1,14 +1,23 @@
+import '../quoc_te/quoc_te.dart';
+
 /// Ô chữ hàng ngang, cột dọc ghép thành từ khóa (phần tính toán, có kiểm thử).
 const _co = 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđ';
 const _khong = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyyd';
 
+final _chuCaiMoiTieng = RegExp(r'[\p{L}\p{N}]', unicode: true);
+
 /// "Bác Hồ" -> "BACHO": bỏ dấu, bỏ khoảng trắng, viết hoa (cách ghi đáp án ô chữ quen thuộc).
+/// Bản quốc tế: giữ mọi chữ cái, chữ số của các thứ tiếng (ñ, ü, я, あ…), chỉ bỏ khoảng trắng, dấu câu.
 String chuanHoaO(String s) {
   final b = StringBuffer();
   for (final ch in s.toLowerCase().split('')) {
     final i = _co.indexOf(ch);
     final c = i >= 0 ? _khong[i] : ch;
-    if (RegExp(r'[a-z0-9]').hasMatch(c)) b.write(c.toUpperCase());
+    if (RegExp(r'[a-z0-9]').hasMatch(c)) {
+      b.write(c.toUpperCase());
+    } else if (laQuocTe && _chuCaiMoiTieng.hasMatch(c)) {
+      b.write(c.toUpperCase());
+    }
   }
   return b.toString();
 }
@@ -49,14 +58,14 @@ class OChu {
   List<String> get loi {
     final k = khoa;
     final kq = <String>[];
-    if (k.isEmpty) kq.add('Chưa có từ khóa.');
-    if (hang.length != k.length) kq.add('Từ khóa có ${k.length} chữ cái, cần đúng ${k.length} hàng ngang (đang có ${hang.length}).');
+    if (k.isEmpty) kq.add(tx('Chưa có từ khóa.', 'cwErrNoKey'));
+    if (hang.length != k.length) kq.add(tx('Từ khóa có ${k.length} chữ cái, cần đúng ${k.length} hàng ngang (đang có ${hang.length}).', 'cwErrRows', n: k.length, m: hang.length));
     final vt = viTriKhoa;
     for (var i = 0; i < hang.length && i < k.length; i++) {
       if (hang[i].chu.isEmpty) {
-        kq.add('Hàng ${i + 1} chưa có đáp án.');
+        kq.add(tx('Hàng ${i + 1} chưa có đáp án.', 'cwErrNoAns', n: i + 1));
       } else if (vt[i] < 0) {
-        kq.add('Đáp án hàng ${i + 1} không có chữ "${k[i]}" của từ khóa.');
+        kq.add(tx('Đáp án hàng ${i + 1} không có chữ "${k[i]}" của từ khóa.', 'cwErrLetter', n: i + 1, m: k[i]));
       }
     }
     return kq;
