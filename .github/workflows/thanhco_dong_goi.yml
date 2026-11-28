@@ -1,0 +1,102 @@
+name: Thanh co - dong goi WebGL
+# Giải mã mã nguồn Unity (khóa THANHCO_KEY), tải ảnh vật liệu và mô hình CC0, đóng gói WebGL bằng GameCI,
+# đẩy bản dựng lên nhánh thanh-co-ban-dung. Thiếu bí mật thì chỉ ghi báo cáo rồi dừng.
+on:
+  push:
+    branches: [thanh-co-unity]
+    paths: ['thanhco/nguon.enc', '.github/workflows/thanhco_dong_goi.yml', 'thanhco/tai_tai_nguyen.py']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: thanhco-dong-goi
+  cancel-in-progress: true
+jobs:
+  dong:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiem tra bi mat
+        id: bm
+        env:
+          K: ${{ secrets.THANHCO_KEY }}
+          L: ${{ secrets.UNITY_LICENSE }}
+          E: ${{ secrets.UNITY_EMAIL }}
+          P: ${{ secrets.UNITY_PASSWORD }}
+        run: |
+          thieu=""
+          [ -z "$K" ] && thieu="$thieu THANHCO_KEY"
+          [ -z "$L" ] && thieu="$thieu UNITY_LICENSE"
+          [ -z "$E" ] && thieu="$thieu UNITY_EMAIL"
+          [ -z "$P" ] && thieu="$thieu UNITY_PASSWORD"
+          echo "thieu=$thieu" >> "$GITHUB_OUTPUT"
+          mkdir -p /tmp/ra
+          echo "$(date -u +%FT%TZ) thieu bi mat:${thieu:- khong}" > /tmp/ra/trang_thai.txt
+      - name: Bao thieu bi mat
+        if: steps.bm.outputs.thieu != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash thanhco/day_ket_qua.sh dong_goi /tmp/ra/trang_thai.txt
+      - name: Giai ma ma nguon
+        if: steps.bm.outputs.thieu == ''
+        env:
+          K: ${{ secrets.THANHCO_KEY }}
+        run: |
+          mkdir -p du-an
+          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:K -in thanhco/nguon.enc | tar -xz -C du-an
+          ls du-an
+      - name: Tai anh vat lieu, mo hinh CC0
+        if: steps.bm.outputs.thieu == ''
+        run: |
+          pip install --quiet pillow
+          python3 thanhco/tai_tai_nguyen.py du-an
+      - name: Don cho trong o dia
+        if: steps.bm.outputs.thieu == ''
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL /usr/local/share/boost || true
+          df -h /
+      - uses: actions/cache@v4
+        if: steps.bm.outputs.thieu == ''
+        with:
+          path: du-an/Library
+          key: Library-thanhco-${{ hashFiles('thanhco/nguon.enc') }}
+          restore-keys: Library-thanhco-
+      - name: Dong goi WebGL (GameCI)
+        id: dung
+        if: steps.bm.outputs.thieu == ''
+        continue-on-error: true
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          projectPath: du-an
+          targetPlatform: WebGL
+          unityVersion: 6000.0.17f1
+          customImage: unityci/editor:ubuntu-6000.0.17f1-webgl-4
+          buildMethod: ThanhCoBuild.DungWebGL
+          buildName: GiongPhaThanh
+          buildsPath: build
+          allowDirtyBuild: true
+      - name: Day ban dung len nhanh thanh-co-ban-dung
+        if: steps.bm.outputs.thieu == ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          echo "$(date -u +%FT%TZ) ket qua dong goi: ${{ steps.dung.outcome }}" >> /tmp/ra/trang_thai.txt
+          ls -laR build | head -60 >> /tmp/ra/trang_thai.txt || true
+          bash thanhco/day_ket_qua.sh dong_goi /tmp/ra/trang_thai.txt
+          D=$(find build -name index.html -path "*GiongPhaThanh*" -printf '%h\n' | head -1)
+          if [ -n "$D" ]; then
+            sudo chown -R "$(id -u)" build || true
+            mkdir -p /tmp/bd && cp -r "$D"/. /tmp/bd/
+            cd /tmp/bd
+            # tệp lớn chia phần 40 MB để đẩy lên git
+            find . -type f -size +40M | while read f; do split -b 40m -d -a 2 "$f" "$f.phan"; rm "$f"; done
+            git init -q -b thanh-co-ban-dung
+            git config user.name "may-dung-thanh-co"; git config user.email "may-dung-thanh-co@users.noreply.github.com"
+            git add -A && git commit -q -m "ban dung $(date -u +%FT%TZ) ${GITHUB_SHA::7}"
+            git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:thanh-co-ban-dung
+          fi
