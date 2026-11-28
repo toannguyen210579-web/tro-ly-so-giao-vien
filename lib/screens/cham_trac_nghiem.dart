@@ -248,7 +248,7 @@ class _ManDeState extends State<_ManDe> {
 
   String _bangTab() {
     final b = StringBuffer(laQuocTe
-        ? '#\t${chu('name')}\t${chu('version')}\t${chu('correctCount')}\t${chu('score')}\n'
+        ? '#\t${chu('name')}\t${chu('version')}\t${chu('correctCount')}\t${chu('scoreCol')}\n'
         : 'STT\tHọ và tên\tMã đề\tSố câu đúng\tĐiểm\n');
     for (var i = 0; i < de.baiLam.length; i++) {
       final bl = de.baiLam[i];
@@ -261,7 +261,7 @@ class _ManDeState extends State<_ManDe> {
 
   Future<void> _guiCsv() async {
     final b = StringBuffer(laQuocTe
-        ? '\uFEFF#,${chu('name')},${chu('version')},${chu('correctCount')},${chu('score')}\n'
+        ? '\uFEFF#,${chu('name')},${chu('version')},${chu('correctCount')},${chu('scoreCol')}\n'
         : '\uFEFFSTT,Họ và tên,Mã đề,Số câu đúng,Điểm\n');
     for (var i = 0; i < de.baiLam.length; i++) {
       final bl = de.baiLam[i];

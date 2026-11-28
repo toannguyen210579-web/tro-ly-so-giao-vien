@@ -5,7 +5,7 @@
    "timer": "Timer",
    "picker": "Name picker",
    "groups": "Groups",
-   "score": "Score",
+   "score": "Scoreboard",
    "start": "Start",
    "pause": "Pause",
    "reset": "Reset",
@@ -174,14 +174,15 @@
    "quickType": "Type the whole string (optional)",
    "quickHint": "Example: ABCDA BBCDA… or 1234…; type - for a blank",
    "orTap": "Or tap each answer:",
-   "deleteKeyX": "Delete the answer key for version {m}?"
+   "deleteKeyX": "Delete the answer key for version {m}?",
+   "scoreCol": "Score"
   },
   "vi": {
    "title": "Công cụ trên lớp",
    "timer": "Đồng hồ",
    "picker": "Gọi tên",
    "groups": "Chia nhóm",
-   "score": "Điểm",
+   "score": "Bảng điểm đội",
    "start": "Bắt đầu",
    "pause": "Tạm dừng",
    "reset": "Đặt lại",
@@ -350,14 +351,15 @@
    "quickType": "Gõ nhanh cả dãy (không bắt buộc)",
    "quickHint": "Ví dụ: ABCDA BBCDA… hoặc 1234…; câu bỏ trống gõ dấu -",
    "orTap": "Hoặc chạm chọn từng câu:",
-   "deleteKeyX": "Xóa đáp án mã đề {m}?"
+   "deleteKeyX": "Xóa đáp án mã đề {m}?",
+   "scoreCol": "Điểm"
   },
   "es": {
    "title": "Herramientas de clase",
    "timer": "Temporizador",
    "picker": "Sorteo de nombres",
    "groups": "Grupos",
-   "score": "Nota",
+   "score": "Marcador",
    "start": "Iniciar",
    "pause": "Pausar",
    "reset": "Reiniciar",
@@ -526,14 +528,15 @@
    "quickType": "Escribe toda la cadena (opcional)",
    "quickHint": "Ejemplo: ABCDA BBCDA… o 1234…; escribe - para una en blanco",
    "orTap": "O toca cada respuesta:",
-   "deleteKeyX": "¿Eliminar la clave de la versión {m}?"
+   "deleteKeyX": "¿Eliminar la clave de la versión {m}?",
+   "scoreCol": "Nota"
   },
   "pt": {
    "title": "Ferramentas de sala de aula",
    "timer": "Temporizador",
    "picker": "Sorteio de nomes",
    "groups": "Grupos",
-   "score": "Nota",
+   "score": "Placar",
    "start": "Iniciar",
    "pause": "Pausar",
    "reset": "Reiniciar",
@@ -702,14 +705,15 @@
    "quickType": "Escreva a sequência completa (opcional)",
    "quickHint": "Exemplo: ABCDA BBCDA… ou 1234…; escreva - para uma em branco",
    "orTap": "Ou toque em cada resposta:",
-   "deleteKeyX": "Eliminar a chave da versão {m}?"
+   "deleteKeyX": "Eliminar a chave da versão {m}?",
+   "scoreCol": "Nota"
   },
   "fr": {
    "title": "Outils pour la classe",
    "timer": "Minuteur",
    "picker": "Tirage au sort",
    "groups": "Groupes",
-   "score": "Note",
+   "score": "Tableau des scores",
    "start": "Démarrer",
    "pause": "Pause",
    "reset": "Réinitialiser",
@@ -878,14 +882,15 @@
    "quickType": "Tapez toute la suite (facultatif)",
    "quickHint": "Exemple : ABCDA BBCDA… ou 1234… ; tapez - pour une réponse vide",
    "orTap": "Ou touchez chaque réponse :",
-   "deleteKeyX": "Supprimer le corrigé de la version {m} ?"
+   "deleteKeyX": "Supprimer le corrigé de la version {m} ?",
+   "scoreCol": "Note"
   },
   "de": {
    "title": "Werkzeuge für den Unterricht",
    "timer": "Timer",
    "picker": "Namen ziehen",
    "groups": "Gruppen",
-   "score": "Ergebnis",
+   "score": "Punktetafel",
    "start": "Start",
    "pause": "Pause",
    "reset": "Zurücksetzen",
@@ -1054,14 +1059,15 @@
    "quickType": "Ganze Folge eintippen (optional)",
    "quickHint": "Beispiel: ABCDA BBCDA… oder 1234…; - für eine leere Antwort",
    "orTap": "Oder jede Antwort antippen:",
-   "deleteKeyX": "Lösungsschlüssel für Version {m} löschen?"
+   "deleteKeyX": "Lösungsschlüssel für Version {m} löschen?",
+   "scoreCol": "Ergebnis"
   },
   "ru": {
    "title": "Инструменты для урока",
    "timer": "Таймер",
    "picker": "Выбор имени",
    "groups": "Группы",
-   "score": "Балл",
+   "score": "Табло",
    "start": "Старт",
    "pause": "Пауза",
    "reset": "Сброс",
@@ -1230,14 +1236,15 @@
    "quickType": "Введите всю строку (необязательно)",
    "quickHint": "Пример: ABCDA BBCDA… или 1234…; для пропуска введите -",
    "orTap": "Или отметьте каждый ответ касанием:",
-   "deleteKeyX": "Удалить ключ варианта {m}?"
+   "deleteKeyX": "Удалить ключ варианта {m}?",
+   "scoreCol": "Балл"
   },
   "pl": {
    "title": "Narzędzia na lekcję",
    "timer": "Minutnik",
    "picker": "Losowanie imion",
    "groups": "Grupy",
-   "score": "Wynik",
+   "score": "Tablica wyników",
    "start": "Start",
    "pause": "Pauza",
    "reset": "Resetuj",
@@ -1406,14 +1413,15 @@
    "quickType": "Wpisz cały ciąg (opcjonalnie)",
    "quickHint": "Przykład: ABCDA BBCDA… lub 1234…; wpisz - dla pustej",
    "orTap": "Albo dotknij każdej odpowiedzi:",
-   "deleteKeyX": "Usunąć klucz wersji {m}?"
+   "deleteKeyX": "Usunąć klucz wersji {m}?",
+   "scoreCol": "Wynik"
   },
   "tr": {
    "title": "Sınıf Araçları",
    "timer": "Zamanlayıcı",
    "picker": "İsim seçici",
    "groups": "Gruplar",
-   "score": "Puan",
+   "score": "Puan tablosu",
    "start": "Başlat",
    "pause": "Duraklat",
    "reset": "Sıfırla",
@@ -1582,14 +1590,15 @@
    "quickType": "Tüm diziyi yazın (isteğe bağlı)",
    "quickHint": "Örnek: ABCDA BBCDA… veya 1234…; boş için - yazın",
    "orTap": "Veya her cevaba dokunun:",
-   "deleteKeyX": "{m} sürümünün cevap anahtarı silinsin mi?"
+   "deleteKeyX": "{m} sürümünün cevap anahtarı silinsin mi?",
+   "scoreCol": "Puan"
   },
   "id": {
    "title": "Alat Kelas",
    "timer": "Pengatur waktu",
    "picker": "Pemilih nama",
    "groups": "Kelompok",
-   "score": "Nilai",
+   "score": "Papan skor",
    "start": "Mulai",
    "pause": "Jeda",
    "reset": "Atur ulang",
@@ -1758,14 +1767,15 @@
    "quickType": "Ketik seluruh deret (opsional)",
    "quickHint": "Contoh: ABCDA BBCDA… atau 1234…; ketik - untuk kosong",
    "orTap": "Atau ketuk tiap jawaban:",
-   "deleteKeyX": "Hapus kunci jawaban versi {m}?"
+   "deleteKeyX": "Hapus kunci jawaban versi {m}?",
+   "scoreCol": "Nilai"
   },
   "th": {
    "title": "เครื่องมือในห้องเรียน",
    "timer": "ตัวจับเวลา",
    "picker": "สุ่มชื่อ",
    "groups": "แบ่งกลุ่ม",
-   "score": "คะแนน",
+   "score": "กระดานคะแนน",
    "start": "เริ่ม",
    "pause": "หยุดชั่วคราว",
    "reset": "รีเซ็ต",
@@ -1934,14 +1944,15 @@
    "quickType": "พิมพ์คำตอบทั้งชุด (ไม่บังคับ)",
    "quickHint": "ตัวอย่าง: ABCDA BBCDA… หรือ 1234… ข้อที่เว้นว่างพิมพ์ -",
    "orTap": "หรือแตะเลือกทีละข้อ:",
-   "deleteKeyX": "ลบเฉลยของชุด {m} หรือไม่"
+   "deleteKeyX": "ลบเฉลยของชุด {m} หรือไม่",
+   "scoreCol": "คะแนน"
   },
   "ja": {
    "title": "授業ツール",
    "timer": "タイマー",
    "picker": "名前くじ",
    "groups": "グループ分け",
-   "score": "点数",
+   "score": "スコアボード",
    "start": "スタート",
    "pause": "一時停止",
    "reset": "リセット",
@@ -2110,14 +2121,15 @@
    "quickType": "解答列をまとめて入力(任意)",
    "quickHint": "例: ABCDA BBCDA… または 1234…。空欄は - を入力",
    "orTap": "または1問ずつタップ:",
-   "deleteKeyX": "バージョン {m} の解答キーを削除しますか?"
+   "deleteKeyX": "バージョン {m} の解答キーを削除しますか?",
+   "scoreCol": "点数"
   },
   "it": {
    "title": "Strumenti per la classe",
    "timer": "Timer",
    "picker": "Estrai un nome",
    "groups": "Gruppi",
-   "score": "Punteggio",
+   "score": "Tabellone",
    "start": "Avvia",
    "pause": "Pausa",
    "reset": "Azzera",
@@ -2286,14 +2298,15 @@
    "quickType": "Digita l'intera sequenza (facoltativo)",
    "quickHint": "Esempio: ABCDA BBCDA… o 1234…; digita - per una vuota",
    "orTap": "Oppure tocca ogni risposta:",
-   "deleteKeyX": "Eliminare la chiave della versione {m}?"
+   "deleteKeyX": "Eliminare la chiave della versione {m}?",
+   "scoreCol": "Punteggio"
   },
   "uk": {
    "title": "Інструменти для уроку",
    "timer": "Таймер",
    "picker": "Вибір імені",
    "groups": "Групи",
-   "score": "Бал",
+   "score": "Табло",
    "start": "Старт",
    "pause": "Пауза",
    "reset": "Скинути",
@@ -2462,14 +2475,15 @@
    "quickType": "Введіть увесь рядок (необов'язково)",
    "quickHint": "Приклад: ABCDA BBCDA… або 1234…; для пропуску введіть -",
    "orTap": "Або позначте кожну відповідь дотиком:",
-   "deleteKeyX": "Видалити ключ варіанта {m}?"
+   "deleteKeyX": "Видалити ключ варіанта {m}?",
+   "scoreCol": "Бал"
   },
   "cs": {
    "title": "Nástroje do třídy",
    "timer": "Časovač",
    "picker": "Losování jmen",
    "groups": "Skupiny",
-   "score": "Výsledek",
+   "score": "Výsledková tabule",
    "start": "Spustit",
    "pause": "Pozastavit",
    "reset": "Vynulovat",
@@ -2638,14 +2652,15 @@
    "quickType": "Napište celou řadu (volitelné)",
    "quickHint": "Příklad: ABCDA BBCDA… nebo 1234…; pro prázdnou napište -",
    "orTap": "Nebo klepněte na každou odpověď:",
-   "deleteKeyX": "Smazat klíč verze {m}?"
+   "deleteKeyX": "Smazat klíč verze {m}?",
+   "scoreCol": "Výsledek"
   },
   "ro": {
    "title": "Instrumente pentru clasă",
    "timer": "Cronometru",
    "picker": "Extragere de nume",
    "groups": "Grupe",
-   "score": "Punctaj",
+   "score": "Tabelă de scor",
    "start": "Pornește",
    "pause": "Pauză",
    "reset": "Resetează",
@@ -2814,14 +2829,15 @@
    "quickType": "Tastați tot șirul (opțional)",
    "quickHint": "Exemplu: ABCDA BBCDA… sau 1234…; tastați - pentru necompletat",
    "orTap": "Sau atingeți fiecare răspuns:",
-   "deleteKeyX": "Ștergeți baremul variantei {m}?"
+   "deleteKeyX": "Ștergeți baremul variantei {m}?",
+   "scoreCol": "Punctaj"
   },
   "hu": {
    "title": "Osztálytermi eszközök",
    "timer": "Időzítő",
    "picker": "Névsorsoló",
    "groups": "Csoportok",
-   "score": "Pontszám",
+   "score": "Eredményjelző",
    "start": "Indítás",
    "pause": "Szünet",
    "reset": "Visszaállítás",
@@ -2990,14 +3006,15 @@
    "quickType": "Teljes sor begépelése (nem kötelező)",
    "quickHint": "Példa: ABCDA BBCDA… vagy 1234…; üreshez írjon - jelet",
    "orTap": "Vagy koppintson minden válaszra:",
-   "deleteKeyX": "Törli a(z) {m} változat megoldókulcsát?"
+   "deleteKeyX": "Törli a(z) {m} változat megoldókulcsát?",
+   "scoreCol": "Pontszám"
   },
   "ms": {
    "title": "Alat Bilik Darjah",
    "timer": "Pemasa",
    "picker": "Pemilih nama",
    "groups": "Kumpulan",
-   "score": "Markah",
+   "score": "Papan markah",
    "start": "Mula",
    "pause": "Jeda",
    "reset": "Set semula",
@@ -3166,14 +3183,15 @@
    "quickType": "Taip keseluruhan rentetan (pilihan)",
    "quickHint": "Contoh: ABCDA BBCDA… atau 1234…; taip - untuk kosong",
    "orTap": "Atau ketik setiap jawapan:",
-   "deleteKeyX": "Padam kunci jawapan versi {m}?"
+   "deleteKeyX": "Padam kunci jawapan versi {m}?",
+   "scoreCol": "Markah"
   },
   "km": {
    "title": "ឧបករណ៍សម្រាប់ថ្នាក់រៀន",
    "timer": "នាឡិកាកំណត់ម៉ោង",
    "picker": "ជ្រើសឈ្មោះ",
    "groups": "ក្រុម",
-   "score": "ពិន្ទុ",
+   "score": "តារាងពិន្ទុ",
    "start": "ចាប់ផ្តើម",
    "pause": "ផ្អាក",
    "reset": "កំណត់ឡើងវិញ",
@@ -3342,14 +3360,15 @@
    "quickType": "វាយចម្លើយទាំងអស់ (ស្រេចចិត្ត)",
    "quickHint": "ឧទាហរណ៍៖ ABCDA BBCDA… ឬ 1234…; វាយ - សម្រាប់ទទេ",
    "orTap": "ឬចុចជ្រើសម្តងមួយសំណួរ៖",
-   "deleteKeyX": "លុបគន្លឹះចម្លើយនៃកំណែ {m}?"
+   "deleteKeyX": "លុបគន្លឹះចម្លើយនៃកំណែ {m}?",
+   "scoreCol": "ពិន្ទុ"
   },
   "lo": {
    "title": "ເຄື່ອງມືໃນຫ້ອງຮຽນ",
    "timer": "ໂມງຈັບເວລາ",
    "picker": "ສຸ່ມຊື່",
    "groups": "ແບ່ງກຸ່ມ",
-   "score": "ຄະແນນ",
+   "score": "ກະດານຄະແນນ",
    "start": "ເລີ່ມ",
    "pause": "ຢຸດຊົ່ວຄາວ",
    "reset": "ຕັ້ງຄືນໃໝ່",
@@ -3518,14 +3537,15 @@
    "quickType": "ພິມຄຳຕອບທັງຊຸດ (ບໍ່ບັງຄັບ)",
    "quickHint": "ຕົວຢ່າງ: ABCDA BBCDA… ຫຼື 1234…; ຂໍ້ທີ່ເວັ້ນວ່າງພິມ -",
    "orTap": "ຫຼື ແຕະເລືອກເທື່ອລະຂໍ້:",
-   "deleteKeyX": "ລຶບສະເຫຼີຍຂອງຊຸດ {m} ບໍ?"
+   "deleteKeyX": "ລຶບສະເຫຼີຍຂອງຊຸດ {m} ບໍ?",
+   "scoreCol": "ຄະແນນ"
   },
   "my": {
    "title": "စာသင်ခန်းသုံးကိရိယာများ",
    "timer": "အချိန်မှတ်နာရီ",
    "picker": "အမည်ရွေးရန်",
    "groups": "အုပ်စုများ",
-   "score": "ရမှတ်",
+   "score": "ရမှတ်ဘုတ်",
    "start": "စတင်ရန်",
    "pause": "ခဏရပ်ရန်",
    "reset": "ပြန်လည်သတ်မှတ်ရန်",
@@ -3694,7 +3714,8 @@
    "quickType": "အဖြေတန်းတစ်ခုလုံး ရိုက်ထည့်ရန် (မဖြစ်မနေမဟုတ်)",
    "quickHint": "ဥပမာ: ABCDA BBCDA… သို့မဟုတ် 1234…; ကွက်လပ်အတွက် - ရိုက်ပါ",
    "orTap": "သို့မဟုတ် အဖြေတစ်ခုစီကို နှိပ်ပါ:",
-   "deleteKeyX": "ဗားရှင်း {m} ၏ အဖြေသော့ကို ဖျက်မလား။"
+   "deleteKeyX": "ဗားရှင်း {m} ၏ အဖြေသော့ကို ဖျက်မလား။",
+   "scoreCol": "ရမှတ်"
   }
  },
  "N": {

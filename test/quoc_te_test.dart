@@ -93,6 +93,7 @@ void main() {
     await t.binding.setSurfaceSize(const Size(390, 844));
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
+    expect(bangChu['en']!['score'], 'Scoreboard');
     for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'answerCards', 'quizGrader', 'crossword']) {
       expect(find.text(bangChu['en']![k]!), findsOneWidget, reason: k);
     }
