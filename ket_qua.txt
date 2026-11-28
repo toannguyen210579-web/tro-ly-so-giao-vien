@@ -1,0 +1,40 @@
+thời điểm: 2026-11-28 21:02:43
+commit: 9c4d4b08db966a56e7f6c1abc2c572d6d3a88583
+triển khai: success
+thử: success
+--- health
+{"ok":true,"v":1,"week":"2026-W48"}
+--- thử
+ĐẠT health {"ok":true,"v":1,"week":"2026-W48"}
+ĐẠT gửi điểm 900 {"ok":true,"gain":900,"all":{"v":900,"r":1},"week":{"v":900,"r":1}}
+ĐẠT gửi lại ngay bị chặn 20 giây
+ĐẠT điểm gian bị cắt còn 850: 850
+ĐẠT mã người chơi sai bị từ chối
+ĐẠT bảng mọi lúc [{"n":"Anh Toàn","v":900,"me":0},{"n":"Anh Toàn","v":900,"me":1},{"n":"Kẻ gian","v":850,"me":0}] tôi {"v":900,"r":1}
+ĐẠT bảng tuần có tôi
+ĐẠT tên tục bị thay bằng Pilot
+ĐẠT tạo phòng CVE2
+ĐẠT hai người nối được
+ĐẠT người 1 là chủ phòng
+ĐẠT người 1 thấy người 2 vào
+ĐẠT người 2 thấy danh sách có người 1
+ĐẠT người không phải chủ phòng không bắt đầu được
+ĐẠT chủ phòng bắt đầu trận
+ĐẠT vị trí người 1 tới người 2
+ĐẠT máy bay máy (bot) từ chủ phòng tới người 2
+ĐẠT người 2 bắn trúng bot, chủ phòng nhận
+ĐẠT bot rơi, người 2 được tính 1 lần hạ
+ĐẠT người thường không tự báo bot rơi được
+ĐẠT thắng trận cùng phe [{"pid":"zztest9v86l8vdm7saz","name":"Bạn 2","k":1,"d":0,"win":true},{"pid":"zztest0gsjao9ymxzohq","name":"Anh Toàn","k":0,"d":0,"win":true}]
+ĐẠT chủ phòng rời, người 2 thành chủ phòng
+ĐẠT ghép nhanh hai lần vào cùng phòng QGE9M
+ĐẠT phòng công khai tự đếm giờ bắt đầu
+ĐẠT trận tự bắt đầu sau khoảng 9 giây
+ĐẠT tên lửa người 1 trúng người 2
+ĐẠT người 2 rơi: người 1 được 1 hạ
+ĐẠT ping
+ĐẠT phòng 6 người thì người thứ 7 bị báo đầy
+ĐẠT đếm người đang chơi {"players":2,"rooms":2}
+ĐẠT mã phòng không có thì báo không tìm thấy
+TẤT CẢ ĐẠT
+trang game 200 54 byte
