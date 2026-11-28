@@ -1,0 +1,94 @@
+name: TeachDesk iPhone
+# Đóng gói bản iPhone, iPad của TeachDesk (bản quốc tế, mã gói .intl), ký bằng khóa API và đẩy lên TestFlight.
+# Máy Mac tốn phút nên chỉ chạy khi bấm tay hoặc khi sửa chính tệp này. KHÔNG gửi duyệt.
+on:
+  workflow_dispatch:
+    inputs:
+      so_build:
+        description: "Số build"
+        default: "1"
+  push:
+    branches: [ban-quoc-te]
+    paths: [".github/workflows/teachdesk_ios.yml"]
+
+permissions:
+  contents: read
+
+env:
+  PHIEN_BAN: "1.0.0"
+  SO_BUILD: ${{ github.event.inputs.so_build || '1' }}
+
+jobs:
+  ios:
+    runs-on: macos-15-intel
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+      - run: bash tool/chuan_bi.sh
+        env:
+          QUOC_TE: "true"
+      - run: flutter pub get
+      - run: dart run flutter_launcher_icons
+      - name: Kiểm tra cấu hình bản quốc tế
+        run: |
+          grep -c 'PRODUCT_BUNDLE_IDENTIFIER = vn.vietnamtieudiem.troLySoGiaoVien.intl;' ios/Runner.xcodeproj/project.pbxproj
+          grep -c 'TARGETED_DEVICE_FAMILY = "1,2";' ios/Runner.xcodeproj/project.pbxproj
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleDisplayName' ios/Runner/Info.plist)" = "TeachDesk"
+          /usr/libexec/PlistBuddy -c 'Print :NSCameraUsageDescription' ios/Runner/Info.plist
+          /usr/libexec/PlistBuddy -c 'Print :ITSAppUsesNonExemptEncryption' ios/Runner/Info.plist
+          test "$(/usr/libexec/PlistBuddy -c 'Print :UISupportedInterfaceOrientations~ipad' ios/Runner/Info.plist | grep -c UIInterfaceOrientation)" = 4
+      - run: flutter build ipa --release --no-codesign --dart-define=QUOC_TE=true --build-name=$PHIEN_BAN --build-number=$SO_BUILD
+      - name: Ký bản iPhone và đẩy lên TestFlight
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          TEAM_ID: D4MA24SYBY
+        run: |
+          if [ -z "$ASC_KEY_P8" ]; then echo "Chưa có secret ASC_KEY_P8"; exit 1; fi
+          KEY=$RUNNER_TEMP/AuthKey_$ASC_KEY_ID.p8
+          printf '%s\n' "$ASC_KEY_P8" > "$KEY"
+          cat > $RUNNER_TEMP/ExportOptions.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM_ID</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          EOF
+          ARCHIVE=$(ls -d build/ios/archive/*.xcarchive | head -1)
+          xcodebuild -exportArchive \
+            -archivePath "$ARCHIVE" \
+            -exportOptionsPlist $RUNNER_TEMP/ExportOptions.plist \
+            -exportPath build/ios/ipa \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+      - name: Nhật ký xuất bản iPhone khi lỗi
+        if: failure()
+        run: |
+          for d in $(find /var/folders "${TMPDIR:-/tmp}" -maxdepth 6 -name "*.xcdistributionlogs" 2>/dev/null | sort -u); do
+            echo "== $d"; ls "$d"
+            for f in "$d"/*.log; do
+              echo "--- $(basename "$f")"
+              grep -iE "error|fail|format|plist|invalid|denied|agreement|status|unable|couldn" "$f" \
+                | grep -viE "bearer|authorization|token|private key|BEGIN" | tail -60 | cut -c1-400
+            done
+          done
+      - name: Xóa tệp khóa tạm
+        if: always()
+        run: rm -f $RUNNER_TEMP/AuthKey_*.p8

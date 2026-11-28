@@ -3,7 +3,7 @@ Chạy sau khi tool/chuan_bi.sh đã tạo thư mục android, ios (gọi từ c
 import os
 import re
 
-ten = 'TeachDesk'  # người dùng chọn 28/11/2026, chưa giữ tên trên kho
+ten = 'TeachDesk'  # người dùng chọn 28/11/2026; App Store đã giữ tên (Apple ID 6840301876)
 
 p = 'ios/Runner/Info.plist'
 if os.path.exists(p):
@@ -47,5 +47,13 @@ for p in ('android/app/build.gradle.kts', 'android/app/build.gradle'):
         open(p, 'w', encoding='utf-8').write(s)
         tim = re.search(r'applicationId\s*=?\s*"([^"]+)"', s)
         print('Ma goi Android:', tim.group(1) if tim else 'khong thay')
+
+# Biểu tượng riêng của TeachDesk (tool/quoc_te/ve_bieu_tuong.py)
+p = 'pubspec.yaml'
+s = open(p, encoding='utf-8').read()
+s = s.replace('assets/icon/app_icon.png', 'assets/icon/teachdesk_icon.png')
+s = s.replace('assets/icon/app_icon_foreground.png', 'assets/icon/teachdesk_icon_foreground.png')
+s = s.replace('adaptive_icon_background: "#FFFFFF"', 'adaptive_icon_background: "#5B3FDC"')
+open(p, 'w', encoding='utf-8').write(s)
 
 print('Da dat cau hinh ban quoc te:', ten)
