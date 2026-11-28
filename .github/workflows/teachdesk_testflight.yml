@@ -1,0 +1,176 @@
+name: TeachDesk TestFlight noi bo
+
+# Tạo nhóm thử nghiệm nội bộ trên TestFlight, thêm chủ tài khoản App Store Connect
+# và gắn bản TeachDesk 1.0.0 (1), hoàn toàn qua App Store Connect API (không cần trình duyệt).
+# Chạy lại an toàn: nhóm, người thử, bản đã có thì giữ nguyên.
+on:
+  push:
+    branches: [ban-quoc-te]
+    paths: [".github/workflows/teachdesk_testflight.yml"]
+  workflow_dispatch:
+    inputs:
+      phien_ban:
+        description: "Số phiên bản (CFBundleShortVersionString)"
+        default: "1.0.0"
+      so_build:
+        description: "Số build (CFBundleVersion)"
+        default: "1"
+
+permissions:
+  contents: read
+
+jobs:
+  testflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Cài thư viện ký JWT
+        run: pip install --quiet pyjwt cryptography
+
+      - name: Tạo nhóm nội bộ, thêm người thử, gắn bản
+        env:
+          # Key ID, Issuer ID không phải bí mật; khóa riêng .p8 lấy từ secret ASC_KEY_P8 do người dùng tự cất.
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          APP_ID: "6840301876"
+          PHIEN_BAN: ${{ github.event.inputs.phien_ban || '1.0.0' }}
+          SO_BUILD: ${{ github.event.inputs.so_build || '1' }}
+          TEN_NHOM: "Thử nội bộ"
+        shell: python
+        run: |
+          import json, os, sys, time, urllib.error, urllib.parse, urllib.request
+          import jwt
+
+          KEY = os.environ["ASC_KEY_P8"]
+          if not KEY.strip():
+              print("::error::Chưa có secret ASC_KEY_P8"); sys.exit(1)
+          KID, ISS = os.environ["ASC_KEY_ID"], os.environ["ASC_ISSUER_ID"]
+          APP, VER, BUILD, TEN = os.environ["APP_ID"], os.environ["PHIEN_BAN"], os.environ["SO_BUILD"], os.environ["TEN_NHOM"]
+          BASE = "https://api.appstoreconnect.apple.com"
+          tom_tat = []
+
+          def bao(msg):
+              print(f"::notice title=TestFlight::{msg}")
+              tom_tat.append(msg)
+
+          def token():
+              now = int(time.time())
+              return jwt.encode({"iss": ISS, "iat": now, "exp": now + 1100, "aud": "appstoreconnect-v1"},
+                                KEY, algorithm="ES256", headers={"kid": KID, "typ": "JWT"})
+
+          def api(method, path, body=None, ok=(200, 201, 204)):
+              data = json.dumps(body).encode() if body is not None else None
+              req = urllib.request.Request(BASE + path, data=data, method=method,
+                                           headers={"Authorization": "Bearer " + token(), "Content-Type": "application/json"})
+              try:
+                  with urllib.request.urlopen(req, timeout=60) as r:
+                      raw = r.read()
+                      return r.status, (json.loads(raw) if raw else {})
+              except urllib.error.HTTPError as e:
+                  raw = e.read()
+                  try:
+                      js = json.loads(raw)
+                  except Exception:
+                      js = {"raw": raw.decode(errors="replace")[:500]}
+                  return e.code, js
+
+          def loi(js):
+              return "; ".join(f"{x.get('code')}: {x.get('detail')}" for x in js.get("errors", [])) or str(js)[:300]
+
+          # 1. Tìm bản cần gắn, chờ Apple xử lý xong (VALID)
+          q = urllib.parse.urlencode({"filter[app]": APP, "filter[version]": BUILD,
+                                      "filter[preReleaseVersion.version]": VER,
+                                      "fields[builds]": "version,processingState,expired,usesNonExemptEncryption"})
+          build = None
+          for lan in range(30):
+              st, js = api("GET", "/v1/builds?" + q)
+              if st != 200:
+                  print(f"::error::Không đọc được danh sách bản ({st}): {loi(js)}"); sys.exit(1)
+              if js.get("data"):
+                  build = js["data"][0]
+                  trang_thai = build["attributes"].get("processingState")
+                  if trang_thai == "VALID":
+                      break
+                  if trang_thai in ("FAILED", "INVALID"):
+                      print(f"::error::Bản {VER} ({BUILD}) bị Apple từ chối khi xử lý: {trang_thai}"); sys.exit(1)
+                  print(f"Bản {VER} ({BUILD}) đang ở trạng thái {trang_thai}, chờ 30 giây...")
+              else:
+                  print(f"Chưa thấy bản {VER} ({BUILD}) trên App Store Connect, chờ 30 giây...")
+              time.sleep(30)
+          else:
+              print(f"::error::Sau 15 phút bản {VER} ({BUILD}) vẫn chưa sẵn sàng"); sys.exit(1)
+          bid = build["id"]
+          if build["attributes"].get("expired"):
+              print("::error::Bản này đã hết hạn trên TestFlight"); sys.exit(1)
+          bao(f"Bản {VER} ({BUILD}) đã xử lý xong (VALID).")
+          if build["attributes"].get("usesNonExemptEncryption") is None:
+              st, js = api("PATCH", f"/v1/builds/{bid}", {"data": {"type": "builds", "id": bid,
+                           "attributes": {"usesNonExemptEncryption": False}}})
+              bao("Đã khai báo mã hóa: không dùng mã hóa ngoài miễn trừ." if st == 200 else f"Khai báo mã hóa lỗi ({st}): {loi(js)}")
+
+          # 2. Nhóm thử nghiệm nội bộ
+          st, js = api("GET", f"/v1/apps/{APP}/betaGroups?limit=200&fields[betaGroups]=name,isInternalGroup")
+          if st != 200:
+              print(f"::error::Không đọc được danh sách nhóm ({st}): {loi(js)}"); sys.exit(1)
+          nhom = next((g for g in js.get("data", []) if g["attributes"].get("isInternalGroup") and g["attributes"].get("name") == TEN), None)
+          if nhom:
+              gid = nhom["id"]
+              bao(f"Nhóm nội bộ \"{TEN}\" đã có sẵn, dùng lại.")
+          else:
+              st, js = api("POST", "/v1/betaGroups", {"data": {"type": "betaGroups",
+                           "attributes": {"name": TEN, "isInternalGroup": True, "hasAccessToAllBuilds": False},
+                           "relationships": {"app": {"data": {"type": "apps", "id": APP}}}}})
+              if st != 201:
+                  print(f"::error::Tạo nhóm nội bộ lỗi ({st}): {loi(js)}"); sys.exit(1)
+              gid = js["data"]["id"]
+              bao(f"Đã tạo nhóm nội bộ \"{TEN}\".")
+
+          # 3. Gắn bản vào nhóm
+          st, js = api("POST", f"/v1/betaGroups/{gid}/relationships/builds", {"data": [{"type": "builds", "id": bid}]})
+          if st not in (200, 201, 204, 409):
+              print(f"::error::Gắn bản vào nhóm lỗi ({st}): {loi(js)}"); sys.exit(1)
+
+          # 4. Chủ tài khoản App Store Connect làm người thử nội bộ
+          st, js = api("GET", "/v1/users?limit=50&fields[users]=username,firstName,lastName,roles")
+          if st != 200 or not js.get("data"):
+              print(f"::error::Không đọc được danh sách người dùng ({st}): {loi(js)}"); sys.exit(1)
+          users = js["data"]
+          chu = next((u for u in users if "ACCOUNT_HOLDER" in (u["attributes"].get("roles") or [])), users[0])
+          a = chu["attributes"]
+          email = a.get("username") or ""
+          if email:
+              print(f"::add-mask::{email}")
+          st, js = api("POST", "/v1/betaTesters", {"data": {"type": "betaTesters",
+                       "attributes": {"email": email, "firstName": a.get("firstName") or "", "lastName": a.get("lastName") or ""},
+                       "relationships": {"betaGroups": {"data": [{"type": "betaGroups", "id": gid}]}}}})
+          if st == 201:
+              tid = js["data"]["id"]
+          else:
+              print(f"Thêm người thử trả về {st}: {loi(js)} -> tìm người thử đã có")
+              st2, js2 = api("GET", "/v1/betaTesters?" + urllib.parse.urlencode({"filter[email]": email, "limit": 5}))
+              if st2 != 200 or not js2.get("data"):
+                  print(f"::error::Không thêm được chủ tài khoản vào nhóm ({st}): {loi(js)}"); sys.exit(1)
+              tid = js2["data"][0]["id"]
+              st3, js3 = api("POST", f"/v1/betaGroups/{gid}/relationships/betaTesters", {"data": [{"type": "betaTesters", "id": tid}]})
+              if st3 not in (200, 201, 204, 409):
+                  print(f"::error::Đưa người thử vào nhóm lỗi ({st3}): {loi(js3)}"); sys.exit(1)
+
+          # 5. Gửi thư mời (với người thử nội bộ Apple có thể tự gửi; lỗi ở bước này không làm hỏng kết quả)
+          st, js = api("POST", "/v1/betaTesterInvitations", {"data": {"type": "betaTesterInvitations",
+                       "relationships": {"app": {"data": {"type": "apps", "id": APP}},
+                                         "betaTester": {"data": {"type": "betaTesters", "id": tid}}}}})
+          bao("Đã gửi thư mời TestFlight tới email chủ tài khoản." if st == 201 else f"Thư mời: Apple trả {st} ({loi(js)[:150]})")
+
+          # 6. Kiểm tra lại
+          st, js = api("GET", f"/v1/betaGroups/{gid}/builds?fields[builds]=version&limit=50")
+          co_ban = st == 200 and any(b["id"] == bid for b in js.get("data", []))
+          st, js = api("GET", f"/v1/betaGroups/{gid}/betaTesters?limit=50")
+          co_nguoi = st == 200 and any(t["id"] == tid for t in js.get("data", []))
+          st, js = api("GET", f"/v1/builds/{bid}/buildBetaDetail")
+          tt_noi_bo = js.get("data", {}).get("attributes", {}).get("internalBuildState") if st == 200 else None
+          bao(f"Kiểm tra: bản {VER} ({BUILD}) trong nhóm: {'có' if co_ban else 'KHÔNG'}; chủ tài khoản trong nhóm: {'có' if co_nguoi else 'KHÔNG'}; trạng thái thử nội bộ: {tt_noi_bo}.")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a") as f:
+              f.write("## TestFlight nội bộ\n\n" + "\n".join("- " + x for x in tom_tat) + "\n")
+          if not (co_ban and co_nguoi):
+              sys.exit(1)
