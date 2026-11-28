@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../main.dart';
 import '../screens/anh_the.dart';
+import '../screens/cham_trac_nghiem.dart';
 import '../screens/gio_the.dart';
 import '../screens/o_chu.dart';
 import '../screens/quet_pdf.dart';
@@ -71,6 +72,7 @@ class _TrangChuQTState extends State<TrangChuQT> {
       _O('scan', Icons.document_scanner_outlined, const Color(0xFF00838F), () => const QuetPdf()),
       _O('idPhoto', Icons.badge_outlined, const Color(0xFF5E6AD2), () => const AnhThe()),
       _O('answerCards', Icons.style_outlined, const Color(0xFF0B8A6A), () => const GioThe()),
+      _O('quizGrader', Icons.fact_check, const Color(0xFF1F4E8C), () => const ChamTracNghiem()),
       _O('crossword', Icons.grid_on_outlined, const Color(0xFFE5570B), () => const OChuMan()),
     ];
     return Scaffold(

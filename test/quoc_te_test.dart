@@ -12,6 +12,7 @@ import 'package:tro_ly_so_giao_vien/quoc_te/ngon_ngu.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/quoc_te.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/trang_chu_qt.dart';
 import 'package:tro_ly_so_giao_vien/screens/anh_the.dart';
+import 'package:tro_ly_so_giao_vien/screens/cham_trac_nghiem.dart';
 import 'package:tro_ly_so_giao_vien/screens/gio_the.dart';
 import 'package:tro_ly_so_giao_vien/screens/quet_pdf.dart';
 
@@ -88,11 +89,11 @@ void main() {
     expect(LopQT.tach(' An \n\nBình\r\nAn\nChi '), ['An', 'Bình', 'Chi']);
   });
 
-  testWidgets('Trang chủ: 9 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
+  testWidgets('Trang chủ: 10 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
     await t.binding.setSurfaceSize(const Size(390, 844));
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
-    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'answerCards', 'crossword']) {
+    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'answerCards', 'quizGrader', 'crossword']) {
       expect(find.text(bangChu['en']![k]!), findsOneWidget, reason: k);
     }
     await _chup(t, '01_trang_chu_en');
@@ -303,6 +304,33 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('Giơ thẻ'), findsOneWidget);
     expect(find.text('Chụp cả lớp'), findsOneWidget);
+  });
+
+  testWidgets('Chấm trắc nghiệm: bản quốc tế tạo bài, chữ theo tiếng đã chọn; bản Việt giữ nguyên', (t) async {
+    await t.binding.setSurfaceSize(const Size(390, 844));
+    await t.pumpWidget(_app());
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('o_quizGrader')));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('o_quizGrader')));
+    await t.pumpAndSettle();
+    expect(find.text('Grade quizzes'), findsOneWidget);
+    expect(find.text('No quizzes yet.'), findsOneWidget);
+    expect(find.textContaining('Thầy cô'), findsNothing);
+    await _chup(t, '12_cham_trac_nghiem_en');
+    await t.tap(find.text('New quiz'));
+    await t.pumpAndSettle();
+    expect(find.text('Quiz name'), findsOneWidget);
+    expect(find.text('Number of questions'), findsOneWidget);
+    expect(find.text('Create'), findsOneWidget);
+    await t.tap(find.text('Cancel'));
+    await t.pumpAndSettle();
+
+    laQuocTe = false;
+    await t.pumpWidget(const MaterialApp(home: ChamTracNghiem()));
+    await t.pumpAndSettle();
+    expect(find.text('Chấm trắc nghiệm'), findsOneWidget);
+    expect(find.text('Chưa có bài kiểm tra nào.'), findsOneWidget);
   });
 
   testWidgets('Không tràn chữ ở trang chủ với cả 21 thứ tiếng (màn 360×740)', (t) async {
