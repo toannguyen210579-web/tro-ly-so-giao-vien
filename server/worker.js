@@ -26,8 +26,8 @@ const MAX_INPUT = 2000;      // ký tự tối đa mỗi lần gửi
 const MAX_TOKENS = 800;      // độ dài câu trả lời tối đa
 // Riêng từng chế độ (chế độ không có ở đây dùng mức chung ở trên)
 // trinhchieu: giáo án dài (cả tệp Word) gửi một lần để AI dựng đủ các hoạt động
-const MAX_IN = { bienban: 12000, detuongtu: 4000, dich: 6000, danhgia: 4000, trinhchieu: 30000 };
-const MAX_OUT = { hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000, danhgia: 1200, trinhchieu: 7000 };
+const MAX_IN = { qt: 8000, bienban: 12000, detuongtu: 4000, dich: 6000, danhgia: 4000, trinhchieu: 30000 };
+const MAX_OUT = { qt: 3500, hoi: 2000, nhanxet: 2000, tinnhan: 1200, giaide: 4000, detuongtu: 3000, bienban: 3000, chep_chu: 4000, dich: 4000, danhgia: 1200, trinhchieu: 7000 };
 // chế độ được gửi ảnh (tối đa 4 ảnh), tệp PDF. chep_chu: Biên bản lấy ghi chép từ ảnh, PDF; dich: Dịch tài liệu (26/11/2026);
 // trinhchieu: Tạo bài trình chiếu từ giáo án chụp ảnh hoặc tệp PDF (26/11/2026)
 const IMG_MODES = ["giaide", "detuongtu", "hoi", "chep_chu", "dich", "trinhchieu"];
@@ -42,8 +42,8 @@ const GEMINI_MODELS = ["gemini-flash-lite-latest", "gemini-3.1-flash-lite"];
 const LIMITS = {
   // dich: mỗi lượt là một trang (app chia chữ thành đoạn khoảng 2.500 ký tự, mỗi ảnh hoặc trang PDF là một lượt)
   // trinhchieu: mỗi lượt là cả một bài trình chiếu (câu trả lời dài)
-  free: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20, danhgia: 20, trinhchieu: 5 },
-  pro: { hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100, danhgia: 50, trinhchieu: 30 },
+  free: { qt: 5, hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 10, detuongtu: 10, bienban: 20, chep_chu: 30, dich: 20, danhgia: 20, trinhchieu: 5 },
+  pro: { qt: 50, hoi: 100, nhanxet: 100, tinnhan: 100, giaide: 50, detuongtu: 50, bienban: 100, chep_chu: 100, dich: 100, danhgia: 50, trinhchieu: 30 },
 };
 const IP_LIMIT = 1000;       // trần mỗi địa chỉ mạng mỗi ngày (cả trường dùng chung wifi)
 const BONUS_PER_AD = 5;      // xem một quảng cáo nhận thưởng được thêm 5 lượt
@@ -102,7 +102,44 @@ const GIOI_THIEU_APP =
   "Được hỏi app là gì, có gì thì kể ngắn theo hai nhóm, mỗi nhóm vài tiện ích tiêu biểu, rồi hỏi thầy cô cần làm việc gì. " +
   "Không nhận app làm được việc không có trong danh sách này.";
 
+// ---------------------------------------------------------------- Bản quốc tế TeachDesk (28/11/2026)
+// Chế độ "qt": app gửi tên công cụ (tool) và ngôn ngữ trả lời (lang); máy chủ ghép hướng dẫn, app không tự gửi hướng dẫn.
+// Trần chung mỗi ngày cho cả chế độ này để chặn chi phí ngoài dự kiến.
+const QT_TRAN_NGAY = 3000;
+const QT_CHUNG =
+  "You are a teaching assistant for school teachers anywhere in the world. " +
+  "Write clear, classroom-ready material that a teacher can use after a quick check. " +
+  "Do not assume any particular country's curriculum unless the teacher names one. " +
+  "Use plain text with simple headings and numbered lists. No LaTeX and no $ signs around formulas; write maths with ordinary symbols. " +
+  "Never invent quotations, statistics or sources. If the request lacks something essential, make a sensible assumption and state it in one line at the top. " +
+  "Do not include names or personal details of real students beyond what the teacher typed. ";
+const QT_TOOLS = {
+  quiz:
+    "Task: write a multiple-choice quiz on the topic or text given. Unless told otherwise write 10 questions, each with four options A to D and exactly one correct answer. " +
+    "Mix recall, understanding and application. After the questions add a line 'ANSWER KEY:' followed by the answers in the form 1A 2C 3B.",
+  plan:
+    "Task: write a lesson plan for the topic given. Include: learning objectives, materials, a timed sequence of activities (starter, main activities, check for understanding, wrap-up), " +
+    "differentiation for students who need support and for those who need a challenge, and a short homework or follow-up. Assume one lesson of about 45 minutes unless told otherwise.",
+  rewrite:
+    "Task: rewrite the text given so that students at the stated age or reading level can understand it. Keep every fact, keep it about the same length unless asked to shorten, " +
+    "use shorter sentences and common words, and add a short glossary of up to 6 harder words at the end.",
+  sheet:
+    "Task: write a student worksheet on the topic given: a two-line introduction, then 8 to 12 exercises that go from easy to hard and use more than one exercise type " +
+    "(fill in the blank, short answer, matching, one open question). End with a separate 'ANSWERS' section.",
+  rubric:
+    "Task: write a marking rubric for the assignment described. Use 4 or 5 criteria and four levels (Excellent, Good, Developing, Beginning) with one concrete descriptor per cell. " +
+    "Present it criterion by criterion as a list, not as a table. End with a suggested points split.",
+  feedback:
+    "Task: give feedback on the student writing given. Write: two specific strengths, two or three specific things to improve with an example of how, " +
+    "and one next step. Be kind and concrete, address the student directly, and do not rewrite the whole piece. Do not give a grade unless asked.",
+};
+function sysQT(tool, lang) {
+  const tieng = String(lang || "English").replace(/[^\p{L} ()-]/gu, "").slice(0, 40) || "English";
+  return QT_CHUNG + QT_TOOLS[tool] + " Write the whole answer in " + tieng + ".";
+}
+
 const SYSTEM = {
+  qt: QT_CHUNG,
   hoi:
     CHUNG +
     GIOI_THIEU_APP +
@@ -956,6 +993,9 @@ export default {
     const device = String(body.device_id || "").slice(0, 64);
     if (!SYSTEM[mode]) return err("sai_che_do", "Chế độ không hợp lệ.", 400);
     if (!okDevice(device)) return err("sai_ma_may", "Mã máy không hợp lệ.", 400);
+    const laQT = mode === "qt";
+    const qtTool = laQT ? String(body.tool || "") : "";
+    if (laQT && !Object.prototype.hasOwnProperty.call(QT_TOOLS, qtTool)) return err("sai_che_do", "Unknown tool.", 400);
     const imgs = Array.isArray(body.images) ? body.images.filter((a) => typeof a === "string" && a) : [];
     if (imgs.length && !IMG_MODES.includes(mode)) return err("sai_du_lieu", "Chế độ này không nhận ảnh.", 400);
     if (imgs.length > 4 || imgs.some((a) => a.length > 2000000)) return err("anh_lon", "Tối đa 4 ảnh, mỗi ảnh dưới 1,5 MB.", 400);
@@ -1003,6 +1043,9 @@ export default {
     if (laGA && (await getN(db, gaKey)) >= GA_LIMIT[tier]) {
       return err("het_luot_ga", "Hôm nay thầy cô đã soạn đủ " + GA_LIMIT[tier] + " giáo án, mai soạn tiếp nhé. Các câu hỏi khác vẫn hỏi được.", 429);
     }
+    if (laQT && (await getN(db, "qt:" + day)) >= QT_TRAN_NGAY) {
+      return err("het_luot_chung", "The service has reached its daily limit. Please try again tomorrow.", 429);
+    }
     if ((await addN(db, "ip:" + day + ":" + ip, 1)) > IP_LIMIT) {
       return err("qua_nhieu", "Mạng này đã gửi quá nhiều yêu cầu hôm nay.", 429);
     }
@@ -1036,7 +1079,8 @@ export default {
       trich = await timKienThuc(db, [input, ...hist.slice(-1).map((h) => h.q)].join("\n"));
     }
     if (!res || res.err) {
-      res = await callClaude(env, mode, noiDung, hist, trich, laGA ? { system: sysGiaoAn(), maxTokens: GA_MAX_OUT } : {});
+      res = await callClaude(env, mode, noiDung, laQT ? [] : hist, trich,
+        laGA ? { system: sysGiaoAn(), maxTokens: GA_MAX_OUT } : laQT ? { system: sysQT(qtTool, body.lang), maxTokens: MAX_OUT.qt } : {});
     }
     if (res.err) return json({ ok: false, error: res.err, message: res.msg, gem, claude: String(res.status || "") }, 502);
     let text = res.text;
@@ -1046,6 +1090,7 @@ export default {
     // Chỉ tính là một giáo án khi đã soạn ra giáo án (câu hỏi lại môn, lớp, tên bài không tính)
     const daSoan = laGA && text.length >= GA_DAI && GA_KHUNG_RE.test(boDau(text.slice(0, 1500)));
     if (daSoan) await addN(db, gaKey, 1);
+    if (laQT) await addN(db, "qt:" + day, 1);
     const data = { usage: res.usage };
 
     // Trừ lượt sau khi AI đã trả kết quả
