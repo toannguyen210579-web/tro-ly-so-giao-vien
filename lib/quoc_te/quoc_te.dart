@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ngon_ngu.dart';
@@ -28,6 +28,7 @@ String tiengTheoMay(List<Locale> ds) {
 Future<void> taiTieng() async {
   final p = await SharedPreferences.getInstance();
   final da = p.getString('qt_tieng');
+  GoiQT.laPro = p.getBool('qt_pro') ?? false;
   tieng.value = (da != null && bangChu.containsKey(da))
       ? da
       : tiengTheoMay(WidgetsBinding.instance.platformDispatcher.locales);
@@ -53,6 +54,32 @@ bool laQuocTe = quocTe;
 
 /// Chữ dùng chung cho hai bản: bản Việt giữ nguyên câu [vi], bản quốc tế lấy theo [khoa].
 String tx(String vi, String khoa, {Object? n, Object? m}) => laQuocTe ? chu(khoa, n: n, m: m) : vi;
+
+/// Gói của bản quốc tế. Bản miễn phí có giới hạn; gói trả phí (chưa có mua trong app) bỏ giới hạn.
+class GoiQT {
+  static bool laPro = false;
+  static const soOChu = 3, soBaiTracNghiem = 3, soTrangPdf = 5;
+
+  static Future<void> tai() async {
+    final p = await SharedPreferences.getInstance();
+    laPro = p.getBool('qt_pro') ?? false;
+  }
+
+  /// Trả về true nếu được làm tiếp. Bản Việt và gói trả phí luôn được.
+  /// Chạm giới hạn của bản miễn phí thì hiện hộp nói rõ giới hạn rồi trả về false.
+  static Future<bool> duocPhep(BuildContext context, {required bool trongGioiHan, required String cau}) async {
+    if (!laQuocTe || laPro || trongGioiHan) return true;
+    await showDialog<void>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: Text(chu('limTitle')),
+        content: Text('$cau\n\n${chu('proSoon')}'),
+        actions: [FilledButton(onPressed: () => Navigator.pop(c), child: Text(chu('ok')))],
+      ),
+    );
+    return false;
+  }
+}
 
 /// Danh sách lớp của bản quốc tế: chỉ lưu trên máy.
 class LopQT {

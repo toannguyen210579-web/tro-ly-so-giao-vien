@@ -104,6 +104,8 @@ class _QuetPdfState extends State<QuetPdf> {
   /// Gộp các trang thành tệp PDF, lưu trong máy rồi báo chỗ lưu kèm nút gửi đi.
   Future<void> _taoPdf() async {
     if (_trang.isEmpty) return;
+    if (!await GoiQT.duocPhep(context, trongGioiHan: _trang.length <= GoiQT.soTrangPdf, cau: chu('limPdf', n: GoiQT.soTrangPdf))) return;
+    if (!mounted) return;
     setState(() => _dangTao = true);
     final File f;
     try {

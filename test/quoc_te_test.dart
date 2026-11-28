@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -13,6 +14,7 @@ import 'package:tro_ly_so_giao_vien/quoc_te/ngon_ngu.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/quoc_te.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/trang_chu_qt.dart';
 import 'package:tro_ly_so_giao_vien/screens/anh_the.dart';
+import 'package:tro_ly_so_giao_vien/screens/o_chu.dart';
 import 'package:tro_ly_so_giao_vien/screens/cham_trac_nghiem.dart';
 import 'package:tro_ly_so_giao_vien/screens/gio_the.dart';
 import 'package:tro_ly_so_giao_vien/screens/quet_pdf.dart';
@@ -381,6 +383,34 @@ void main() {
     await t.tap(find.byKey(const ValueKey('ai_tao')));
     await t.pumpAndSettle();
     expect(find.text(bangChu['es']!['aiErrLimit']!), findsOneWidget);
+  });
+
+  testWidgets('Bản miễn phí: quá 3 ô chữ thì báo giới hạn; gói trả phí và bản Việt không bị chặn', (t) async {
+    await t.binding.setSurfaceSize(const Size(390, 844));
+    final ba = [
+      for (var i = 0; i < 3; i++)
+        OChu(id: 'x$i', ten: 'Mine $i', tuKhoa: 'AB', hang: [HangO('q', 'Ant'), HangO('q', 'Bee')]).toJson(),
+    ];
+    SharedPreferences.setMockInitialValues({'o_chu': jsonEncode(ba)});
+    GoiQT.laPro = false;
+    await t.pumpWidget(const MaterialApp(home: OChuMan()));
+    await t.pumpAndSettle();
+    expect(find.text('Mine 2'), findsOneWidget);
+    await t.tap(find.text('New crossword'));
+    await t.pumpAndSettle();
+    expect(find.text('Free version limit'), findsOneWidget);
+    expect(find.textContaining('up to 3 crosswords'), findsOneWidget);
+    await _chup(t, '15_gioi_han_en');
+    await t.tap(find.text('OK'));
+    await t.pumpAndSettle();
+    expect(find.text('Crossword name'), findsNothing);
+
+    GoiQT.laPro = true;
+    await t.tap(find.text('New crossword'));
+    await t.pumpAndSettle();
+    expect(find.text('Free version limit'), findsNothing);
+    expect(find.text('Crossword name'), findsOneWidget);
+    GoiQT.laPro = false;
   });
 
   testWidgets('Không tràn chữ ở trang chủ với cả 21 thứ tiếng (màn 360×740)', (t) async {

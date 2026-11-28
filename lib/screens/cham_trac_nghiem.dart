@@ -45,6 +45,8 @@ class _ChamTracNghiemState extends State<ChamTracNghiem> {
   }
 
   Future<void> _taoDe() async {
+    if (!await GoiQT.duocPhep(context, trongGioiHan: _ds.length < GoiQT.soBaiTracNghiem, cau: chu('limQuiz', n: GoiQT.soBaiTracNghiem))) return;
+    if (!mounted) return;
     final ten = TextEditingController();
     final soCau = TextEditingController(text: '40');
     final ok = await showDialog<bool>(

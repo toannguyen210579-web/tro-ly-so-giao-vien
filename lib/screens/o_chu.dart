@@ -124,6 +124,12 @@ class _OChuManState extends State<OChuMan> {
   }
 
   Future<void> _sua([OChu? goc]) async {
+    if (goc == null &&
+        !await GoiQT.duocPhep(context,
+            trongGioiHan: _ds!.where((e) => e.id != 'mau').length < GoiQT.soOChu, cau: chu('limCrossword', n: GoiQT.soOChu))) {
+      return;
+    }
+    if (!mounted) return;
     final kq = await Navigator.of(context).push<OChu>(MaterialPageRoute(builder: (_) => _SuaOChu(goc: goc)));
     if (kq == null) return;
     final i = _ds!.indexWhere((e) => e.id == kq.id);
