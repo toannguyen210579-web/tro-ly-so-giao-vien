@@ -31,8 +31,16 @@ jobs:
           [ -z "$E" ] && thieu="$thieu UNITY_EMAIL"
           [ -z "$P" ] && thieu="$thieu UNITY_PASSWORD"
           echo "thieu=$thieu" >> "$GITHUB_OUTPUT"
+          # chỉ ghi độ dài, dạng; không in giá trị
+          kk=$(printf '%s' "$K" | LC_ALL=C tr -cd '0-9a-fA-F\n' | grep -oE '[0-9a-fA-F]{64}' | head -1 || true)
+          ll=$(printf '%s' "$L" | grep -c '<License' || true)
+          ee=$(printf '%s' "$E" | grep -cE '^[^@ ]+@[^@ ]+\.[^@ ]+$' || true)
+          dang="KEY dai ${#K} (khoa 64 hex: $([ -n "$kk" ] && echo co || echo khong)); LICENSE dai ${#L} (the License: $ll); EMAIL dai ${#E} (dang email: $ee); PASSWORD dai ${#P}"
+          echo "$dang"
+          echo "dang=$dang" >> "$GITHUB_OUTPUT"
           mkdir -p /tmp/ra
           echo "$(date -u +%FT%TZ) thieu bi mat:${thieu:- khong}" > /tmp/ra/trang_thai.txt
+          echo "dang bi mat: $dang" >> /tmp/ra/trang_thai.txt
       - name: Bao thieu bi mat
         if: steps.bm.outputs.thieu != ''
         env:
