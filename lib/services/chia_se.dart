@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
+import '../quoc_te/quoc_te.dart';
 
 /// Vùng gốc của bảng chia sẻ (bắt buộc trên iPad, và trên iPhone khi app đóng gói bằng Xcode 26).
 ///
@@ -34,7 +35,7 @@ Future<bool> guiTep(List<String> duong, {BuildContext? context, String? text}) a
     await Share.shareXFiles([for (final d in duong) XFile(d)], text: text, sharePositionOrigin: goc);
     return true;
   } catch (_) {
-    _baoLoi(context, 'Chưa mở được bảng gửi. Tệp vẫn đã lưu trong mục Tệp của tôi.');
+    _baoLoi(context, tx('Chưa mở được bảng gửi. Tệp vẫn đã lưu trong mục Tệp của tôi.', 'errTry'));
     return false;
   }
 }
@@ -46,15 +47,17 @@ Future<bool> guiChu(String chu, {BuildContext? context}) async {
     await Share.share(chu, sharePositionOrigin: goc);
     return true;
   } catch (_) {
-    _baoLoi(context, 'Chưa mở được bảng gửi, thầy cô thử lại.');
+    _baoLoi(context, tx('Chưa mở được bảng gửi, thầy cô thử lại.', 'errTry'));
     return false;
   }
 }
 
 /// Chỗ tệp app lưu nằm, nói cho thầy cô biết sau mỗi lần lưu.
-String get noiLuuTep => Platform.isIOS
-    ? 'Tệp nằm trong mục Tệp của tôi của app, và trong ứng dụng Tệp của máy: Trên iPhone (iPad) › Trợ lý số GV.'
-    : 'Tệp nằm trong mục Tệp của tôi của app (thanh dưới cùng).';
+String get noiLuuTep => laQuocTe
+    ? tx('', 'savedWhere')
+    : Platform.isIOS
+        ? 'Tệp nằm trong mục Tệp của tôi của app, và trong ứng dụng Tệp của máy: Trên iPhone (iPad) › Trợ lý số GV.'
+        : 'Tệp nằm trong mục Tệp của tôi của app (thanh dưới cùng).';
 
 /// Mở xem tệp bằng trình xem của máy (Word, PDF, Excel, ảnh). Không mở được thì đưa bảng gửi để thầy cô chọn app mở.
 Future<void> moXemTep(BuildContext context, File f) async {
@@ -63,7 +66,7 @@ Future<void> moXemTep(BuildContext context, File f) async {
     if (kq.type == ResultType.done) return;
   } catch (_) {}
   if (!context.mounted) return;
-  _baoLoi(context, 'Máy chưa có app mở được loại tệp này. Thầy cô chọn app trong bảng gửi để mở.');
+  _baoLoi(context, tx('Máy chưa có app mở được loại tệp này. Thầy cô chọn app trong bảng gửi để mở.', 'errNoApp'));
   await guiTep([f.path], context: context);
 }
 
@@ -71,12 +74,12 @@ Future<void> moXemTep(BuildContext context, File f) async {
 Future<void> luuVaoMay(BuildContext context, File f) async {
   final ten = f.uri.pathSegments.last;
   try {
-    final duong = await FilePicker.platform.saveFile(dialogTitle: 'Lưu vào máy', fileName: ten, bytes: await f.readAsBytes());
+    final duong = await FilePicker.platform.saveFile(dialogTitle: tx('Lưu vào máy', 'saveToDevice'), fileName: ten, bytes: await f.readAsBytes());
     if (duong == null || !context.mounted) return;
-    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text('Đã lưu $ten vào máy.')));
+    ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(tx('Đã lưu $ten vào máy.', 'savedTo', n: ten))));
   } catch (_) {
     if (!context.mounted) return;
-    _baoLoi(context, 'Chưa mở được nơi lưu. Thầy cô bấm Gửi rồi chọn "Lưu vào Tệp".');
+    _baoLoi(context, tx('Chưa mở được nơi lưu. Thầy cô bấm Gửi rồi chọn "Lưu vào Tệp".', 'errTry'));
   }
 }
 
@@ -148,14 +151,14 @@ Future<void> baoDaLuu(BuildContext context, List<File> ds, {String tieuDe = 'Đ�
                           builder: (b) => TextButton.icon(
                             onPressed: () => moXemTep(b, f),
                             icon: const Icon(Icons.visibility_outlined, size: 18),
-                            label: const Text('Mở xem'),
+                            label: Text(tx('Mở xem', 'open')),
                           ),
                         ),
                         Builder(
                           builder: (b) => TextButton.icon(
                             onPressed: () => luuVaoMay(b, f),
                             icon: const Icon(Icons.save_alt, size: 18),
-                            label: const Text('Lưu vào máy'),
+                            label: Text(tx('Lưu vào máy', 'saveToDevice')),
                           ),
                         ),
                       ],
@@ -169,11 +172,11 @@ Future<void> baoDaLuu(BuildContext context, List<File> ds, {String tieuDe = 'Đ�
               builder: (b) => FilledButton.icon(
                 onPressed: () => guiTep([for (final f in ds) f.path], context: b),
                 icon: const Icon(Icons.ios_share),
-                label: Text(ds.length > 1 ? 'Gửi cả ${ds.length} tệp qua Zalo, email…' : 'Gửi qua Zalo, email…'),
+                label: Text(laQuocTe ? tx('', 'share') : (ds.length > 1 ? 'Gửi cả ${ds.length} tệp qua Zalo, email…' : 'Gửi qua Zalo, email…')),
               ),
             ),
             const SizedBox(height: 6),
-            TextButton(onPressed: () => Navigator.pop(c), child: const Text('Xong')),
+            TextButton(onPressed: () => Navigator.pop(c), child: Text(tx('Xong', 'done'))),
           ],
         ),
       ),

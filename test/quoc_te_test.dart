@@ -10,6 +10,7 @@ import 'package:tro_ly_so_giao_vien/quoc_te/cong_cu_qt.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/ngon_ngu.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/quoc_te.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/trang_chu_qt.dart';
+import 'package:tro_ly_so_giao_vien/screens/quet_pdf.dart';
 
 final _khoaAnh = GlobalKey();
 
@@ -58,6 +59,7 @@ void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     tieng.value = 'en';
+    laQuocTe = true;
   });
 
   test('Bảng chữ: 21 thứ tiếng, đủ khóa, giữ đúng chỗ {n}', () {
@@ -82,11 +84,11 @@ void main() {
     expect(LopQT.tach(' An \n\nBình\r\nAn\nChi '), ['An', 'Bình', 'Chi']);
   });
 
-  testWidgets('Trang chủ: 5 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
+  testWidgets('Trang chủ: 6 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
     await t.binding.setSurfaceSize(const Size(390, 844));
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
-    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance']) {
+    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan']) {
       expect(find.text(bangChu['en']![k]!), findsOneWidget, reason: k);
     }
     await _chup(t, '01_trang_chu_en');
@@ -186,6 +188,28 @@ void main() {
     expect(t.widget<Text>(find.byKey(const ValueKey('diem_1'))).data, '-1');
     expect(find.text('Team 3'), findsOneWidget);
     expect(await DiemDoiQT.doc(), [2, -1, 0]);
+  });
+
+  testWidgets('Quét PDF: bản quốc tế hiện chữ theo tiếng đã chọn, bản Việt giữ nguyên', (t) async {
+    await t.binding.setSurfaceSize(const Size(390, 844));
+    tieng.value = 'fr';
+    await t.pumpWidget(_app());
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('o_scan')));
+    await t.pumpAndSettle();
+    expect(find.text('Scanner en PDF'), findsOneWidget);
+    expect(find.text('Scanner des pages'), findsOneWidget);
+    expect(find.text('Choisir des photos'), findsOneWidget);
+    expect(find.text('Quét PDF'), findsNothing);
+    expect(find.textContaining('Thầy cô'), findsNothing);
+    await _chup(t, '07_quet_pdf_fr');
+
+    laQuocTe = false;
+    await t.pumpWidget(const MaterialApp(home: QuetPdf()));
+    await t.pumpAndSettle();
+    expect(find.text('Quét PDF'), findsOneWidget);
+    expect(find.text('Chụp, quét giấy tờ'), findsOneWidget);
+    expect(find.text('Tệp PDF đã lưu'), findsOneWidget);
   });
 
   testWidgets('Không tràn chữ ở trang chủ với cả 21 thứ tiếng (màn 360×740)', (t) async {

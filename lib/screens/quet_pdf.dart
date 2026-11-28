@@ -11,6 +11,7 @@ import '../main.dart';
 import 'cau_giup_viec.dart';
 import '../services/anh_trang.dart';
 import '../services/chia_se.dart';
+import '../quoc_te/quoc_te.dart';
 
 /// Quét giấy tờ bằng máy ảnh (tự nhận mép giấy), thêm ảnh, tệp PDF có sẵn, rồi gộp thành một tệp PDF.
 /// Chạy hoàn toàn trên máy, không cần mạng.
@@ -53,7 +54,7 @@ class _QuetPdfState extends State<QuetPdf> {
       if (anh == null || anh.isEmpty) return;
       setState(() => _trang.addAll(anh));
     } catch (_) {
-      _bao('Chưa mở được máy ảnh. Thầy cô cho app quyền dùng máy ảnh trong Cài đặt.');
+      _bao(tx('Chưa mở được máy ảnh. Thầy cô cho app quyền dùng máy ảnh trong Cài đặt.', 'errAccess'));
     }
   }
 
@@ -63,7 +64,7 @@ class _QuetPdfState extends State<QuetPdf> {
     try {
       ds = await ImagePicker().pickMultiImage(maxWidth: 2200, maxHeight: 2200, imageQuality: 85);
     } catch (_) {
-      _bao('Chưa mở được thư viện ảnh. Thầy cô cho app quyền dùng ảnh trong Cài đặt.');
+      _bao(tx('Chưa mở được thư viện ảnh. Thầy cô cho app quyền dùng ảnh trong Cài đặt.', 'errAccess'));
       return;
     }
     if (ds.isEmpty) return;
@@ -82,7 +83,7 @@ class _QuetPdfState extends State<QuetPdf> {
       _trang.addAll(them);
       _dangLay = false;
     });
-    if (loi > 0) _bao('Có $loi ảnh chưa mở được, app bỏ qua.');
+    if (loi > 0) _bao(tx('Có $loi ảnh chưa mở được, app bỏ qua.', 'errSkipped', n: loi));
   }
 
   /// Tệp PDF, ảnh có sẵn trong máy (ứng dụng Tệp, Drive, Zalo đã tải về…): PDF thì mỗi trang thành một trang.
@@ -94,7 +95,7 @@ class _QuetPdfState extends State<QuetPdf> {
       setState(() => _trang.addAll(kq.trang));
       if (kq.loiNhan != null) _bao(kq.loiNhan!);
     } catch (_) {
-      _bao('Chưa mở được tệp, thầy cô thử lại.');
+      _bao(tx('Chưa mở được tệp, thầy cô thử lại.', 'errTry'));
     } finally {
       if (mounted) setState(() => _dangLay = false);
     }
@@ -124,7 +125,7 @@ class _QuetPdfState extends State<QuetPdf> {
       await f.writeAsBytes(await doc.save());
     } catch (_) {
       if (mounted) setState(() => _dangTao = false);
-      _bao('Chưa tạo được tệp PDF. Thầy cô bỏ bớt trang lạ rồi thử lại.');
+      _bao(tx('Chưa tạo được tệp PDF. Thầy cô bỏ bớt trang lạ rồi thử lại.', 'errTry'));
       return;
     }
     if (!mounted) return;
@@ -134,7 +135,7 @@ class _QuetPdfState extends State<QuetPdf> {
     });
     await _taiDaLuu();
     if (!mounted) return;
-    await baoDaLuuTep(context, f, tieuDe: 'Đã lưu tệp PDF');
+    await baoDaLuuTep(context, f, tieuDe: tx('Đã lưu tệp PDF', 'fileSaved'));
   }
 
   Future<void> _xoa(File f) async {
@@ -149,15 +150,15 @@ class _QuetPdfState extends State<QuetPdf> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Quét PDF')),
+      appBar: AppBar(title: Text(tx('Quét PDF', 'scan'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
-          const CauGiupViec('quet'),
+          if (laQuocTe) const SizedBox(height: 12) else const CauGiupViec('quet'),
           FilledButton.icon(
             onPressed: _dangLay ? null : _quet,
             icon: const Icon(Icons.document_scanner_outlined),
-            label: Text(_trang.isEmpty ? 'Chụp, quét giấy tờ' : 'Chụp, quét thêm trang'),
+            label: Text(_trang.isEmpty ? tx('Chụp, quét giấy tờ', 'scanStart') : tx('Chụp, quét thêm trang', 'scanMore')),
           ),
           const SizedBox(height: 8),
           Row(
@@ -167,7 +168,7 @@ class _QuetPdfState extends State<QuetPdf> {
                   onPressed: _dangLay ? null : _chonAnh,
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Chọn ảnh có sẵn')),
+                  label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Chọn ảnh có sẵn', 'pickPhotos'))),
                 ),
               ),
               const SizedBox(width: 8),
@@ -176,29 +177,31 @@ class _QuetPdfState extends State<QuetPdf> {
                   onPressed: _dangLay ? null : _chonTep,
                   style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 8)),
                   icon: const Icon(Icons.upload_file),
-                  label: const FittedBox(fit: BoxFit.scaleDown, child: Text('Tải tệp PDF, ảnh')),
+                  label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Tải tệp PDF, ảnh', 'pickFiles'))),
                 ),
               ),
             ],
           ),
           if (_dangLay)
-            const Padding(
-              padding: EdgeInsets.only(top: 10),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
               child: Row(children: [
-                SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
-                SizedBox(width: 10),
-                Text('Đang lấy trang…'),
+                const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)),
+                const SizedBox(width: 10),
+                Text(tx('Đang lấy trang…', 'loading')),
               ]),
             ),
           const SizedBox(height: 8),
-          const Text(
-            'Chụp: đặt giấy trên nền tối, app tự nhận mép giấy và làm phẳng trang. '
-            'Có thể gộp cả trang chụp, ảnh có sẵn và tệp PDF (từ ứng dụng Tệp, Zalo, Drive) thành một tệp.',
-            style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
+          Text(
+            tx(
+                'Chụp: đặt giấy trên nền tối, app tự nhận mép giấy và làm phẳng trang. '
+                    'Có thể gộp cả trang chụp, ảnh có sẵn và tệp PDF (từ ứng dụng Tệp, Zalo, Drive) thành một tệp.',
+                'scanHint'),
+            style: const TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
           ),
           if (_trang.isNotEmpty) ...[
             const SizedBox(height: 16),
-            Text('${_trang.length} trang đã quét', style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(tx('${_trang.length} trang đã quét', 'pagesCount', n: _trang.length), style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
             SizedBox(
               height: 140,
@@ -223,7 +226,7 @@ class _QuetPdfState extends State<QuetPdf> {
                             right: 0,
                             top: 0,
                             child: IconButton(
-                              tooltip: 'Bỏ trang này',
+                              tooltip: tx('Bỏ trang này', 'removePage'),
                               onPressed: () => setState(() => _trang.removeAt(i)),
                               icon: const Icon(Icons.cancel, color: Colors.white),
                             ),
@@ -235,34 +238,34 @@ class _QuetPdfState extends State<QuetPdf> {
               ),
             ),
             const SizedBox(height: 4),
-            const Text('Giữ và kéo để đổi thứ tự trang.', style: TextStyle(fontSize: 12, color: MauApp.chuPhu)),
+            Text(tx('Giữ và kéo để đổi thứ tự trang.', 'dragHint'), style: const TextStyle(fontSize: 12, color: MauApp.chuPhu)),
             const SizedBox(height: 12),
             FilledButton.icon(
               onPressed: _dangTao ? null : _taoPdf,
               icon: const Icon(Icons.picture_as_pdf),
-              label: Text(_dangTao ? 'Đang tạo…' : 'Lưu thành tệp PDF (${_trang.length} trang)'),
+              label: Text(_dangTao ? tx('Đang tạo…', 'creating') : tx('Lưu thành tệp PDF (${_trang.length} trang)', 'savePdf', n: _trang.length)),
             ),
           ],
           const SizedBox(height: 24),
-          const Text('Tệp PDF đã lưu', style: TextStyle(fontWeight: FontWeight.w800)),
+          Text(tx('Tệp PDF đã lưu', 'savedFiles'), style: const TextStyle(fontWeight: FontWeight.w800)),
           Text(noiLuuTep, style: const TextStyle(fontSize: 12, color: MauApp.chuPhu)),
           if (_daLuu.isEmpty)
-            const Padding(padding: EdgeInsets.only(top: 8), child: Text('Chưa có tệp nào.')),
+            Padding(padding: const EdgeInsets.only(top: 8), child: Text(tx('Chưa có tệp nào.', 'noFiles'))),
           for (final f in _daLuu)
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.picture_as_pdf_outlined, color: Color(0xFFA3241C)),
               title: Text(f.uri.pathSegments.last),
-              onTap: () => baoDaLuuTep(context, f, tieuDe: 'Tệp PDF đã lưu'),
+              onTap: () => baoDaLuuTep(context, f, tieuDe: tx('Tệp PDF đã lưu', 'savedFiles')),
               trailing: Row(mainAxisSize: MainAxisSize.min, children: [
                 Builder(
                   builder: (b) => IconButton(
-                    tooltip: 'Gửi, lưu ra nơi khác',
+                    tooltip: tx('Gửi, lưu ra nơi khác', 'share'),
                     icon: const Icon(Icons.ios_share),
                     onPressed: () => guiTep([f.path], context: b),
                   ),
                 ),
-                IconButton(tooltip: 'Xóa', icon: const Icon(Icons.delete_outline), onPressed: () => _xoa(f)),
+                IconButton(tooltip: tx('Xóa', 'delete'), icon: const Icon(Icons.delete_outline), onPressed: () => _xoa(f)),
               ]),
             ),
         ],

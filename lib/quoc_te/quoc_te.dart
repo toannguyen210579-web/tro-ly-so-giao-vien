@@ -46,6 +46,12 @@ String chu(String khoa, {Object? n, String? ma}) {
   return n == null ? s : s.replaceAll('{n}', '$n');
 }
 
+/// Đang chạy bản quốc tế hay không: mặc định theo cờ đóng gói, phép thử đổi được.
+bool laQuocTe = quocTe;
+
+/// Chữ dùng chung cho hai bản: bản Việt giữ nguyên câu [vi], bản quốc tế lấy theo [khoa].
+String tx(String vi, String khoa, {Object? n}) => laQuocTe ? chu(khoa, n: n) : vi;
+
 /// Danh sách lớp của bản quốc tế: chỉ lưu trên máy.
 class LopQT {
   static Future<List<String>> doc() async {
