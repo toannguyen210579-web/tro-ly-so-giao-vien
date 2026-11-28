@@ -140,7 +140,10 @@ void main() {
     final da = <String>{};
     for (var i = 0; i < 7; i++) {
       await t.tap(find.byKey(const ValueKey('nut_goi')));
-      await t.pumpAndSettle(const Duration(milliseconds: 100));
+      // Tên chạy lướt khoảng 1,3 giây rồi mới dừng: cho đồng hồ chạy đủ
+      for (var k = 0; k < 20; k++) {
+        await t.pump(const Duration(milliseconds: 100));
+      }
       da.add(t.widget<Text>(find.byKey(const ValueKey('ten_duoc_goi'))).data!);
     }
     expect(da.length, 7);
