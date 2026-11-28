@@ -223,7 +223,8 @@ void main() {
     tieng.value = 'de';
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
-    await t.scrollUntilVisible(find.byKey(const ValueKey('o_idPhoto')), 200);
+    await t.ensureVisible(find.byKey(const ValueKey('o_idPhoto')));
+    await t.pumpAndSettle();
     await t.tap(find.byKey(const ValueKey('o_idPhoto')));
     await t.pumpAndSettle();
     expect(find.text('Passfoto'), findsOneWidget);
