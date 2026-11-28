@@ -393,7 +393,7 @@ void main() {
     ];
     SharedPreferences.setMockInitialValues({'o_chu': jsonEncode(ba)});
     GoiQT.laPro = false;
-    await t.pumpWidget(const MaterialApp(home: OChuMan()));
+    await t.pumpWidget(RepaintBoundary(key: _khoaAnh, child: const MaterialApp(home: OChuMan())));
     await t.pumpAndSettle();
     expect(find.text('Mine 2'), findsOneWidget);
     await t.tap(find.text('New crossword'));
