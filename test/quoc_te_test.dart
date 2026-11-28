@@ -192,6 +192,11 @@ void main() {
 
   testWidgets('Quét PDF: bản quốc tế hiện chữ theo tiếng đã chọn, bản Việt giữ nguyên', (t) async {
     await t.binding.setSurfaceSize(const Size(390, 844));
+    // Máy thử không có thư mục tài liệu của điện thoại: trả về thư mục tạm
+    t.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (c) async => Directory.systemTemp.path,
+    );
     tieng.value = 'fr';
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
