@@ -1,0 +1,33 @@
+name: TeachDesk ho so App Store
+# Điền hồ sơ App Store Connect cho TeachDesk (Apple ID 6840301876) từ cua-hang/TEACHDESK_HO_SO_KHO.md bằng khóa API:
+# phụ đề, chính sách, danh mục, phân loại tuổi, mô tả, từ khóa, thông tin cho người duyệt, giá miễn phí, phạm vi.
+# KHÔNG gửi duyệt. Chạy lại được. Người dùng bảo "làm đi" ngày 28/11/2026.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ban-quoc-te]
+    paths:
+      - ".github/workflows/teachdesk_ho_so.yml"
+      - "tool/quoc_te/ho_so_asc.py"
+      - "cua-hang/TEACHDESK_HO_SO_KHO.md"
+
+permissions:
+  contents: read
+
+jobs:
+  ho_so:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Cài thư viện ký JWT
+        run: pip install --quiet pyjwt cryptography
+      - name: Điền hồ sơ
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: 4J84ST68KM
+          ASC_ISSUER_ID: adfaa10b-1308-4779-8c38-1729ecad72df
+          APP_ID: "6840301876"
+          APP_ID_VN: "6838612892"
+          PHIEN_BAN: "1.0.0"
+        run: python3 tool/quoc_te/ho_so_asc.py

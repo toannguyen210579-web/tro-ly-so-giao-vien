@@ -19,8 +19,8 @@ Chữ trong hồ sơ là tiếng Anh vì đây là ngôn ngữ chính của tran
 | Quảng cáo | Không |
 | Quốc gia | Mọi nước, trừ khi kho yêu cầu khai thêm (EU: phải khai tư cách người bán theo DSA; người dùng tự khai) |
 | Email hỗ trợ | hotro.trolysogv@gmail.com |
-| Chính sách quyền riêng tư | https://trolysogiaovien.com/teachdesk/privacy/ (chưa có trên mạng, nội dung ở mục F) |
-| Trang hỗ trợ | https://trolysogiaovien.com/teachdesk/support/ (chưa có trên mạng, nội dung ở mục G) |
+| Chính sách quyền riêng tư | https://trolysogiaovien.com/teachdesk/privacy/ (đã có trên mạng 28/11, nội dung ở mục F) |
+| Trang hỗ trợ | https://trolysogiaovien.com/teachdesk/support/ (đã có trên mạng 28/11, nội dung ở mục G) |
 | Đối tượng | Giáo viên, người lớn. Không dành cho trẻ em. |
 
 ## B. Chữ trên trang kho
@@ -137,8 +137,8 @@ Contact
 Email hotro.trolysogv@gmail.com. Please include your device model and what you were doing when the problem happened.
 
 ## H. Việc còn lại trước khi nộp
-- Lập app trên App Store Connect (chờ người dùng đăng nhập Apple) và trên Play Console.
-- Đưa hai trang ở mục F, G lên trolysogiaovien.com/teachdesk/ (cần người dùng bấm Deploy khi cập nhật trang web).
+- App Store Connect: đã lập app 28/11 (Apple ID 6840301876); hồ sơ điền bằng tool/quoc_te/ho_so_asc.py. Play Console: chưa lập.
+- Hai trang ở mục F, G đã có trên trolysogiaovien.com/teachdesk/ (28/11).
 - Ảnh giới thiệu: mỗi ảnh một tiện ích, chụp từ bản chạy thật (hiện mới có ảnh từ máy kiểm tra, nhánh anh-quoc-te).
 - Biểu tượng riêng cho TeachDesk.
 - Bản iPhone: chứng chỉ, hồ sơ ký cho mã gói mới; workflow đóng gói riêng.
