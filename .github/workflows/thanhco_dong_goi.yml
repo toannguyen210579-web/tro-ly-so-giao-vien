@@ -44,7 +44,17 @@ jobs:
           K: ${{ secrets.THANHCO_KEY }}
         run: |
           mkdir -p du-an
-          openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:K -in thanhco/nguon.enc | tar -xz -C du-an
+          # khóa là 64 ký tự hex; bỏ xuống dòng, dấu cách, ký tự lạ khi cất từ máy Windows
+          K2=$(printf '%s' "$K" | LC_ALL=C tr -cd '0-9a-fA-F\n' | grep -oE '[0-9a-fA-F]{64}' | head -1 || true)
+          echo "do dai bi mat: ${#K}, tim thay khoa 64 hex: $([ -n "$K2" ] && echo co || echo khong), ma bam 8: $(printf '%s' "$K2" | sha256sum | cut -c1-8) (can 43281ad5)"
+          [ -n "$K2" ] || K2="$K"
+          export K2
+          if ! openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -pass env:K2 -in thanhco/nguon.enc -out /tmp/nguon.tgz; then
+            echo "$(date -u +%FT%TZ) giai ma loi: khoa THANHCO_KEY tren GitHub khac khoa ma hoa (do dai ${#K}, ma bam $(printf '%s' "$K2" | sha256sum | cut -c1-8), can 43281ad5)" >> /tmp/ra/trang_thai.txt
+            GH_TOKEN="${{ github.token }}" bash thanhco/day_ket_qua.sh dong_goi /tmp/ra/trang_thai.txt || true
+            exit 1
+          fi
+          tar -xzf /tmp/nguon.tgz -C du-an && rm /tmp/nguon.tgz
           ls du-an
       - name: Tai anh vat lieu, mo hinh CC0
         if: steps.bm.outputs.thieu == ''
