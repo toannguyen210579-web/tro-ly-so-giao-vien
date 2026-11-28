@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import '../main.dart';
 import 'cau_giup_viec.dart';
 import '../services/chia_se.dart';
+import '../quoc_te/quoc_te.dart';
 
 /// Ảnh thẻ: tách nền ngay trên máy (ML Kit), thay nền xanh hoặc trắng,
 /// cắt cỡ 3x4 hoặc 4x6, xếp tờ in 10x15 cm. Không gửi ảnh đi đâu.
@@ -39,7 +40,7 @@ class _AnhTheState extends State<AnhThe> {
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chưa mở được máy ảnh. Thầy cô bấm Cho phép khi app hỏi quyền máy ảnh.')),
+          SnackBar(content: Text(tx('Chưa mở được máy ảnh. Thầy cô bấm Cho phép khi app hỏi quyền máy ảnh.', 'errAccess'))),
         );
       }
       return;
@@ -70,7 +71,7 @@ class _AnhTheState extends State<AnhThe> {
       if (mounted) {
         setState(() => _dangXuLy = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Chưa tách được nền. Thầy cô chụp lại, đứng trước nền đơn giản, đủ sáng.')),
+          SnackBar(content: Text(tx('Chưa tách được nền. Thầy cô chụp lại, đứng trước nền đơn giản, đủ sáng.', 'errBg'))),
         );
       }
     }
@@ -107,25 +108,25 @@ class _AnhTheState extends State<AnhThe> {
     final f1 = File('${d.path}/AnhThe_${_co}_$s.jpg')..writeAsBytesSync(a);
     final f2 = File('${d.path}/ToIn_10x15_${_co}_$s.jpg')..writeAsBytesSync(t);
     if (!mounted) return;
-    await baoDaLuu(context, [f1, f2], tieuDe: 'Đã lưu ảnh thẻ và tờ in 10x15');
+    await baoDaLuu(context, [f1, f2], tieuDe: tx('Đã lưu ảnh thẻ và tờ in 10x15', 'fileSaved'));
   }
 
   @override
   Widget build(BuildContext context) {
     final soAnh = _co == '3x4' ? 8 : 3;
     return Scaffold(
-      appBar: AppBar(title: const Text('Ảnh thẻ')),
+      appBar: AppBar(title: Text(tx('Ảnh thẻ', 'idPhoto'))),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: [
-          const CauGiupViec('anh_the'),
+          if (laQuocTe) const SizedBox(height: 12) else const CauGiupViec('anh_the'),
           Row(
             children: [
               Expanded(
                 child: FilledButton.icon(
                   onPressed: _dangXuLy ? null : () => _chonAnh(ImageSource.camera),
                   icon: const Icon(Icons.photo_camera_outlined),
-                  label: const Text('Chụp ảnh'),
+                  label: Text(tx('Chụp ảnh', 'takePhoto')),
                 ),
               ),
               const SizedBox(width: 10),
@@ -133,23 +134,23 @@ class _AnhTheState extends State<AnhThe> {
                 child: OutlinedButton.icon(
                   onPressed: _dangXuLy ? null : () => _chonAnh(ImageSource.gallery),
                   icon: const Icon(Icons.photo_library_outlined),
-                  label: const Text('Ảnh có sẵn'),
+                  label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Ảnh có sẵn', 'pickPhotos'))),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 6),
-          const Text(
-            'Chụp chính diện, đủ sáng, đứng trước nền đơn giản. Ảnh được xử lý ngay trên máy.',
-            style: TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
+          Text(
+            tx('Chụp chính diện, đủ sáng, đứng trước nền đơn giản. Ảnh được xử lý ngay trên máy.', 'idHint'),
+            style: const TextStyle(fontSize: 12.5, color: MauApp.chuPhu),
           ),
           const SizedBox(height: 16),
-          const Text('Màu nền', style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(tx('Màu nền', 'background'), style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           SegmentedButton<int>(
-            segments: const [
-              ButtonSegment(value: _nenXanh, label: Text('Xanh')),
-              ButtonSegment(value: _nenTrang, label: Text('Trắng')),
+            segments: [
+              ButtonSegment(value: _nenXanh, label: Text(tx('Xanh', 'blue'))),
+              ButtonSegment(value: _nenTrang, label: Text(tx('Trắng', 'white'))),
             ],
             selected: {_nen},
             onSelectionChanged: (s) {
@@ -158,7 +159,7 @@ class _AnhTheState extends State<AnhThe> {
             },
           ),
           const SizedBox(height: 12),
-          const Text('Cỡ ảnh', style: TextStyle(fontWeight: FontWeight.w700)),
+          Text(tx('Cỡ ảnh', 'photoSize'), style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           SegmentedButton<String>(
             segments: const [
@@ -176,20 +177,22 @@ class _AnhTheState extends State<AnhThe> {
           if (!_dangXuLy && _anhThe != null) ...[
             Center(child: Image.memory(_anhThe!, height: 220)),
             const SizedBox(height: 16),
-            Text('Tờ in 10 x 15 cm · $soAnh ảnh', style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(tx('Tờ in 10 x 15 cm · $soAnh ảnh', 'printSheet', n: soAnh), style: const TextStyle(fontWeight: FontWeight.w700)),
             const SizedBox(height: 6),
             Image.memory(_toIn!),
             const SizedBox(height: 16),
             FilledButton.icon(
               onPressed: _luuVaGui,
               icon: const Icon(Icons.save_alt),
-              label: const Text('Lưu và gửi đi in'),
+              label: Text(tx('Lưu và gửi đi in', 'savePrint')),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Lưu ý: ảnh tự chụp có thể không được chấp nhận cho căn cước, hộ chiếu, bằng lái. '
-              'Thầy cô kiểm tra yêu cầu của nơi nộp hồ sơ.',
-              style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
+            Text(
+              tx(
+                  'Lưu ý: ảnh tự chụp có thể không được chấp nhận cho căn cước, hộ chiếu, bằng lái. '
+                      'Thầy cô kiểm tra yêu cầu của nơi nộp hồ sơ.',
+                  'idNote'),
+              style: const TextStyle(fontSize: 12, color: MauApp.chuPhu),
             ),
           ],
         ],

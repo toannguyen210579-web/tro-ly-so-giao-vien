@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../main.dart';
+import '../screens/anh_the.dart';
 import '../screens/quet_pdf.dart';
 import 'cong_cu_qt.dart';
 import 'ngon_ngu.dart';
@@ -66,6 +67,7 @@ class _TrangChuQTState extends State<TrangChuQT> {
       _O('score', Icons.emoji_events_outlined, const Color(0xFF8A4FD3), () => const BangDiemQT()),
       _O('attendance', Icons.fact_check_outlined, const Color(0xFFD42539), () => const DiemDanhQT()),
       _O('scan', Icons.document_scanner_outlined, const Color(0xFF00838F), () => const QuetPdf()),
+      _O('idPhoto', Icons.badge_outlined, const Color(0xFF5E6AD2), () => const AnhThe()),
     ];
     return Scaffold(
       appBar: AppBar(
