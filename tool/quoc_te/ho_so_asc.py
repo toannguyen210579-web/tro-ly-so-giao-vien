@@ -120,15 +120,35 @@ if info:
                   "sexualContentOrNudity", "horrorOrFearThemes", "matureOrSuggestiveThemes",
                   "violenceCartoonOrFantasy", "violenceRealisticProlongedGraphicOrSadistic", "violenceRealistic"]
         co_khong = ["gambling", "unrestrictedWebAccess", "lootBox", "advertising", "ageAssurance",
-                    "healthOrWellnessTopics", "messagingAndChat", "parentalControls", "userGeneratedContent"]
+                    "healthOrWellnessTopics", "messagingAndChat", "parentalControls", "userGeneratedContent",
+                    "socialMedia", "socialMediaAgeRestricted", "datingAndRelationships", "sharedLocation"]
         co = set(ar["attributes"].keys())
         tl = {k: "NONE" for k in muc_do if k in co}
         tl.update({k: False for k in co_khong if k in co})
         la = sorted(co - set(muc_do) - set(co_khong))
         if la:
             bao("Mục phân loại tuổi chưa trả lời bằng API: " + ", ".join(la))
-        st, r2 = api("PATCH", f"/v1/ageRatingDeclarations/{ar['id']}", {"data": {
-            "type": "ageRatingDeclarations", "id": ar["id"], "attributes": tl}})
+        # Apple đổi kiểu câu trả lời theo thời gian: mục nào báo sai kiểu thì đổi Không (false) thành NONE rồi thử lại
+        for _ in range(8):
+            st, r2 = api("PATCH", f"/v1/ageRatingDeclarations/{ar['id']}", {"data": {
+                "type": "ageRatingDeclarations", "id": ar["id"], "attributes": tl}})
+            if st in (200, 204):
+                break
+            doi = False
+            for e in r2.get("errors", []):
+                m = re.search(r"attribute '(\w+)'", e.get("detail") or "") or re.search(r"/attributes/(\w+)", (e.get("source") or {}).get("pointer") or "")
+                k = m.group(1) if m else None
+                print("  phân loại tuổi:", e.get("code"), e.get("detail"))
+                if k and k in tl:
+                    tl[k] = "NONE" if tl[k] is False else (False if tl[k] == "NONE" else None)
+                    if tl[k] is None:
+                        del tl[k]
+                    doi = True
+                elif k and "REQUIRED" in (e.get("code") or ""):
+                    tl[k] = False
+                    doi = True
+            if not doi:
+                break
         thu(st, r2, f"Phân loại tuổi: trả lời Không cho {len(tl)} mục")
 
 # ---------- Trang phiên bản ----------
@@ -171,9 +191,9 @@ if thu(st, js, "Đọc trang phiên bản") and js["data"]:
     thu(st, r, "Thông tin cho người duyệt (" + ("có liên hệ" if lh else "CHƯA có liên hệ") + ", ghi chú, không cần đăng nhập)")
 
 # ---------- Giá: miễn phí ----------
-st, js = api("GET", f"/v1/apps/{APP}/appPriceSchedule")
+st, js = api("GET", f"/v1/appPriceSchedules/{APP}/manualPrices?include=appPricePoint&limit=10")
 if st == 200 and js.get("data"):
-    bao("Giá: đã có lịch giá, giữ nguyên")
+    bao("Giá: đã có lịch giá: " + ", ".join(str(i["attributes"].get("customerPrice")) for i in js.get("included", []) if i["type"] == "appPricePoints"))
 else:
     st, js = api("GET", f"/v1/apps/{APP}/appPricePoints?filter[territory]=USA&limit=200")
     mp = None
