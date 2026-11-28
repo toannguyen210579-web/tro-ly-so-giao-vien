@@ -25,7 +25,10 @@ jobs:
         with:
           channel: stable
           cache: true
-      - run: bash tool/chuan_bi.sh
+      - name: Chuẩn bị thư mục android, ios với cấu hình bản quốc tế
+        run: bash tool/chuan_bi.sh
+        env:
+          QUOC_TE: "true"
       - run: flutter pub get
       - name: Bảng chữ khớp với tệp gốc
         run: python3 tool/quoc_te/tao_ngon_ngu.py && git diff --exit-code lib/quoc_te/ngon_ngu.dart
@@ -47,6 +50,14 @@ jobs:
             echo "Đóng gói lỗi lần $i, chờ rồi thử lại"; sleep $((i * 60))
           done
           exit 1
+      - name: Kiểm tra tên, mã gói, câu xin quyền của bản quốc tế
+        run: |
+          AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt | sort -V | tail -1)
+          $AAPT dump badging build/app/outputs/flutter-apk/app-debug.apk | grep -E "^package:|application-label:" | tee /tmp/goi.txt
+          grep -q "intl'" /tmp/goi.txt
+          grep -q "application-label:'Classroom Kit'" /tmp/goi.txt
+          grep -c "The camera is used" ios/Runner/Info.plist
+          if grep -q "Dùng máy ảnh" ios/Runner/Info.plist; then echo "Còn câu tiếng Việt trong Info.plist"; exit 1; fi
       - uses: actions/upload-artifact@v4
         with:
           name: ban-quoc-te-android-dung-thu

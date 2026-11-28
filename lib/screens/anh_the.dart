@@ -21,6 +21,21 @@ class AnhThe extends StatefulWidget {
   State<AnhThe> createState() => _AnhTheState();
 }
 
+/// Cỡ ảnh thẻ: mã → (rộng, cao tính bằng điểm ảnh ở 300 dpi, nhãn hiện trên nút).
+/// 3x4, 4x6 cm là cỡ quen dùng ở Việt Nam; 35x45 mm và 2x2 inch là hai cỡ phổ biến ở nước ngoài.
+const coAnhThe = <String, (int, int, String)>{
+  '3x4': (354, 472, '3 x 4 cm'),
+  '4x6': (472, 709, '4 x 6 cm'),
+  '35x45': (413, 531, '35 x 45 mm'),
+  '2x2in': (600, 600, '2 x 2 in'),
+};
+
+/// Số ảnh xếp vừa một tờ in 10 x 15 cm (1772 x 1181 điểm ảnh, khe 24).
+int soAnhTrenTo(String co) {
+  final (pw, ph, _) = coAnhThe[co]!;
+  return ((1772 + 24) ~/ (pw + 24)) * ((1181 + 24) ~/ (ph + 24));
+}
+
 const _nenXanh = 0xFF4A8FE7;
 const _nenTrang = 0xFFFFFFFF;
 
@@ -28,7 +43,7 @@ class _AnhTheState extends State<AnhThe> {
   String? _anhGoc; // đường dẫn ảnh đã xoay đúng chiều, thu nhỏ
   SegmentationMask? _mask;
   int _nen = _nenXanh;
-  String _co = '3x4';
+  String _co = laQuocTe ? '35x45' : '3x4';
   Uint8List? _anhThe;
   Uint8List? _toIn;
   bool _dangXuLy = false;
@@ -113,7 +128,7 @@ class _AnhTheState extends State<AnhThe> {
 
   @override
   Widget build(BuildContext context) {
-    final soAnh = _co == '3x4' ? 8 : 3;
+    final soAnh = soAnhTrenTo(_co);
     return Scaffold(
       appBar: AppBar(title: Text(tx('Ảnh thẻ', 'idPhoto'))),
       body: ListView(
@@ -162,9 +177,9 @@ class _AnhTheState extends State<AnhThe> {
           Text(tx('Cỡ ảnh', 'photoSize'), style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 6),
           SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: '3x4', label: Text('3 x 4 cm')),
-              ButtonSegment(value: '4x6', label: Text('4 x 6 cm')),
+            segments: [
+              for (final ma in laQuocTe ? const ['35x45', '2x2in', '4x6'] : const ['3x4', '4x6'])
+                ButtonSegment(value: ma, label: FittedBox(fit: BoxFit.scaleDown, child: Text(coAnhThe[ma]!.$3))),
             ],
             selected: {_co},
             onSelectionChanged: (s) {
@@ -249,7 +264,8 @@ Map<String, Uint8List> _ghepAnh(Map<String, Object> vao) {
   if (dinh == h) dinh = 0;
 
   // Cắt theo tỉ lệ 3:4 hoặc 4:6, chừa khoảng trống trên đầu.
-  final tiLe = co == '3x4' ? 3 / 4 : 4 / 6;
+  final (pw, ph, _) = coAnhThe[co]!;
+  final tiLe = co == '3x4' ? 3 / 4 : (co == '4x6' ? 4 / 6 : pw / ph);
   var cw = w, ch = (w / tiLe).round();
   if (ch > h) {
     ch = h;
@@ -260,8 +276,6 @@ Map<String, Uint8List> _ghepAnh(Map<String, Object> vao) {
   final cat = img.copyCrop(ra, x: x0, y: y0, width: cw, height: ch);
 
   // Cỡ in ở 300 dpi: 3x4 cm = 354x472 điểm ảnh, 4x6 cm = 472x709.
-  final pw = co == '3x4' ? 354 : 472;
-  final ph = co == '3x4' ? 472 : 709;
   final anh = img.copyResize(cat, width: pw, height: ph, interpolation: img.Interpolation.average);
 
   // Tờ in 15x10 cm (nằm ngang) ở 300 dpi = 1772x1181 điểm ảnh.

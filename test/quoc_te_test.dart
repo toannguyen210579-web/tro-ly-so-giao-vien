@@ -235,6 +235,9 @@ void main() {
     expect(find.text('Passfoto'), findsOneWidget);
     expect(find.text('Foto aufnehmen'), findsOneWidget);
     expect(find.text('Hintergrund'), findsOneWidget);
+    expect(find.text('35 x 45 mm'), findsOneWidget);
+    expect(find.text('2 x 2 in'), findsOneWidget);
+    expect(find.text('3 x 4 cm'), findsNothing);
     expect(find.text('Ảnh thẻ'), findsNothing);
     await _chup(t, '08_anh_the_de');
 
@@ -244,6 +247,9 @@ void main() {
     expect(find.text('Ảnh thẻ'), findsOneWidget);
     expect(find.text('Chụp ảnh'), findsOneWidget);
     expect(find.text('Màu nền'), findsOneWidget);
+    expect(find.text('3 x 4 cm'), findsOneWidget);
+    expect(find.text('35 x 45 mm'), findsNothing);
+    expect([for (final c in ['3x4', '4x6', '35x45', '2x2in']) soAnhTrenTo(c)], [8, 3, 8, 2]);
   });
 
   test('Ô chữ bản quốc tế nhận chữ cái của mọi thứ tiếng; bản Việt giữ cách cũ', () {

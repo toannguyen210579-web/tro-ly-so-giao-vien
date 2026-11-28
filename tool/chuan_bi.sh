@@ -195,6 +195,11 @@ s = s.replace('signingConfig = signingConfigs.getByName("debug")', 'signingConfi
 open(p, 'w', encoding='utf-8').write(s)
 PY
 fi
+# Bản quốc tế (QUOC_TE=true): tên hiển thị, mã gói riêng để cài song song với bản Việt,
+# câu xin quyền bằng tiếng Anh. Tên "Classroom Kit" là tên tạm, chưa chốt.
+if [ "${QUOC_TE:-}" = "true" ]; then
+  /usr/bin/env python3 tool/quoc_te/cau_hinh_goi.py
+fi
 echo "Da chuan bi xong."
 
 # ML Kit nhận chữ: chỉ dùng bộ chữ Latin, báo R8 bỏ qua các bộ chữ không cài.
