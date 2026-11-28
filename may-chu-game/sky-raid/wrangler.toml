@@ -1,0 +1,29 @@
+# Máy chủ chơi online của game Sky Raid (Phi Công Đột Kích): bảng xếp hạng, ghép trận, phòng chơi.
+# Không dùng chung gì với máy chủ app tro-ly-gv. Triển khai bằng workflow .github/workflows/trien_khai_may_chu_game.yml
+name = "sky-raid-online"
+main = "worker.js"
+account_id = "e426acb896fd3c971495416845add55b"
+compatibility_date = "2026-11-01"
+
+# Bản game để chơi thử trực tiếp (index.html dựng từ mã Sky Raid), phục vụ ở /choi/
+[assets]
+directory = "./public"
+binding = "ASSETS"
+run_worker_first = ["/health", "/score", "/top", "/quick", "/create", "/ws", "/peek"]
+
+[[durable_objects.bindings]]
+name = "BOARD"
+class_name = "Board"
+
+[[durable_objects.bindings]]
+name = "LOBBY"
+class_name = "Lobby"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+# Gói miễn phí của Cloudflare chỉ cho Durable Objects lưu bằng SQLite
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Board", "Lobby", "Room"]

@@ -1,0 +1,60 @@
+name: Triển khai máy chủ game Sky Raid
+
+# Máy chủ chơi online của game Sky Raid (thư mục may-chu-game/sky-raid), tách riêng khỏi máy chủ app tro-ly-gv.
+# Đưa lên Cloudflare Worker sky-raid-online, rồi chạy bộ thử thu.mjs trên máy chủ thật.
+# Kết quả ghi vào nhánh sky-raid-ket-qua (tệp ket_qua.txt) để đọc lại không cần đăng nhập GitHub.
+on:
+  push:
+    branches: [main, noi-may-chu]
+    paths: ["may-chu-game/**", ".github/workflows/trien_khai_may_chu_game.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: trien-khai-may-chu-game
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Kiểm tra cú pháp
+        run: node --check may-chu-game/sky-raid/worker.js && node --check may-chu-game/sky-raid/thu.mjs
+      - name: Triển khai máy chủ game
+        id: trienkhai
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          workingDirectory: may-chu-game/sky-raid
+          wranglerVersion: "4.165.0"
+          command: deploy
+      - name: Thử máy chủ thật
+        id: thu
+        run: |
+          sleep 10
+          curl -fsS https://sky-raid-online.toannguyen210579.workers.dev/health | tee /tmp/health.txt
+          node may-chu-game/sky-raid/thu.mjs https://sky-raid-online.toannguyen210579.workers.dev 2>&1 | tee /tmp/thu.txt
+          test "${PIPESTATUS[0]}" = "0"
+          curl -fsS -o /dev/null -w "trang game %{http_code} %{size_download} byte\n" https://sky-raid-online.toannguyen210579.workers.dev/ | tee -a /tmp/thu.txt
+      - name: Ghi kết quả vào nhánh sky-raid-ket-qua
+        if: always()
+        env:
+          KQ_TRIENKHAI: ${{ steps.trienkhai.outcome }}
+          KQ_THU: ${{ steps.thu.outcome }}
+        run: |
+          {
+            echo "thời điểm: $(TZ=Asia/Ho_Chi_Minh date '+%Y-%m-%d %H:%M:%S')"
+            echo "commit: ${GITHUB_SHA}"
+            echo "triển khai: ${KQ_TRIENKHAI}"
+            echo "thử: ${KQ_THU}"
+            echo "--- health"; cat /tmp/health.txt 2>/dev/null; echo
+            echo "--- thử"; cat /tmp/thu.txt 2>/dev/null
+          } > /tmp/ket_qua.txt
+          rm -rf /tmp/kq && mkdir /tmp/kq && cd /tmp/kq && git init -q && git checkout -q -b sky-raid-ket-qua
+          git config user.name "sky-raid-bot"; git config user.email "sky-raid-bot@users.noreply.github.com"
+          cp /tmp/ket_qua.txt . && git add ket_qua.txt && git commit -qm "Kết quả triển khai máy chủ game ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${GITHUB_REPOSITORY}.git" sky-raid-ket-qua
