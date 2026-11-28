@@ -84,13 +84,16 @@ class _TrangChuQTState extends State<TrangChuQT> {
         children: [
           Text(chu('title'), style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 12),
-          GridView.count(
-            crossAxisCount: cot,
+          GridView(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            mainAxisSpacing: 12,
-            crossAxisSpacing: 12,
-            childAspectRatio: 1.25,
+            // Ô cao cố định (giãn theo cỡ chữ của máy) để tên dài hai dòng không bị tràn
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cot,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              mainAxisExtent: 104 + MediaQuery.textScalerOf(context).scale(48),
+            ),
             children: [
               for (final e in o)
                 Card(
