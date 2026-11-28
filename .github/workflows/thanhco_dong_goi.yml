@@ -4,7 +4,7 @@ name: Thanh co - dong goi WebGL
 on:
   push:
     branches: [thanh-co-unity]
-    paths: ['thanhco/nguon.enc', '.github/workflows/thanhco_dong_goi.yml', 'thanhco/tai_tai_nguyen.py']
+    paths: ['thanhco/nguon.enc', '.github/workflows/thanhco_dong_goi.yml', 'thanhco/tai_tai_nguyen.py', 'thanhco/quay_phim.cjs']
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,7 +14,7 @@ concurrency:
 jobs:
   dong:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 330
     steps:
       - uses: actions/checkout@v4
       - name: Kiem tra bi mat
@@ -100,3 +100,18 @@ jobs:
             git add -A && git commit -q -m "ban dung $(date -u +%FT%TZ) ${GITHUB_SHA::7}"
             git push -q -f "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:thanh-co-ban-dung
           fi
+      - name: Quay phim 36 giay (Chrome khong man hinh)
+        if: steps.bm.outputs.thieu == ''
+        continue-on-error: true
+        timeout-minutes: 150
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          D=$(find "$GITHUB_WORKSPACE/build" -name index.html -path "*GiongPhaThanh*" -printf '%h\n' | head -1)
+          if [ -z "$D" ]; then echo "khong co ban dung, bo qua quay phim"; exit 0; fi
+          command -v ffmpeg || { sudo apt-get update -q && sudo apt-get install -y -q ffmpeg; } >/dev/null
+          mkdir -p /tmp/quay && cp thanhco/quay_phim.cjs /tmp/quay/
+          cd /tmp/quay && npm init -y >/dev/null && npm i -q --no-audit --no-fund playwright-core@1.48.2 >/dev/null
+          node quay_phim.cjs "$D" /tmp/phim
+          ls -la /tmp/phim
+          cd "$GITHUB_WORKSPACE" && bash thanhco/day_ket_qua.sh phim /tmp/phim/*
