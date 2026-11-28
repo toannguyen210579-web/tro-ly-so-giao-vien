@@ -1,0 +1,34 @@
+name: Thanh co - danh sach ban Unity
+# Chỉ đọc danh sách ảnh Unity 6 công khai trên Docker Hub (GameCI) để chọn phiên bản dựng game.
+on:
+  push:
+    branches: [thanh-co-unity]
+    paths: ['.github/workflows/thanhco_ban_unity.yml']
+permissions:
+  contents: write
+jobs:
+  ban:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Doc danh sach
+        run: |
+          mkdir -p /tmp/ra
+          python3 - <<'EOF'
+          import json, urllib.request
+          ten = []
+          url = "https://hub.docker.com/v2/repositories/unityci/editor/tags?page_size=100&name=6000"
+          for _ in range(10):
+              d = json.load(urllib.request.urlopen(url))
+              ten += [t["name"] for t in d["results"]]
+              url = d.get("next")
+              if not url: break
+          ten = sorted(set(t for t in ten if t.startswith("ubuntu-6000") and ("-webgl-" in t or "-base-" in t)))
+          open("/tmp/ra/ban_unity.txt", "w").write("\n".join(ten) + "\n")
+          print(len(ten))
+          EOF
+      - name: Day len nhanh ket qua
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash thanhco/day_ket_qua.sh ban /tmp/ra/ban_unity.txt
