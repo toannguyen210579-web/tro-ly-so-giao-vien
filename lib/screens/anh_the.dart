@@ -126,7 +126,7 @@ class _AnhTheState extends State<AnhThe> {
                 child: FilledButton.icon(
                   onPressed: _dangXuLy ? null : () => _chonAnh(ImageSource.camera),
                   icon: const Icon(Icons.photo_camera_outlined),
-                  label: Text(tx('Chụp ảnh', 'takePhoto')),
+                  label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Chụp ảnh', 'takePhoto'))),
                 ),
               ),
               const SizedBox(width: 10),

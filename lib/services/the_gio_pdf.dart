@@ -5,6 +5,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../data/gio_the.dart';
+import '../quoc_te/quoc_te.dart' as qt;
 
 /// Bộ thẻ Giơ thẻ: mỗi thẻ một mã QR, bốn cạnh ghi A, B, C, D; 2 thẻ một trang A4.
 /// [ten]: tên học sinh theo thứ tự lớp (thẻ số mấy ghi tên em số đó), không có thì chỉ ghi số.
@@ -38,7 +39,7 @@ Future<Uint8List> taoPdfBoThe(int n, List<String> ten, {pw.ThemeData? theme}) {
           ),
           chu('C', pi),
           pw.SizedBox(height: 4),
-          pw.Text('Số $so${so <= ten.length ? ' · ${ten[so - 1]}' : ''}', style: const pw.TextStyle(fontSize: 10)),
+          pw.Text('${qt.laQuocTe ? '#' : 'Số '}$so${so <= ten.length ? ' · ${ten[so - 1]}' : ''}', style: const pw.TextStyle(fontSize: 10)),
         ]),
       );
   for (var i = 1; i <= n; i += 2) {

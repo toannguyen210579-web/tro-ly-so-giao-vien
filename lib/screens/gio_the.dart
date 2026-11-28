@@ -20,6 +20,7 @@ import '../services/the_gio_pdf.dart';
 import 'cau_giup_viec.dart';
 import 'nhan_xet.dart';
 import '../services/chia_se.dart';
+import '../quoc_te/quoc_te.dart';
 
 const _mauDapAn = {
   'A': Color(0xFFD7261E),
@@ -72,7 +73,7 @@ class _GioTheState extends State<GioThe> {
   int _chonLop = -1; // -1: không theo lớp, chỉ dùng số thẻ
   int _siSo = 40;
   double _hieuChinh = 0;
-  CauGioThe _cau = CauGioThe(tieuDe: 'Câu 1', luc: DateTime.now());
+  CauGioThe _cau = CauGioThe(tieuDe: tx('Câu 1', 'qN', n: 1), luc: DateTime.now());
   List<CauGioThe> _daLam = [];
   bool _dangQuet = false;
 
@@ -83,7 +84,12 @@ class _GioTheState extends State<GioThe> {
   }
 
   Future<void> _tai() async {
-    final ds = await docLop();
+    var ds = await docLop();
+    if (laQuocTe) {
+      // Bản quốc tế: một danh sách lớp chung (màn Danh sách lớp), không dùng lớp của Nhận xét học sinh
+      final ten = await LopQT.doc();
+      ds = ten.isEmpty ? [] : [Lop(chu('classList'), 'tr', '', [for (final t in ten) HocSinh(t)])];
+    }
     final p = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
@@ -101,7 +107,7 @@ class _GioTheState extends State<GioThe> {
 
   int get _soThe => _chonLop < 0 ? _siSo : _ten.length;
 
-  String _tenEm(int so) => (so >= 1 && so <= _ten.length) ? _ten[so - 1] : 'Thẻ số $so';
+  String _tenEm(int so) => (so >= 1 && so <= _ten.length) ? _ten[so - 1] : tx('Thẻ số $so', 'cardN', n: so);
 
   Future<void> _taiLichSu() async {
     final p = await SharedPreferences.getInstance();
@@ -115,7 +121,7 @@ class _GioTheState extends State<GioThe> {
     if (!mounted) return;
     setState(() {
       _daLam = ds;
-      _cau = CauGioThe(tieuDe: 'Câu ${ds.length + 1}', luc: DateTime.now());
+      _cau = CauGioThe(tieuDe: tx('Câu ${ds.length + 1}', 'qN', n: ds.length + 1), luc: DateTime.now());
     });
   }
 
@@ -130,7 +136,7 @@ class _GioTheState extends State<GioThe> {
     try {
       anh = await ImagePicker().pickImage(source: nguon, imageQuality: 95);
     } catch (_) {
-      _bao('Chưa mở được máy ảnh. Thầy cô cho app quyền dùng máy ảnh.');
+      _bao(tx('Chưa mở được máy ảnh. Thầy cô cho app quyền dùng máy ảnh.', 'errAccess'));
       return;
     }
     if (anh == null) return;
@@ -168,7 +174,7 @@ class _GioTheState extends State<GioThe> {
         }
       }
     } catch (_) {
-      _bao('Máy này chưa đọc được ảnh. Thầy cô thử chụp lại.');
+      _bao(tx('Máy này chưa đọc được ảnh. Thầy cô thử chụp lại.', 'errTry'));
     } finally {
       await may.close();
     }
@@ -177,9 +183,10 @@ class _GioTheState extends State<GioThe> {
     final moi = daDoc.length;
     _bao(moi == 0
         ? (chuaRo.isEmpty
-            ? 'Chưa thấy thẻ nào. Thầy cô đứng gần hơn, đủ sáng, các em giơ thẻ thẳng về phía máy.'
-            : 'Thấy ${chuaRo.length} thẻ nhưng chưa rõ chiều. Thầy cô chụp gần hơn, đủ sáng.')
-        : 'Đọc được $moi thẻ.${chuaRo.isEmpty ? '' : ' ${chuaRo.length} thẻ chưa rõ chiều.'} Còn thiếu em nào thì chụp thêm, kết quả được cộng dồn.');
+            ? tx('Chưa thấy thẻ nào. Thầy cô đứng gần hơn, đủ sáng, các em giơ thẻ thẳng về phía máy.', 'acNoCards')
+            : tx('Thấy ${chuaRo.length} thẻ nhưng chưa rõ chiều. Thầy cô chụp gần hơn, đủ sáng.', 'acUnclear', n: chuaRo.length))
+        : tx('Đọc được $moi thẻ.${chuaRo.isEmpty ? '' : ' ${chuaRo.length} thẻ chưa rõ chiều.'} Còn thiếu em nào thì chụp thêm, kết quả được cộng dồn.', 'acRead',
+            n: moi));
   }
 
   /// Hiệu chỉnh: một em giơ thẻ chữ A lên trên, chụp; app lấy góc đó làm chuẩn.
@@ -190,13 +197,13 @@ class _GioTheState extends State<GioThe> {
     try {
       final ds = (await may.processImage(InputImage.fromFilePath(anh.path))).where((b) => soTuMa(b.rawValue) != null).toList();
       if (ds.isEmpty) {
-        _bao('Chưa thấy thẻ trong ảnh.');
+        _bao(tx('Chưa thấy thẻ trong ảnh.', 'acNoCards'));
         return;
       }
       final xam = await compute(_docAnhXam, anh.path);
       final goc = xam == null ? null : gocTuAnh(xam, [for (final p in ds.first.cornerPoints) (p.x.toDouble(), p.y.toDouble())]);
       if (goc == null) {
-        _bao('Chưa rõ chiều thẻ. Thầy cô chụp gần hơn, đủ sáng.');
+        _bao(tx('Chưa rõ chiều thẻ. Thầy cô chụp gần hơn, đủ sáng.', 'acUnclear', n: 1));
         return;
       }
       // Ảnh chụp thẻ chữ A lên trên: góc đọc được chính là độ xoay sẵn của ảnh.
@@ -204,9 +211,11 @@ class _GioTheState extends State<GioThe> {
       final p = await SharedPreferences.getInstance();
       await p.setDouble('gt_xoay', chuan);
       if (mounted) setState(() => _hieuChinh = chuan);
-      _bao(chuan == 0 ? 'Máy đọc đúng chiều, không cần chỉnh.' : 'Đã chỉnh chiều ảnh ${chuan.toStringAsFixed(0)} độ.');
+      _bao(chuan == 0
+          ? tx('Máy đọc đúng chiều, không cần chỉnh.', 'acCalibOk')
+          : tx('Đã chỉnh chiều ảnh ${chuan.toStringAsFixed(0)} độ.', 'acCalibDone', n: chuan.toStringAsFixed(0)));
     } catch (_) {
-      _bao('Chưa đọc được ảnh.');
+      _bao(tx('Chưa đọc được ảnh.', 'errTry'));
     } finally {
       await may.close();
     }
@@ -217,7 +226,7 @@ class _GioTheState extends State<GioThe> {
       _daLam.add(_cau);
       await _ghiLichSu();
     }
-    setState(() => _cau = CauGioThe(tieuDe: 'Câu ${_daLam.length + 1}', luc: DateTime.now()));
+    setState(() => _cau = CauGioThe(tieuDe: tx('Câu ${_daLam.length + 1}', 'qN', n: _daLam.length + 1), luc: DateTime.now()));
   }
 
   // ---------------------------------------------------------------- in thẻ
@@ -228,11 +237,11 @@ class _GioTheState extends State<GioThe> {
   Future<void> _inThe() async {
     final n = _soThe;
     if (n < 1) {
-      _bao('Lớp chưa có học sinh.');
+      _bao(tx('Lớp chưa có học sinh.', 'needNames'));
       return;
     }
     setState(() => _dangIn = true);
-    _bao('Đang tạo bộ $n thẻ, thầy cô chờ vài giây…');
+    _bao(tx('Đang tạo bộ $n thẻ, thầy cô chờ vài giây…', 'acMaking', n: n));
     final File f;
     final Uint8List pdf;
     try {
@@ -242,7 +251,7 @@ class _GioTheState extends State<GioThe> {
       await f.writeAsBytes(pdf, flush: true);
     } catch (_) {
       if (mounted) setState(() => _dangIn = false);
-      _bao('Chưa tạo được bộ thẻ, thầy cô thử lại.');
+      _bao(tx('Chưa tạo được bộ thẻ, thầy cô thử lại.', 'errTry'));
       return;
     }
     if (!mounted) return;
@@ -251,18 +260,18 @@ class _GioTheState extends State<GioThe> {
     await baoDaLuuTep(
       context,
       f,
-      tieuDe: 'Đã tạo bộ $n thẻ (${(n + 1) ~/ 2} trang A4)',
+      tieuDe: tx('Đã tạo bộ $n thẻ (${(n + 1) ~/ 2} trang A4)', 'acMade', n: n, m: (n + 1) ~/ 2),
       nutThem: [
         FilledButton.tonalIcon(
           onPressed: () async {
             try {
               await Printing.layoutPdf(onLayout: (_) async => pdf, name: f.uri.pathSegments.last);
             } catch (_) {
-              _bao('Máy chưa mở được bảng in. Thầy cô bấm Gửi để in ở máy tính.');
+              _bao(tx('Máy chưa mở được bảng in. Thầy cô bấm Gửi để in ở máy tính.', 'errTry'));
             }
           },
           icon: const Icon(Icons.print_outlined),
-          label: const Text('In ngay (máy in nối wifi)'),
+          label: Text(tx('In ngay (máy in nối wifi)', 'printNow')),
         ),
         const SizedBox(height: 8),
       ],
@@ -274,7 +283,7 @@ class _GioTheState extends State<GioThe> {
   List<List<String>> _bangKetQua() {
     final ds = [..._daLam, if (_cau.traLoi.isNotEmpty) _cau];
     final bang = <List<String>>[
-      ['STT', 'Họ và tên', for (final c in ds) c.tieuDe, 'Số câu đúng'],
+      [laQuocTe ? '#' : 'STT', tx('Họ và tên', 'name'), for (final c in ds) c.tieuDe, tx('Số câu đúng', 'correctCount')],
     ];
     for (var so = 1; so <= _soThe; so++) {
       var dung = 0;
@@ -286,14 +295,16 @@ class _GioTheState extends State<GioThe> {
       }
       bang.add(['$so', _tenEm(so), ...o, '$dung']);
     }
-    bang.add(['', 'Đáp án đúng', for (final c in ds) c.dapAnDung ?? '', '']);
+    bang.add(['', tx('Đáp án đúng', 'correctAnswer'), for (final c in ds) c.dapAnDung ?? '', '']);
     return bang;
   }
 
   bool get _coKetQua => _daLam.isNotEmpty || _cau.traLoi.isNotEmpty;
 
-  void _baoChuaCoKetQua() => _bao('Chưa có kết quả để xuất. Thầy cô bấm Chụp cả lớp khi các em giơ thẻ, '
-      'app đọc đáp án từng em rồi mới có bảng kết quả.');
+  void _baoChuaCoKetQua() => _bao(tx(
+      'Chưa có kết quả để xuất. Thầy cô bấm Chụp cả lớp khi các em giơ thẻ, '
+          'app đọc đáp án từng em rồi mới có bảng kết quả.',
+      'acNoResults'));
 
   /// Xuất tệp Excel thật (.xlsx), mở được bằng Excel, Google Trang tính, WPS.
   Future<void> _xuatExcel() async {
@@ -304,11 +315,11 @@ class _GioTheState extends State<GioThe> {
     try {
       final bang = _bangKetQua();
       final f = File('${(await thuMucApp('xuat')).path}/Gio_the_${tenTep(_chonLop < 0 ? 'so' : _ds![_chonLop].ten)}_${dauThoiGian(DateTime.now())}.xlsx');
-      await f.writeAsBytes(taoXlsx(bang, tenTrang: 'Giơ thẻ', doRong: [6, 26, for (var i = 2; i < bang.first.length - 1; i++) 10, 12]), flush: true);
+      await f.writeAsBytes(taoXlsx(bang, tenTrang: tx('Giơ thẻ', 'answerCards'), doRong: [6, 26, for (var i = 2; i < bang.first.length - 1; i++) 10, 12]), flush: true);
       if (!mounted) return;
-      await baoDaLuuTep(context, f, tieuDe: 'Đã xuất bảng kết quả Excel');
+      await baoDaLuuTep(context, f, tieuDe: tx('Đã xuất bảng kết quả Excel', 'fileSaved'));
     } catch (_) {
-      _bao('Chưa xuất được tệp Excel, thầy cô thử lại.');
+      _bao(tx('Chưa xuất được tệp Excel, thầy cô thử lại.', 'errTry'));
     }
   }
 
@@ -319,25 +330,25 @@ class _GioTheState extends State<GioThe> {
       return;
     }
     await Clipboard.setData(ClipboardData(text: _bangKetQua().map((d) => d.join('\t')).join('\n')));
-    _bao('Đã chép bảng kết quả. Mở Excel, bấm vào ô A1 rồi dán.');
+    _bao(tx('Đã chép bảng kết quả. Mở Excel, bấm vào ô A1 rồi dán.', 'copied'));
   }
 
   Future<void> _xoaLichSu() async {
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('Xóa kết quả các câu đã làm?'),
-        content: const Text('Bộ thẻ in ra vẫn dùng tiếp được.'),
+        title: Text(tx('Xóa kết quả các câu đã làm?', 'acClearQ')),
+        content: Text(tx('Bộ thẻ in ra vẫn dùng tiếp được.', 'acClearNote')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text('Thôi')),
-          FilledButton(onPressed: () => Navigator.pop(c, true), child: const Text('Xóa')),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(tx('Thôi', 'cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(c, true), child: Text(tx('Xóa', 'delete'))),
         ],
       ),
     );
     if (ok != true) return;
     _daLam = [];
     await _ghiLichSu();
-    setState(() => _cau = CauGioThe(tieuDe: 'Câu 1', luc: DateTime.now()));
+    setState(() => _cau = CauGioThe(tieuDe: tx('Câu 1', 'qN', n: 1), luc: DateTime.now()));
   }
 
   void _bao(String s) {
@@ -349,35 +360,35 @@ class _GioTheState extends State<GioThe> {
   Widget build(BuildContext context) {
     final ds = _ds;
     if (ds == null) {
-      return Scaffold(appBar: AppBar(title: const Text('Giơ thẻ')), body: const Center(child: CircularProgressIndicator()));
+      return Scaffold(appBar: AppBar(title: Text(tx('Giơ thẻ', 'answerCards'))), body: const Center(child: CircularProgressIndicator()));
     }
     final tk = _cau.thongKe;
     final daCo = _cau.traLoi.length;
     final thieu = [for (var so = 1; so <= _soThe; so++) if (!_cau.traLoi.containsKey(so)) so];
     return Scaffold(
-      appBar: AppBar(title: const Text('Giơ thẻ'), actions: [
+      appBar: AppBar(title: Text(tx('Giơ thẻ', 'answerCards')), actions: [
         PopupMenuButton<String>(
           onSelected: (v) {
             if (v == 'chinh') _hieuChinhMay();
             if (v == 'xoa') _xoaLichSu();
           },
-          itemBuilder: (_) => const [
-            PopupMenuItem(value: 'chinh', child: Text('Hiệu chỉnh chiều máy ảnh')),
-            PopupMenuItem(value: 'xoa', child: Text('Xóa kết quả đã lưu')),
+          itemBuilder: (_) => [
+            PopupMenuItem(value: 'chinh', child: Text(tx('Hiệu chỉnh chiều máy ảnh', 'acCalib'))),
+            PopupMenuItem(value: 'xoa', child: Text(tx('Xóa kết quả đã lưu', 'acClear'))),
           ],
         ),
       ]),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 32),
         children: [
-          const CauGiupViec('gio_the'),
+          if (laQuocTe) const SizedBox(height: 12) else const CauGiupViec('gio_the'),
           DropdownButtonFormField<int>(
             isExpanded: true,
             value: _chonLop,
-            decoration: const InputDecoration(labelText: 'Lớp', border: OutlineInputBorder(), isDense: true),
+            decoration: InputDecoration(labelText: tx('Lớp', 'class'), border: const OutlineInputBorder(), isDense: true),
             items: [
-              for (var i = 0; i < ds.length; i++) DropdownMenuItem(value: i, child: Text('Lớp ${ds[i].ten} · ${ds[i].hocSinh.length} em')),
-              const DropdownMenuItem(value: -1, child: Text('Không theo lớp (chỉ số thẻ)')),
+              for (var i = 0; i < ds.length; i++) DropdownMenuItem(value: i, child: Text(laQuocTe ? '${ds[i].ten} · ${ds[i].hocSinh.length}' : 'Lớp ${ds[i].ten} · ${ds[i].hocSinh.length} em')),
+              DropdownMenuItem(value: -1, child: Text(tx('Không theo lớp (chỉ số thẻ)', 'acNoClass'))),
             ],
             onChanged: (v) async {
               setState(() => _chonLop = v ?? -1);
@@ -387,7 +398,7 @@ class _GioTheState extends State<GioThe> {
           ),
           if (_chonLop < 0)
             Row(children: [
-              const Text('Số thẻ:'),
+              Text(tx('Số thẻ:', 'acCount')),
               Expanded(
                 child: Slider(
                   value: _siSo.toDouble(),
@@ -406,13 +417,15 @@ class _GioTheState extends State<GioThe> {
             icon: _dangIn
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(Icons.print_outlined),
-            label: Text(_dangIn ? 'Đang tạo bộ thẻ…' : 'In bộ thẻ ($_soThe thẻ, 2 thẻ một trang A4)'),
+            label: Text(_dangIn ? tx('Đang tạo bộ thẻ…', 'creating') : tx('In bộ thẻ ($_soThe thẻ, 2 thẻ một trang A4)', 'acPrint', n: _soThe)),
           ),
           const SizedBox(height: 4),
-          const Text(
-            'In một lần, dùng cả năm. Em nào số mấy giữ thẻ số đó (theo thứ tự trong danh sách lớp). '
-            'Muốn chọn đáp án nào thì xoay thẻ cho chữ đó lên trên, giơ thẻ về phía thầy cô.',
-            style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
+          Text(
+            tx(
+                'In một lần, dùng cả năm. Em nào số mấy giữ thẻ số đó (theo thứ tự trong danh sách lớp). '
+                    'Muốn chọn đáp án nào thì xoay thẻ cho chữ đó lên trên, giơ thẻ về phía thầy cô.',
+                'acPrintHint'),
+            style: const TextStyle(fontSize: 12, color: MauApp.chuPhu),
           ),
           const Divider(height: 28),
           Row(children: [
@@ -420,12 +433,12 @@ class _GioTheState extends State<GioThe> {
               child: TextFormField(
                 key: ValueKey(_cau.luc),
                 initialValue: _cau.tieuDe,
-                decoration: const InputDecoration(labelText: 'Câu hỏi', isDense: true, border: OutlineInputBorder()),
-                onChanged: (v) => _cau.tieuDe = v.trim().isEmpty ? 'Câu ${_daLam.length + 1}' : v.trim(),
+                decoration: InputDecoration(labelText: tx('Câu hỏi', 'question'), isDense: true, border: const OutlineInputBorder()),
+                onChanged: (v) => _cau.tieuDe = v.trim().isEmpty ? tx('Câu ${_daLam.length + 1}', 'qN', n: _daLam.length + 1) : v.trim(),
               ),
             ),
             const SizedBox(width: 8),
-            TextButton.icon(onPressed: _cauMoi, icon: const Icon(Icons.skip_next), label: const Text('Câu mới')),
+            TextButton.icon(onPressed: _cauMoi, icon: const Icon(Icons.skip_next), label: Text(tx('Câu mới', 'newQuestion'))),
           ]),
           const SizedBox(height: 10),
           Row(children: [
@@ -433,19 +446,19 @@ class _GioTheState extends State<GioThe> {
               child: FilledButton.icon(
                 onPressed: _dangQuet ? null : () => _quet(ImageSource.camera),
                 icon: const Icon(Icons.photo_camera),
-                label: const Text('Chụp cả lớp'),
+                label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Chụp cả lớp', 'acScan'))),
               ),
             ),
             const SizedBox(width: 8),
             OutlinedButton.icon(
               onPressed: _dangQuet ? null : () => _quet(ImageSource.gallery),
               icon: const Icon(Icons.photo_library_outlined),
-              label: const Text('Ảnh có sẵn'),
+              label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Ảnh có sẵn', 'pickPhotos'))),
             ),
           ]),
           if (_dangQuet) const Padding(padding: EdgeInsets.all(12), child: Center(child: CircularProgressIndicator())),
           const SizedBox(height: 12),
-          Text('Đã nhận $daCo/$_soThe em', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+          Text(tx('Đã nhận $daCo/$_soThe em', 'acReceived', n: daCo, m: _soThe), style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
           const SizedBox(height: 8),
           for (final c in ['A', 'B', 'C', 'D'])
             Padding(
@@ -471,7 +484,7 @@ class _GioTheState extends State<GioThe> {
             ),
           const SizedBox(height: 8),
           Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
-            const Text('Đáp án đúng:'),
+            Text('${tx('Đáp án đúng', 'correctAnswer')}:'),
             for (final c in ['A', 'B', 'C', 'D'])
               ChoiceChip(
                 label: Text(c),
@@ -483,7 +496,9 @@ class _GioTheState extends State<GioThe> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'Đúng ${tk[_cau.dapAnDung]}/$daCo em (${(tk[_cau.dapAnDung]! * 100 / daCo).round()}%)',
+                laQuocTe
+                    ? '${chu('acCorrect', n: tk[_cau.dapAnDung], m: daCo)} (${(tk[_cau.dapAnDung]! * 100 / daCo).round()}%)'
+                    : 'Đúng ${tk[_cau.dapAnDung]}/$daCo em (${(tk[_cau.dapAnDung]! * 100 / daCo).round()}%)',
                 style: const TextStyle(fontWeight: FontWeight.w700, color: MauApp.xanhLa),
               ),
             ),
@@ -491,7 +506,8 @@ class _GioTheState extends State<GioThe> {
             Padding(
               padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'Chưa nhận: ${thieu.map((s) => _chonLop < 0 ? '$s' : '$s. ${_tenEm(s)}').join(', ')}',
+                tx('Chưa nhận: ${thieu.map((s) => _chonLop < 0 ? '$s' : '$s. ${_tenEm(s)}').join(', ')}', 'acMissing',
+                    m: thieu.map((s) => _chonLop < 0 ? '$s' : '$s. ${_tenEm(s)}').join(', ')),
                 style: const TextStyle(fontSize: 13, color: MauApp.chuPhu),
               ),
             ),
@@ -518,15 +534,15 @@ class _GioTheState extends State<GioThe> {
             ),
           ],
           const Divider(height: 28),
-          Text('Các câu đã lưu: ${_daLam.length}', style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(tx('Các câu đã lưu: ${_daLam.length}', 'acSaved', n: _daLam.length), style: const TextStyle(fontWeight: FontWeight.w700)),
           for (final c in _daLam.reversed)
             ListTile(
               dense: true,
               contentPadding: EdgeInsets.zero,
               title: Text(c.tieuDe),
               subtitle: Text(
-                '${c.traLoi.length} em · A ${c.thongKe['A']} · B ${c.thongKe['B']} · C ${c.thongKe['C']} · D ${c.thongKe['D']}'
-                '${c.dapAnDung == null ? '' : ' · đáp án ${c.dapAnDung}'}',
+                '${c.traLoi.length}${laQuocTe ? '' : ' em'} · A ${c.thongKe['A']} · B ${c.thongKe['B']} · C ${c.thongKe['C']} · D ${c.thongKe['D']}'
+                '${c.dapAnDung == null ? '' : ' · ${tx('đáp án', 'correctAnswer')} ${c.dapAnDung}'}',
               ),
             ),
           const SizedBox(height: 8),
@@ -536,7 +552,7 @@ class _GioTheState extends State<GioThe> {
               child: OutlinedButton.icon(
                 onPressed: _xuatExcel,
                 icon: const Icon(Icons.table_view_outlined),
-                label: const Text('Xuất Excel'),
+                label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Xuất Excel', 'exportExcel'))),
               ),
             ),
             const SizedBox(width: 8),
@@ -544,16 +560,16 @@ class _GioTheState extends State<GioThe> {
               child: OutlinedButton.icon(
                 onPressed: _chepBang,
                 icon: const Icon(Icons.copy),
-                label: const Text('Chép bảng'),
+                label: FittedBox(fit: BoxFit.scaleDown, child: Text(tx('Chép bảng', 'copyTable'))),
               ),
             ),
           ]),
           if (!_coKetQua)
-            const Padding(
-              padding: EdgeInsets.only(top: 6),
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
               child: Text(
-                'Bảng kết quả có sau khi thầy cô chụp cả lớp giơ thẻ: mỗi em một dòng, mỗi câu một cột, có số câu đúng.',
-                style: TextStyle(fontSize: 12, color: MauApp.chuPhu),
+                tx('Bảng kết quả có sau khi thầy cô chụp cả lớp giơ thẻ: mỗi em một dòng, mỗi câu một cột, có số câu đúng.', 'acTableHint'),
+                style: const TextStyle(fontSize: 12, color: MauApp.chuPhu),
               ),
             ),
         ],
@@ -568,8 +584,8 @@ class _GioTheState extends State<GioThe> {
       builder: (ctx) => SafeArea(
         child: Wrap(children: [
           ListTile(title: Text('$so. ${_tenEm(so)}')),
-          for (final d in ['A', 'B', 'C', 'D']) ListTile(title: Text('Chọn $d'), onTap: () => Navigator.pop(ctx, d)),
-          ListTile(title: const Text('Bỏ kết quả của em này'), onTap: () => Navigator.pop(ctx, '')),
+          for (final d in ['A', 'B', 'C', 'D']) ListTile(title: Text(tx('Chọn $d', 'chooseX', m: d)), onTap: () => Navigator.pop(ctx, d)),
+          ListTile(title: Text(tx('Bỏ kết quả của em này', 'acRemoveOne')), onTap: () => Navigator.pop(ctx, '')),
         ]),
       ),
     );

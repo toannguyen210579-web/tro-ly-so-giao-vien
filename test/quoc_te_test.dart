@@ -12,6 +12,7 @@ import 'package:tro_ly_so_giao_vien/quoc_te/ngon_ngu.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/quoc_te.dart';
 import 'package:tro_ly_so_giao_vien/quoc_te/trang_chu_qt.dart';
 import 'package:tro_ly_so_giao_vien/screens/anh_the.dart';
+import 'package:tro_ly_so_giao_vien/screens/gio_the.dart';
 import 'package:tro_ly_so_giao_vien/screens/quet_pdf.dart';
 
 final _khoaAnh = GlobalKey();
@@ -87,11 +88,11 @@ void main() {
     expect(LopQT.tach(' An \n\nBình\r\nAn\nChi '), ['An', 'Bình', 'Chi']);
   });
 
-  testWidgets('Trang chủ: 8 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
+  testWidgets('Trang chủ: 9 công cụ, đổi tiếng thì chữ đổi và được nhớ', (t) async {
     await t.binding.setSurfaceSize(const Size(390, 844));
     await t.pumpWidget(_app());
     await t.pumpAndSettle();
-    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'crossword']) {
+    for (final k in ['timer', 'picker', 'groups', 'score', 'attendance', 'scan', 'idPhoto', 'answerCards', 'crossword']) {
       expect(find.text(bangChu['en']![k]!), findsOneWidget, reason: k);
     }
     await _chup(t, '01_trang_chu_en');
@@ -276,6 +277,32 @@ void main() {
     await t.pumpAndSettle();
     expect(find.text('KEYWORD: MAP'), findsOneWidget);
     await _chup(t, '10_choi_o_chu_en');
+  });
+
+  testWidgets('Giơ thẻ: bản quốc tế dùng danh sách lớp chung, chữ theo tiếng đã chọn', (t) async {
+    await t.binding.setSurfaceSize(const Size(390, 844));
+    SharedPreferences.setMockInitialValues({
+      'qt_lop': ['Ana', 'Ben', 'Chloe', 'Diego'],
+    });
+    await t.pumpWidget(_app());
+    await t.pumpAndSettle();
+    await t.ensureVisible(find.byKey(const ValueKey('o_answerCards')));
+    await t.pumpAndSettle();
+    await t.tap(find.byKey(const ValueKey('o_answerCards')));
+    await t.pumpAndSettle();
+    expect(find.text('Answer cards'), findsOneWidget);
+    expect(find.text('Print cards (4 cards, 2 per A4 page)'), findsOneWidget);
+    expect(find.text('Received 0/4'), findsOneWidget);
+    expect(find.textContaining('Thầy cô'), findsNothing);
+    expect(find.textContaining('thẻ'), findsNothing);
+    await _chup(t, '11_gio_the_en');
+
+    laQuocTe = false;
+    SharedPreferences.setMockInitialValues({});
+    await t.pumpWidget(const MaterialApp(home: GioThe()));
+    await t.pumpAndSettle();
+    expect(find.text('Giơ thẻ'), findsOneWidget);
+    expect(find.text('Chụp cả lớp'), findsOneWidget);
   });
 
   testWidgets('Không tràn chữ ở trang chủ với cả 21 thứ tiếng (màn 360×740)', (t) async {
