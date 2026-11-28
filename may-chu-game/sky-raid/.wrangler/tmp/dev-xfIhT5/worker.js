@@ -263,9 +263,13 @@ var Room = class extends DurableObject {
       return new Response(null, { status: 101, webSocket: cli });
     }, "bye");
     if (!this.st) {
-      const inf = await this.lobby().info(code);
-      if (!inf) return bye("nf", 4004);
-      this.st = { code, mode: inf.mode, pub: !!inf.pub, ph: "wait", end: 0, startAt: 0, host: "", sc: {}, round: 0, seed: Math.random() * 1e6 | 0, wave: 0, team: 0 };
+      this.making = this.making || this.lobby().info(code).then((inf) => {
+        if (inf && !this.st) this.st = { code, mode: inf.mode, pub: !!inf.pub, ph: "wait", end: 0, startAt: 0, host: "", sc: {}, round: 0, seed: Math.random() * 1e6 | 0, wave: 0, team: 0 };
+      }).finally(() => {
+        this.making = null;
+      });
+      await this.making;
+      if (!this.st) return bye("nf", 4004);
     }
     const pl = this.players(srv);
     const old = pl.get(pid);

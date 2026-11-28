@@ -170,9 +170,12 @@ export class Room extends DurableObject {
     this.ctx.acceptWebSocket(srv);
     const bye = (t, c) => { this.send(srv, { t }); try { srv.close(c, t); } catch (e) { } return new Response(null, { status: 101, webSocket: cli }); };
     if (!this.st) {
-      const inf = await this.lobby().info(code);
-      if (!inf) return bye('nf', 4004);
-      this.st = { code, mode: inf.mode, pub: !!inf.pub, ph: 'wait', end: 0, startAt: 0, host: '', sc: {}, round: 0, seed: (Math.random() * 1e6) | 0, wave: 0, team: 0 };
+      // two players can arrive at the same moment: ask the lobby only once and let both wait for the same answer
+      this.making = this.making || this.lobby().info(code).then(inf => {
+        if (inf && !this.st) this.st = { code, mode: inf.mode, pub: !!inf.pub, ph: 'wait', end: 0, startAt: 0, host: '', sc: {}, round: 0, seed: (Math.random() * 1e6) | 0, wave: 0, team: 0 };
+      }).finally(() => { this.making = null; });
+      await this.making;
+      if (!this.st) return bye('nf', 4004);
     }
     const pl = this.players(srv);
     const old = pl.get(pid); if (old) { try { old.ws.close(4001, 'replaced'); } catch (e) { } pl.delete(pid); }
